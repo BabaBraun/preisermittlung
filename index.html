@@ -825,7 +825,7 @@
       <h2>⑦b Photovoltaik-Anlage</h2>
       <label class="toggle no-print"><input type="checkbox" id="pv_aktiv" onchange="compute()"> PV-Anlage vorhanden (Barwert als objektspez. Merkmal)</label>
       <div id="pv_body">
-        <p class="hint">Barwert des Solarertrags = Reinertrag × Barwertfaktor (Restnutzungsdauer/Liegenschaftszins). Fließt als Zuschlag in den Substanzpreis (5.3). Werte lt. VB-BIA-Vordruck vorbelegt.</p>
+        <p class="hint">Barwert des Solarertrags = Reinertrag × Barwertfaktor (Restnutzungsdauer/Liegenschaftszins). Fließt als Zuschlag in den Substanzpreis (5.3). Werte als marktübliche Richtwerte vorbelegt.</p>
         <div class="grid four">
           <div class="field"><label>Anlagenleistung <span class="u">kWp</span></label><input id="pv_kwp" type="text" value="0"></div>
           <div class="field"><label>Jährl. Stromertrag <span class="u">kWh/Jahr</span></label><input id="pv_ertrag_kwh" type="text" value="0"></div>
@@ -956,8 +956,8 @@
         <div class="field"><label>Ort <span class="u">(Ausstellungsort)</span></label><input id="ek_ort" value="Beilstein"></div>
         <div class="field"><label>Datum <span class="u">(0 = Stichtag/heute)</span></label><input id="ek_sign_datum" type="date"></div>
         <div class="field"><label>Ersteller / Sachbearbeiter <span class="u">(Name)</span></label><input id="ek_ersteller" placeholder="Vor- und Nachname"></div>
-        <div class="field full"><label>Funktion / Zusatz <span class="u">(optional, z.B. Immobilienberater)</span></label><input id="ek_ersteller_funktion" placeholder="z.B. Immobilienberater der Volksbank Beilstein-Ilsfeld-Abstatt eG"></div>
-        <div class="field full"><label>Kopfzeile Bericht <span class="u">(erscheint klein über dem Titel, z.B. Firma/Institut)</span></label><input id="cfg_kopf" placeholder="z.B. Immobilienservice der Volksbank Beilstein-Ilsfeld-Abstatt eG"></div>
+        <div class="field full"><label>Funktion / Zusatz <span class="u">(optional, z.B. Immobilienberater)</span></label><input id="ek_ersteller_funktion" placeholder="z.B. Immobilienberater"></div>
+        <div class="field full"><label>Kopfzeile Bericht <span class="u">(erscheint klein über dem Titel, z.B. Firma/Institut)</span></label><input id="cfg_kopf" placeholder="z.B. Immobilienservice Ihrer Bank"></div>
       </div>
       <h3>Unterschrift-Scan <span class="u" style="font-weight:400">(optional — wird über die Linie gesetzt)</span></h3>
       <div class="drop no-print" onclick="document.getElementById('file_sig').click()">✒ Unterschrift-Bild hier klicken zum Hinzufügen (PNG mit transparentem Hintergrund ideal)</div>
