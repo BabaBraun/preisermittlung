@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rechnerische Preisermittlung</title>
+<!-- PWA: installierbar auf Handy/Tablet, offline nutzbar.
+     Die Icons sind als data:-URI eingebettet: Damit ergibt schon der Upload
+     dieser einen Datei eine vollwertige, installierbare App. Liegen zusaetzlich
+     manifest.webmanifest und sw.js daneben, kommt der Offline-Betrieb dazu. -->
+<link rel="manifest" id="manifestLink" href="./manifest.webmanifest">
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Preisermittlung">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAI90lEQVR4nO3dX0hTcR/H8Z/bdJvldKuZmZU6SZZKRjUqRprYRSnRRYn9sygM6onahXRhaN0UURdJYVhBmSQoFJJZiv3DC4nCUmkXUpj4LzQzdVr4Nx9Qnp7Qzsn5nfN3dj6vq/KcnXOgd+fnzjm/zUuv1zOA2VLM+pUACAiocAYCEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECCgIAEAQEJAgISBAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECCgIAEAQEJAgISBAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgISBAQkCAgIFExbsTFxZWUlLhwg6Ojow6Ho6+vr7e3t729vba29v3797W1tQ6Hw6nt2Gy27OxsNt/y8vIyMzMZZzgKyOVUKpVhAmNs7dq1ycnJk1VVVlYWFBS8ePFibGxsvo9R8jgawn79+uWGvahUqh07dhQVFdXV1e3atcsNe/RsXnq9nnFDrVaHhISYTKaYmBir1bpp0yYfHx+R9auqqkpLS//8iUKh0Gq1RqMxLCzMYrEEBgaK77GysjIjI6OtrU1kHaVSGRwcbDabY2NjrVarxWIRPyr2twObcpAKhcLHx0etVut0uoCAgODg4A0bNvj7+0tuCOMroCn0ev3Zs2ePHDkitEJubm5WVpbIFiwWy8mTJycHLyE9PT0HDhx4/fr1DI/KYDCkpaVlZGT4+vrO+sCmUyqVqamp586dW7x4sYQC4mgIm66npycjI+PVq1ez3sLbt2/T0tJ2797d2toqtI5er3/48OHmzZtnuM3v37/n5OQkJCT8+PGDuc7Y2FhhYWFCQkJDQwOTDq4DmvTo0SPiFl6+fJmUlCTSkEajuX//fkhIyMy3+fHjx9u3bzNXa2tr27lzZ1NTE5MICQTU2Njoqn+Y/v5+oRUCAgKuX7/u1Darq6vZHPj27duePXv6+vqYFEggIGcv2whpbm6+fPmyyApxcXGJiYkz32B3dzebG58/fz59+jSTAgkE5EK3bt368uWLyArHjh2b+dbG5vIyUmlpaXFxMeOevAIaGRkR/40qPj7ez8+P8SE7O5v/gUxeAU3+zxZZqlKpLBYL40NXV1deXh7jm+wCqq+vF7/kvWrVKsaNmzdvDg0NMY7JLqDBwUHxN8mT98440dvb+/z5c8YxT76ZKqSlpcVkMgkt1Wg0jCcHDx5kHJPdGeif1wUGBgbceCySJ8eAfv786YbLTjIhx4DE36i75MK3s9LT079PePz4MZMUOQa0dOlSkaXzci8zKiqKSZMcA4qMjBRa1NTU1NLSwtxuy5YtTJpkF5DZbF64cKHQ0oqKCuZ2kZGRoaGhTJpkF5D4Y6z5+fnM7Q4dOsQkS14BqdXqvXv3Ci2tqKj49OmTe4+IBQYG7t+/n0mWvAI6deqU0FNjw8PDzj6ESqdUKq9evcrP7dtZkFFAZrPZZrMJLb148aKb38DrdLo7d+5s376dSZlcbmWEhYUVFRVptdq/Ln369KmzjyPOgmJiJobBYAgPD7darenp6TzPaJghWQS0bdu23NxcodkOVVVVR48eHR8fd+Ee/zOByYCHD2ExMTEFBQXFxcVC9RQXF6empnL+yATPPOoMpFartVptUFBQeHj4+vXrt27dumbNGqGVBwYGsrKy7t27595j9DTSDmh2I8X4+HhJScn58+fFJ6RSVP1tZqpCodBoNEajMSIiYuPGjVw9eCTTgJw1NDRUUlJy48YNu90+pzuy2+13794VWcHb2zslJeXChQs6nY5JmSwC6ujoqK6ufvbsWXl5ucjUMHcaGRkpLCx89+5dWVmZpE9F0g7IbrfX1NRM+eHo6Ojw8LDD4ejo6Ghubm5oaOjs7GRcamhosNlsBQUFTLKkHVBVVZX7Lx+7VllZWV1dXWxsLJMmD38bLwn583EH11UQ0Px78uSJez5cay4goPnX3d1dX1/PpAkBceHNmzdMmhAQFz65/TkkV5H2uzCPcXcCkyCcgYAEAUlJVFTU5PQxfoY8BCQlB/83T763t5fxAQFJhr+//759+yb/zM8HTyEgyUhPT/89ow0BgXP8/PyOHz/++68YwsA5J06c+PMJfATk4RQKV/5uYDQapzx4iSHMw6nVahduLTMzc8p8fpyBPNyiRYtctal169ZN/5Q7BOSEBQsWCC0SmijoHr7C39azcuVKl+xCrVZfu3Zt+oCIgJwg8tEnK1asYPMnPDxcaFF0dHRQUBB9F5cuXTKbzdN/jt+BnJCSkiK0yGq1Go1GNh+8vLxEPuhDpVKdOXOGuAubzSb0yS8IaEaUSmVmZmZ8fLzQChqNJj8/f9myZcy9tFrtlStXrFaryDqHDx/Oycn551cmTqfT6ZKTkx88eCDyTb/8DGF8fWPh5LzSoKCg5cuXm83mpKSkiIiIf75qcHCwvLy8pqamsbGxvb3969evDofDhbOVFQqFwWCYPKrQ0NDVq1cnJiYuWbJkJq8dHR398OGD3W7v7OwcGBgYGhoaGRn5cx6+l5eXt7e3VqvV6/Umkyk6Onom47LJZOrp6WEc4Cugrq4upVLpkk25cLIVJ1/7/dv4+HhgYCAnXzmNe2HS09/fz0k9HnUGCkk+y6SjrezCrF/b2toq8qERsn6klfKWynfz/+818s8g5enMf8IQBh40hIHk4AwEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECCgIAEAQEJAgISBAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECCgIAEAQEJAgISBAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgISBAQkCAgIEFAQIKAgAQBAQkCAhIEBCQICEgQEJAgICBBQECi8t18nLYFkDWcgYAEAQEJAgISBAQkCAhIEBCQICAgQUBAgoCABAEBCQICEgQEJAgIGMV/AUPsgphb8G0qAAAAAElFTkSuQmCC">
+<style>
+  :root{
+    --blue:#232323;      /* Ink: Überschriften/Emphasis */
+    --blue-d:#111111;    /* nahezu Schwarz (Kopf) */
+    --blue-l:#efedea;    /* helles Warmgrau (Tabellenkopf/Subtotal) */
+    --accent:#1b4b7a;    /* Blau – einziger Akzent */
+    --accent-d:#123551;
+    --line:#c7c4bf;      /* graue Linien */
+    --bg:#eceae7;        /* Seitenhintergrund */
+    --card:#ffffff;
+    --muted:#6a6a6a;
+    --ek:#232323;
+    --serif:Georgia,"Times New Roman",Cambria,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:#1c1c1c;font-size:14px;line-height:1.45}
+  header.app{background:var(--blue-d);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50;border-bottom:3px solid var(--accent)}
+  header.app .logo{width:38px;height:38px;background:transparent;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:18px;font-family:var(--serif)}
+  header.app h1{font-size:16px;margin:0;font-weight:600}
+  header.app h1 small{display:block;font-weight:400;opacity:.8;font-size:12px}
+  header.app .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  button{font:inherit;cursor:pointer;border:none;border-radius:6px;padding:8px 14px;background:#fff;color:var(--blue);font-weight:600}
+  button.primary{background:var(--accent);color:#fff}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff}
+  button.plus{background:var(--blue-l);color:var(--blue);border:1px dashed var(--accent);padding:5px 12px;font-size:12.5px;margin-top:8px}
+  .wrap{display:flex;max-width:1420px;margin:0 auto;gap:20px;padding:20px}
+  nav.side{width:210px;flex:0 0 210px;position:sticky;top:76px;align-self:flex-start;background:var(--card);border-radius:10px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  nav.side a{display:block;padding:8px 12px;color:#26374a;text-decoration:none;border-radius:6px;font-weight:500;font-size:13px}
+  nav.side a:hover{background:var(--blue-l)}
+  main{flex:1;min-width:0}
+  aside.result{width:300px;flex:0 0 300px;position:sticky;top:76px;align-self:flex-start}
+  .card{background:var(--card);border-radius:10px;padding:20px 22px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .card h2{margin:0 0 4px;color:var(--blue);font-size:17px;border-bottom:2px solid var(--accent);padding-bottom:8px}
+  .card h3{color:var(--blue);margin:18px 0 4px;font-size:14px}
+  .card .hint{color:var(--muted);font-size:12px;margin:4px 0 14px}
+  .card.eck{border:1px solid var(--blue-d);border-top:3px solid var(--accent);background:#fff}
+  .card.eck h2{color:var(--ek);border-bottom-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+  .grid.three{grid-template-columns:1fr 1fr 1fr}
+  .grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
+  .field{display:flex;flex-direction:column;gap:3px}
+  .field.full{grid-column:1/-1}
+  .group-title{grid-column:1/-1;font-weight:700;color:var(--ek);margin:8px 0 -2px;font-size:13px;border-top:1px dashed var(--line);padding-top:10px}
+  .group-title:first-child{border-top:none;padding-top:0}
+  label{font-size:12px;color:var(--muted);font-weight:600}
+  label .u{font-weight:400;opacity:.75}
+  input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fbfcfd;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+  .eck input,.eck select{border-color:#b9cfe2;background:#fff}
+  textarea{min-height:56px;resize:vertical}
+  .echo{display:inline-block;background:var(--blue-l);border-radius:4px;padding:1px 8px;font-weight:700;color:var(--blue)}
+  .row-calc{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .row-calc b{color:var(--blue)}
+  .row-calc .from{font-size:11px;color:var(--muted);font-weight:400}
+  .subtotal{background:var(--blue-l);border-radius:6px;padding:9px 12px;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;color:var(--blue)}
+  table.nhk{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+  table.nhk th,table.nhk td{border:1px solid var(--line);padding:5px 7px;text-align:center}
+  table.nhk th{background:var(--blue-l);color:var(--blue);font-weight:600}
+  table.nhk td:first-child,table.nhk th:first-child{text-align:left}
+  table.nhk input{padding:5px;text-align:center}
+  table.nhk tfoot .total th{background:var(--blue);color:#fff}
+  table.ref{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+  table.ref th,table.ref td{border:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
+  table.ref th{background:var(--blue-l);color:var(--blue)}
+  details.info{margin:10px 0;font-size:12.5px}
+  details.info summary{cursor:pointer;color:var(--accent);font-weight:600;padding:6px 0}
+  .xrow{display:none;grid-template-columns:2fr 1fr;gap:10px;margin-top:8px}
+  .xrow.on{display:grid}
+  .xrow3{display:none;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:10px;margin-top:8px}
+  .xrow3.on{display:grid}
+  .result .box{background:var(--blue-d);color:#fff;padding:18px;border-top:3px solid var(--accent)}
+  .result .box h3{margin:0 0 8px;font-size:13px;opacity:.85;font-weight:500;letter-spacing:.5px}
+  .result .big{font-size:30px;font-weight:700;line-height:1.1}
+  .result .box .sub{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-top:1px solid rgba(255,255,255,.16)}
+  .result .box .sub:first-of-type{margin-top:12px}
+  .flag{background:#fff6e8;border-left:3px solid #d98a1f;padding:8px 12px;font-size:12px;border-radius:0 6px 6px 0;margin-top:10px;color:#6b4a10}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .toggle{display:flex;gap:8px;align-items:center;margin-bottom:10px;cursor:pointer;font-weight:600;color:var(--blue)}
+  .toggle input{width:auto}
+  body.modus-wohnung .haus-only{display:none!important}
+  body:not(.modus-wohnung) .wohnung-only{display:none!important}
+  /* Startbildschirm */
+  #startscreen{position:fixed;inset:0;background:linear-gradient(160deg,#eef4fa,#d6e4f1);z-index:200;overflow:auto;padding:44px 20px}
+  body.started #startscreen{display:none}
+  .start-inner{max-width:940px;margin:0 auto}
+  .start-inner .brand{display:flex;align-items:center;gap:12px;color:var(--blue);margin-bottom:6px}
+  .start-inner .brand .logo{width:40px;height:40px;border-radius:9px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+  .start-inner h1{font-size:24px;margin:0;color:var(--blue-d)}
+  .start-inner .lead{color:var(--muted);margin:4px 0 26px}
+  .step-label{font-weight:700;color:var(--ek);margin:0 0 12px;font-size:14px;display:flex;align-items:center;gap:8px}
+  .step-label .num{background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+  .big-choice{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:660px}
+  .tile{background:#fff;border:2px solid var(--line);border-radius:12px;padding:20px 18px;cursor:pointer;text-align:center;transition:.15s;user-select:none}
+  .tile:hover{border-color:var(--accent);box-shadow:0 6px 18px rgba(47,127,192,.22);transform:translateY(-2px)}
+  .big-choice .tile{padding:42px 20px}
+  .tile .ic{font-size:32px;line-height:1}
+  .big-choice .tile .ic{font-size:56px}
+  .tile .t{font-weight:600;color:var(--blue);margin-top:10px;font-size:15px}
+  .tile .d{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.35}
+  .group-head{grid-column:1/-1;font-weight:700;color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 -4px}
+  .group-head:first-child{margin-top:0}
+  .back-btn{background:transparent;border:1px solid var(--line);color:var(--blue);margin-bottom:18px}
+  @media(max-width:1100px){.wrap{flex-wrap:wrap}aside.result{width:100%;flex:1 1 100%;position:static}nav.side{display:none}.two-col{grid-template-columns:1fr}}
+  /* ---- Handy / Tablet ---- */
+  @media(max-width:820px){
+    header.app{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));gap:10px;flex-wrap:wrap}
+    header.app h1{font-size:14px}
+    header.app h1 small{font-size:11px}
+    header.app .logo{width:32px;height:32px;font-size:15px}
+    header.app .actions{width:100%;margin-left:0;gap:6px}
+    header.app .actions button{padding:7px 9px;font-size:12px;flex:1 1 auto;min-width:0}
+    .wrap{padding:12px;gap:12px}
+    .card{padding:16px 14px;margin-bottom:14px}
+    .card h2{font-size:16px}
+    .grid,.grid.three,.grid.four{grid-template-columns:1fr;gap:10px}
+    .xrow,.xrow3{grid-template-columns:1fr!important}
+    /* breite Tabellen horizontal scrollbar statt Layout sprengen */
+    table.nhk,table.ref{display:block;overflow-x:auto;white-space:nowrap}
+    .gallery{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+    .big-choice{grid-template-columns:1fr!important;gap:12px}
+    .big-choice .tile{padding:24px 16px}
+    .big-choice .tile .ic{font-size:40px}
+    #startscreen{padding:24px 14px;padding-top:calc(24px + env(safe-area-inset-top))}
+    .start-inner h1{font-size:20px}
+    .modal{padding:18px 14px}
+    .result .big{font-size:26px}
+    body.report-mode #report{padding:16px 14px}
+  }
+  #installBtn{display:none}
+  #report{display:none}
+  @media print{
+    body{background:#fff}
+    header.app,nav.side,aside.result,.no-print{display:none!important}
+    .wrap{display:block;padding:0;max-width:none}
+    body.report-mode main{display:none}
+    body.report-mode #report{display:block}
+    @page{margin:16mm 14mm}
+  }
+  body.report-mode .wrap,body.report-mode header.app{display:none}
+  body.report-mode #report{display:block;background:#fff;max-width:900px;margin:0 auto;padding:30px}
+  #report h1{color:var(--blue);border-bottom:3px solid var(--accent);padding-bottom:8px}
+  #report h2{color:var(--blue);font-size:15px;margin-top:22px;border-bottom:1px solid var(--line);padding-bottom:4px}
+  #report table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  #report table td{padding:5px 8px;border-bottom:1px solid var(--line)}
+  #report table td:last-child{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  #report .total td{font-weight:700;color:var(--blue);border-top:2px solid var(--blue)}
+  #report .disc{font-size:11px;color:#555;margin-top:20px;line-height:1.5}
+  #report .beschr{white-space:pre-wrap;margin:2px 0 10px;font-size:12.5px;line-height:1.5}
+  #report h3{color:var(--blue);font-size:13px;margin:12px 0 2px}
+  /* Foto-Modul */
+  .drop{border:2px dashed var(--accent);border-radius:10px;padding:16px;text-align:center;color:var(--muted);background:var(--blue-l);cursor:pointer;font-size:13px}
+  .drop:hover{background:#e0ecf7}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
+  .photo{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;position:relative}
+  .photo img{width:100%;height:110px;object-fit:cover;display:block}
+  .photo input{border:none;border-top:1px solid var(--line);padding:5px 7px;font-size:12px;width:100%;border-radius:0}
+  .photo .del{position:absolute;top:4px;right:4px;background:rgba(200,40,40,.92);color:#fff;border-radius:5px;width:24px;height:24px;font-size:14px;line-height:1;padding:0;cursor:pointer}
+  #report .fotos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+  #report .fotos figure{margin:0;break-inside:avoid}
+  #report .fotos img{width:100%;border-radius:6px;border:1px solid var(--line)}
+  #report .fotos figcaption{font-size:11px;color:#555;margin-top:3px}
+  /* ===== Klassisch-elegant · Schwarz-Weiß + Bordeaux · kantig ===== */
+  *{border-radius:0!important}
+  h1,h2,h3,header.app h1,.card h2,.card h3,.start-inner h1,#report h1,#report h2,#report h3{font-family:var(--serif);font-weight:600;letter-spacing:.2px}
+  .card{box-shadow:none;border:1px solid var(--line);padding:22px 24px}
+  .card h2{font-size:18px;letter-spacing:.3px}
+  nav.side{box-shadow:none;border:1px solid var(--line)}
+  nav.side a{color:#333;font-weight:500}
+  nav.side a:hover{background:#f1efec}
+  .result .box{box-shadow:none}
+  .tile{border:1px solid var(--line);transition:.12s}
+  .tile:hover{box-shadow:none;transform:none;border-color:var(--accent);background:#f4f8fc}
+  .tile .t{font-family:var(--serif)}
+  .start-inner .brand .logo{background:var(--blue-d);border:none;font-family:var(--serif)}
+  .step-label .num{background:var(--accent)}
+  #startscreen{background:#eceae7}
+  .drop{border:1px dashed var(--accent);background:var(--blue-l);color:#555}
+  .drop:hover{background:#e7e4df}
+  .photo .del{background:var(--accent)}
+  .flag{background:#eef3f8;border-left:3px solid var(--accent);color:#2b3a49}
+  .subtotal{border:1px solid var(--line)}
+  .echo{background:var(--blue-l);color:var(--blue)}
+  table.nhk tfoot .total th{background:var(--blue-d)}
+  /* Bericht: Dokument-Charakter */
+  #report{color:#1c1c1c}
+  #report h1{font-size:22px;border-bottom:2px solid var(--blue-d);letter-spacing:.5px}
+  #report h2{color:var(--blue);border-bottom:1px solid var(--line)}
+  #report h3{color:var(--accent)}
+  #report .total td{color:var(--accent);border-top:2px solid var(--accent)}
+  /* Unterschriftsblock */
+  .signblock{margin-top:36px;display:flex;gap:48px;align-items:flex-end}
+  .signblock .sigcol{flex:1}
+  .sig-place{font-size:12.5px;margin:0 0 2px}
+  .sig-img{max-height:70px;max-width:240px;display:block;margin-bottom:-6px}
+  .sig-line{border-top:1px solid #333;margin-top:46px;padding-top:5px;font-size:12px;color:#333}
+  .sig-line.hasimg{margin-top:6px}
+  #sig_preview img{max-height:80px;max-width:260px;border:1px solid var(--line);background:#fff;padding:4px}
+  /* Aufnahmebogen */
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px;padding:3px 0;cursor:pointer}
+  .chk input{width:auto;margin:0}
+  /* Deckblatt / TOC / Diagramm im Bericht */
+  #report .cover{text-align:center;padding:10px 0 24px}
+  #report .cover .kopf{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+  #report .cover h1{font-size:30px;border:none;margin:22px 0 4px}
+  #report .cover .sub{font-family:var(--serif);font-size:16px;color:#444;margin-bottom:22px}
+  #report .cover .titelbild{max-width:100%;max-height:300px;border:1px solid var(--line);margin:0 auto 22px;display:block}
+  #report .cover table{max-width:520px;margin:0 auto;text-align:left}
+  #report .cover table td:last-child{text-align:right}
+  #report .cover .ergebnis{margin:26px auto 0;max-width:520px;border:2px solid var(--accent);padding:14px}
+  #report .cover .ergebnis .lbl{font-size:11px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+  #report .cover .ergebnis .val{font-family:var(--serif);font-size:30px;color:var(--accent);font-weight:700}
+  #report .pagebreak{page-break-after:always;break-after:page}
+  #report .toc{max-width:560px}
+  #report .toc div{padding:4px 0;border-bottom:1px dotted var(--line);font-size:13px}
+  #report .chart{margin:10px 0 4px}
+  #report .chart .bar{display:flex;height:26px;border:1px solid var(--line);overflow:hidden}
+  #report .chart .bar span{display:block;height:100%}
+  #report .chart .b1{background:var(--accent)}
+  #report .chart .b2{background:#9bb4cc}
+  #report .chart .b3{background:#d6dee6}
+  #report .chart .legend{display:flex;gap:18px;font-size:11.5px;margin-top:6px;flex-wrap:wrap}
+  #report .chart .legend i{display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px}
+  /* Projekt-Overlay */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(17,17,17,.55);z-index:300;padding:40px 20px;overflow:auto}
+  .overlay.on{display:block}
+  .modal{background:#fff;max-width:820px;margin:0 auto;padding:26px 28px;border-top:3px solid var(--accent)}
+  .modal button{border:1px solid var(--line);padding:5px 10px;font-size:12.5px;margin-left:4px}
+  .modal button.primary{border-color:var(--accent)}
+  /* Nur den Aufnahmebogen drucken */
+  @media print{
+    body.print-aufnahme .wrap>*:not(main){display:none!important}
+    body.print-aufnahme main>section:not(#s-aufnahme){display:none!important}
+    body.print-aufnahme #s-aufnahme{border:none;padding:0}
+    body.print-aufnahme #report{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="startscreen">
+  <div class="start-inner">
+    <div class="brand"><div class="logo">🏠</div><div><h1>Rechnerische Preisermittlung</h1></div></div>
+    <p class="lead">Wähle zunächst die Art des Vordrucks – anschließend öffnet sich das passende Formular.</p>
+    <div id="start-step1">
+      <p class="step-label"><span class="num">1</span> Was möchtest du bewerten?</p>
+      <div class="big-choice" style="grid-template-columns:repeat(3,1fr);max-width:820px">
+        <div class="tile" onclick="pickKategorie('wohnung')"><div class="ic">🏢</div><div class="t">Eigentumswohnung</div><div class="d">Vergleichs- + Ertragswert</div></div>
+        <div class="tile" onclick="pickKategorie('wohnhaus')"><div class="ic">🏠</div><div class="t">Wohnhaus</div><div class="d">Substanz (NHK) + Ertrag</div></div>
+        <div class="tile" onclick="pickKategorie('gewerbe')"><div class="ic">🏬</div><div class="t">Gewerbe</div><div class="d">Laden · Büro · Betrieb</div></div>
+      </div>
+    </div>
+    <div id="start-step2" style="display:none">
+      <button class="back-btn" onclick="startBack()">◀ zurück</button>
+      <p class="step-label"><span class="num">2</span> <span id="start-step2-title">Objekttyp wählen</span></p>
+      <div class="tiles" id="start-tiles"></div>
+    </div>
+  </div>
+</div>
+<header class="app">
+  <div class="logo">🏠</div>
+  <h1>Rechnerische Preisermittlung<small id="hdr_sub">Immobilien-Preisermittlung · Vordruck</small></h1>
+  <div class="actions">
+    <button class="ghost" onclick="showStart()">◀ Vordruck</button>
+    <button class="ghost" id="installBtn" onclick="appInstallieren()">📲 Installieren</button>
+    <button class="ghost" onclick="oeffneProjekte()">📁 Projekte</button>
+    <button class="ghost" onclick="save()">💾 Datei</button>
+    <button class="ghost" onclick="loadFile()">📂 Öffnen</button>
+    <button class="ghost" onclick="neu()">🗎 Neu</button>
+    <button class="ghost" onclick="exportWord()">📝 Word</button>
+    <button class="ghost" onclick="exportExcel()">📊 Excel</button>
+    <button class="ghost" onclick="druckbericht();setTimeout(downloadPDF,150)">⬇ PDF</button>
+    <button class="primary" onclick="druckbericht()">🖨 Bericht</button>
+  </div>
+</header>
+
+<!-- PROJEKT-BIBLIOTHEK -->
+<div id="projekt_overlay" class="overlay" onclick="if(event.target===this)schliesseProjekte()">
+  <div class="modal">
+    <h2 style="margin-top:0">📁 Projekte</h2>
+    <p class="hint">Mehrere Wertermittlungen im Browser verwalten. „Sichern" legt den aktuellen Stand als neues Projekt ab bzw. aktualisiert das geladene.</p>
+    <div class="grid" style="margin-bottom:12px">
+      <div class="field"><label>Projektname</label><input id="pj_name" placeholder="z.B. Musterstraße 5, Ilsfeld"></div>
+      <div class="field" style="justify-content:flex-end"><button class="primary" onclick="projektSichern()">💾 Aktuellen Stand sichern</button></div>
+    </div>
+    <table class="nhk" id="pj_tbl">
+      <thead><tr><th style="width:44%">Projekt</th><th>Objekt</th><th>Zuletzt</th><th>Aktionen</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="text-align:right;margin-top:14px"><button onclick="schliesseProjekte()">Schließen</button></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="side" id="nav"></nav>
+
+  <main>
+    <!-- ECKDATEN -->
+    <section class="card eck" id="s-eck" data-nav="① Eckdaten">
+      <h2>① Eckdaten des Objekts</h2>
+      <p class="hint">Alle objektspezifischen Pflichtangaben werden hier <b>einmal</b> eingetragen und fließen automatisch in alle Berechnungen.</p>
+      <div class="grid">
+        <div class="group-title">Vordruck &amp; Objekt</div>
+        <div class="field"><label>Vordruck-Art <span class="u">(bestimmt Formular &amp; Verfahren)</span></label>
+          <select id="ek_modus" onchange="modusWechsel()">
+            <option value="haus">🏠 Haus / Gebäude (Substanz- + Ertragswert)</option>
+            <option value="wohnung">🏢 Wohnung / ETW (Vergleichs- + Ertragswert)</option>
+          </select></div>
+        <div class="field haus-only"><label>Gebäudetyp <span class="u">(bestimmt NHK-Werte &amp; GND lt. ImmoWertV)</span></label>
+          <select id="ek_typ" onchange="typWechsel()"></select></div>
+        <input id="ek_vordruck" type="hidden" value="">
+        <div class="field wohnung-only"><label>Wohnungstyp</label>
+          <select id="ek_wtyp"><option>Etagenwohnung</option><option>Erdgeschosswohnung</option><option>Dachgeschosswohnung</option><option>Maisonette</option><option>Penthouse</option><option>Apartment</option></select></div>
+        <div class="field"><label>Auftraggeber(in)</label><input id="ek_ag"></div>
+        <div class="field full"><label>Objektanschrift</label><input id="ek_anschrift" placeholder="Straße Nr., PLZ Ort"></div>
+        <div class="field"><label>Nutzung / Beschreibung</label><input id="ek_nutzung" placeholder="z.B. EG/UG Gewerbe, OG Wohnen"></div>
+        <div class="field"><label>Verwendungszweck</label><input id="ek_zweck" value="evtl. Verkauf"></div>
+        <div class="field"><label>Ortsbesichtigung</label><input id="ek_besichtigung" type="date"></div>
+        <div class="field"><label>Wertermittlungsstichtag</label><input id="ek_stichtag" type="date"></div>
+
+        <div class="group-title haus-only">Grundstück</div>
+        <div class="field haus-only"><label>Grundstücksfläche <span class="u">m²</span></label><input id="ek_gs_flaeche" type="text" value="0"></div>
+        <div class="field haus-only"><label>Bodenrichtwert <span class="u">€/m² (BORIS-BW)</span></label><input id="ek_brw" type="text" value="0"></div>
+        <div class="field haus-only"><label>Abschlag Bodenwert <span class="u">%</span></label><input id="ek_gs_abschlag" type="text" value="0"></div>
+        <div class="field haus-only"><label>Flurstück-Nr. / Zone</label><input id="ek_flst" placeholder="Flst. / Zone"></div>
+        <div class="group-title wohnung-only">Wohnung / Gemeinschaft</div>
+        <div class="field wohnung-only"><label>Miteigentumsanteil <span class="u">z.B. 78/1000</span></label><input id="ek_mea"></div>
+        <div class="field wohnung-only"><label>Etage / Lage im Haus</label><input id="ek_etage" placeholder="z.B. 2. OG mit Balkon"></div>
+        <div class="field wohnung-only"><label>Hausgeld <span class="u">€/Monat gesamt</span></label><input id="ek_hausgeld" type="text" value="0"></div>
+        <div class="field wohnung-only"><label>davon nicht umlagefähig <span class="u">€/Monat (Verwaltung, Rücklage)</span></label><input id="ek_hausgeld_nu" type="text" value="0"></div>
+      </div>
+      <!-- weitere Grundstücksanteile -->
+      <div class="xrow3 haus-only" id="xgs_1">
+        <div class="field"><label>Bezeichnung Anteil II</label><input id="xgs1_label" placeholder="z.B. Gartenland"></div>
+        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs1_flaeche" type="text" value="0"></div>
+        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs1_brw" type="text" value="0"></div>
+        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs1_abschlag" type="text" value="0"></div>
+      </div>
+      <div class="xrow3 haus-only" id="xgs_2">
+        <div class="field"><label>Bezeichnung Anteil III</label><input id="xgs2_label" placeholder="z.B. Wegefläche"></div>
+        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs2_flaeche" type="text" value="0"></div>
+        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs2_brw" type="text" value="0"></div>
+        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs2_abschlag" type="text" value="0"></div>
+      </div>
+      <button class="plus no-print haus-only" onclick="showNext('xgs',2)">＋ weiterer Grundstücksanteil</button>
+
+      <div class="grid" style="margin-top:14px">
+        <div class="group-title">Flächen &amp; Baujahr</div>
+        <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"></div>
+        <div class="field"><label>Gewerbe-/Nutzfläche <span class="u">m²</span></label><input id="ek_nutzflaeche" type="text" value="0"></div>
+        <div class="field"><label>Baujahr Hauptgebäude</label><input id="ek_baujahr" type="text" value="0"></div>
+        <div class="field"><label>Letzte Sanierung <span class="u">(Jahr, optional)</span></label><input id="ek_sanierung" type="text" placeholder="z.B. 2018"></div>
+        <div class="field"><label>Anzahl Wohneinheiten <span class="u">(WE)</span></label><input id="ek_anz_we" type="text" value="1"></div>
+        <div class="field"><label>Anzahl Stellplätze <span class="u">(Außen/Garage)</span></label><input id="ek_anz_stell" type="text" value="0"></div>
+
+        <div class="group-title">Erträge (Netto-Kaltmiete je Jahr)</div>
+        <div class="field"><label>Miete Wohnen <span class="u">€/Jahr</span></label><input id="ek_miete_wohnen" type="text" value="0"></div>
+        <div class="field"><label>Miete Gewerbe <span class="u">€/Jahr</span></label><input id="ek_miete_gewerbe" type="text" value="0"></div>
+        <div class="field"><label>Außenstellplätze <span class="u">€/Jahr</span></label><input id="ek_miete_stellplatz" type="text" value="0"></div>
+        <div class="field"><label>Grundsteuer <span class="u">€/Jahr</span></label><input id="ek_grundsteuer" type="text" value="0"></div>
+      </div>
+      <div class="flag" id="miete_plausi"></div>
+    </section>
+
+    <!-- AUFNAHMEBOGEN -->
+    <section class="card" id="s-aufnahme" data-nav="①b Aufnahmebogen">
+      <h2>①b Aufnahmebogen · Ortsbesichtigung</h2>
+      <p class="hint">Checkliste für den Ortstermin — am Handy/Tablet direkt ausfüllbar. Die Angaben erscheinen im Bericht unter „Feststellungen der Ortsbesichtigung".
+        <button class="plus no-print" style="margin-left:8px" onclick="druckeAufnahmebogen()">🖨 Leer ausdrucken (zum Mitnehmen)</button></p>
+
+      <div class="grid three">
+        <div class="group-title">Termin</div>
+        <div class="field"><label>Besichtigung am</label><input id="au_datum" type="date"></div>
+        <div class="field"><label>Uhrzeit / Wetter</label><input id="au_wetter" placeholder="z.B. 14:00, bewölkt"></div>
+        <div class="field"><label>Anwesend</label><input id="au_anwesend" placeholder="z.B. Eigentümer, Makler"></div>
+      </div>
+
+      <h3>Räume &amp; Flächen</h3>
+      <div class="grid four">
+        <div class="field"><label>Anzahl Zimmer</label><input id="au_zimmer" type="text" value=""></div>
+        <div class="field"><label>Bäder / Duschbäder</label><input id="au_baeder" type="text" value=""></div>
+        <div class="field"><label>Gäste-WC</label><select id="au_gaeste_wc"><option>–</option><option>ja</option><option>nein</option></select></div>
+        <div class="field"><label>Tageslichtbad</label><select id="au_tageslichtbad"><option>–</option><option>ja</option><option>nein</option></select></div>
+        <div class="field"><label>Küche</label><select id="au_kueche"><option>–</option><option>EBK vorhanden (verbleibt)</option><option>EBK vorhanden (wird entfernt)</option><option>keine EBK</option></select></div>
+        <div class="field"><label>Keller</label><select id="au_keller"><option>–</option><option>voll unterkellert</option><option>teilunterkellert</option><option>nicht unterkellert</option></select></div>
+        <div class="field"><label>Dachgeschoss</label><select id="au_dg"><option>–</option><option>ausgebaut</option><option>ausbaufähig</option><option>nicht ausgebaut</option><option>Flachdach</option></select></div>
+        <div class="field"><label>Balkon / Terrasse</label><input id="au_balkon" placeholder="z.B. Balkon Süd 8 m²"></div>
+      </div>
+
+      <h3>Technik &amp; Ausstattung</h3>
+      <div class="grid four">
+        <div class="field"><label>Heizungsart</label><input id="au_heizung_art" placeholder="z.B. Gas-Brennwert"></div>
+        <div class="field"><label>Heizung Baujahr / Fabrikat</label><input id="au_heizung_bj" placeholder="z.B. 2018, Vaillant"></div>
+        <div class="field"><label>Warmwasser</label><select id="au_ww"><option>–</option><option>zentral über Heizung</option><option>dezentral (Durchlauferhitzer)</option><option>Solarthermie</option></select></div>
+        <div class="field"><label>Fenster</label><input id="au_fenster" placeholder="z.B. Kunststoff, 2-fach, 2005"></div>
+        <div class="field"><label>Dämmung Fassade</label><select id="au_daemm_fassade"><option>–</option><option>keine</option><option>teilweise</option><option>vorhanden (WDVS)</option><option>Kerndämmung</option></select></div>
+        <div class="field"><label>Dämmung Dach / oberste Decke</label><select id="au_daemm_dach"><option>–</option><option>keine</option><option>teilweise</option><option>vorhanden</option></select></div>
+        <div class="field"><label>Elektro</label><select id="au_elektro"><option>–</option><option>zeitgemäß</option><option>teilerneuert</option><option>veraltet</option></select></div>
+        <div class="field"><label>Energieausweis</label><select id="au_energieausweis"><option>–</option><option>Verbrauchsausweis liegt vor</option><option>Bedarfsausweis liegt vor</option><option>liegt nicht vor</option></select></div>
+        <div class="field"><label>Energiekennwert <span class="u">kWh/(m²·a)</span></label><input id="au_energiewert" type="text" value=""></div>
+        <div class="field"><label>Energieeffizienzklasse</label><select id="au_energieklasse"><option>–</option><option>A+</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+        <div class="field"><label>Aufzug</label><select id="au_aufzug"><option>–</option><option>nein</option><option>ja</option></select></div>
+        <div class="field"><label>Barrierefreiheit</label><select id="au_barriere"><option>–</option><option>nicht gegeben</option><option>teilweise</option><option>weitgehend</option></select></div>
+      </div>
+
+      <h3>Besondere Bauteile <span class="u" style="font-weight:400">(anhaken, was vorhanden ist)</span></h3>
+      <div id="au_bauteile" class="grid four"></div>
+
+      <h3>Unterlagen <span class="u" style="font-weight:400">(anhaken, was vorliegt)</span></h3>
+      <div id="au_unterlagen" class="grid four"></div>
+      <div class="flag" id="o_unterlagen_fehlt"></div>
+
+      <h3>Feststellungen vor Ort</h3>
+      <div class="grid">
+        <div class="field full"><label>Mängel / Auffälligkeiten <span class="u">(Stichworte — Details in ④)</span></label><textarea id="au_maengel" placeholder="z.B. Feuchtefleck Kellerwand Nordseite; Dachrinne undicht"></textarea></div>
+        <div class="field full"><label>Sonstige Notizen</label><textarea id="au_notizen"></textarea></div>
+      </div>
+    </section>
+
+    <!-- HAUPTGEBÄUDE -->
+    <section class="card haus-only" id="s-hg" data-nav="② Hauptgebäude">
+      <h2>② Hauptgebäude</h2>
+      <p class="hint">Baujahr <span class="echo" id="e_baujahr">0</span> (aus Eckdaten). BGF über Geschosse; Gebäudepreis €/m² über NHK-Verfahren.</p>
+      <div class="grid">
+        <div class="field"><label>Bauweise</label><input id="hg_bauweise" placeholder="massiv / Satteldach ..."></div>
+        <div class="field"><label>Unterkellerung</label><select id="hg_keller"><option>ja</option><option>teilweise</option><option>nein</option></select></div>
+      </div>
+
+      <h3>2.1 · Bruttogrundfläche (BGF)</h3>
+      <p class="hint">Länge × Breite je Geschoss (Außenmaße), Erker/Anbauten separat als Fläche. Leere Zeilen für weitere Geschosse frei beschriftbar.</p>
+      <table class="nhk" id="bgf_hg_tbl">
+        <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Hauptgebäude</th><th id="o_bgf_hg">0</th></tr></tfoot>
+      </table>
+
+      <h3>2.2 · Restnutzungsdauer (Modernisierungspunkte, ImmoWertV Anlage 2)</h3>
+      <p class="hint">Punkte je durchgeführter Modernisierung vergeben (0 bis Maximum). Daraus wird die wirtschaftliche Restnutzungsdauer nach amtlicher Formel abgeleitet: RND = a·Alter²/GND − b·Alter + c·GND. Sie gilt anschließend für Alterswertminderung (2.3) und Ertragswert-Vervielfältiger (⑥).</p>
+      <div class="grid">
+        <div class="field"><label>Gesamtnutzungsdauer <span class="u">Jahre (aus Gebäudetyp)</span></label><input id="nhkhg_gnd" type="text" value="80"></div>
+        <div class="field"><label>Angepasste RND <span class="u">Jahre (0 = aus Punkten berechnen)</span></label><input id="nhkhg_rnd" type="text" value="0"></div>
+      </div>
+      <table class="nhk" id="modpunkte_tbl">
+        <thead><tr><th>Modernisierungselement</th><th>max. Punkte</th><th>vergeben</th></tr></thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="2" style="text-align:right">Summe Modernisierungspunkte (max 20)</td><td id="o_modpunkte">0</td></tr>
+          <tr><td colspan="2" style="text-align:right">Gebäudealter / Gesamtnutzungsdauer</td><td id="o_mod_alter">–</td></tr>
+          <tr class="total"><th colspan="2" style="text-align:right">Restnutzungsdauer (RND)</th><th id="o_mod_rnd">0 Jahre</th></tr>
+        </tfoot>
+      </table>
+
+      <h3>2.3 · Gebäudepreis €/m² (NHK-Verfahren)</h3>
+      <p class="hint">Standardstufe je Bauteil 1–5 eintragen (Kommawerte erlaubt, z.B. 3,5). Die Restnutzungsdauer aus 2.2 fließt als Alterswertminderung ein. Orientierung: Referenztabellen unten aufklappen.</p>
+      <div class="grid three" style="margin-bottom:10px">
+        <div class="field"><label>Baupreisindex Wohngebäude <span class="u">(Basis 2021=100) — rechnet NHK 2010 auf Stichtag hoch</span></label><input id="bpi" type="text" value="131"></div>
+        <div class="field"><label>Umrechnungsfaktor 2010→2021</label><input id="bpi_faktor" type="text" value="1.406"></div>
+        <div class="field"><label>Regionalfaktor <span class="u">(1,0 = Bundesdurchschnitt)</span></label><input id="nhk_regional" type="text" value="1,0"></div>
+      </div>
+      <div class="flag" style="margin-top:0">⚠ <b>Baupreisindex 131</b> (Basis 2021=100) = Näherung Q1 2026 für Wohngebäude BW (Anker: 2022 = 114,5 · Q1 2026 ≈ +4,1 % ggü. Vorjahr). Seit Mai 2024 veröffentlicht das <b>Statistische Landesamt BW</b> auf Basis 2021=100 — den aktuellen Quartalswert dort abrufen und hier eintragen.</div>
+      <div id="nhk_hg"></div>
+
+      <details class="info">
+        <summary>📖 Referenz: Welche Standardstufe (1–5) trage ich je Bauteil ein?</summary>
+        <table class="ref">
+          <tr><th style="width:14%">Bauteil</th><th>Stufe 1 (einfachst)</th><th>Stufe 2</th><th>Stufe 3 (mittel/Standard)</th><th>Stufe 4 (gehoben)</th><th>Stufe 5 (stark gehoben)</th></tr>
+          <tr><td><b>Außenwände</b></td><td>Holzfachwerk, einfache Putze/Verfugung, kein/minimaler Wärmeschutz</td><td>einschaliges Mauerwerk, einfacher Wärmeschutz, einfacher Putz</td><td>zweischalig/ WDVS, Wärmedämmung nach gültiger EnEV/GEG-Vorgänger, üblicher Putz</td><td>Verblendmauerwerk, hochwertige Dämmung (z.B. KfW-Niveau), hochwertiger Putz</td><td>aufwendige Fassade (Naturstein, vorgehängt), Passivhaus-Niveau</td></tr>
+          <tr><td><b>Dach</b></td><td>Bitumen-/Wellplatten, keine Dämmung</td><td>einfache Betondachsteine, geringe Dämmung</td><td>Betondachsteine/Tonziegel, übliche Zwischensparrendämmung</td><td>hochw. Ziegel, Aufsparren-/hochw. Dämmung, Dachflächenfenster gut</td><td>Schiefer/Kupfer/aufwendige Form, beste Dämmung, aufwendige Gauben</td></tr>
+          <tr><td><b>Außentüren + Fenster</b></td><td>Einfachverglasung, einfache Türen</td><td>Zweifach alt (Bj. vor ~1995), einfache Rahmen</td><td>Zweifachverglasung zeitgemäß, Kunststoff/Holz üblich</td><td>Dreifachverglasung, erhöhter Schall-/Einbruchschutz</td><td>Spezialverglasung, Sicherheitstüren RC-Klasse, aufwendige Elemente</td></tr>
+          <tr><td><b>Innenwände + -türen</b></td><td>Leichtwände, einfachste Türen</td><td>einfache Türblätter, dünne Wände</td><td>massive/übliche Wände, Standardtüren</td><td>schwere Türen, hochwertige Beschläge, tw. Glaselemente</td><td>Edelholz-/Glastüren, raumhohe Elemente, aufwendige Ausführung</td></tr>
+          <tr><td><b>Decken + Treppen</b></td><td>Holzbalkendecke ohne Estrich, einfache Treppe</td><td>Holzbalken mit Estrich, einfache Stahl-/Holztreppe</td><td>Betondecke, schwimmender Estrich, übliche Treppe</td><td>höhere Spannweiten, gute Trittschalldämmung, hochw. Treppenbelag</td><td>Sichtbeton/Naturstein, freitragende Designtreppen</td></tr>
+          <tr><td><b>Fußböden</b></td><td>PVC/Nadelfilz einfach, ohne Belag</td><td>einfacher Teppich/Linoleum</td><td>Fliesen, Laminat, Teppich mittlerer Qualität</td><td>Parkett, hochwertige Fliesen, großformatig</td><td>Naturstein, hochw. Massivparkett, großflächig edel</td></tr>
+          <tr><td><b>Sanitär</b></td><td>1 WC, Bad ohne Komfort, tw. außerhalb</td><td>1 einfaches Bad</td><td>1–2 Bäder mittlerer Qualität, zeitgemäß</td><td>2+ hochwertige Bäder, Gäste-WC, gute Objekte</td><td>mehrere Luxusbäder, Wellness (Sauna/Whirlpool)</td></tr>
+          <tr><td><b>Heizung</b></td><td>Einzelöfen, keine Zentralheizung</td><td>Zentralheizung alt (>30 J.), einfache Radiatoren</td><td>Öl-/Gas-Zentralheizung zeitgemäß, übliche Heizkörper</td><td>Brennwert + Solar, Fußbodenheizung überwiegend</td><td>Wärmepumpe/Pellet/Geothermie, Klimatisierung, Lüftungsanlage mit WRG</td></tr>
+          <tr><td><b>Sonstige techn. Ausstattung</b></td><td>minimale Elektroausstattung (je Raum 1 Steckdose)</td><td>einfache Elektroinstallation, wenige Kreise</td><td>zeitgemäße Elektroinstallation, ausreichend Steckdosen</td><td>viele Kreise, Netzwerk, elektr. Rollläden, ggf. PV klein</td><td>Smart Home/KNX, Aufzug, PV + Speicher, umfangreiche Technik</td></tr>
+        </table>
+        <p style="color:var(--muted)">Quelle: Standardstufen-Beschreibungen NHK 2010 (Anlage 4 ImmoWertV, gekürzt). Zwischenstufen (z.B. 3,5) sind zulässig und werden linear interpoliert.</p>
+      </details>
+
+      <details class="info">
+        <summary>📖 Referenz: NHK-2010-Basiswerte je Gebäudetyp (€/m² BGF)</summary>
+        <table class="ref" id="nhk_ref_tbl"></table>
+        <p style="color:var(--muted)">Stufen 3–5: amtliche Werte lt. Anlage 4 ImmoWertV (Kostenstand 2010, inkl. USt. und Baunebenkosten). Bei Typen ohne amtliche Stufe 1–2 wird Stufe 3 als Untergrenze verwendet. EFH-Zeilen aus NHK 2010 (Sachwertrichtlinie), kreuzvalidiert. Der Baupreisindex rechnet auf den heutigen Stichtag hoch.</p>
+      </details>
+
+    </section>
+
+    <!-- ANBAU -->
+    <section class="card haus-only" id="s-anbau" data-nav="③ Anbau / Nebengebäude">
+      <h2>③ Anbau / Nebengebäude</h2>
+      <label class="toggle no-print"><input type="checkbox" id="anbau_aktiv" onchange="compute()"> Anbau / Nebengebäude vorhanden</label>
+      <div id="anbau_body">
+        <div class="grid">
+          <div class="field"><label>Baujahr Anbau</label><input id="an_baujahr" type="text" value="0"></div>
+          <div class="field"><label>Bauweise</label><input id="an_bauweise"></div>
+        </div>
+        <h3>3.1 · BGF Anbau</h3>
+        <table class="nhk" id="bgf_an_tbl">
+          <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Anbau</th><th id="o_bgf_an">0</th></tr></tfoot>
+        </table>
+        <h3>3.2 · Gebäudepreis €/m² Anbau</h3>
+        <div id="nhk_an"></div>
+      </div>
+    </section>
+
+    <!-- OBJEKTDATEN & BESCHREIBUNG -->
+    <section class="card" id="s-technik" data-nav="④ Objektdaten & Beschreibung">
+      <h2>④ Objektdaten &amp; Beschreibung</h2>
+      <p class="hint">Strukturierte Objektdaten (Grundstück, Recht, Planung, Gebäude) und Freitexte für den Bericht. Leere Felder erscheinen nicht im Bericht.</p>
+
+      <h3>4.1 Grundstück, Grundbuch &amp; Recht</h3>
+      <div class="grid">
+        <div class="field"><label>Eigentumsform</label>
+          <select id="od_eigentum"><option>Alleineigentum</option><option>Miteigentum / Bruchteil</option><option>Wohnungseigentum (WEG)</option><option>Erbbaurecht</option></select></div>
+        <div class="field"><label>Entwicklungszustand</label>
+          <select id="od_entwicklung"><option>baureifes Land</option><option>Rohbauland</option><option>Bauerwartungsland</option><option>Bauland (erschlossen)</option><option>Flächen der Land-/Forstwirtschaft</option></select></div>
+        <div class="field"><label>Anzahl Flurstücke</label><input id="od_anz_flst" type="text" value="1"></div>
+        <div class="field"><label>Flurstück-Nr(n).</label><input id="od_flst_nrn" placeholder="z.B. 3285/1, 3285/6"></div>
+        <div class="field"><label>Amtsgericht / Grundbuch von</label><input id="od_grundbuch" placeholder="z.B. AG Heilbronn, Grundbuch von …"></div>
+        <div class="field"><label>Grundbuch-Blatt-Nr.</label><input id="od_gb_blatt" placeholder="Blatt-Nr."></div>
+        <div class="field"><label>Abt. II <span class="u">(Lasten/Beschränkungen)</span></label><input id="od_abt2" placeholder="z.B. keine / Wegerecht …"></div>
+        <div class="field"><label>Abt. III <span class="u">(Grundpfandrechte)</span></label><input id="od_abt3" placeholder="z.B. Grundschulden …"></div>
+        <div class="field"><label>Erschließungszustand</label>
+          <select id="od_erschliessung"><option>voll erschlossen, beitragsfrei</option><option>erschlossen, Beiträge offen</option><option>teilerschlossen</option><option>nicht erschlossen</option></select></div>
+        <div class="field"><label>Denkmalschutz</label>
+          <select id="od_denkmal"><option>nein</option><option>ja (Kulturdenkmal)</option><option>Teil / Ensembleschutz</option></select></div>
+        <div class="field"><label>Baulasten</label><input id="od_baulasten" placeholder="z.B. keine Eintragungen"></div>
+        <div class="field"><label>Altlasten</label><input id="od_altlasten" placeholder="z.B. kein Verdacht bekannt"></div>
+      </div>
+
+      <h3>4.2 Planungsrecht</h3>
+      <div class="grid">
+        <div class="field"><label>Flächennutzungsplan (FNP)</label><input id="od_fnp" placeholder="z.B. Wohnbaufläche"></div>
+        <div class="field"><label>Bebauungsplan (Nr./Name)</label><input id="od_bplan" placeholder="z.B. Nr. … / Bestandsobjekt § 34 BauGB"></div>
+        <div class="field"><label>Art der baulichen Nutzung</label>
+          <select id="od_nutzungsart"><option>WR – reines Wohngebiet</option><option>WA – allgemeines Wohngebiet</option><option>MI – Mischgebiet</option><option>MU – urbanes Gebiet</option><option>GE – Gewerbegebiet</option><option>GI – Industriegebiet</option><option>Kerngebiet (MK)</option><option>Außenbereich § 35</option></select></div>
+        <div class="field"><label>GRZ / GFZ</label><input id="od_grz_gfz" placeholder="z.B. 0,35 / 2,0"></div>
+        <div class="field"><label>zul. überbaute Fläche <span class="u">m²</span></label><input id="od_ueberbau_zul" type="text" value="0"></div>
+        <div class="field"><label>tatsächl. überbaute Fläche <span class="u">m²</span></label><input id="od_ueberbau_ist" type="text" value="0"></div>
+      </div>
+
+      <h3>4.3 Gebäudedaten</h3>
+      <div class="grid">
+        <div class="field"><label>Gebäudeart</label><input id="od_gebart" placeholder="z.B. Mehrfamilienhaus, freistehend"></div>
+        <div class="field"><label>Bauweise</label>
+          <select id="od_bauweise"><option>massiv</option><option>Mauerwerk verputzt</option><option>Stahlbeton-Skelett</option><option>Holzständer / Fertigbau</option><option>Mischbauweise</option><option>Fachwerk</option></select></div>
+        <div class="field"><label>Anzahl Vollgeschosse</label><input id="od_geschosse" type="text" value="0"></div>
+        <div class="field"><label>Anzahl Gewerbeeinheiten</label><input id="od_gewerbe_eh" type="text" value="0"></div>
+        <div class="field"><label>Aufzug</label><select id="od_aufzug"><option>nein</option><option>ja</option></select></div>
+        <div class="field"><label>Heizungsart</label>
+          <select id="od_heizung"><option>Gas-Zentralheizung</option><option>Öl-Zentralheizung</option><option>Fernwärme</option><option>Wärmepumpe</option><option>Pellet / Biomasse</option><option>Gas-Etagenheizung</option><option>Nachtspeicher / dezentral</option><option>Einzelöfen</option></select></div>
+        <div class="field"><label>Fenster / Verglasung</label>
+          <select id="od_fenster"><option>Zweifachverglasung</option><option>Dreifachverglasung</option><option>Einfachverglasung (Altbestand)</option><option>Kastenfenster</option></select></div>
+        <div class="field"><label>Energieausweis</label>
+          <select id="od_energieausweis"><option>nicht vorhanden</option><option>Verbrauchsausweis</option><option>Bedarfsausweis</option></select></div>
+        <div class="field"><label>Energieeffizienzklasse</label><input id="od_effizienz" placeholder="A+ … H (optional)"></div>
+        <div class="field"><label>Gebäudegrundfläche <span class="u">m² (überbaut)</span></label><input id="od_gebflaeche" type="text" value="0"></div>
+      </div>
+
+      <h3>4.4 Lage</h3>
+      <div class="grid">
+        <div class="field full"><label>Makrolage <span class="u">(Gemeinde, Infrastruktur, Verkehrsanbindung, ÖPNV, Nahversorgung)</span></label><textarea id="lage_makro" placeholder="z.B. Ruhige Wohnlage in der Gemeinde …, gute Anbindung an B/A…, Kindergärten/Schulen/Einkauf fußläufig erreichbar."></textarea></div>
+        <div class="field full"><label>Mikrolage <span class="u">(Straße, Nachbarschaft, Ausrichtung, Immissionen)</span></label><textarea id="lage_mikro" placeholder="z.B. Wohnstraße mit geringem Verkehrsaufkommen, überwiegend Wohnbebauung, Süd-West-Ausrichtung des Gartens, keine wesentlichen Immissionen erkennbar."></textarea></div>
+      </div>
+
+      <h3>4.5 Grundstück &amp; Gebäude (Beschreibung)</h3>
+      <div class="grid">
+        <div class="field full"><label>Grundstücksbeschreibung <span class="u">(Zuschnitt, Topografie, Erschließung, Außenanlagen)</span></label><textarea id="grundstueck_besch" placeholder="z.B. Weitgehend ebenes, rechteckig geschnittenes Grundstück, voll erschlossen; Außenanlagen: Zufahrt gepflastert, Garten mit Rasen und Gehölzen."></textarea></div>
+        <div class="field full"><label>Gebäude- &amp; Ausstattungsbeschreibung <span class="u">(Bauweise, Grundriss, Ausstattungsstandard)</span></label><textarea id="gebaeude_besch" placeholder="z.B. Massiv errichtetes Gebäude mit Satteldach, unterkellert; Ausstattung dem Baujahr entsprechend, teilweise modernisiert; Fenster: Kunststoff, 2-fach verglast."></textarea></div>
+      </div>
+
+      <h3>4.6 Zustand &amp; Bautechnik</h3>
+      <div class="grid">
+        <div class="field full"><label>Baumängel / Bauschäden</label><textarea id="maengel">Wesentliche Bauschäden und Baumängel waren bei der Ortsbesichtigung nicht erkennbar.</textarea></div>
+        <div class="field full"><label>Instandhaltungsstau</label><textarea id="stau" placeholder="z.B. Erkennbarer Instandhaltungsstau bei … (Dach, Heizung, Fenster); wurde durch Abschlag berücksichtigt."></textarea></div>
+        <div class="field full"><label>Wesentliche Modernisierungen (letzte 10–15 Jahre)</label><textarea id="modernisierung" placeholder="z.B. 2018 neue Gasbrennwertheizung, 2020 Bäder saniert, 2015 Fenster erneuert."></textarea></div>
+        <div class="field full"><label>Allgemeiner Eindruck / Erläuterungen</label><textarea id="eindruck" placeholder="z.B. Insgesamt gepflegter Gesamteindruck; das Objekt wird aktuell eigengenutzt / ist vermietet."></textarea></div>
+      </div>
+
+      <h3>4.7 Rechtliches &amp; Vermarktung</h3>
+      <div class="grid">
+        <div class="field full"><label>Rechte &amp; Lasten <span class="u">(Grundbuch Abt. II — Wege-/Leitungsrechte, Wohnrecht, Nießbrauch, Erbbaurecht, Baulasten)</span></label><textarea id="rechte_lasten" placeholder="z.B. In Abt. II eingetragen: Geh- und Fahrtrecht zugunsten Flst. …; im Übrigen keine wertrelevanten Belastungen bekannt."></textarea></div>
+        <div class="field full"><label>Vermietungssituation / Mietverhältnisse</label><textarea id="vermietung_besch" placeholder="z.B. EG/UG gewerblich vermietet an …, Mietvertrag bis …; OG eigengenutzt bzw. an Angehörige überlassen."></textarea></div>
+        <div class="field full"><label>Markteinschätzung / Vermarktungshinweise</label><textarea id="vermarktung_besch" placeholder="z.B. Für Objekte dieser Art besteht in der Region eine stabile Nachfrage; energetischer Sanierungsbedarf wirkt preisdämpfend."></textarea></div>
+      </div>
+    </section>
+
+    <!-- SUBSTANZ -->
+    <section class="card haus-only" id="s-substanz" data-nav="⑤ Preis n. Substanz">
+      <h2>⑤ Preisansatz nach der Gebäudesubstanz</h2>
+      <div class="two-col">
+        <div>
+          <b style="color:var(--blue)">5.1 Hauptgebäude &amp; Außenanlagen</b>
+          <div class="row-calc"><span>BGF <span class="echo" id="e_bgf_hg">0</span> m² × <span class="echo" id="e_preis_hg">0</span> €/m²</span><b id="o_hg_geb">0 €</b></div>
+          <div class="grid" style="margin-top:8px">
+            <div class="field"><label>+ Außenanlagen €</label><input id="hg_aussen" type="text" value="20000"></div>
+            <div class="field"><label>+ Garage/Carport €</label><input id="hg_garage" type="text" value="25000"></div>
+          </div>
+          <div class="xrow" id="xhg_1"><div class="field"><label>Bezeichnung</label><input id="xhg1_label" placeholder="z.B. PV-Anlage"></div><div class="field"><label>Betrag €</label><input id="xhg1_val" type="text" value="0"></div></div>
+          <div class="xrow" id="xhg_2"><div class="field"><label>Bezeichnung</label><input id="xhg2_label" placeholder="z.B. Wintergarten"></div><div class="field"><label>Betrag €</label><input id="xhg2_val" type="text" value="0"></div></div>
+          <div class="xrow" id="xhg_3"><div class="field"><label>Bezeichnung</label><input id="xhg3_label"></div><div class="field"><label>Betrag €</label><input id="xhg3_val" type="text" value="0"></div></div>
+          <button class="plus no-print" onclick="showNext('xhg',3)">＋ weitere Position</button>
+          <div class="subtotal"><span>Hauptgebäude vor Marktanp.</span><span id="o_hg_vorMA">0 €</span></div>
+        </div>
+        <div>
+          <b style="color:var(--blue)">5.2 Anbau / Nebengebäude</b>
+          <div class="row-calc"><span>BGF <span class="echo" id="e_bgf_an">0</span> m² × <span class="echo" id="e_preis_an">0</span> €/m²</span><b id="o_an_geb">0 €</b></div>
+          <div class="grid" style="margin-top:8px">
+            <div class="field"><label>+ Außenanlagen €</label><input id="an_aussen" type="text" value="0"></div>
+          </div>
+          <div class="xrow" id="xan_1"><div class="field"><label>Bezeichnung</label><input id="xan1_label"></div><div class="field"><label>Betrag €</label><input id="xan1_val" type="text" value="0"></div></div>
+          <div class="xrow" id="xan_2"><div class="field"><label>Bezeichnung</label><input id="xan2_label"></div><div class="field"><label>Betrag €</label><input id="xan2_val" type="text" value="0"></div></div>
+          <button class="plus no-print" onclick="showNext('xan',2)">＋ weitere Position</button>
+          <div class="subtotal"><span>Anbau vor Marktanp.</span><span id="o_an_vorMA">0 €</span></div>
+        </div>
+      </div>
+      <h3>5.3 Preisansatz inkl. Marktanpassung</h3>
+      <div class="grid" style="margin-bottom:6px">
+        <div class="field"><label>Marktanpassungsfaktor <span class="u">(Sachwertfaktor — lt. Gutachterausschuss)</span></label><input id="markt_faktor" type="text" value="1.15"></div>
+      </div>
+      <div class="row-calc"><span>Bodenwert vor Marktanpassung <span class="from">(aus Eckdaten)</span></span><b id="o_sub_boden">0 €</b></div>
+      <div class="row-calc"><span>Hauptgebäude + Außenanlagen vor MA</span><b id="o_sub_hg">0 €</b></div>
+      <div class="row-calc"><span>Anbau vor MA</span><b id="o_sub_an">0 €</b></div>
+      <div class="row-calc"><span>Vorläufiger Preisansatz</span><b id="o_sub_vorlauf">0 €</b></div>
+      <div class="row-calc"><span>× Marktanpassung <span id="o_sub_faktor"></span></span><b id="o_sub_nachMA">0 €</b></div>
+      <div class="grid" style="margin-top:8px">
+        <div class="field"><label>+ objektspez. Merkmale € <span class="u">(z.B. Kamin, Markise)</span></label><input id="sub_zuschlag" type="text" value="0"></div>
+        <div class="field"><label>− objektspez. Merkmale € <span class="u">(negativ eintragen)</span></label><input id="sub_abschlag" type="text" value="0"></div>
+      </div>
+      <div class="xrow" id="xsub_1"><div class="field"><label>Bezeichnung</label><input id="xsub1_label" placeholder="z.B. Eternit-Fassade"></div><div class="field"><label>Betrag € (±)</label><input id="xsub1_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xsub_2"><div class="field"><label>Bezeichnung</label><input id="xsub2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xsub2_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xsub_3"><div class="field"><label>Bezeichnung</label><input id="xsub3_label"></div><div class="field"><label>Betrag € (±)</label><input id="xsub3_val" type="text" value="0"></div></div>
+      <button class="plus no-print" onclick="showNext('xsub',3)">＋ weitere Position</button>
+      <div class="subtotal" style="font-size:15px"><span>Preisansatz nach Gebäudesubstanz</span><span id="o_substanz">0 €</span></div>
+    </section>
+
+    <!-- VERGLEICHSWERT -->
+    <section class="card" id="s-vergleich" data-nav="⑤b Vergleichswert">
+      <h2 id="h_vergleich">⑤b Preisansatz nach Vergleichswert</h2>
+      <p class="hint">Wohnfläche <span class="echo" id="e_wf">0</span> m² (aus Eckdaten) × marktüblicher Vergleichspreis (§§ 24–26 ImmoWertV). Vergleichspreise aus eigenen Verkäufen, Gutachterausschuss oder Marktdaten.</p>
+
+      <label class="toggle no-print haus-only"><input type="checkbox" id="vw_aktiv" onchange="compute()"> Vergleichswert in die Preisempfehlung einbeziehen</label>
+
+      <h3>5b.1 · Vergleichsobjekte</h3>
+      <p class="hint">Vergleichbare Verkäufe erfassen — der Durchschnitt kann als Vergleichspreis übernommen werden.</p>
+      <table class="nhk" id="vgl_tbl">
+        <thead><tr><th>Objekt / Adresse</th><th>Baujahr</th><th>Zustand</th><th>Fläche m²</th><th>Kaufpreis €</th><th>€/m²</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th colspan="5" style="text-align:right">Durchschnitt €/m²</th><th id="o_vgl_avg">–</th></tr></tfoot>
+      </table>
+      <button class="plus no-print" onclick="uebernehmeVergleichspreis()">↑ Durchschnitt als Vergleichspreis übernehmen</button>
+
+      <h3>5b.2 · Preisansatz</h3>
+      <div class="grid three">
+        <div class="field"><label>Vergleichspreis <span class="u">€/m² Wohnfläche</span></label><input id="vw_preis" type="text" value="0"></div>
+        <div class="field"><label>+ Garage / TG-Stellplatz <span class="u">€ pauschal</span></label><input id="vw_garage" type="text" value="0"></div>
+        <div class="field"><label>+ Sonstiges <span class="u">€ (Balkon, EBK …)</span></label><input id="vw_sonst" type="text" value="0"></div>
+      </div>
+      <div class="row-calc" style="margin-top:8px"><span>Wohnfläche × Vergleichspreis</span><b id="o_vw_geb">0 €</b></div>
+      <div class="xrow" id="xvw_1"><div class="field"><label>Bezeichnung</label><input id="xvw1_label" placeholder="z.B. Zuschlag Aussicht"></div><div class="field"><label>Betrag € (±)</label><input id="xvw1_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xvw_2"><div class="field"><label>Bezeichnung</label><input id="xvw2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xvw2_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xvw_3"><div class="field"><label>Bezeichnung</label><input id="xvw3_label"></div><div class="field"><label>Betrag € (±)</label><input id="xvw3_val" type="text" value="0"></div></div>
+      <button class="plus no-print" onclick="showNext('xvw',3)">＋ weitere Position</button>
+      <div class="subtotal" style="font-size:15px"><span>Preisansatz nach Vergleichswert</span><span id="o_vergleich">0 €</span></div>
+      <div class="flag" id="vw_hinweis">Beim Wohnungs-Vordruck ersetzt der Vergleichswert den Substanzwert (§§ 24–26 ImmoWertV — für ETW das Standardverfahren). Der Bodenwert ist im Vergleichspreis bereits enthalten.</div>
+    </section>
+
+    <!-- ERTRAG -->
+    <section class="card" id="s-ertrag" data-nav="⑥ Preis n. Ertrag">
+      <h2>⑥ Preisansatz nach dem Gebäudeertrag</h2>
+      <p class="hint">Restnutzungsdauer automatisch aus Modernisierungspunkten (Sektion ②). Rohertrag aus Eckdaten oder wohnungsweiser Mietrolle.</p>
+
+      <details class="info">
+        <summary>📊 Marktmieten-Vergleich (mehrere Quellen gegenüberstellen)</summary>
+        <p class="hint">Zur Herleitung der nachhaltig erzielbaren Miete (§ 9 Abs. 2 ImmoWertV). Erscheint im Bericht.</p>
+        <table class="nhk" id="msp_tbl">
+          <thead><tr><th>Datengrundlage</th><th>untere Grenze €/m²</th><th>obere Grenze €/m²</th><th>Durchschnitt €/m²</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr class="total"><th colspan="3" style="text-align:right">Mittelwert der Quellen</th><th id="o_msp_avg">–</th></tr></tfoot>
+        </table>
+      </details>
+
+      <label class="toggle no-print"><input type="checkbox" id="er_mietrolle" onchange="compute()"> Mietrolle verwenden (wohnungsweise Erfassung statt Summen aus Eckdaten)</label>
+      <div id="mietrolle_body" style="display:none">
+        <table class="nhk" id="mietrolle_tbl">
+          <thead><tr><th>Bezeichnung</th><th>Geschoss</th><th>Fläche m²</th><th>€/m²·Mon</th><th>€/Mon pausch.</th><th>Miete p.a.</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr class="total"><th colspan="5" style="text-align:right">Jahresrohertrag (Mietrolle)</th><th id="o_mr_summe">0 €</th></tr></tfoot>
+        </table>
+        <p class="hint">Wohnungen: Fläche × €/m²·Monat. Stellplätze/Gewerbe pauschal: €/Monat. Leere Zeilen zählen nicht.</p>
+      </div>
+
+      <div class="grid four" style="margin-top:10px">
+        <div class="field"><label>Liegenschaftszins Basiszins <span class="u">% (Gutachterausschuss)</span></label><input id="er_zins_basis" type="text" value="2.5"></div>
+        <div class="field"><label>Zu-/Abschlag Lage/Markt <span class="u">% (± auf Basiszins)</span></label><input id="er_zins_adj" type="text" value="0"></div>
+        <div class="field"><label>Abschlag gewerbl. Vermietung <span class="u">%</span></label><input id="er_gewerbe" type="text" value="0"></div>
+        <div class="field wohnung-only"><label>Restnutzungsdauer <span class="u">Jahre (0 = automatisch)</span></label><input id="er_rnd_override" type="text" value="0"></div>
+      </div>
+
+      <label class="toggle no-print" style="margin-top:12px"><input type="checkbox" id="er_bwmodus" onchange="compute()"> Bewirtschaftungskosten detailliert nach § 32 ImmoWertV (statt Pauschale)</label>
+      <div id="bw_pausch"><div class="grid"><div class="field"><label>Bewirtschaftungskosten pauschal <span class="u">% des Rohertrags</span></label><input id="er_bewirt" type="text" value="20"></div></div></div>
+      <div id="bw_detail" style="display:none">
+        <div class="grid three">
+          <div class="field"><label>Verwaltung <span class="u">€/WE·Jahr</span></label><input id="er_bw_verw_we" type="text" value="300"></div>
+          <div class="field"><label>Verwaltung <span class="u">€/Stellplatz·Jahr</span></label><input id="er_bw_verw_sp" type="text" value="48"></div>
+          <div class="field"><label>Mietausfallwagnis <span class="u">% des Rohertrags</span></label><input id="er_bw_mietausfall" type="text" value="2"></div>
+          <div class="field"><label>Instandhaltung <span class="u">€/m² Wohnfl.·Jahr</span></label><input id="er_bw_inst_m2" type="text" value="12"></div>
+          <div class="field"><label>Instandhaltung <span class="u">€/Stellplatz·Jahr</span></label><input id="er_bw_inst_sp" type="text" value="100"></div>
+          <div class="field"><label>nicht umlagefähige BK <span class="u">€/Jahr</span></label><input id="er_bw_nuk" type="text" value="0"></div>
+        </div>
+        <p class="hint">Grundlage: <span id="o_bw_basis">WE 1 · Stellpl. 0 · Wohnfl. 0 m²</span> (aus Eckdaten). Verwaltung + Instandhaltung + Mietausfallwagnis + n. uml. BK.</p>
+      </div>
+
+      <div class="row-calc" style="margin-top:8px"><span>Jährlicher Rohertrag <span id="o_er_rohsrc" class="from">(aus Eckdaten)</span></span><b id="o_er_roh">0 €</b></div>
+      <div class="row-calc"><span>− Bewirtschaftungskosten <span id="o_er_bwinfo" class="from"></span></span><b id="o_er_bewirt">0 €</b></div>
+      <div class="row-calc"><span>− Abschlag gewerbliche Vermietung</span><b id="o_er_gew">0 €</b></div>
+      <div class="row-calc"><span>Grundstücksreinertrag</span><b id="o_er_grund">0 €</b></div>
+      <div class="row-calc"><span>− Bodenwertverzinsung (<span id="o_er_zinsp"></span>)</span><b id="o_er_bodenz">0 €</b></div>
+      <div class="row-calc"><span>Gebäudereinertrag</span><b id="o_er_gebrein">0 €</b></div>
+      <div class="row-calc"><span>× Vervielfältiger (Barwertfaktor) <span id="o_er_vf"></span></span><b id="o_er_gebwert">0 €</b></div>
+      <div class="grid" style="margin-top:8px">
+        <div class="field"><label>+ Außenanlagen / Sonstiges €</label><input id="er_aussen" type="text" value="0"></div>
+        <div class="field"><label>± objektspez. Merkmale €</label><input id="er_objekt" type="text" value="0"></div>
+      </div>
+      <div class="xrow" id="xer_1"><div class="field"><label>Bezeichnung</label><input id="xer1_label"></div><div class="field"><label>Betrag € (±)</label><input id="xer1_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xer_2"><div class="field"><label>Bezeichnung</label><input id="xer2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xer2_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xer_3"><div class="field"><label>Bezeichnung</label><input id="xer3_label"></div><div class="field"><label>Betrag € (±)</label><input id="xer3_val" type="text" value="0"></div></div>
+      <button class="plus no-print" onclick="showNext('xer',3)">＋ weitere Position</button>
+      <div class="row-calc" style="margin-top:8px"><span>+ Bodenwert <span class="u">(BRW, ohne Sachwertfaktor)</span></span><b id="o_er_boden">0 €</b></div>
+      <div class="subtotal" style="font-size:15px"><span>Preisansatz nach Gebäudeertrag</span><span id="o_ertrag">0 €</span></div>
+    </section>
+
+    <!-- NIESSBRAUCH -->
+    <section class="card" id="s-niess" data-nav="⑦ Wohnrecht / Nießbrauch">
+      <h2>⑦ Belastung durch Nießbrauch, Wohnrecht oder Leibrente</h2>
+      <label class="toggle no-print"><input type="checkbox" id="niess_aktiv" onchange="compute()"> Ein solches Recht lastet auf dem Objekt</label>
+      <div id="niess_body">
+        <div class="grid four">
+          <div class="field"><label>Art des Rechts</label>
+            <select id="ni_art" onchange="compute()">
+              <option value="niessbrauch">Nießbrauch (§ 1030 BGB)</option>
+              <option value="wohnrecht">Wohnungsrecht (§ 1093 BGB)</option>
+              <option value="leibrente">Leibrente / dauernde Last</option>
+            </select></div>
+          <div class="field" id="fld_ni_rente" style="display:none"><label>Rente <span class="u">€/Monat</span></label><input id="ni_rente" type="text" value="0"></div>
+          <div class="field"><label>Alter Berechtigte(r) <span class="u">Jahre</span></label><input id="ni_alter" type="text" value="0"></div>
+          <div class="field"><label>Geschlecht</label><select id="ni_geschlecht"><option value="w">weiblich</option><option value="m">männlich</option></select></div>
+          <div class="field"><label>Ø Restlebenserwartung <span class="u">Jahre (0=autom.)</span></label><input id="ni_leben" type="text" value="0"></div>
+          <div class="field"><label>Kapitalisierungszins <span class="u">% (BewG: 5,5)</span></label><input id="ni_zins" type="text" value="5.5"></div>
+          <div class="field"><label>Kapitalwert lebensl. Nutzung <span class="u">(0=autom.)</span></label><input id="ni_kapwert" type="text" value="0"></div>
+          <div class="field"><label>Mietertrag Nießbrauch <span class="u">€/Jahr (0=aus Eckdaten)</span></label><input id="ni_miete" type="text" value="0"></div>
+          <div class="field"><label>Grundsteuer <span class="u">€/Jahr (0=aus Eckdaten)</span></label><input id="ni_grundst" type="text" value="0"></div>
+          <div class="field"><label>nicht umlagef. Kosten <span class="u">% aus Miete</span></label><input id="ni_nuk" type="text" value="20"></div>
+        </div>
+        <div class="row-calc" id="row_ni_miete"><span id="lbl_ni_miete">Mietertrag / Jahr</span><b id="o_ni_miete">0 €</b></div>
+        <div class="row-calc" id="row_ni_gr"><span>− Grundsteuer</span><b id="o_ni_gr">0 €</b></div>
+        <div class="row-calc" id="row_ni_nuk"><span>− nicht umlagefähige Kosten</span><b id="o_ni_nuk">0 €</b></div>
+        <div class="row-calc"><span id="lbl_ni_rein">Reinertrag Berechtigter / Jahr</span><b id="o_ni_rein">0 €</b></div>
+        <div class="row-calc"><span>× Kapitalwert lebenslängliche Nutzung <span id="o_ni_kwinfo"></span></span><b id="o_ni_kw">0</b></div>
+        <div class="xrow" id="xni_1"><div class="field"><label>Bezeichnung</label><input id="xni1_label" placeholder="z.B. weitere Belastung"></div><div class="field"><label>Betrag € (±)</label><input id="xni1_val" type="text" value="0"></div></div>
+        <div class="xrow" id="xni_2"><div class="field"><label>Bezeichnung</label><input id="xni2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xni2_val" type="text" value="0"></div></div>
+        <button class="plus no-print" onclick="showNext('xni',2)">＋ weitere Position</button>
+        <div class="subtotal"><span id="lbl_ni_summe">Wert des Rechts (Belastung)</span><span id="o_niess">0 €</span></div>
+        <div class="flag" id="ni_hinweis"></div>
+      </div>
+    </section>
+
+    <!-- ERBBAURECHT -->
+    <section class="card haus-only" id="s-erbbau" data-nav="⑦c Erbbaurecht">
+      <h2>⑦c Erbbaurecht</h2>
+      <label class="toggle no-print"><input type="checkbox" id="eb_aktiv" onchange="compute()"> Objekt steht auf Erbbaurecht (kein Grundstückseigentum)</label>
+      <div id="eb_body">
+        <p class="hint">Beim Erbbaurecht gehört der Boden nicht zum Kaufobjekt. Vom Volleigentumswert wird der Bodenwert abgezogen und der Barwert des Zinsvorteils (angemessene Bodenverzinsung ./. tatsächlicher Erbbauzins) über die Restlaufzeit wieder hinzugerechnet.</p>
+        <div class="grid four">
+          <div class="field"><label>Erbbauzins <span class="u">€/Jahr (tatsächlich)</span></label><input id="eb_zins_eur" type="text" value="0"></div>
+          <div class="field"><label>Restlaufzeit <span class="u">Jahre</span></label><input id="eb_restlaufzeit" type="text" value="0"></div>
+          <div class="field"><label>Angemessene Bodenverzinsung <span class="u">% (0 = Liegenschaftszins)</span></label><input id="eb_verzinsung" type="text" value="0"></div>
+          <div class="field"><label>Abschlag Heimfall/Beschränkung <span class="u">%</span></label><input id="eb_abschlag" type="text" value="0"></div>
+        </div>
+        <div class="row-calc"><span>Bodenwert (entfällt beim Erbbaurecht)</span><b id="o_eb_boden">0 €</b></div>
+        <div class="row-calc"><span>Angemessene Bodenverzinsung <span id="o_eb_vpct" class="from"></span></span><b id="o_eb_vz">0 €</b></div>
+        <div class="row-calc"><span>− tatsächlicher Erbbauzins</span><b id="o_eb_zins">0 €</b></div>
+        <div class="row-calc"><span>Jährlicher Vorteil des Erbbauberechtigten</span><b id="o_eb_vorteil">0 €</b></div>
+        <div class="row-calc"><span>× Barwertfaktor <span id="o_eb_vf" class="from"></span></span><b id="o_eb_barwert">0 €</b></div>
+        <div class="row-calc"><span>− Abschlag Heimfall / Beschränkungen</span><b id="o_eb_absch">0 €</b></div>
+        <div class="subtotal"><span>Korrektur für Erbbaurecht (Abzug vom Volleigentumswert)</span><span id="o_erbbau">0 €</span></div>
+      </div>
+    </section>
+
+    <!-- WERTKORREKTUREN § 8 Abs. 3 -->
+    <section class="card" id="s-wk" data-nav="⑦d Wertkorrekturen § 8">
+      <h2>⑦d Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV)</h2>
+      <p class="hint">Sachverständig geschätzte Wertkorrekturen für bauliche Mängel, Schäden und Risiken. Beträge <b>positiv</b> eintragen = Abzug; für Zuschläge negativen Betrag eintragen. Die Summe wird vom gewichteten Ergebnis abgezogen.</p>
+      <table class="nhk" id="wk_tbl">
+        <thead><tr><th style="width:60%">Bezeichnung</th><th>Betrag € (Abzug)</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th style="text-align:right">Summe Wertkorrekturen</th><th id="o_wk_summe">0 €</th></tr></tfoot>
+      </table>
+      <input type="hidden" id="wk_visible" value="3">
+      <button class="plus no-print" onclick="addWKRow()">＋ weitere Position</button>
+      <button class="plus no-print" onclick="wkVorlage()">Typische Positionen einfügen</button>
+    </section>
+
+    <!-- PV-ANLAGE -->
+    <section class="card" id="s-pv" data-nav="⑦b PV-Anlage">
+      <h2>⑦b Photovoltaik-Anlage</h2>
+      <label class="toggle no-print"><input type="checkbox" id="pv_aktiv" onchange="compute()"> PV-Anlage vorhanden (Barwert als objektspez. Merkmal)</label>
+      <div id="pv_body">
+        <p class="hint">Barwert des Solarertrags = Reinertrag × Barwertfaktor (Restnutzungsdauer/Liegenschaftszins). Fließt als Zuschlag in den Substanzpreis (5.3). Werte lt. VB-BIA-Vordruck vorbelegt.</p>
+        <div class="grid four">
+          <div class="field"><label>Anlagenleistung <span class="u">kWp</span></label><input id="pv_kwp" type="text" value="0"></div>
+          <div class="field"><label>Jährl. Stromertrag <span class="u">kWh/Jahr</span></label><input id="pv_ertrag_kwh" type="text" value="0"></div>
+          <div class="field"><label>Ø Erlös <span class="u">€/kWh (Eigenverbr. + Einspeis.)</span></label><input id="pv_erloes" type="text" value="0,25"></div>
+          <div class="field"><label>Bewirtschaftungskosten <span class="u">% (Wartung, Versich., Rückbau)</span></label><input id="pv_bewirt" type="text" value="15"></div>
+          <div class="field"><label>Liegenschaftszins <span class="u">%</span></label><input id="pv_zins" type="text" value="5"></div>
+          <div class="field"><label>Restnutzungsdauer <span class="u">Jahre</span></label><input id="pv_rnd" type="text" value="20"></div>
+        </div>
+        <div class="row-calc"><span>Rohertrag <span class="from">(kWh × €/kWh)</span></span><b id="o_pv_roh">0 €</b></div>
+        <div class="row-calc"><span>− Bewirtschaftungskosten</span><b id="o_pv_bewirt">0 €</b></div>
+        <div class="row-calc"><span>Reinertrag Solar / Jahr</span><b id="o_pv_rein">0 €</b></div>
+        <div class="row-calc"><span>× Barwertfaktor <span id="o_pv_vf"></span></span><b id="o_pv_bw">0</b></div>
+        <div class="subtotal"><span>Barwert der PV-Anlage zum Stichtag</span><span id="o_pv">0 €</span></div>
+      </div>
+    </section>
+
+    <!-- FOTODOKUMENTATION -->
+    <section class="card" id="s-fotos" data-nav="⑧ Fotos">
+      <h2>⑧ Fotodokumentation</h2>
+      <p class="hint">Bilder werden auf max. 1400 px verkleinert. Zum dauerhaften Sichern (inkl. Bilder) bitte <b>💾 Speichern</b> nutzen — Bilder werden in die Projektdatei aufgenommen.</p>
+
+      <h3>Objektfotos <span class="u" style="font-weight:400">(Außen-/Innenansichten, Lage)</span></h3>
+      <div class="drop no-print" onclick="document.getElementById('file_objekt').click()">📷 Objektfotos hier klicken zum Hinzufügen (oder Datei-Dialog)</div>
+      <input type="file" id="file_objekt" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'objekt')">
+      <div class="gallery" id="gal_objekt"></div>
+
+      <h3 style="margin-top:18px">Schadensfotos <span class="u" style="font-weight:400">(Mängel, Bauschäden, Instandhaltungsstau)</span></h3>
+      <div class="drop no-print" onclick="document.getElementById('file_schaden').click()">🛠 Schadensfotos hier klicken zum Hinzufügen</div>
+      <input type="file" id="file_schaden" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'schaden')">
+      <div class="gallery" id="gal_schaden"></div>
+
+      <h3 style="margin-top:18px">Karten &amp; Pläne <span class="u" style="font-weight:400">(Lageplan, Bodenrichtwertkarte, FNP-/B-Plan-Auszug, Flurkarte)</span></h3>
+      <div class="drop no-print" onclick="document.getElementById('file_karte').click()">🗺 Karten &amp; Pläne hier klicken zum Hinzufügen (Screenshot aus BORIS-BW, Geoportal …)</div>
+      <input type="file" id="file_karte" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'karte')">
+      <div class="gallery" id="gal_karte"></div>
+
+      <h3 style="margin-top:18px">Deckblatt</h3>
+      <label class="chk no-print"><input type="checkbox" id="rp_deckblatt" checked onchange="compute()"> Bericht mit Deckblatt und Inhaltsverzeichnis beginnen</label>
+      <label class="chk no-print"><input type="checkbox" id="rp_diagramm" checked onchange="compute()"> Diagramm „Boden- und Gebäudeanteil" im Bericht zeigen</label>
+    </section>
+
+    <!-- EMPFEHLUNG -->
+    <section class="card" id="s-empfehlung" data-nav="⑨ Preisempfehlung">
+      <h2>⑨ Preisempfehlung</h2>
+      <div class="row-calc"><span id="lbl_e_sub">Preis nach Gebäudesubstanz</span><b id="o_e_sub">0 €</b></div>
+      <div class="row-calc"><span>Preis nach Gebäudeertrag</span><b id="o_e_er">0 €</b></div>
+      <div class="row-calc" id="row_e_vgl"><span>Vergleichswert <span class="u">(Gewichtung · Wert)</span></span><b id="o_e_vgl">–</b></div>
+      <div class="row-calc"><span>Gewichteter Mittelwert</span><b id="o_e_mittel">0 €</b></div>
+      <div class="row-calc" id="row_e_pv"><span>+ Barwert PV-Anlage <span class="u">(objektspez. Merkmal, voll)</span></span><b id="o_e_pv">0 €</b></div>
+      <div class="row-calc"><span>− Belastung Nießbrauch / Wohnrecht</span><b id="o_e_niess">0 €</b></div>
+      <div class="row-calc" id="row_e_erbbau"><span>− Korrektur Erbbaurecht</span><b id="o_e_erbbau">0 €</b></div>
+      <div class="row-calc" id="row_e_wk"><span>− Wertkorrekturen § 8 Abs. 3</span><b id="o_e_wk">0 €</b></div>
+      <div class="grid" style="margin-top:8px">
+        <div class="field" id="fld_gew_vergleich" style="display:none"><label>Gewichtung Vergleichswert <span class="u">% am Gesamtergebnis</span></label><input id="gew_vergleich" type="text" value="30"></div>
+        <div class="field"><label id="lbl_gew">Gewichtung Substanz : Ertrag</label>
+          <select id="gewichtung">
+            <option value="0.5">50 : 50</option>
+            <option value="1">100 : 0 (nur Substanz)</option>
+            <option value="0">0 : 100 (nur Ertrag)</option>
+            <option value="0.7">70 : 30</option>
+            <option value="0.6">60 : 40</option>
+            <option value="0.4">40 : 60</option>
+            <option value="0.3">30 : 70</option>
+          </select></div>
+        <div class="field"><label>Verhandlungsspielraum <span class="u">% (+/−)</span></label><input id="verhandlung" type="text" value="5"></div>
+      </div>
+      <div class="xrow" id="xemp_1"><div class="field"><label>Bezeichnung</label><input id="xemp1_label" placeholder="z.B. Räumungskosten"></div><div class="field"><label>Betrag € (±)</label><input id="xemp1_val" type="text" value="0"></div></div>
+      <div class="xrow" id="xemp_2"><div class="field"><label>Bezeichnung</label><input id="xemp2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xemp2_val" type="text" value="0"></div></div>
+      <button class="plus no-print" onclick="showNext('xemp',2)">＋ weitere Position</button>
+      <div class="subtotal" style="font-size:16px;margin-top:14px"><span>Empfohlener Preisansatz</span><span id="o_empfehlung">0 €</span></div>
+      <div class="row-calc" style="margin-top:6px"><span>Verhandlungsspanne</span><b id="o_spanne">–</b></div>
+
+      <h3>9.1 · Sensitivität <span class="u" style="font-weight:400">(Auswirkung veränderter Annahmen)</span></h3>
+      <p class="hint">Zeigt, wie stark das Ergebnis auf Liegenschaftszins und Mietniveau reagiert — hilfreich zur Einordnung der Bandbreite.</p>
+      <div class="grid three">
+        <div class="field"><label>Variation Liegenschaftszins <span class="u">± Prozentpunkte</span></label><input id="sz_lz" type="text" value="0,5"></div>
+        <div class="field"><label>Variation Mietniveau <span class="u">± %</span></label><input id="sz_miete" type="text" value="10"></div>
+        <div class="field" style="justify-content:flex-end"><button class="plus no-print" onclick="sensitivitaet()">▶ Sensitivität berechnen</button></div>
+      </div>
+      <table class="nhk" id="sz_tbl" style="display:none">
+        <thead><tr><th>Szenario</th><th>Liegenschaftszins</th><th>Mietniveau</th><th>Preisansatz</th><th>Abweichung</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>9.2 · Plausibilisierung</h3>
+      <p class="hint">Das Ergebnis je m² Wohn-/Nutzfläche gegen den örtlichen Marktbericht bzw. eigene Verkaufsdaten stellen (§ 8 ImmoWertV — Ergebniskontrolle).</p>
+      <div class="grid">
+        <div class="field"><label>Vergleichspreis lt. Marktbericht <span class="u">€/m² Wohnfläche (0 = kein Vergleich)</span></label><input id="pl_markt" type="text" value="0"></div>
+        <div class="field"><label>Quelle des Vergleichswerts</label><input id="pl_quelle" placeholder="z.B. Grundstücksmarktbericht Heilbronn 2026"></div>
+      </div>
+      <div class="row-calc"><span>Ermittelter Preis je m² Wohn-/Nutzfläche</span><b id="o_pl_eigen">–</b></div>
+      <div class="row-calc"><span>Vergleichspreis Marktbericht</span><b id="o_pl_markt">–</b></div>
+      <div class="row-calc"><span>Abweichung</span><b id="o_pl_abw">–</b></div>
+      <div class="flag" id="o_pl_text">Vergleichspreis eintragen für die Plausibilitätsprüfung.</div>
+    </section>
+
+    <!-- RENDITE & INVESTITION -->
+    <section class="card" id="s-rendite" data-nav="⑨b Rendite & Investition">
+      <h2>⑨b Rendite &amp; Investitionskosten</h2>
+      <p class="hint">Kennzahlen für Kapitalanleger. Kaufpreis leer/0 = empfohlener Preisansatz aus ⑨ wird übernommen.</p>
+      <div class="grid four">
+        <div class="field"><label>Kaufpreis <span class="u">€ (0 = aus ⑨)</span></label><input id="re_kaufpreis" type="text" value="0"></div>
+        <div class="field"><label>Grunderwerbsteuer <span class="u">% (BW 5,0)</span></label><input id="re_grest" type="text" value="5,0"></div>
+        <div class="field"><label>Notar &amp; Grundbuch <span class="u">%</span></label><input id="re_notar" type="text" value="2,0"></div>
+        <div class="field"><label>Maklercourtage <span class="u">% (inkl. USt.)</span></label><input id="re_makler" type="text" value="3,57"></div>
+        <div class="field"><label>+ Sanierungs-/Modernisierungskosten <span class="u">€</span></label><input id="re_sanierung" type="text" value="0"></div>
+        <div class="field"><label>Nicht umlagefähige Kosten <span class="u">€/Jahr (0 = aus ⑥)</span></label><input id="re_nuk" type="text" value="0"></div>
+      </div>
+      <div class="row-calc"><span>Kaufpreis (Basis)</span><b id="o_re_kp">0 €</b></div>
+      <div class="row-calc"><span>+ Kaufnebenkosten <span id="o_re_nkpct" class="from"></span></span><b id="o_re_nk">0 €</b></div>
+      <div class="row-calc"><span>+ Sanierungs-/Modernisierungskosten</span><b id="o_re_san">0 €</b></div>
+      <div class="subtotal"><span>Investitionskosten gesamt</span><span id="o_re_invest">0 €</span></div>
+      <div class="row-calc" style="margin-top:10px"><span>Jahresrohertrag <span class="from">(aus ⑥)</span></span><b id="o_re_roh">0 €</b></div>
+      <div class="row-calc"><span>Jahresreinertrag <span class="from">(nach Bewirtschaftungskosten)</span></span><b id="o_re_rein">0 €</b></div>
+      <div class="two-col" style="margin-top:12px">
+        <div class="subtotal"><span>Bruttomietrendite <span class="u">(Rohertrag / Kaufpreis)</span></span><span id="o_re_brutto">–</span></div>
+        <div class="subtotal"><span>Nettomietrendite <span class="u">(Reinertrag / Investition)</span></span><span id="o_re_netto">–</span></div>
+      </div>
+      <div class="row-calc" style="margin-top:8px"><span>Kaufpreisfaktor <span class="u">(Kaufpreis / Jahresrohertrag)</span></span><b id="o_re_faktor">–</b></div>
+      <div class="flag" id="o_re_hinweis">Mieterträge in ① bzw. der Mietrolle eintragen, damit die Renditen berechnet werden.</div>
+    </section>
+
+    <!-- ERSTELLER & UNTERSCHRIFT -->
+    <section class="card" id="s-sign" data-nav="⑩ Ersteller & Unterschrift">
+      <h2>⑩ Ersteller &amp; Unterschrift</h2>
+      <p class="hint">Erscheint am Ende des Berichts. Die Unterschriftslinie steht zum handschriftlichen Unterzeichnen nach dem Ausdruck bereit; optional kann ein Unterschrift-Scan eingefügt werden.</p>
+      <div class="grid three">
+        <div class="field"><label>Ort <span class="u">(Ausstellungsort)</span></label><input id="ek_ort" value="Beilstein"></div>
+        <div class="field"><label>Datum <span class="u">(0 = Stichtag/heute)</span></label><input id="ek_sign_datum" type="date"></div>
+        <div class="field"><label>Ersteller / Sachbearbeiter <span class="u">(Name)</span></label><input id="ek_ersteller" placeholder="Vor- und Nachname"></div>
+        <div class="field full"><label>Funktion / Zusatz <span class="u">(optional, z.B. Immobilienberater)</span></label><input id="ek_ersteller_funktion" placeholder="z.B. Immobilienberater der Volksbank Beilstein-Ilsfeld-Abstatt eG"></div>
+        <div class="field full"><label>Kopfzeile Bericht <span class="u">(erscheint klein über dem Titel, z.B. Firma/Institut)</span></label><input id="cfg_kopf" placeholder="z.B. Immobilienservice der Volksbank Beilstein-Ilsfeld-Abstatt eG"></div>
+      </div>
+      <h3>Unterschrift-Scan <span class="u" style="font-weight:400">(optional — wird über die Linie gesetzt)</span></h3>
+      <div class="drop no-print" onclick="document.getElementById('file_sig').click()">✒ Unterschrift-Bild hier klicken zum Hinzufügen (PNG mit transparentem Hintergrund ideal)</div>
+      <input type="file" id="file_sig" accept="image/*" style="display:none" onchange="addSignature(this.files)">
+      <div id="sig_preview" style="margin-top:10px"></div>
+    </section>
+    <div style="height:40px"></div>
+  </main>
+
+  <aside class="result">
+    <div class="box">
+      <h3>PREISEMPFEHLUNG</h3>
+      <div class="big" id="r_empfehlung">0 €</div>
+      <div class="sub"><span id="r_sub_lbl">Substanzwert</span><b id="r_sub">0 €</b></div>
+      <div class="sub"><span>Ertragswert</span><b id="r_er">0 €</b></div>
+      <div class="sub"><span>Mittelwert</span><b id="r_mittel">0 €</b></div>
+      <div class="sub"><span>Nießbrauch</span><b id="r_niess">0 €</b></div>
+      <div class="sub"><span>Bodenwert</span><b id="r_boden">0 €</b></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">Automatisch im Browser gespeichert</div>
+  </aside>
+</div>
+
+<div id="report"></div>
+
+<script>
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+function num(id){let e=$(id);if(!e)return 0;return parseNum(e.value);}
+function parseNum(s){s=(''+s).trim();if(s==='')return 0;if(s.indexOf(',')>-1){s=s.replace(/\./g,'').replace(',','.');}let v=parseFloat(s);return isNaN(v)?0:v;}
+const eur = n => (Math.round(n||0)).toLocaleString('de-DE')+' €';
+const num2 = n => (n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const setT=(id,v)=>{let e=$(id);if(e)e.textContent=v;};
+
+/* ---------- Gebäudetypen: NHK 2010 €/m² BGF (Anlage 4 ImmoWertV) + GND (Anlage 1) ----------
+   Stufen 3-5 amtlich; Typen mit (*) haben amtlich nur Stufen 3-5 → Stufe 1/2 = Stufe 3 als Untergrenze.
+   EFH/DHH/RMH: 5 Stufen lt. NHK 2010, kreuzvalidiert. */
+const TYPES = {
+  'EFH freistehend · unterkellert, DG ausgebaut':      {nhk:[655,725,835,1005,1260], gnd:80, gew:'1',  amtlich:'1–5'},
+  'EFH freistehend · unterkellert, DG nicht ausgeb.':  {nhk:[570,635,730,880,1100],  gnd:80, gew:'1',  amtlich:'1–5'},
+  'EFH freistehend · unterkellert, Flachdach':         {nhk:[665,740,850,1025,1285], gnd:80, gew:'1',  amtlich:'1–5'},
+  'EFH freistehend · nicht unterkellert, DG ausgeb.':  {nhk:[545,605,695,840,1050],  gnd:80, gew:'1',  amtlich:'1–5'},
+  'Doppel-/Reihenendhaus · unterkellert, DG ausgeb.':  {nhk:[615,685,785,945,1180],  gnd:80, gew:'1',  amtlich:'1–5'},
+  'Reihenmittelhaus · unterkellert, DG ausgeb.':       {nhk:[575,640,735,885,1105],  gnd:80, gew:'1',  amtlich:'1–5'},
+  'Mehrfamilienhaus · bis 6 WE':                       {nhk:[825,825,825,985,1190],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
+  'Mehrfamilienhaus · 7–20 WE':                        {nhk:[765,765,765,915,1105],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
+  'Mehrfamilienhaus · über 20 WE':                     {nhk:[755,755,755,900,1090],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
+  'Wohn-/Geschäftshaus (Mischnutzung)':                {nhk:[860,860,860,1085,1375], gnd:80, gew:'0.4', amtlich:'3–5 *'},
+  'Geschäftshaus mit Wohnungen':                       {nhk:[890,890,890,1375,1720], gnd:60, gew:'0.3', amtlich:'3–5 *'},
+  'Geschäftshaus ohne Wohnungen':                      {nhk:[930,930,930,1520,1900], gnd:60, gew:'0.3', amtlich:'3–5 *'},
+  'Bürogebäude · Massivbau':                           {nhk:[1040,1040,1040,1685,1900],gnd:60, gew:'0.3', amtlich:'3–5 *'},
+  'Betriebs-/Werkstattgebäude · eingeschossig':        {nhk:[970,970,970,1165,1430], gnd:40, gew:'0.3', amtlich:'3–5 *'},
+  'Betriebs-/Werkstattgeb. · mehrgesch., o. Hallenanteil':{nhk:[910,910,910,1090,1340],gnd:40, gew:'0.3', amtlich:'3–5 *'}
+};
+
+/* ---------- NHK-Bauteile ---------- */
+const NHK_ELEMENTS = [
+  ['Außenwände',0.23],['Dach',0.15],['Außentüren und Fenster',0.11],
+  ['Innenwände und -türen',0.11],['Decken und Treppen',0.11],['Fußböden',0.05],
+  ['Sanitäreinrichtung',0.09],['Heizung',0.09],['Sonstige techn. Ausstattung',0.06]
+];
+function buildNHK(prefix, ownRND){
+  // ownRND=true → eigene GND/RND-Felder (Anbau). Beim Hauptgebäude stehen sie in 2.2 (Restnutzungsdauer).
+  let h = ownRND
+   ? `<div class="grid three" style="margin-bottom:8px">
+     <div class="field"><label>NHK Basiswerte €/m² Stufe 1–5</label><input id="${prefix}_base" type="text" value="615, 685, 785, 945, 1180"></div>
+     <div class="field"><label>Gesamtnutzungsdauer <span class="u">Jahre</span></label><input id="${prefix}_gnd" type="text" value="80"></div>
+     <div class="field"><label>Angepasste RND <span class="u">Jahre (0=autom.)</span></label><input id="${prefix}_rnd" type="text" value="0"></div>
+   </div>`
+   : `<div class="grid" style="margin-bottom:8px">
+     <div class="field full"><label>NHK Basiswerte €/m² Stufe 1–5 <span class="u">(aus Gebäudetyp)</span></label><input id="${prefix}_base" type="text" value="615, 685, 785, 945, 1180"></div>
+   </div>`;
+  h += `<table class="nhk"><thead><tr><th>Bauteil</th><th>Wägung</th><th>Standardstufe 1–5</th><th>Kostenkennwert €/m²</th></tr></thead><tbody>`;
+  NHK_ELEMENTS.forEach((el,i)=>{
+    h += `<tr><td>${el[0]}</td><td>${num2(el[1])}</td><td><input id="${prefix}_s${i}" type="text" value="3" style="width:70px"></td><td id="${prefix}_k${i}">0</td></tr>`;
+  });
+  h += `</tbody><tfoot>
+    <tr class="total"><th colspan="3" style="text-align:right">NHK 2010 (Kostenkennwert)</th><th id="${prefix}_nhk">0 €/m²</th></tr>
+    <tr><td colspan="3" style="text-align:right">NHK zum Stichtag (× Baupreisindex × Regionalfaktor)</td><td id="${prefix}_nhkheute">0 €/m²</td></tr>
+    <tr><td colspan="3" style="text-align:right" id="${prefix}_wmlbl">Alterswertminderung</td><td id="${prefix}_wm">0 %</td></tr>
+    <tr class="total"><th colspan="3" style="text-align:right">Gebäudepreis €/m²</th><th id="${prefix}_preis">0 €/m²</th></tr>
+    </tfoot></table>`;
+  return h;
+}
+function interp(b,s){if(s<=1)return b[0];if(s>=5)return b[4];let lo=Math.floor(s),f=s-lo;return b[lo-1]+(b[lo]-b[lo-1])*f;}
+
+/* ---------- Restnutzungsdauer nach Modernisierungspunkten (ImmoWertV Anlage 2) ---------- */
+const MOD_ELEMENTS=[
+  ['Dacherneuerung inkl. Wärmedämmung',4],
+  ['Fenster- und Außentürmodernisierung',2],
+  ['Leitungssysteme (Strom, Gas, Wasser, Abwasser)',2],
+  ['Modernisierung der Heizungsanlage',2],
+  ['Wärmedämmung der Außenwände',4],
+  ['Modernisierung der Bäder',2],
+  ['Innenausbau (Decken, Fußböden, Treppen)',2],
+  ['Wesentliche Verbesserung der Grundrissgestaltung',2]
+];
+// Koeffizienten a,b,c und Schwelle (rel. Alter %) je Punktzahl 0..20 (Tabelle 3, Anlage 2 ImmoWertV)
+const RND_COEFF=[
+  [1.2500,2.6250,1.5250,60],[1.2500,2.6250,1.5250,60],[1.0767,2.2757,1.3878,55],[0.9033,1.9263,1.2505,55],
+  [0.7300,1.5770,1.1133,40],[0.6725,1.4578,1.0850,35],[0.6150,1.3385,1.0567,30],[0.5575,1.2193,1.0283,25],
+  [0.5000,1.1000,1.0000,20],[0.4660,1.0270,0.9906,19],[0.4320,0.9540,0.9811,18],[0.3980,0.8810,0.9717,17],
+  [0.3640,0.8080,0.9622,16],[0.3300,0.7350,0.9528,15],[0.3040,0.6760,0.9506,14],[0.2780,0.6170,0.9485,13],
+  [0.2520,0.5580,0.9463,12],[0.2260,0.4990,0.9442,11],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10]
+];
+function computeRND(alter,gnd,points){
+  if(gnd<=0)return 0;
+  if(alter<=0)return gnd;
+  let p=Math.min(Math.max(Math.round(points),0),20);
+  let co=RND_COEFF[p];
+  let relAlter=alter/gnd;
+  let rnd=(relAlter<=co[3]/100)?(gnd-alter):(co[0]*alter*alter/gnd - co[1]*alter + co[2]*gnd);
+  return Math.min(Math.max(rnd,0),gnd);
+}
+function modPunkteSumme(){let s=0;MOD_ELEMENTS.forEach((el,i)=>{let v=num('mod_p'+i);s+=Math.min(Math.max(v,0),el[1]);});return s;}
+function buildModPunkte(){
+  let tb=$('modpunkte_tbl').querySelector('tbody'); tb.innerHTML='';
+  MOD_ELEMENTS.forEach((el,i)=>{
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td>${el[0]}</td><td>${el[1]}</td><td><input id="mod_p${i}" type="text" value="0" style="width:70px"></td></tr>`);
+  });
+}
+
+function computeNHK(prefix, baujahr, points){
+  let baseArr = ($(prefix+'_base').value.split(/[,;]+/).map(x=>parseFloat(x.trim().replace(',','.'))).filter(x=>!isNaN(x)));
+  if(baseArr.length<5) baseArr=[615,685,785,945,1180];
+  let nhk=0;
+  NHK_ELEMENTS.forEach((el,i)=>{let s=num(prefix+'_s'+i)||3;let k=el[1]*interp(baseArr,s);nhk+=k;setT(prefix+'_k'+i,num2(k));});
+  let gnd=num(prefix+'_gnd')||80;
+  let alter=(baujahr>0)?Math.max(new Date().getFullYear()-baujahr,0):0;
+  let rndInput=num(prefix+'_rnd');
+  let rnd=rndInput>0?rndInput:computeRND(alter,gnd,points);
+  let wm=gnd>0?Math.min(Math.max((gnd-rnd)/gnd,0),1):0;
+  let bpi=num('bpi')||100, fak=num('bpi_faktor')||1, reg=num('nhk_regional')||1;
+  let nhkHeute=nhk*fak*bpi/100*reg;
+  let preis=nhkHeute*(1-wm);
+  setT(prefix+'_nhk',num2(nhk)+' €/m²');
+  setT(prefix+'_nhkheute',num2(nhkHeute)+' €/m²');
+  setT(prefix+'_wmlbl','Alterswertminderung bei RND '+num2(rnd)+' Jahre');
+  setT(prefix+'_wm',num2(wm*100)+' %');
+  setT(prefix+'_preis',num2(preis)+' €/m²');
+  return {preis,rnd,gnd};
+}
+
+/* ---------- PWA: Installation & Offline-Betrieb ---------- */
+let DEFERRED_PROMPT=null;
+/* Eingebettete Icons – erlauben den Betrieb als Einzeldatei */
+const APP_ICONS={i192:'data:image/png;base64,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',i512:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAZ/UlEQVR4nO3deYzU9f348Zll2V1YBdZyCMghty1Qt8ipUW4lDRYRz0CsJm4VPIKobTVaqP1iNAUrirYGBeqRYtO0VoMYtGpQW43WE1ELiooIgpwuCyuwvxR7pP1ZBPzsfGb29Xj84R/u7Gvevmfd535m5vOZbEVFRQaAeIrSXgAA6RAAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAgipOewERbdq0KdPg7N27d9euXTt37vzinzt27NiwYcO6devW7/Pxxx+/8847K1eurK2tzeSrG264YcqUKWmvIoTu3bt/+umnaa8CASAhRUVFTfbZz2127969atWqFStWvPbaa88+++zLL7+8e/dujwCkxREAOfxpKy7uuc+4ceMymUx1dfVf/vKXZcuWLV68eOXKlR4JyDGvAZCa8vLyESNGTJ8+/YUXXnjqqacuu+yyo446yuMBOSMA5IW+fftOnz791Vdf/f3vfz9y5MhsNpv2iqDhEwDySDabPemkkx588MHnnntu4sSJpaWlaa8IGjIBIB/17Nlzzpw5zz///BevFgD1QQBS8Le//W3Lli1p3HOB6dix4z333PPoo49WVlbm4O7WrVu3YcOGurq6HNwX5INsRUVF2msIqqysrH379h07duzUqVPXrl179Ojx7W9/u3Xr1mmvKx/V1dXddddd06dP37VrV33fV1lZWZcuXXr16tWnT5++fftWVla2aNGivu80GucB5AkByC+tW7c+9thj+/fvP3r06D59+tTrfXXo0KG6uvoAb5zNZsvKysrLy794s3/Lli07d+7caZ9v7lNUVO9Hk2+//XZVVdXrr7+eyaFsNtulS5chQ4YMHjx42LBhbdq0ycGdHtRDs3/ZbLaoqCibzTZq1Kh4n5KSktLS0rKysqZNmzZp0uTwfSr2admyZZs2bdq1a9epU6d6/S8VgDwhAPmrbdu2o0eP/t73vjd06NA8/y3TvHnzQYMGDRkyZOzYsZ07d87Um9ra2p/+9Kd33HFHJiV9+vQZO3bs6aeffvTRR9ffvST40Byytm3bDh8+/JxzzhkyZEjiwwUgTwhAAejdu/eMGTOGDRuW/79lstns8ccff84554wbN27/ZwV/Hb/+9a+vvPLKdM8iHjp06JQpU0aMGNFQA/AvgwYNmj59+oABAxKcKQB5QgAKQzabveSSS2bMmFEov2XatGlz1VVXTZo0qXHjxvUx/8knn/z+97+/ffv2TKpOOOGEm2++uVevXg04AF/8+FVVVV1//fVJRV0A8oR3ARWGurq622677aabbsoUiPXr11955ZUDBw5cunRpfcwfNmzYI4880rx580yqnnnmmREjRvzud7/LNGh1dXW/+tWvTj755A8//DDttZAkASgkP//5z1etWpUpHKtXrz7rrLOmTZu2Y8eOxIf36dPnwQcfrL8nmg5QTU3ND37wg0ceeSTT0L3xxhsjRox4+eWX014IiRGAQrJnz54777wzU2jmz59/0kknvfvuu4lP7t+//3333VdSUpJJ1d69ey+77LIGeZXv/7Jx48Zx48Y9//zzaS+EZAhAgVm8eHEhnqm0atWqMWPGvPLKK4lPHjZs2OzZszNp27JlSyG2+RBs3759woQJjgMaBgEoMOvWrXvvvfcyBWjD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853vDB48eOTIkf369auPC4p99NFHl1122ZNPPpn4ZEAA+J+y2WzxPk2aNGnevHmLFi1atWrVrl279u3b9+jRo1evXl26dGnUqFH97eD9999/zTXXbN++3YME9UEA4srn9xquXbt26tSpS5cuTXsh0JAJAPnls88+u/XWW+fOnbtz58601wINnACQL3bv3r1w4cKbbrpp48aNmdg6dOhwCFe5KCkpady4cUlJSXl5ecuWLb/xjW+0a9eue/fu3bp169evX6tWrepnsRQwASB9NTU1ixYtmjt37qpVq9JeSwGr3ae6unrz5s1r1qz5r6927979lFNOmTRpUrdu3VJaIHlHAEjT2rVr582bt3Dhws2bN3sk6tXf9rnttttOPvnkmTNnHn300TYcl4IgBTU1NQ8//PB555137LHH/uIXv/DbP5cee+yxIUOG3HnnnTm9V/KSIwByZ+fOnUuXLn3ooYeWLFmyY8cOW5+WXbt2XXvttcuXL589e3ZJSYkHIiwBoH7V1NS88MILz+7z0ksv1dbW2vE88cADD1RXV9999931cQYfBUEASNj69etX/NObb775+uuvf/7553Y5Pz300ENHHHHErFmz0l4I6RCAuF577bWDvbpOXV1dbW3tzp07d+2zc+fOLVu2rF+/ft0/ffTRR1u3bq23JZO8+fPnDxky5PTTT7e5AQlAXN/97nd9pCKZTOaqq64aPnx4RUWF3YjGc38Q3ZYtW2bPnp32KkiBAACZefPmOQE7IAEA/v7G0AULFtiIaAQA+Lt77rlnz5499iIUAQD+bt26dU8//bS9CEUAgH9YtGiRvQhFAIB/WLx48a5du2xHHAIA/EN1dfWyZctsRxwCAPzb4sWLbUccAgD821NPPWU74hAA4N9Wr169du1aOxKEAAD/4dlnn7UjQQgA8B9eeeUVOxKEAAD/Yfny5XYkCAEA/sOKFSvsSBACAPyHDRs21NTU2JQIBAD4b2vWrLEpEfhEMOC/DRw40KZE4AgAICgBAAhKAACCEgAgNccff/ymL/PEE094VHJAAIDUjBs37kv//bZt23K+logEAEhHSUnJ+PHjv/RLW7ZsyflyIhIAIB1jx46tqKj40i9t3bo158uJSACAdJx//vn/60uOAHJDAIAU9OnTZ8iQIf/rq44AckMAgBRcdNFF+/mqI4DcEAAg19q2bTthwoT9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',imask:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAV1ElEQVR4nO3de5BXdf348c9nF9xlXWFRFhF+cZHLQCDgGASKMVzCyaSRWcZysogsJ1LLdMa8DGBZk1MzZWRpkomls1QIYhrgJE1jYAlFKeUtJ0Xj7rqwJrssu/ud+Pb7+kX9Inz2cj7nvB6P/3A+7/N5zZt1n5xzPpd87969cwDEU5L0AAAkQwAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKAEACAoAQAISgAAghIAgKC6JT0AnW79+vXjx48vwo1ua2s7ePBgY2NjU1NTQ0PD7t27d+3atXPnzhdffPHpw/bu3dtlw5x55pmPPvpoLrZVq1ZdeumlSU9B1xEAEpPP58sOy+Vyffv2HTp06FsesHPnzg0bNjx22D/+8Y+ExoTMEgCKV79+/WoOy+VyW7duvf/++1etWrVt27ak54KMcA+AdBgzZszixYu3bNlSW1s7ZcqUpMeBLBAA0iSfz5933nkPPvjg+vXrzz333KTHgXQTgOxbvXr1L3/5y02bNu3evTuXFePHj1+9evW99947ZMiQDjng3r17H3zwwS1btjQ0NHTIAaH45Xv37p30DHSd8vLyYcOGjRs3buzYse973/vGjx+fz+fbeczNmzfX1ta+6/P2OKy6unrQYQMHDiwp6YB/f7zxxhsLFy68++67cx0kn88PGjRo3LhxZ5111qRJk8aNG9e9e/cOOfKxbNQ7Kj2s5LAePXqUlZWVl5dXVFRUVVX16tWrd+/ep512WnV1dWlpaTsn9CqgaAQgtOrq6pkzZ86ZM2fmzJkFH6S2tvbyyy8/3lW9evWaNGnSlClT5syZ079//1z7PPLII5/73Ofq6+tzHa2ysnLq1KkXXnjh+eef36NHj/YcqrCNOkYlJSXDhw+fPn36vHnzRowYUdhBBCAal4BC27NnT21t7UUXXTRt2rRnnnmmK596375969atW7hw4dixY+fOnfub3/ymPUebNWvWunXrBg8enOtor7/++sMPP/zZz3529OjR3/jGN4r2AlFra+uzzz57++23n3322Z///Ofr6uqSnogUEAD+7S9/+ct555339NNPd/12tLa2rl+/vqamZvbs2U899VTBxxk+fPgjjzwybty4XOeor6//1re+NXHixMcffzxXxFpbW5cvXz558uQin5NiIAD8R0NDw9VXX53gdmzYsGHmzJnf+c53WltbCztCnz59VqxYUfAFkGOxa9eumpqaP/3pT7nitmfPngsvvPAXv/hF0oNQ1ASAN/3hD3946aWXEtyR5ubmm2++ed68eU1NTYUd4ZRTTlm5cmX7byocRWNjY7KlPEbNzc0LFiy47777kh6E4iUAHOF3v/td4jvy8MMP19TUNDY2Fra8f//+d911V/tfEnMUTz755LPPPpsreq2trVddddVDDz2U9CAUKQHgCEVycWPjxo0LFixoa2srbPn73//+66+/PteZ1q5dm0uDlpaWyy677M9//nPSg1CMBIAjdOUHcB7d6tWrlyxZUvDyL37xiyNHjsx1mueffz6XEo2NjZdccsmrr76a9CAUHQHgCK+99lrx7Mgtt9xS8JWW0tLSr33ta7lOk663VW/fvv2KK65IegqKjgBwhIKvvHeGpqam6667ruDl06dP77zPC+qMN511qnXr1t15551JT0FxEQCK2m9/+9v23Jf+zGc+06HjpNvixYv/+te/Jj0FRUQAKHa33XZbwWs/9KEP9evXr0PHSbGmpqYvfelLBd9aJ3sEgGL36KOP7tixo7C13bp1+8hHPtLRE6XY5s2bvTOA/yEAFLuWlpYHHnig4OXTp0/v0HFS76abbiqqW/0kSABIgfZ8XfuUKVM66vOcs6Guru4HP/hB0lNQFASAFNi4cWNzc3NhaysqKk4//fSOnijdli5dWrQfa0pXEgBSoLGxsT2fVt2pHw+XRvv377/rrruSnoLkCQDp0J4PMxg6dGiHzpIF99xzT9IjkDwBIB2ee+65gtf63tO3e+mll7Zs2dKuvxLSTwBIhxdeeKHgtZWVlR06S0asXLky6RFIWLekB4Bj8vLLLxe8UyeeeKJdfrvvH2ZnInMGQDrs2bOn4LUFv4IIsk0ASIf2vHfJSx7hHQkA6dDc3NzS0lLY2tdff72jx4EsEABS49ChQ4UtFAB4RwJAOnTr1q2srKywtdu3b+/ocSALBIB06NWrVyLvIUiLiy++uO5I3uvLuxIAMh6Atra2FH1/b8FGjRqV9AikjwCQDgMGDChs4csvv3zgwIFc1r33ve9NegTSRwDI+L9wn3jiiVwAY8aMSXoE0kcASIeRI0cWtvDXv/51LutGjx7dt2/fpKcgfQSALAegra1t/fr1uazzrWcURgBIgbKysjPPPLOAhVu2bNm7d28u62bMmJH0CKSSAJACkydPLuxNAD/5yU9yWde7d+9JkyYlPQWpJACkQE1NTQGr6uvrf/7zn+eybs6cOSeccELSU5BKAkCxq6ysnDNnTgELf/rTnzY2Nuaybv78+UmPQFoJAMXusssuq6ioON5VBw4cuOOOO3JZN3369NGjRyc9BWklABS1nj17XnHFFQUsvPXWW3fs2JHLtJKSksWLFyc9BSkmABS1xYsXV1VVHe+qbdu2LVmyJJd1l19++RlnnJH0FKSYAFC8Jk+e/KlPfaqAhddff31TU1Mu084999wbb7wx6SlINwGgSFVXV//oRz/K5/PHu/CHP/zhmjVrcpk2efLke++914t/aCcBoBiVl5ffc889p5122vEu3LJlS7Yvi+fz+U9/+tMrV6486aSTkp6F1OuW9ADwVpWVlbW1tQW8uWn37t3z588/ePBgJvc0n89Pmzbt2muvnThxYtKzkBECQHEZNGjQsmXLxo0bd7wLX3311QsvvHDbtm25lMvn8yeccEL37t0rKyurq6v79u07YsSIM844Y8aMGdXV1UlPR6YIAEWkpqbm29/+dgEXN/bv319TU/PMM8/kitjFhyU9BbzJPQCKwsiRI1esWLF06dICfvu/8sors2fPfvLJJztnNMgsZwAk7Mwzz7z00ks/+tGPlpaWFrD897///bx58/bs2dMJo0HGCQAJyOfzo0aNmjp16kUXXVTA5f7/1tbWtnTp0kWLFmX1ri90NgGgE5WVlVVUVPTo0aOioqJ///6DBw8eMmTIsGHDJk2adMopp7TnyNu2bbvyyisfe+yxjhsWwhEAUnZv89ChQz/+8Y9vvvnmf/3rX132pJBJAkCaPPTQQ1/5yldeeOGFXApt3ry5trb2XR+Wz+fLysq6d+9eVVV18sknDxw48PTTTx84cGCXzEgsAkAKtLS0rFmzZsmSJZs3b86l1vPPP3/33XcXtrZPnz7nnHPOxRdfPHPmzJISL96jY/hJoqjV1dXdfvvtZ5111ic/+clU//Zvp717965evfpjH/vYtGnTNm3alPQ4ZIQzAIpRXV3dr371q1WrVj322GOHDh1Kepwi8tRTT11wwQW33HKLLwKj/QSAYrF79+5NmzZt3Lhxw4YNW7dubW1tTXqiItXc3HzNNdc0NzdfdtllSc9CugkAXaS1tfXgwYONjY1NTU0NDQ07D9u1a9eLL774zDPPPP3003V1df4yjt31118/ePDgWbNm2TQKJgC0V21t7eWXX24fu1hbW9uVV175xz/+sbKy0uZTGDeBIa327Nlz2223JT0FKSYAkGJLly5tbGxMegrSSgAgxV577bX7778/6SlIKwGAdFu+fHnSI5BWAgDptnHjxh07diQ9BakkAJBubW1ta9asSXoKUkkAIPUeeeSRpEcglQQAUu/xxx9vaWlJegrSRwAg9RoaGv72t78lPQXpIwCQBVu3bk16BNJHACALnnvuuaRHIH0EALLg5ZdfTnoE0seHwUEWrDws6SlIGWcAAEEJAEBQAgC81erVq+uOVF1dbZuyRwCAI/Tv3/+cc855y6bs27fPNmWPAABH+PjHP15ScsRvhsbGxoMHD9qm7BEA4E3dunWbN2/eW3akvr7eHmWSAABvmj17dv/+/d+yIwKQVQIAvOnKK698+3a4AZBVAgD8x9SpU8ePH//27XAGkFUCAPzHNddc84574QwgqwQA+LfJkydPmTLlHffCGUBWCQDwb1/+8pf/r40QgKwSACB3zjnnfOADH/i/NsIloKwSACB34403HmUXBCCrBAC66n+2I99eWzw+/OEPT5o06SgPEICsKtKfSMie7t2754pPaWnpokWLjv4Y9wCySgCgi5xwwglFuNeXXHLJ8OHDj/4YAcgqAYAu0qtXr2Lb66qqqhtuuOFdH+YSUFYJAHSRk08+udj2+qabbjqWD/p3BpBVAgBdZMCAAUW11xMmTPjEJz7xrg9raWl5/fXXu2QiupoAcIQePXoc74707Nkz4CaWl5cf75KqqqrevXvnikN5efn3vve9fD7/ro90/SfDBID2XqaI+WWBhV3PGTt2bK44fP3rXx8xYsSxPNL1nwwTAI5wjL8U/reBAwcG3MRRo0YVsGrGjBm5InD++efPnz//GB/sDCDDBIAjTJ069Xh3pF+/fqNHj462j9OmTStg1dy5c8vKynKJGj169B133HHsjxeADBMA3jRixIjJkycXsCMXXHBBqH0cN27cxIkTC1jYr1+/L3zhC50w0XEM8LOf/ayysvLYlwhAhgkA//9HoaTkm9/85rHcFXy7BQsWFNtLXDpPRUXFd7/73YKXX3vttUn1csKECWvXrn37Nz4enXsAGSYA/FtZWdn3v//9o3we5NH17NnzgQceGDZsWOZ389RTT12xYkV77uWWlpYuW7Zs4cKFBbzgqjBlZWWzZs2677771q5dW8ANGwHIsHzxvC6NRJSUlHzwgx9ctGhRYXc1/7fGxsalS5feeeed//znP3OZc/LJJ19yySVXXXVVVVVVhxywvr5++fLl69ate+KJJw4cOJDrUKeeeuqYMWMmTJgw8bCKioqCD/XVr3711ltv7dDpKBYCEE7Pnj0HDBgwaNCg4cOHjx07dsqUKaeeemoHHr+trW3r1q2bN2/eunXr3//+9xdffHHnzp3Nzc25VOnZs+fAgQMHDx48ZMiQkSNHjh07dtSoUZ30cZ5tbW3btm175ZVXdu/evW/fvoaGhjfeeKOxsbGpqamlpaX1sHdcmM/nS0tLu3fvXl5eXllZ2atXrz59+gwcOHDo0KHHdZX/6K6++uply5Z11NEoKt2SHoBON3To0BtuuKFv3779DjvxxBM79eny+fwZh/3Pf2ltbd27d+/27dvr6+sbGhp27Nhx3XXX5YrMe97znoULF1ZXV/fr169///4nnXRSlz11Pp8fdFiuKLkJnGECkH2nnXbanDlzEhygpKSk72H//ce6uroiDECfPn3mzp2b9BTFyD2ADHMTGDgaAcgwAQCOZv/+/TYoqwQAOBpnABnmHgCd4v9dcLQvGa84e0Gx7fuz7zZzsl556OtJPbWbwBnmZaB0iiL8FZ9qb2y8PekRyCCXgACCEgCAoAQAICj3AACCcgYAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEJQAAAQlAABBCQBAUAIAEFS3XBZVnL0g6RGArHlj4+25bHEGABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQQkAQFACABCUAAAEJQAAQeV79+6d9AwAJMAZAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEBQAgAQlAAABCUAAEEJAEAupv8CaW/GGLQt8W0AAAAASUVORK5CYII='};
+/* Fehlt manifest.webmanifest (Einzeldatei-Upload), wird es zur Laufzeit erzeugt.
+   start_url/scope absolut, damit die Aufloesung unabhaengig vom Ablageort stimmt. */
+(function(){
+  fetch('./manifest.webmanifest',{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;}).catch(()=>{
+    try{
+      const hier=location.href.split('#')[0].split('?')[0];
+      const m={name:'Rechnerische Preisermittlung',short_name:'Preisermittlung',lang:'de',
+        start_url:hier,scope:hier.replace(/[^/]*$/,''),display:'standalone',
+        background_color:'#eceae7',theme_color:'#111111',
+        icons:[{src:APP_ICONS.i192,sizes:'192x192',type:'image/png',purpose:'any'},
+               {src:APP_ICONS.i512,sizes:'512x512',type:'image/png',purpose:'any'},
+               {src:APP_ICONS.imask,sizes:'512x512',type:'image/png',purpose:'maskable'}]};
+      const url=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));
+      const l=document.getElementById('manifestLink'); if(l) l.href=url;
+    }catch(e){}
+  });
+})();
+if('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{ /* z.B. ohne HTTPS – App läuft trotzdem */ });
+  });
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); DEFERRED_PROMPT=e;
+  let b=document.getElementById('installBtn'); if(b) b.style.display='inline-block';
+});
+window.addEventListener('appinstalled',()=>{
+  DEFERRED_PROMPT=null;
+  let b=document.getElementById('installBtn'); if(b) b.style.display='none';
+});
+function istInstalliert(){
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+}
+function appInstallieren(){
+  if(DEFERRED_PROMPT){ DEFERRED_PROMPT.prompt(); DEFERRED_PROMPT=null; return; }
+  // iPhone/iPad: Safari bietet keinen Installations-Dialog an
+  let iOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  alert(iOS
+    ? 'Auf dem iPhone/iPad:\n\n1. In Safari auf „Teilen" tippen (Quadrat mit Pfeil nach oben)\n2. „Zum Home-Bildschirm" wählen\n3. Mit „Hinzufügen" bestätigen\n\nDanach startet die Preisermittlung wie eine App – auch ohne Internet.'
+    : 'Im Browser-Menü (⋮) „App installieren" bzw. „Zum Startbildschirm hinzufügen" wählen.\n\nHinweis: Die Installation funktioniert nur, wenn die Seite über https:// aufgerufen wird.');
+}
+
+/* ---------- Szenario-Hooks (Sensitivität) ---------- */
+const SZEN={lz:0,miete:1};
+let SILENT=false;   // unterdrückt autosave während Szenario-Rechnungen
+
+/* ---------- Unterlagen-Checkliste ---------- */
+const AU_UNTERLAGEN=['Grundbuchauszug','Flurkarte / Lageplan','Bauzeichnungen / Grundrisse','Wohnflächenberechnung',
+  'Energieausweis','Teilungserklärung (WEG)','Protokolle Eigentümerversammlung','Jahresabrechnung / Hausgeld',
+  'Mietverträge','Nebenkostenabrechnung','Grundsteuerbescheid','Nachweis Modernisierungen','Baulastenauskunft','Altlastenauskunft'];
+function buildUnterlagen(){
+  let box=$('au_unterlagen'); if(!box)return; box.innerHTML='';
+  AU_UNTERLAGEN.forEach((u,i)=>{
+    box.insertAdjacentHTML('beforeend',`<label class="chk"><input type="checkbox" id="au_ul${i}"> ${u}</label>`);
+  });
+}
+function unterlagenStatus(){
+  let da=[],fehlt=[];
+  AU_UNTERLAGEN.forEach((u,i)=>{let e=$('au_ul'+i);if(e&&e.checked)da.push(u);else fehlt.push(u);});
+  return {da,fehlt};
+}
+
+/* ---------- Projekt-Bibliothek ---------- */
+const PJ_KEY='vb_projekte';
+function pjLoad(){try{return JSON.parse(localStorage.getItem(PJ_KEY))||[];}catch(e){return [];}}
+function pjStore(list){try{localStorage.setItem(PJ_KEY,JSON.stringify(list));return true;}catch(e){alert('Speicher voll — bitte ältere Projekte löschen oder Fotos reduzieren.');return false;}}
+function oeffneProjekte(){$('projekt_overlay').classList.add('on');if(!$('pj_name').value)$('pj_name').value=$('ek_anschrift').value||'';renderProjekte();}
+function schliesseProjekte(){$('projekt_overlay').classList.remove('on');}
+function renderProjekte(){
+  let list=pjLoad(), tb=$('pj_tbl').querySelector('tbody'); tb.innerHTML='';
+  if(!list.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted)">Noch keine Projekte gesichert.</td></tr>';return;}
+  list.forEach(p=>{
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td style="text-align:left">${(p.name||'ohne Namen').replace(/</g,'&lt;')}</td>
+       <td style="text-align:left">${(p.objekt||'–').replace(/</g,'&lt;')}</td>
+       <td>${p.datum||''}</td>
+       <td style="white-space:nowrap">
+         <button onclick="projektLaden('${p.id}')">Öffnen</button>
+         <button onclick="projektDuplizieren('${p.id}')">Duplizieren</button>
+         <button onclick="projektLoeschen('${p.id}')">Löschen</button>
+       </td></tr>`);
+  });
+}
+function projektSichern(){
+  let name=($('pj_name').value||$('ek_anschrift').value||'Wertermittlung').trim();
+  let list=pjLoad();
+  let vorhanden=list.find(p=>p.name===name);
+  let eintrag={id:vorhanden?vorhanden.id:'p'+Date.now(),name,
+    objekt:($('ek_typ').value||$('ek_wtyp').value||''),
+    datum:new Date().toLocaleDateString('de-DE'),data:snapshot()};
+  if(vorhanden) list[list.indexOf(vorhanden)]=eintrag; else list.push(eintrag);
+  if(pjStore(list)){renderProjekte();alert(vorhanden?'Projekt „'+name+'" aktualisiert.':'Projekt „'+name+'" gesichert.');}
+}
+function projektLaden(id){
+  let p=pjLoad().find(x=>x.id===id); if(!p)return;
+  if(!confirm('Projekt „'+p.name+'" öffnen? Der aktuelle Stand wird ersetzt.'))return;
+  restore(p.data);$('pj_name').value=p.name;
+  document.body.classList.add('started');schliesseProjekte();window.scrollTo(0,0);
+}
+function projektDuplizieren(id){
+  let list=pjLoad(), p=list.find(x=>x.id===id); if(!p)return;
+  let name=prompt('Name der Kopie:',p.name+' (Kopie)'); if(!name)return;
+  list.push({id:'p'+Date.now(),name,objekt:p.objekt,datum:new Date().toLocaleDateString('de-DE'),data:p.data});
+  if(pjStore(list))renderProjekte();
+}
+function projektLoeschen(id){
+  let list=pjLoad(), p=list.find(x=>x.id===id); if(!p)return;
+  if(!confirm('Projekt „'+p.name+'" endgültig löschen?'))return;
+  if(pjStore(list.filter(x=>x.id!==id)))renderProjekte();
+}
+
+/* ---------- Sensitivität ---------- */
+function sensitivitaet(){
+  let dLZ=num('sz_lz'), dM=num('sz_miete')/100;
+  let basisLZ=num('er_zins_basis')+num('er_zins_adj');
+  let szenarien=[
+    ['Basisannahme',0,1],
+    ['Liegenschaftszins −'+num2(dLZ)+' Pp.',-dLZ,1],
+    ['Liegenschaftszins +'+num2(dLZ)+' Pp.',dLZ,1],
+    ['Miete −'+num2(dM*100)+' %',0,1-dM],
+    ['Miete +'+num2(dM*100)+' %',0,1+dM],
+    ['ungünstig (Zins +, Miete −)',dLZ,1-dM],
+    ['günstig (Zins −, Miete +)',-dLZ,1+dM]
+  ];
+  SILENT=true;
+  let basis=null, data=[];
+  szenarien.forEach(s=>{
+    SZEN.lz=s[1];SZEN.miete=s[2];compute();
+    let v=window._R.empfehlung;
+    if(basis===null)basis=v;
+    data.push({name:s[0],lz:basisLZ+s[1],miete:s[2]*100,wert:v,abw:basis?((v-basis)/basis*100):0,istBasis:data.length===0});
+  });
+  SZEN.lz=0;SZEN.miete=1;SILENT=false;compute();
+  let t=$('sz_tbl'); t.style.display='';
+  t.querySelector('tbody').innerHTML=data.map(d=>
+    `<tr><td style="text-align:left">${d.name}</td><td>${num2(d.lz)} %</td><td>${num2(d.miete)} %</td>`
+    +`<td>${eur(d.wert)}</td><td>${d.istBasis?'–':(d.abw>0?'+':'')+num2(d.abw)+' %'}</td></tr>`).join('');
+  window._SZEN_DATA=data;
+}
+
+/* ---------- Word- / Excel-Export ---------- */
+function dlBlob(content,mime,filename){
+  let b=new Blob(['\ufeff'+content],{type:mime});
+  let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function basisName(){return ($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';}
+function exportWord(){
+  druckbericht();
+  let inhalt=$('report').cloneNode(true);
+  inhalt.querySelectorAll('.no-print').forEach(e=>e.remove());
+  let html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+    +'<head><meta charset="utf-8"><title>Rechnerische Preisermittlung</title><style>'
+    +'body{font-family:Arial,sans-serif;font-size:11pt}h1{font-family:Georgia,serif;font-size:18pt;color:#1b4b7a}'
+    +'h2{font-family:Georgia,serif;font-size:13pt;color:#1b4b7a;border-bottom:1px solid #999}h3{font-size:11pt;color:#1b4b7a}'
+    +'table{width:100%;border-collapse:collapse;font-size:10pt}td{padding:3pt 5pt;border-bottom:0.5pt solid #ccc}'
+    +'td:last-child{text-align:right}.total td{font-weight:bold;border-top:1pt solid #1b4b7a}'
+    +'.beschr{white-space:pre-wrap}img{max-width:280pt}</style></head><body>'+inhalt.innerHTML+'</body></html>';
+  document.body.classList.remove('report-mode');
+  dlBlob(html,'application/msword','Preisermittlung '+basisName()+'.doc');
+}
+function exportExcel(){
+  compute(); const R=window._R;
+  const z=(a,b)=>`<tr><td>${a}</td><td>${typeof b==='number'?b.toFixed(2).replace('.',','):b}</td></tr>`;
+  let rows=[
+    ['Objekt',$('ek_anschrift').value||''],['Vordruck',$('ek_vordruck').value||''],
+    ['Gebäudetyp',modus()==='wohnung'?$('ek_wtyp').value:$('ek_typ').value],
+    ['Stichtag',$('ek_stichtag').value||''],['Baujahr',$('ek_baujahr').value||''],
+    ['Wohnfläche m²',num('ek_wohnflaeche')],['Nutzfläche m²',num('ek_nutzflaeche')],
+    ['Grundstücksfläche m²',num('ek_gs_flaeche')],['Bodenrichtwert €/m²',num('ek_brw')],
+    ['Bodenwert €',R.bodenwert],['BGF Hauptgebäude m²',R.bgfHG],['Gebäudepreis €/m²',R.hg.preis],
+    ['Restnutzungsdauer Jahre',R.erRND],['Modernisierungspunkte',R.modPunkte],
+    ['Liegenschaftszins %',R.effLZ],['Vervielfältiger',R.vf],
+    ['Jahresrohertrag €',R.roh],['Bewirtschaftungskosten €',R.bewirt],
+    ['Gebäudereinertrag €',R.gebRein],
+    ['Preis nach Substanz/Vergleich €',R.substanz],['Preis nach Ertrag €',R.ertrag],
+    ['Vergleichswert €',R.vergleichWert],['Gewichteter Mittelwert €',R.mittel],
+    ['Belastung Nießbrauch/Wohnrecht €',R.niessWert],['Korrektur Erbbaurecht €',R.erbbauAbzug],
+    ['Wertkorrekturen § 8 Abs. 3 €',R.wkSumme],['Barwert PV €',R.pvWert],
+    ['EMPFOHLENER PREISANSATZ €',R.empfehlung],
+    ['Preis je m² Wohn-/Nutzfläche',R.eigenM2],
+    ['Bruttomietrendite %',R.reBrutto],['Nettomietrendite %',R.reNetto],['Kaufpreisfaktor',R.reFaktor]
+  ].map(r=>z(r[0],r[1])).join('');
+  let html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">'
+    +'<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
+    +'<x:Name>Preisermittlung</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'
+    +'</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'
+    +'<style>td{mso-number-format:"\\@"}</style></head><body><table border="1">'
+    +'<tr><th colspan="2">Rechnerische Preisermittlung</th></tr>'+rows+'</table></body></html>';
+  dlBlob(html,'application/vnd.ms-excel','Preisermittlung '+basisName()+'.xls');
+}
+
+/* ---------- Vergleichsobjekte ---------- */
+const N_VGL=8;
+function buildVergleich(){
+  let tb=$('vgl_tbl').querySelector('tbody'); tb.innerHTML='';
+  for(let i=0;i<N_VGL;i++){
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td><input id="vgl_adr${i}" type="text" placeholder="Adresse / Objekt" style="text-align:left"></td>
+       <td><input id="vgl_bj${i}" type="text" style="width:70px"></td>
+       <td><input id="vgl_zust${i}" type="text" placeholder="z.B. saniert"></td>
+       <td><input id="vgl_fl${i}" type="text" value="0" style="width:80px"></td>
+       <td><input id="vgl_kp${i}" type="text" value="0"></td>
+       <td id="vgl_m2${i}">–</td></tr>`);
+  }
+}
+function computeVergleich(){
+  let sum=0,n=0;
+  for(let i=0;i<N_VGL;i++){
+    let fl=num('vgl_fl'+i), kp=num('vgl_kp'+i);
+    let m2=(fl>0&&kp>0)?kp/fl:0;
+    setT('vgl_m2'+i, m2>0?num2(m2)+' €':'–');
+    if(m2>0){sum+=m2;n++;}
+  }
+  let avg=n>0?sum/n:0;
+  setT('o_vgl_avg', avg>0?num2(avg)+' €/m² ('+n+' Objekte)':'–');
+  return avg;
+}
+function uebernehmeVergleichspreis(){
+  let avg=computeVergleich();
+  if(avg>0){$('vw_preis').value=num2(avg);compute();}
+  else alert('Bitte zuerst Vergleichsobjekte mit Fläche und Kaufpreis erfassen.');
+}
+
+/* ---------- Marktmieten-Vergleich ---------- */
+const MSP_QUELLEN=['Mietspiegel der Gemeinde','Recherche ImmoScout24','Marktbericht / Gutachterausschuss','Eigene Vermietungsdaten','Weitere Quelle'];
+function buildMietspiegel(){
+  let tb=$('msp_tbl').querySelector('tbody'); tb.innerHTML='';
+  MSP_QUELLEN.forEach((q,i)=>{
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td><input id="msp_q${i}" type="text" value="${q}" style="text-align:left"></td>
+       <td><input id="msp_min${i}" type="text" value="0"></td>
+       <td><input id="msp_max${i}" type="text" value="0"></td>
+       <td><input id="msp_avg${i}" type="text" value="0"></td></tr>`);
+  });
+}
+function computeMietspiegel(){
+  let sum=0,n=0,zeilen=[];
+  MSP_QUELLEN.forEach((q,i)=>{
+    let mn=num('msp_min'+i),mx=num('msp_max'+i),av=num('msp_avg'+i);
+    let eff=av>0?av:((mn>0&&mx>0)?(mn+mx)/2:0);
+    if(eff>0){sum+=eff;n++;zeilen.push({q:($('msp_q'+i).value||q),mn,mx,av:eff});}
+  });
+  let avg=n>0?sum/n:0;
+  setT('o_msp_avg', avg>0?num2(avg)+' €/m² ('+n+' Quellen)':'–');
+  return {avg,zeilen};
+}
+
+/* ---------- Wertkorrekturen § 8 Abs. 3 ---------- */
+const N_WK=14;
+const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
+  ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
+function buildWK(){
+  let tb=$('wk_tbl').querySelector('tbody'); tb.innerHTML='';
+  for(let i=0;i<N_WK;i++){
+    tb.insertAdjacentHTML('beforeend',
+      `<tr id="wk_row${i}"><td><input id="wk_bez${i}" type="text" placeholder="z.B. Sanierungsstau Dach" style="text-align:left"></td>
+       <td><input id="wk_val${i}" type="text" value="0"></td></tr>`);
+  }
+}
+function renderWKRows(){
+  let vis=Math.max(3,Math.min(N_WK,parseInt(num('wk_visible'))||3));
+  for(let i=0;i<N_WK;i++){
+    let r=$('wk_row'+i); if(!r)continue;
+    let hasVal=(($('wk_bez'+i).value||'').trim()!=='')||num('wk_val'+i)!==0;
+    r.style.display=(i<vis||hasVal)?'':'none';
+  }
+}
+function addWKRow(){
+  let vis=Math.max(3,Math.min(N_WK,parseInt(num('wk_visible'))||3));
+  $('wk_visible').value=Math.min(vis+1,N_WK); renderWKRows();
+}
+function wkVorlage(){
+  WK_VORLAGE.forEach((v,i)=>{if(i<N_WK && !($('wk_bez'+i).value||'').trim()) $('wk_bez'+i).value=v[0];});
+  $('wk_visible').value=Math.max(WK_VORLAGE.length,parseInt(num('wk_visible'))||3);
+  renderWKRows();compute();
+}
+function sumWK(){let s=0;for(let i=0;i<N_WK;i++)s+=num('wk_val'+i);return s;}
+function wkLines(){let o=[];for(let i=0;i<N_WK;i++){let v=num('wk_val'+i);let b=($('wk_bez'+i).value||'').trim();if(v!==0)o.push([b||'Wertkorrektur',v]);}return o;}
+
+/* ---------- Aufnahmebogen ---------- */
+const AU_BAUTEILE=['Kamin / Kachelofen','Wintergarten','PV-Anlage','Solarthermie','Sauna','Pool / Schwimmbad','Garage','Carport','Klimaanlage','Alarmanlage','Markise','Gartenhaus','Fußbodenheizung','Smart Home','Zisterne','Aufzug'];
+function buildAufnahmeBauteile(){
+  let box=$('au_bauteile'); if(!box)return; box.innerHTML='';
+  AU_BAUTEILE.forEach((b,i)=>{
+    box.insertAdjacentHTML('beforeend',
+      `<label class="chk"><input type="checkbox" id="au_bt${i}"> ${b}</label>`);
+  });
+}
+function aufnahmeBauteileListe(){
+  return AU_BAUTEILE.filter((b,i)=>{let e=$('au_bt'+i);return e&&e.checked;});
+}
+function druckeAufnahmebogen(){
+  document.body.classList.add('print-aufnahme');
+  window.print();
+  setTimeout(()=>document.body.classList.remove('print-aufnahme'),600);
+}
+
+/* ---------- Mietrolle (wohnungsweise) ---------- */
+const N_MIETROLLE=14;
+function buildMietrolle(){
+  let tb=$('mietrolle_tbl').querySelector('tbody'); tb.innerHTML='';
+  for(let i=0;i<N_MIETROLLE;i++){
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td><input id="mr_bez${i}" type="text" placeholder="${i<11?'Wohnung '+(i+1):'…'}" style="text-align:left"></td>`+
+      `<td><input id="mr_gesch${i}" type="text" style="text-align:left"></td>`+
+      `<td><input id="mr_fl${i}" type="text" value="0"></td>`+
+      `<td><input id="mr_pm2${i}" type="text" value="0"></td>`+
+      `<td><input id="mr_pau${i}" type="text" value="0"></td>`+
+      `<td id="mr_pa${i}">0 €</td></tr>`);
+  }
+}
+function computeMietrolle(){
+  let sum=0;
+  for(let i=0;i<N_MIETROLLE;i++){
+    let pa=(num('mr_fl'+i)*num('mr_pm2'+i)+num('mr_pau'+i))*12;
+    setT('mr_pa'+i, eur(pa)); sum+=pa;
+  }
+  setT('o_mr_summe', eur(sum)); return sum;
+}
+
+/* ---------- BGF: 4 benannte + 2 frei beschriftbare Geschosse ---------- */
+const GESCHOSSE=['Untergeschoss','Erdgeschoss','Obergeschoss','Dachgeschoss'];
+const N_GESCH=6;
+function buildBGF(tblId,prefix){
+  let tb=$(tblId).querySelector('tbody');tb.innerHTML='';
+  for(let i=0;i<N_GESCH;i++){
+    let name = i<GESCHOSSE.length ? GESCHOSSE[i] :
+      `<input id="${prefix}_n${i}" type="text" placeholder="weiteres Geschoss …" style="text-align:left">`;
+    tb.insertAdjacentHTML('beforeend',
+      `<tr><td>${name}</td><td><input id="${prefix}_l${i}" type="text" value="0"></td><td><input id="${prefix}_b${i}" type="text" value="0"></td><td><input id="${prefix}_e${i}" type="text" value="0"></td><td id="${prefix}_f${i}">0</td></tr>`);
+  }
+}
+function computeBGF(prefix,outId){
+  let sum=0;
+  for(let i=0;i<N_GESCH;i++){
+    let f=num(prefix+'_l'+i)*num(prefix+'_b'+i)+num(prefix+'_e'+i);
+    setT(prefix+'_f'+i,num2(f));sum+=f;
+  }
+  setT(outId,num2(sum));return sum;
+}
+
+/* ---------- Zusatzpositionen ("+"-Felder) ---------- */
+function showNext(group,max){
+  for(let i=1;i<=max;i++){let r=$(group+'_'+i);if(r && !r.classList.contains('on')){r.classList.add('on');return;}}
+}
+function sumExtras(prefix,max){
+  let s=0;for(let i=1;i<=max;i++){s+=num(prefix+i+'_val');}return s;
+}
+function extraLines(prefix,max){ // für Bericht
+  let out=[];for(let i=1;i<=max;i++){let v=num(prefix+i+'_val');if(v!==0){out.push([($(prefix+i+'_label').value||'weitere Position'),v]);}}return out;
+}
+function revealUsedExtras(){
+  document.querySelectorAll('.xrow,.xrow3').forEach(r=>{
+    let has=false;
+    r.querySelectorAll('input').forEach(inp=>{let v=(''+inp.value).trim();if(v!==''&&v!=='0')has=true;});
+    if(has)r.classList.add('on');
+  });
+}
+
+/* ---------- Barwertfaktor / Lebenserwartung ---------- */
+function barwertfaktor(p,n){p=p/100;if(p<=0)return n;if(n<=0)return 0;return (1-Math.pow(1+p,-n))/p;}
+function restLeben(alter,g){
+  if(alter<=0)return 0;
+  let base = g==='m' ? 78.5 : 83.5;
+  let rest = base - alter;
+  rest += Math.max(0,(alter-40))*0.18;
+  return Math.max(Math.round(rest*10)/10, 2);
+}
+
+/* ---------- Modus (Haus / Wohnung) ---------- */
+function modus(){return $('ek_modus')?$('ek_modus').value:'haus';}
+function modusWechsel(){
+  let w = modus()==='wohnung';
+  document.body.classList.toggle('modus-wohnung', w);
+  setT('lbl_e_sub', w?'Preis nach Vergleichswert':'Preis nach Gebäudesubstanz');
+  setT('lbl_gew', w?'Gewichtung Vergleich : Ertrag':'Gewichtung Substanz : Ertrag');
+  setT('r_sub_lbl', w?'Vergleichswert':'Substanzwert');
+  setT('hdr_sub', w?'Vordruck Wohnung / ETW · Vergleichs- + Ertragswert':'Vordruck Haus / Gebäude · Substanz- + Ertragswert');
+  if(w && num('nhkhg_gnd')===0) $('nhkhg_gnd').value=80;
+  buildNav();
+  compute();
+}
+
+/* ---------- Startbildschirm: Vordruck-Presets (je Vordruck ein Objekttyp) ---------- */
+const VORDRUCKE = [
+  // Eigentumswohnung
+  {id:'etw_vergleich', kat:'wohnung', icon:'🏢', label:'ETW · Ertrags- + Vergleichswert',
+   sub:'Standard-Eigentumswohnung', modus:'wohnung', wtyp:'Etagenwohnung', gew:'0.5'},
+  {id:'etw_niess', kat:'wohnung', icon:'🏢', label:'ETW · mit Nießbrauch',
+   sub:'Wohnung mit Nießbrauchsbelastung', modus:'wohnung', wtyp:'Etagenwohnung', niess:true, gew:'0.5'},
+  // Wohnhaus
+  {id:'wh_bgf', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus nach BGF',
+   sub:'Substanz (NHK) + Ertrag', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', gew:'0.5'},
+  {id:'wh_pv', kat:'wohnhaus', icon:'☀️', label:'Wohnhaus mit PV-Anlage',
+   sub:'Substanz + Ertrag + PV-Barwert', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', pv:true, gew:'0.5'},
+  {id:'wh_anbau_niess_haupt', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus + Anbau · Nießbrauch Hauptwohnung',
+   sub:'Nießbrauch auf Hauptgebäude', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.5'},
+  {id:'wh_anbau_niess_neben', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus + Anbau · Nießbrauch Einliegerwohnung',
+   sub:'Nießbrauch auf Nebengebäude', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.5'},
+  {id:'wh_bgf_ertrag_anbau_niess', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus BGF + Ertrag · Anbau + Nießbrauch',
+   sub:'Nebengebäude / Einliegerwohnung', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.4'},
+  // Gewerbe
+  {id:'laden_buero_praxis', kat:'gewerbe', icon:'🏬', label:'Laden / Büro / Praxis',
+   sub:'Gewerbeobjekt · Ertragsschwerpunkt', modus:'haus', typ:'Geschäftshaus ohne Wohnungen', gew:'0.3'},
+  {id:'gewerbe_bgf', kat:'gewerbe', icon:'🏭', label:'Gewerbliche Objekte nach BGF',
+   sub:'Betriebs- / Werkstatt- / Bürogebäude', modus:'haus', typ:'Betriebs-/Werkstattgebäude · eingeschossig', gew:'0.3'}
+];
+const KAT_TITEL = {wohnung:'Eigentumswohnung – Vordruck wählen', wohnhaus:'Wohnhaus – Vordruck wählen', gewerbe:'Gewerbe – Vordruck wählen'};
+function showStart(){
+  document.body.classList.remove('started');
+  $('start-step1').style.display='';
+  $('start-step2').style.display='none';
+  window.scrollTo(0,0);
+}
+function startBack(){ $('start-step1').style.display=''; $('start-step2').style.display='none'; }
+function pickKategorie(kat){
+  let tiles=$('start-tiles'); tiles.innerHTML='';
+  $('start-step2-title').textContent=KAT_TITEL[kat]||'Vordruck wählen';
+  VORDRUCKE.filter(v=>v.kat===kat).forEach(v=>{
+    tiles.insertAdjacentHTML('beforeend',
+      `<div class="tile" onclick="pickVordruck('${v.id}')"><div class="ic">${v.icon}</div><div class="t">${v.label}</div><div class="d">${v.sub||'&nbsp;'}</div></div>`);
+  });
+  $('start-step1').style.display='none';
+  $('start-step2').style.display='';
+  window.scrollTo(0,0);
+}
+function pickVordruck(id){
+  let v=VORDRUCKE.find(x=>x.id===id); if(!v)return;
+  applyVordruck(v);
+  document.body.classList.add('started');
+  window.scrollTo(0,0);
+}
+function applyVordruck(v){
+  $('ek_modus').value=v.modus;
+  if(v.modus==='haus' && v.typ) $('ek_typ').value=v.typ;
+  if(v.modus==='wohnung' && v.wtyp) $('ek_wtyp').value=v.wtyp;
+  $('anbau_aktiv').checked=!!v.anbau;
+  $('niess_aktiv').checked=!!v.niess;
+  $('pv_aktiv').checked=!!v.pv;
+  modusWechsel();
+  if(v.modus==='haus') typWechsel();
+  if(v.gew) $('gewichtung').value=v.gew;
+  // Liegenschaftszins marktüblich je Objektart (Gutachterausschuss-Werte ggf. anpassen)
+  let lzByKat={wohnung:3, wohnhaus:2.5, gewerbe:6};
+  $('er_zins_basis').value = v.lz || lzByKat[v.kat] || 2.5;
+  $('er_zins_adj').value = 0;
+  $('ek_vordruck').value=v.label;
+  setT('hdr_sub', v.label);
+  compute();
+}
+
+/* ---------- Typ-Wechsel & Referenztabelle ---------- */
+function typWechsel(){
+  let t=TYPES[$('ek_typ').value]; if(!t)return;
+  ['nhkhg','nhkan'].forEach(p=>{
+    $(p+'_base').value = t.nhk.join(', ');
+    $(p+'_gnd').value = t.gnd;
+  });
+  $('gewichtung').value = t.gew;
+  compute();
+}
+function buildRefTable(){
+  let h='<tr><th>Gebäudetyp</th><th>St. 1</th><th>St. 2</th><th>St. 3</th><th>St. 4</th><th>St. 5</th><th>GND</th><th>amtl. Stufen</th></tr>';
+  Object.keys(TYPES).forEach(k=>{
+    let t=TYPES[k];
+    h+=`<tr><td>${k}</td>${t.nhk.map((v,i)=>`<td style="text-align:right${t.amtlich.indexOf('*')>-1&&i<2?';color:#999':''}">${v}</td>`).join('')}<td style="text-align:center">${t.gnd} J</td><td style="text-align:center">${t.amtlich}</td></tr>`;
+  });
+  $('nhk_ref_tbl').innerHTML=h;
+}
+
+/* ---------- MAIN ---------- */
+function compute(){
+  let istWohnung = modus()==='wohnung';
+  // Bodenwert (Anteil I + optionale Anteile II/III) — bei Wohnung im Vergleichspreis enthalten
+  let bodenwert = 0;
+  if(!istWohnung){
+    bodenwert = num('ek_gs_flaeche')*num('ek_brw')*(1-num('ek_gs_abschlag')/100);
+    bodenwert += num('xgs1_flaeche')*num('xgs1_brw')*(1-num('xgs1_abschlag')/100);
+    bodenwert += num('xgs2_flaeche')*num('xgs2_brw')*(1-num('xgs2_abschlag')/100);
+  }
+
+  setT('e_baujahr', num('ek_baujahr'));
+
+  // BGF
+  let bgfHG=computeBGF('bgfhg','o_bgf_hg');
+  let anbauAktiv=$('anbau_aktiv').checked;
+  $('anbau_body').style.opacity=anbauAktiv?1:.4;
+  let bgfAN=anbauAktiv?computeBGF('bgfan','o_bgf_an'):0;
+
+  // NHK
+  // Modernisierungspunkte → RND (ImmoWertV Anlage 2)
+  let modPunkte=modPunkteSumme();
+  let gndHG=num('nhkhg_gnd')||80;
+  let alterHG=(num('ek_baujahr')>0)?Math.max(new Date().getFullYear()-num('ek_baujahr'),0):0;
+  setT('o_modpunkte',num2(modPunkte)+' Punkte');
+  setT('o_mod_alter', alterHG+' J / '+num2(gndHG)+' J');
+  let hg=computeNHK('nhkhg',num('ek_baujahr'),modPunkte);
+  let an=anbauAktiv?computeNHK('nhkan',num('an_baujahr'),modPunkte):{preis:0,rnd:0,gnd:0};
+  // effektive RND (inkl. manueller Übersteuerung) — einmal ermittelt, überall verwendet
+  let rndModHG=hg.rnd;
+  setT('o_mod_rnd', num2(rndModHG)+' Jahre'+(num('nhkhg_rnd')>0?' (manuell)':''));
+
+  setT('e_bgf_hg',num2(bgfHG));setT('e_preis_hg',num2(hg.preis));
+  setT('e_bgf_an',num2(bgfAN));setT('e_preis_an',num2(an.preis));
+
+  // 5.1 / 5.2
+  let hgGeb=bgfHG*hg.preis;
+  let hgVor=hgGeb+num('hg_aussen')+num('hg_garage')+sumExtras('xhg',3);
+  setT('o_hg_geb',eur(hgGeb));setT('o_hg_vorMA',eur(hgVor));
+  let anGeb=bgfAN*an.preis;
+  let anVor=anbauAktiv?anGeb+num('an_aussen')+sumExtras('xan',2):0;
+  setT('o_an_geb',eur(anGeb));setT('o_an_vorMA',eur(anVor));
+
+  // 5.3 Substanz (Haus) bzw. Vergleichswert (Wohnung)
+  let mf=num('markt_faktor')||1;
+  let vorlauf=bodenwert+hgVor+anVor;
+  let nachMA=vorlauf*mf;
+  // Vergleichswert (beide Modi verfügbar)
+  computeVergleich();
+  let mspData=computeMietspiegel();
+  let wfl=num('ek_wohnflaeche');
+  let vwGeb=wfl*num('vw_preis');
+  let vergleichWert=vwGeb+num('vw_garage')+num('vw_sonst')+sumExtras('xvw',3);
+  setT('e_wf',num2(wfl));setT('o_vw_geb',eur(vwGeb));setT('o_vergleich',eur(vergleichWert));
+  let vwAktiv=!istWohnung && $('vw_aktiv').checked;
+  setT('h_vergleich', istWohnung?'⑤ Preisansatz nach Vergleichswert (Wohnung)':'⑤b Preisansatz nach Vergleichswert (optional)');
+  setT('vw_hinweis', istWohnung
+    ? 'Beim Wohnungs-Vordruck ersetzt der Vergleichswert den Substanzwert (§§ 24–26 ImmoWertV — für ETW das Standardverfahren). Der Bodenwert ist im Vergleichspreis bereits enthalten.'
+    : (vwAktiv?'Der Vergleichswert wird mit der unten gewählten Gewichtung in die Preisempfehlung einbezogen. Der Bodenwert ist im Vergleichspreis bereits enthalten.'
+             :'Aktuell nur informativ. Zum Einbeziehen oben ankreuzen und in ⑨ die Gewichtung setzen.'));
+
+  let substanz;
+  if(istWohnung){
+    substanz=vergleichWert;
+  } else {
+    substanz=nachMA+num('sub_zuschlag')+num('sub_abschlag')+sumExtras('xsub',3);
+  }
+  // PV-Anlage (Barwert Solarertrag als objektspez. Merkmal → Substanzpreis)
+  let pvAktiv=$('pv_aktiv').checked;
+  $('pv_body').style.opacity=pvAktiv?1:.4;
+  let pvRoh=num('pv_ertrag_kwh')*num('pv_erloes');
+  let pvBew=pvRoh*num('pv_bewirt')/100;
+  let pvRein=pvRoh-pvBew;
+  let pvVf=barwertfaktor(num('pv_zins'),num('pv_rnd'));
+  let pvWert=pvAktiv?Math.max(pvRein*pvVf,0):0;
+  setT('o_pv_roh',eur(pvRoh));setT('o_pv_bewirt','− '+eur(pvBew));setT('o_pv_rein',eur(pvRein));
+  setT('o_pv_vf','('+num2(pvVf)+' bei '+num2(num('pv_rnd'))+' J / '+num2(num('pv_zins'))+' %)');
+  setT('o_pv_bw',num2(pvVf));setT('o_pv',eur(pvWert));
+
+  setT('o_sub_boden',eur(bodenwert));setT('o_sub_hg',eur(hgVor));setT('o_sub_an',eur(anVor));
+  setT('o_sub_vorlauf',eur(vorlauf));setT('o_sub_faktor','× '+num2(mf));
+  setT('o_sub_nachMA',eur(nachMA));setT('o_substanz',eur(substanz));
+
+  // 6 Ertrag (Bodenwert unangepasst = BRW; kein Sachwertfaktor im Ertragswertverfahren)
+  let bodenMA=bodenwert*mf;
+  // effektiver Liegenschaftszins = Basiszins + Zu-/Abschlag
+  let effLZ=num('er_zins_basis')+num('er_zins_adj')+SZEN.lz;
+  // Rohertrag: Mietrolle oder Summen aus Eckdaten
+  let mietrolleAktiv=$('er_mietrolle').checked;
+  $('mietrolle_body').style.display=mietrolleAktiv?'':'none';
+  let mrSumme=computeMietrolle();
+  let mieteW=num('ek_miete_wohnen')*SZEN.miete, mieteG=num('ek_miete_gewerbe')*SZEN.miete, stell=num('ek_miete_stellplatz')*SZEN.miete;
+  let roh = (mietrolleAktiv ? mrSumme*SZEN.miete : (mieteW+mieteG+stell));
+  setT('o_er_rohsrc', mietrolleAktiv?'(aus Mietrolle)':'(Wohnen + Gewerbe + Stellplätze aus Eckdaten)');
+  // Bewirtschaftungskosten: pauschal % oder detailliert nach § 32
+  let bwDetail=$('er_bwmodus').checked;
+  $('bw_pausch').style.display=bwDetail?'none':'';
+  $('bw_detail').style.display=bwDetail?'':'none';
+  let anzWE=num('ek_anz_we'), anzSP=num('ek_anz_stell'), wohnfl=num('ek_wohnflaeche');
+  let bewirt, bwInfo;
+  if(bwDetail){
+    let verw=anzWE*num('er_bw_verw_we')+anzSP*num('er_bw_verw_sp');
+    let inst=wohnfl*num('er_bw_inst_m2')+anzSP*num('er_bw_inst_sp');
+    let mausf=roh*num('er_bw_mietausfall')/100;
+    let nuk=num('er_bw_nuk');
+    bewirt=verw+inst+mausf+nuk;
+    bwInfo='(§ 32: Verw. '+eur(verw)+' + Inst. '+eur(inst)+' + Mietausf. '+eur(mausf)+(nuk?' + n.uml. '+eur(nuk):'')+')';
+    setT('o_bw_basis','WE '+num2(anzWE)+' · Stellpl. '+num2(anzSP)+' · Wohnfl. '+num2(wohnfl)+' m²');
+  } else if(istWohnung && num('ek_hausgeld_nu')>0){
+    bewirt=num('ek_hausgeld_nu')*12; bwInfo='(aus nicht-umlagef. Hausgeld)';
+  } else {
+    bewirt=roh*num('er_bewirt')/100; bwInfo='('+num2(num('er_bewirt'))+' % pauschal)';
+  }
+  let nachBew=roh-bewirt;
+  let gew=nachBew*num('er_gewerbe')/100;
+  let grundRein=nachBew-gew;
+  let bodenZins=bodenwert*effLZ/100;
+  let gebRein=grundRein-bodenZins;
+  let erRND=(istWohnung && num('er_rnd_override')>0) ? num('er_rnd_override') : hg.rnd;
+  let vf=barwertfaktor(effLZ,erRND);
+  let gebWert=gebRein*vf;
+  let ertrag=gebWert+num('er_aussen')+num('er_objekt')+sumExtras('xer',3)+bodenwert;
+  setT('o_er_roh',eur(roh));setT('o_er_bewirt','− '+eur(bewirt));setT('o_er_bwinfo',bwInfo);setT('o_er_gew','− '+eur(gew));
+  setT('o_er_grund',eur(grundRein));setT('o_er_zinsp',num2(effLZ)+' % aus '+eur(bodenwert));
+  setT('o_er_bodenz','− '+eur(bodenZins));setT('o_er_gebrein',eur(gebRein));
+  setT('o_er_vf','('+num2(vf)+' bei '+num2(erRND)+' J)');setT('o_er_gebwert',eur(gebWert));
+  setT('o_er_boden',eur(bodenwert));setT('o_ertrag',eur(ertrag));
+
+  // 7 Nießbrauch / Wohnrecht / Leibrente
+  let niessAktiv=$('niess_aktiv').checked;
+  $('niess_body').style.opacity=niessAktiv?1:.4;
+  let niArt=$('ni_art').value;
+  let istRente=niArt==='leibrente', istWohnrecht=niArt==='wohnrecht';
+  $('fld_ni_rente').style.display=istRente?'':'none';
+  ['row_ni_miete','row_ni_gr','row_ni_nuk'].forEach(id=>{$(id).style.display=istRente?'none':'';});
+  $('row_ni_gr').style.display=(istRente||istWohnrecht)?'none':'';   // Wohnrecht: Grundsteuer bleibt beim Eigentümer
+  let niMiete=num('ni_miete')>0?num('ni_miete'):(mieteW+mieteG);
+  let niGr=num('ni_grundst')>0?num('ni_grundst'):num('ek_grundsteuer');
+  let niNuk=niMiete*num('ni_nuk')/100;
+  let niRein;
+  if(istRente)           niRein=num('ni_rente')*12;
+  else if(istWohnrecht)  niRein=niMiete-niNuk;
+  else                   niRein=niMiete-niGr-niNuk;
+  let leben=num('ni_leben')>0?num('ni_leben'):restLeben(num('ni_alter'),$('ni_geschlecht').value);
+  let kw=num('ni_kapwert');
+  if(kw<=0) kw=barwertfaktor(num('ni_zins'),leben);
+  let niessWert=niessAktiv?Math.max(niRein*kw,0)+sumExtras('xni',2):0;
+  setT('lbl_ni_miete', istWohnrecht?'Jahresmietwert der Wohnung':'Mietertrag / Jahr');
+  setT('lbl_ni_rein', istRente?'Jahresrente':'Reinertrag Berechtigter / Jahr');
+  setT('lbl_ni_summe','Wert des '+(istRente?'Rentenrechts':istWohnrecht?'Wohnungsrechts':'Nießbrauchsrechts')+' (Belastung)');
+  setT('ni_hinweis', (istRente
+      ? 'Leibrente: Jahresrente × Kapitalwert der lebenslänglichen Leistung.'
+      : istWohnrecht
+      ? 'Wohnungsrecht (§ 1093 BGB): Angesetzt wird der Jahresmietwert der überlassenen Fläche abzüglich der vom Berechtigten getragenen Kosten. Grundsteuer und Instandhaltung verbleiben regelmäßig beim Eigentümer und werden daher nicht abgezogen.'
+      : 'Nießbrauch (§ 1030 BGB): Der Berechtigte zieht die Nutzungen und trägt die gewöhnlichen Lasten — Grundsteuer und nicht umlagefähige Kosten werden abgezogen.')
+    +' Der Wert wird in der Preisempfehlung als Belastung abgezogen (§ 48 ImmoWertV). Restlebenserwartung ist eine Näherung nach Sterbetafel — überschreibbar.');
+  setT('o_ni_miete',eur(niMiete));setT('o_ni_gr','− '+eur(niGr));setT('o_ni_nuk','− '+eur(niNuk));
+  setT('o_ni_rein',eur(niRein));setT('o_ni_kw',num2(kw));
+  setT('o_ni_kwinfo', num('ni_leben')>0||num('ni_kapwert')>0?'':'(Restleben ≈ '+num2(leben)+' J)');
+  setT('o_niess',eur(niessWert));
+
+  // 7c Erbbaurecht
+  let ebAktiv=!istWohnung && $('eb_aktiv').checked;
+  $('eb_body').style.opacity=ebAktiv?1:.4;
+  let ebVpct=num('eb_verzinsung')>0?num('eb_verzinsung'):effLZ;
+  let ebVz=bodenwert*ebVpct/100;
+  let ebZins=num('eb_zins_eur');
+  let ebVorteil=ebVz-ebZins;
+  let ebVf=barwertfaktor(ebVpct,num('eb_restlaufzeit'));
+  let ebBarwert=ebVorteil*ebVf;
+  let ebRoh=bodenwert-ebBarwert;                       // Abzug vom Volleigentumswert
+  let ebAbsch=ebRoh*num('eb_abschlag')/100;
+  let erbbauAbzug=ebAktiv?Math.max(ebRoh+ebAbsch,0):0;
+  setT('o_eb_boden',eur(bodenwert));
+  setT('o_eb_vpct','('+num2(ebVpct)+' % aus Bodenwert)');
+  setT('o_eb_vz',eur(ebVz));setT('o_eb_zins','− '+eur(ebZins));
+  setT('o_eb_vorteil',eur(ebVorteil));
+  setT('o_eb_vf','('+num2(ebVf)+' bei '+num2(num('eb_restlaufzeit'))+' J)');
+  setT('o_eb_barwert',eur(ebBarwert));
+  setT('o_eb_absch','− '+eur(ebAbsch));
+  setT('o_erbbau',eur(erbbauAbzug));
+
+  // 7d Wertkorrekturen § 8 Abs. 3
+  renderWKRows();
+  let wkSumme=sumWK();
+  setT('o_wk_summe',eur(wkSumme));
+
+  // 8 Empfehlung
+  let g=parseFloat($('gewichtung').value);
+  let mittelBasis=g*substanz+(1-g)*ertrag;
+  let gv=vwAktiv?Math.min(Math.max(num('gew_vergleich'),0),100)/100:0;
+  let mittel=vwAktiv?((1-gv)*mittelBasis+gv*vergleichWert):mittelBasis;
+  let empfehlung=mittel+pvWert-niessWert-erbbauAbzug-wkSumme+sumExtras('xemp',2);
+  let vh=num('verhandlung')/100;
+  $('row_e_vgl').style.display=vwAktiv?'':'none';
+  $('row_e_erbbau').style.display=ebAktiv?'':'none';
+  $('row_e_wk').style.display=wkSumme!==0?'':'none';
+  $('fld_gew_vergleich').style.display=vwAktiv?'':'none';
+  setT('o_e_vgl',num2(gv*100)+' % · '+eur(vergleichWert));
+  setT('o_e_erbbau','− '+eur(erbbauAbzug));
+  setT('o_e_wk','− '+eur(wkSumme));
+  $('row_e_pv').style.display=pvAktiv?'':'none';
+  setT('o_e_sub',eur(substanz));setT('o_e_er',eur(ertrag));setT('o_e_mittel',eur(mittel));
+  setT('o_e_pv','+ '+eur(pvWert));
+  setT('o_e_niess','− '+eur(niessWert));setT('o_empfehlung',eur(empfehlung));
+  setT('o_spanne',eur(empfehlung*(1-vh))+'  –  '+eur(empfehlung*(1+vh)));
+
+  // Miete-Plausibilität
+  let wf=num('ek_wohnflaeche');
+  let pl = wf>0 && mieteW>0 ? 'Wohnmiete ≈ '+num2(mieteW/12/wf)+' €/m²·Monat' : 'Wohnfläche & Miete Wohnen eintragen für €/m²-Plausibilität.';
+  setT('miete_plausi', pl);
+
+  // Unterlagen-Status
+  let ul=unterlagenStatus();
+  setT('o_unterlagen_fehlt', ul.da.length===0
+    ? 'Noch keine Unterlagen angehakt.'
+    : (ul.fehlt.length===0 ? '✓ Alle Unterlagen liegen vor.'
+       : ul.da.length+' von '+AU_UNTERLAGEN.length+' vorhanden · offen: '+ul.fehlt.join(', ')));
+
+  // 9.1 Plausibilisierung (Ergebnis €/m² vs. Marktbericht)
+  let flaecheGes=wf+num('ek_nutzflaeche');
+  let eigenM2 = flaecheGes>0 ? empfehlung/flaecheGes : 0;
+  let marktM2 = num('pl_markt');
+  let plAbw = (eigenM2>0 && marktM2>0) ? (eigenM2-marktM2)/marktM2*100 : null;
+  setT('o_pl_eigen', eigenM2>0 ? num2(eigenM2)+' €/m²' : '–');
+  setT('o_pl_markt', marktM2>0 ? num2(marktM2)+' €/m²' : '–');
+  setT('o_pl_abw', plAbw===null ? '–' : (plAbw>0?'+':'')+num2(plAbw)+' %');
+  let plTxt;
+  if(flaecheGes<=0) plTxt='Wohn-/Nutzfläche in ① eintragen, damit der Preis je m² berechnet werden kann.';
+  else if(marktM2<=0) plTxt='Vergleichspreis eintragen für die Plausibilitätsprüfung.';
+  else {
+    let a=Math.abs(plAbw), ri=plAbw<0?'unter':'über';
+    plTxt='Der ermittelte Preis liegt '+num2(a)+' % '+ri+' dem Vergleichspreis'+($('pl_quelle').value?' ('+$('pl_quelle').value+')':'')+'. '
+      + (a<=10 ? 'Die Abweichung ist gering — das Ergebnis ist marktkonform und plausibel.'
+        : a<=25 ? 'Die Abweichung ist erklärungsbedürftig, aber im Rahmen objektspezifischer Besonderheiten (Zustand, Lage, Belastungen) vertretbar.'
+        : 'Die Abweichung ist erheblich — Ansätze (Miete, Liegenschaftszins, Marktanpassung, Wertkorrekturen) bitte nochmals prüfen und im Bericht begründen.');
+  }
+  setT('o_pl_text', plTxt);
+
+  // 9b Rendite & Investitionskosten
+  let reKP = num('re_kaufpreis')>0 ? num('re_kaufpreis') : empfehlung;
+  let nkPct = num('re_grest')+num('re_notar')+num('re_makler');
+  let reNK = reKP*nkPct/100;
+  let reSan = num('re_sanierung');
+  let reInvest = reKP+reNK+reSan;
+  let reNUK = num('re_nuk')>0 ? num('re_nuk') : bewirt;
+  let reRein = roh-reNUK;
+  let reBrutto = reKP>0 ? roh/reKP*100 : 0;
+  let reNetto  = reInvest>0 ? reRein/reInvest*100 : 0;
+  let reFaktor = roh>0 ? reKP/roh : 0;
+  setT('o_re_kp',eur(reKP));
+  setT('o_re_nkpct','('+num2(nkPct)+' % vom Kaufpreis)');
+  setT('o_re_nk',eur(reNK));setT('o_re_san',eur(reSan));setT('o_re_invest',eur(reInvest));
+  setT('o_re_roh',eur(roh));setT('o_re_rein',eur(reRein));
+  setT('o_re_brutto', roh>0?num2(reBrutto)+' %':'–');
+  setT('o_re_netto',  roh>0?num2(reNetto)+' %':'–');
+  setT('o_re_faktor', roh>0?num2(reFaktor)+'-fach':'–');
+  setT('o_re_hinweis', roh>0
+    ? 'Bei '+eur(reKP)+' Kaufpreis und '+eur(roh)+' Jahresrohertrag ergibt sich das '+num2(reFaktor)+'-fache der Jahresmiete. Kaufnebenkosten '+num2(nkPct)+' % = '+eur(reNK)+'.'
+    : 'Mieterträge in ① bzw. der Mietrolle eintragen, damit die Renditen berechnet werden.');
+
+  // Sidebar
+  setT('r_empfehlung',eur(empfehlung));setT('r_sub',eur(substanz));setT('r_er',eur(ertrag));
+  setT('r_mittel',eur(mittel));setT('r_niess',eur(niessWert));setT('r_boden',eur(bodenwert));
+
+  window._R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,modPunkte,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
+    eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
+    vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
+    wkSumme,niArt,mspData};
+  autosave();
+}
+
+/* ---------- Report ---------- */
+function druckbericht(){
+  compute();const R=window._R;
+  const w = modus()==='wohnung';
+  const L=(l,v)=>`<tr><td>${l}</td><td>${v}</td></tr>`;
+  const XL=(prefix,max)=>extraLines(prefix,max).map(x=>L('· '+x[0],eur(x[1]))).join('');
+  let anbauRows=(!w&&$('anbau_aktiv').checked)?L('Anbau/Nebengebäude · BGF',num2(R.bgfAN)+' m² × '+num2(R.an.preis)+' €/m²')+XL('xan',2)+L('Anbau vor Marktanpassung',eur(R.anVor)):'';
+  let niessRow=$('niess_aktiv').checked?`<tr><td>− Belastung Nießbrauchsrecht</td><td>${eur(R.niessWert)}</td></tr>`:'';
+  const today=new Date().toLocaleDateString('de-DE');
+  const kopf=$('cfg_kopf').value||'Immobilien-Preisermittlung';
+  const objektTyp = w ? ($('ek_wtyp').value+' (Wohnung)') : $('ek_typ').value;
+  const verfahren1 = w ? 'Vergleichswert' : 'Gebäudesubstanz';
+
+  let bodenBlock = w ? `
+   <h2>Wohnung / Gemeinschaft</h2>
+   <table>
+    ${L('Miteigentumsanteil',$('ek_mea').value||'–')}
+    ${L('Etage / Lage',$('ek_etage').value||'–')}
+    ${L('Wohnfläche',num2(num('ek_wohnflaeche'))+' m²')}
+    ${L('Hausgeld gesamt',num2(num('ek_hausgeld'))+' €/Monat')}
+    ${L('davon nicht umlagefähig',num2(num('ek_hausgeld_nu'))+' €/Monat')}
+   </table>` : `
+   <h2>Grundstück &amp; Bodenwert</h2>
+   <table>
+    ${L('Flurstück / Zone',$('ek_flst').value||'–')}
+    ${L('Grundstücksfläche',num2(num('ek_gs_flaeche')+num('xgs1_flaeche')+num('xgs2_flaeche'))+' m²')}
+    ${L('Bodenrichtwert (Anteil I)',num2(num('ek_brw'))+' €/m²')}
+    <tr class="total"><td>Bodenwert vor Marktanpassung</td><td>${eur(R.bodenwert)}</td></tr>
+   </table>`;
+
+  let wert1Block = w ? `
+   <h2>Preisansatz nach Vergleichswert</h2>
+   <table>
+    ${L('Wohnfläche × Vergleichspreis',num2(num('ek_wohnflaeche'))+' m² × '+num2(num('vw_preis'))+' €/m²')}
+    ${num('vw_garage')!==0?L('+ Garage / TG-Stellplatz',eur(num('vw_garage'))):''}
+    ${num('vw_sonst')!==0?L('+ Sonstiges',eur(num('vw_sonst'))):''}
+    ${XL('xvw',3)}
+    <tr class="total"><td>Preis nach Vergleichswert</td><td>${eur(R.substanz)}</td></tr>
+   </table>` : `
+   <h2>Preisansatz nach der Gebäudesubstanz</h2>
+   <table>
+    ${L('Hauptgebäude · BGF',num2(R.bgfHG)+' m² × '+num2(R.hg.preis)+' €/m²')}
+    ${XL('xhg',3)}
+    ${L('Hauptgebäude + Außenanlagen vor MA',eur(R.hgVor))}
+    ${anbauRows}
+    ${L('Bodenwert vor MA',eur(R.bodenwert))}
+    ${L('Vorläufiger Preisansatz',eur(R.vorlauf))}
+    ${L('× Marktanpassung',num2(R.mf))}
+    ${XL('xsub',3)}
+    <tr class="total"><td>Preis nach Gebäudesubstanz</td><td>${eur(R.substanz)}</td></tr>
+   </table>`;
+
+  // Objektbeschreibung (Freitexte) & Fotos
+  const esc=s=>(''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const bt=(title,id)=>{let e=$(id);let v=e?(e.value||'').trim():'';return v?`<h3>${title}</h3><div class="beschr">${esc(v)}</div>`:'';};
+  // Strukturierte Objektdaten (nur befüllte Felder)
+  const dl=(label,id,suffix)=>{let e=$(id);let v=e?(''+(e.value||'')).trim():'';if(!v||v==='0'||v==='–')return '';return `<tr><td>${label}</td><td>${esc(v)}${suffix||''}</td></tr>`;};
+  let odGrund=[dl('Eigentumsform','od_eigentum'),dl('Entwicklungszustand','od_entwicklung'),dl('Anzahl Flurstücke','od_anz_flst'),dl('Flurstück-Nr(n).','od_flst_nrn'),dl('Grundbuch','od_grundbuch'),dl('Grundbuch-Blatt','od_gb_blatt'),dl('Abt. II','od_abt2'),dl('Abt. III','od_abt3'),dl('Erschließung','od_erschliessung'),dl('Denkmalschutz','od_denkmal'),dl('Baulasten','od_baulasten'),dl('Altlasten','od_altlasten')].join('');
+  let odPlan=[dl('Flächennutzungsplan','od_fnp'),dl('Bebauungsplan','od_bplan'),dl('Art der Nutzung','od_nutzungsart'),dl('GRZ / GFZ','od_grz_gfz'),dl('zul. überbaute Fläche','od_ueberbau_zul',' m²'),dl('tatsächl. überbaute Fläche','od_ueberbau_ist',' m²')].join('');
+  let odGeb=[dl('Gebäudeart','od_gebart'),dl('Bauweise','od_bauweise'),dl('Baujahr','ek_baujahr'),dl('Letzte Sanierung','ek_sanierung'),dl('Vollgeschosse','od_geschosse'),dl('Wohneinheiten','ek_anz_we'),dl('Gewerbeeinheiten','od_gewerbe_eh'),dl('Stellplätze','ek_anz_stell'),dl('Aufzug','od_aufzug'),dl('Heizungsart','od_heizung'),dl('Fenster','od_fenster'),dl('Energieausweis','od_energieausweis'),dl('Energieeffizienzklasse','od_effizienz'),dl('Gebäudegrundfläche','od_gebflaeche',' m²'),dl('Wohnfläche','ek_wohnflaeche',' m²')].join('');
+  let objektBlock='';
+  if(odGrund) objektBlock+='<h2>Grundstück, Grundbuch &amp; Recht</h2><table>'+odGrund+'</table>';
+  if(odPlan) objektBlock+='<h2>Planungsrecht</h2><table>'+odPlan+'</table>';
+  if(odGeb) objektBlock+='<h2>Gebäudedaten</h2><table>'+odGeb+'</table>';
+  let beschreibungBlock=[
+    bt('Makrolage','lage_makro'),bt('Mikrolage','lage_mikro'),
+    bt('Grundstück','grundstueck_besch'),bt('Gebäude &amp; Ausstattung','gebaeude_besch'),
+    bt('Baumängel / Bauschäden','maengel'),bt('Instandhaltungsstau','stau'),
+    bt('Modernisierungen','modernisierung'),bt('Allgemeiner Eindruck','eindruck'),
+    bt('Rechte &amp; Lasten','rechte_lasten'),bt('Vermietungssituation','vermietung_besch'),
+    bt('Markteinschätzung','vermarktung_besch')
+  ].join('');
+  if(beschreibungBlock) beschreibungBlock='<h2>Objektbeschreibung</h2>'+beschreibungBlock;
+  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${p.data}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
+  let fotoBlock=PHOTOS.some(p=>p.cat==='objekt'||p.cat==='schaden')?('<h2>Fotodokumentation</h2>'+
+    (PHOTOS.some(p=>p.cat==='objekt')?'<h3>Objektfotos</h3>'+fotoGrid('objekt'):'')+
+    (PHOTOS.some(p=>p.cat==='schaden')?'<h3>Schadensfotos</h3>'+fotoGrid('schaden'):'')):'';
+  let kartenBlock=PHOTOS.some(p=>p.cat==='karte')?'<h2>Karten &amp; Pläne</h2>'+fotoGrid('karte'):'';
+
+  // Diagramm: Zusammensetzung des Preisansatzes
+  let diagrammBlock='';
+  if($('rp_diagramm').checked && R.empfehlung>0){
+    let gebAnteil=Math.max(R.substanz-R.bodenwert,0);
+    let teile=w
+      ? [['Vergleichswert (inkl. Bodenanteil)',R.substanz,'b1']]
+      : [['Bodenwert',R.bodenwert,'b1'],['Gebäude &amp; Außenanlagen',gebAnteil,'b2']];
+    let gesamt=teile.reduce((s,t)=>s+t[1],0);
+    if(gesamt>0){
+      diagrammBlock='<h2>Zusammensetzung des Substanzwerts</h2><div class="chart"><div class="bar">'
+        + teile.map(t=>`<span class="${t[2]}" style="width:${(t[1]/gesamt*100).toFixed(1)}%"></span>`).join('')
+        + '</div><div class="legend">'
+        + teile.map(t=>`<span><i class="${t[2]}"></i>${t[0]}: ${eur(t[1])} (${num2(t[1]/gesamt*100)} %)</span>`).join('')
+        + '</div></div>';
+    }
+  }
+
+  // Feststellungen der Ortsbesichtigung (Aufnahmebogen)
+  let auRows=[dl('Besichtigung am','au_datum'),dl('Uhrzeit / Wetter','au_wetter'),dl('Anwesend','au_anwesend'),
+    dl('Zimmer','au_zimmer'),dl('Bäder','au_baeder'),dl('Gäste-WC','au_gaeste_wc'),dl('Tageslichtbad','au_tageslichtbad'),
+    dl('Küche','au_kueche'),dl('Keller','au_keller'),dl('Dachgeschoss','au_dg'),dl('Balkon / Terrasse','au_balkon'),
+    dl('Heizungsart','au_heizung_art'),dl('Heizung Baujahr / Fabrikat','au_heizung_bj'),dl('Warmwasser','au_ww'),
+    dl('Fenster','au_fenster'),dl('Dämmung Fassade','au_daemm_fassade'),dl('Dämmung Dach','au_daemm_dach'),
+    dl('Elektro','au_elektro'),dl('Energieausweis','au_energieausweis'),dl('Energiekennwert','au_energiewert',' kWh/(m²·a)'),
+    dl('Energieeffizienzklasse','au_energieklasse'),dl('Aufzug','au_aufzug'),dl('Barrierefreiheit','au_barriere')].join('');
+  let auBt=aufnahmeBauteileListe();
+  let auBlock='';
+  if(auRows||auBt.length||($('au_maengel').value||'').trim()||($('au_notizen').value||'').trim()){
+    auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>';
+    if(auRows) auBlock+='<table>'+auRows+'</table>';
+    if(auBt.length) auBlock+='<h3>Besondere Bauteile</h3><div class="beschr">'+esc(auBt.join(' · '))+'</div>';
+    auBlock+=bt('Mängel / Auffälligkeiten','au_maengel')+bt('Sonstige Notizen','au_notizen');
+  }
+  let ulSt=unterlagenStatus();
+  if(ulSt.da.length) auBlock+='<h3>Vorliegende Unterlagen</h3><div class="beschr">'+esc(ulSt.da.join(' · '))
+    +(ulSt.fehlt.length?'\nNicht vorgelegt: '+esc(ulSt.fehlt.join(' · ')):'')+'</div>';
+  let szBlock=(window._SZEN_DATA&&window._SZEN_DATA.length)
+    ? '<h2>Sensitivität</h2><table><tr><td><b>Szenario (Zins · Mietniveau)</b></td><td><b>Preisansatz</b></td></tr>'
+      + window._SZEN_DATA.map(d=>L(esc(d.name)+' — '+num2(d.lz)+' % · '+num2(d.miete)+' %',
+          eur(d.wert)+(d.istBasis?'':' ('+(d.abw>0?'+':'')+num2(d.abw)+' %)'))).join('')
+      + '</table>' : '';
+
+  // Vergleichswert, Marktmieten, Erbbaurecht, Wertkorrekturen
+  let vglRows='';
+  for(let i=0;i<N_VGL;i++){
+    let fl=num('vgl_fl'+i), kp=num('vgl_kp'+i);
+    if(fl>0&&kp>0) vglRows+=L(esc(($('vgl_adr'+i).value||'Vergleichsobjekt '+(i+1)))
+      +(($('vgl_bj'+i).value||'').trim()?', Bj. '+esc($('vgl_bj'+i).value):'')
+      +(($('vgl_zust'+i).value||'').trim()?', '+esc($('vgl_zust'+i).value):''), num2(kp/fl)+' €/m²');
+  }
+  let vergleichBlock='';
+  if(R.vwAktiv || (w && R.vergleichWert>0)){
+    vergleichBlock='<h2>Vergleichswertverfahren</h2>'
+      + (vglRows?'<table>'+vglRows+'<tr class="total"><td>Durchschnitt der Vergleichsobjekte</td><td>'+$('o_vgl_avg').textContent+'</td></tr></table>':'')
+      + '<table>'+L('Wohnfläche × Vergleichspreis',num2(num('ek_wohnflaeche'))+' m² × '+num2(num('vw_preis'))+' €/m²')
+      + (num('vw_garage')?L('+ Garage / Stellplatz',eur(num('vw_garage'))):'')
+      + (num('vw_sonst')?L('+ Sonstiges',eur(num('vw_sonst'))):'')
+      + '<tr class="total"><td>Preis nach Vergleichswert</td><td>'+eur(R.vergleichWert)+'</td></tr></table>';
+  }
+  let mspBlock=(R.mspData&&R.mspData.zeilen.length)
+    ? '<h2>Marktmieten-Vergleich</h2><table><tr><td><b>Datengrundlage</b></td><td><b>€/m²</b></td></tr>'
+      + R.mspData.zeilen.map(z=>L(esc(z.q), (z.mn>0&&z.mx>0?num2(z.mn)+' – '+num2(z.mx)+' · Ø ':'')+num2(z.av)+' €/m²')).join('')
+      + '<tr class="total"><td>Mittelwert der Quellen</td><td>'+num2(R.mspData.avg)+' €/m²</td></tr></table>' : '';
+  let erbbauBlock=R.ebAktiv?`<h2>Erbbaurecht</h2><table>
+     ${L('Bodenwert (entfällt beim Erbbaurecht)',eur(R.bodenwert))}
+     ${L('Angemessene Bodenverzinsung ('+num2(R.ebVpct)+' %)',eur(R.ebVz))}
+     ${L('− tatsächlicher Erbbauzins',eur(R.ebZins))}
+     ${L('Jährlicher Vorteil × Barwertfaktor '+num2(R.ebVf),eur(R.ebBarwert))}
+     <tr class="total"><td>Korrektur für Erbbaurecht</td><td>− ${eur(R.erbbauAbzug)}</td></tr></table>`:'';
+  let wkL=wkLines();
+  let wkBlock=wkL.length?'<h2>Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV)</h2><table>'
+      + wkL.map(x=>L(esc(x[0]),eur(x[1]))).join('')
+      + '<tr class="total"><td>Summe Wertkorrekturen</td><td>'+eur(R.wkSumme)+'</td></tr></table>':'';
+
+  // Plausibilisierung & Rendite
+  let plausiBlock = (R.eigenM2>0) ? `<h2>Plausibilisierung</h2><table>
+     ${L('Ermittelter Preis je m² Wohn-/Nutzfläche',num2(R.eigenM2)+' €/m²')}
+     ${R.marktM2>0?L('Vergleichspreis lt. Marktbericht',num2(R.marktM2)+' €/m²'+($('pl_quelle').value?' ('+esc($('pl_quelle').value)+')':'')):''}
+     ${R.plAbw!==null?L('Abweichung',(R.plAbw>0?'+':'')+num2(R.plAbw)+' %'):''}
+    </table><div class="beschr">${esc(R.plTxt)}</div>` : '';
+  let renditeBlock = (R.roh>0) ? `<h2>Rendite &amp; Investitionskosten</h2><table>
+     ${L('Kaufpreis (Basis)',eur(R.reKP))}
+     ${L('+ Kaufnebenkosten ('+num2(R.nkPct)+' %)',eur(R.reNK))}
+     ${R.reSan?L('+ Sanierungs-/Modernisierungskosten',eur(R.reSan)):''}
+     ${L('Investitionskosten gesamt',eur(R.reInvest))}
+     ${L('Jahresrohertrag',eur(R.roh))}
+     ${L('Jahresreinertrag',eur(R.reRein))}
+     ${L('Bruttomietrendite',num2(R.reBrutto)+' %')}
+     ${L('Nettomietrendite',num2(R.reNetto)+' %')}
+     <tr class="total"><td>Kaufpreisfaktor</td><td>${num2(R.reFaktor)}-fach</td></tr>
+    </table>` : '';
+
+  // Unterschriftsblock
+  const sigDatum = ($('ek_sign_datum').value||$('ek_stichtag').value||today);
+  const sigOrt = ($('ek_ort').value||'').trim();
+  const sigName = ($('ek_ersteller').value||'').trim();
+  const sigFunk = ($('ek_ersteller_funktion').value||'').trim();
+  let signBlock = `<div class="signblock">
+     <div class="sigcol">
+       <p class="sig-place">${sigOrt?esc(sigOrt)+', den '+esc(sigDatum):esc(sigDatum)}</p>
+       ${SIGNATURE?`<img class="sig-img" src="${SIGNATURE}">`:''}
+       <div class="sig-line${SIGNATURE?' hasimg':''}">${sigName?esc(sigName):'&nbsp;'}${sigFunk?'<br><span style="color:#666">'+esc(sigFunk)+'</span>':''}</div>
+     </div>
+     <div class="sigcol"></div>
+   </div>`;
+
+  // Deckblatt & Inhaltsverzeichnis
+  const mitDeckblatt=$('rp_deckblatt').checked;
+  const titelbild=(PHOTOS.find(p=>p.cat==='objekt')||{}).data;
+  let coverBlock = mitDeckblatt ? `
+   <div class="cover">
+     <div class="kopf">${esc(kopf)}</div>
+     <h1>Rechnerische Preisermittlung</h1>
+     <div class="sub">${esc(objektTyp)}</div>
+     ${titelbild?`<img class="titelbild" src="${titelbild}">`:''}
+     <table>
+      ${L('Objekt',esc($('ek_anschrift').value||'–'))}
+      ${L('Auftraggeber(in)',esc($('ek_ag').value||'–'))}
+      ${L('Nutzung',esc($('ek_nutzung').value||'–'))}
+      ${L('Ortsbesichtigung',esc($('ek_besichtigung').value||$('au_datum').value||'–'))}
+      ${L('Wertermittlungsstichtag',esc($('ek_stichtag').value||today))}
+      ${sigName?L('Erstellt von',esc(sigName)):''}
+     </table>
+     <div class="ergebnis">
+       <div class="lbl">Empfohlener Preisansatz</div>
+       <div class="val">${eur(R.empfehlung)}</div>
+       <div style="font-size:12px;color:#555;margin-top:4px">Verhandlungsspanne ${eur(R.empfehlung*(1-R.vh))} – ${eur(R.empfehlung*(1+R.vh))}</div>
+     </div>
+   </div>
+   <div class="pagebreak"></div>
+   <h1 style="font-size:20px">Inhaltsverzeichnis</h1>
+   <div class="toc" id="report_toc"></div>
+   <div class="pagebreak"></div>` : '';
+
+  $('report').innerHTML=`
+   <button class="primary no-print" onclick="document.body.classList.remove('report-mode')">← zurück</button>
+   <button class="no-print" onclick="window.print()">🖨 Drucken</button>
+   <button class="no-print" onclick="downloadPDF()">⬇ PDF herunterladen</button>
+   ${coverBlock}
+   ${mitDeckblatt?'':`<p style="color:var(--muted);margin-top:14px">${esc(kopf)}</p>
+   <h1>Rechnerische Preisermittlung</h1>`}
+   ${$('ek_vordruck').value?`<p style="color:var(--accent);font-weight:600;margin:0 0 6px">Vordruck: ${$('ek_vordruck').value}</p>`:''}
+   ${mitDeckblatt?'':`<p><b>${objektTyp}</b> · ${$('ek_anschrift').value||''}<br>
+   Auftraggeber: ${$('ek_ag').value||'–'} · Stichtag: ${$('ek_stichtag').value||today}<br>
+   Nutzung: ${$('ek_nutzung').value||'–'}</p>`}
+   ${objektBlock}
+   ${auBlock}
+   ${beschreibungBlock}
+   ${bodenBlock}
+   ${wert1Block}
+   <h2>Preisansatz nach dem Gebäudeertrag</h2>
+   <table>
+    ${L('Jährlicher Rohertrag'+(R.mietrolleAktiv?' (Mietrolle)':''),eur(R.roh))}
+    ${L('− Bewirtschaftungskosten'+(R.bwDetail?' (§ 32 detailliert)':''),eur(R.bewirt))}
+    ${L('Grundstücksreinertrag',eur(R.grundRein))}
+    ${L('− Bodenwertverzinsung ('+num2(R.effLZ)+' %)',eur(R.bodenwert*R.effLZ/100))}
+    ${L('Gebäudereinertrag',eur(R.gebRein))}
+    ${L('Restnutzungsdauer / Liegenschaftszins',num2(R.erRND)+' Jahre · '+num2(R.effLZ)+' %'+(R.modPunkte?' · '+num2(R.modPunkte)+' Mod.-Pkt.':''))}
+    ${L('× Vervielfältiger',num2(R.vf))}
+    ${XL('xer',3)}
+    ${w?'':L('+ Bodenwert (BRW, ohne Sachwertfaktor)',eur(R.bodenwert))}
+    <tr class="total"><td>Preis nach Gebäudeertrag</td><td>${eur(R.ertrag)}</td></tr>
+   </table>
+   ${R.mietrolleAktiv?`<h3>Mietrolle (wohnungsweise)</h3><table><tr><td><b>Einheit</b></td><td><b>Miete p.a.</b></td></tr>${(function(){let rows='';for(let i=0;i<14;i++){let bez=($('mr_bez'+i).value||'').trim();let pa=(num('mr_fl'+i)*num('mr_pm2'+i)+num('mr_pau'+i))*12;if(pa>0)rows+=L((bez||'Einheit '+(i+1))+(($('mr_gesch'+i).value||'').trim()?' ('+esc($('mr_gesch'+i).value.trim())+')':''),eur(pa));}return rows;})()}<tr class="total"><td>Summe Jahresrohertrag</td><td>${eur(R.mrSumme)}</td></tr></table>`:''}
+   ${$('pv_aktiv').checked?`<h2>Photovoltaik-Anlage</h2><table>${L('Reinertrag Solar / Jahr',eur(R.pvRein))}${L('× Barwertfaktor',num2(R.pvVf))}<tr class="total"><td>Barwert der PV-Anlage</td><td>${eur(R.pvWert)}</td></tr></table>`:''}
+   ${mspBlock}
+   ${w ? (vglRows?'<h2>Vergleichsobjekte</h2><table>'+vglRows+'<tr class="total"><td>Durchschnitt</td><td>'+$('o_vgl_avg').textContent+'</td></tr></table>':'') : vergleichBlock}
+   ${$('niess_aktiv').checked?`<h2>${R.niArt==='leibrente'?'Leibrente':R.niArt==='wohnrecht'?'Wohnungsrecht':'Nießbrauch'}</h2><table>${L(R.niArt==='leibrente'?'Jahresrente':'Reinertrag Berechtigter',eur(R.niRein))}${L('× Kapitalwert lebensl. Nutzung',num2(R.kw))}${XL('xni',2)}<tr class="total"><td>Wert des Rechts (Belastung)</td><td>${eur(R.niessWert)}</td></tr></table>`:''}
+   ${erbbauBlock}
+   ${wkBlock}
+   <h2>Preisempfehlung</h2>
+   <table>
+    ${L('Preis nach '+verfahren1,eur(R.substanz))}
+    ${L('Preis nach Gebäudeertrag',eur(R.ertrag))}
+    ${R.vwAktiv?L('Preis nach Vergleichswert (Gewichtung '+num2(R.gv*100)+' %)',eur(R.vergleichWert)):''}
+    ${L('Gewichteter Mittelwert',eur(R.mittel))}
+    ${$('pv_aktiv').checked?L('+ Barwert PV-Anlage',eur(R.pvWert)):''}
+    ${niessRow}
+    ${R.ebAktiv?L('− Korrektur Erbbaurecht',eur(R.erbbauAbzug)):''}
+    ${R.wkSumme?L('− Wertkorrekturen § 8 Abs. 3',eur(R.wkSumme)):''}
+    ${XL('xemp',2)}
+    <tr class="total"><td>Empfohlener Preisansatz</td><td>${eur(R.empfehlung)}</td></tr>
+    ${L('Verhandlungsspanne',eur(R.empfehlung*(1-R.vh))+' – '+eur(R.empfehlung*(1+R.vh)))}
+   </table>
+   ${szBlock}
+   ${plausiBlock}
+   ${renditeBlock}
+   ${diagrammBlock}
+   ${fotoBlock}
+   ${kartenBlock}
+   <p class="disc">Die rechnerische Preisermittlung ist kein Verkehrswertgutachten und dient lediglich zur Orientierung
+   am aktuellen Immobilienmarkt. Für die Richtigkeit und Vollständigkeit der gemachten Angaben wird keine Haftung
+   übernommen. Prüfungen der Bausubstanz sowie bau- bzw. gewerberechtlicher Belange wurden nicht vorgenommen.</p>
+   ${signBlock}`;
+
+  // Abschnitte nummerieren & Inhaltsverzeichnis füllen
+  let toc=$('report_toc');
+  let h2s=[...$('report').querySelectorAll('h2')];
+  h2s.forEach((h,i)=>{h.textContent=(i+1)+'.  '+h.textContent;});
+  if(toc){
+    toc.innerHTML = h2s.length
+      ? h2s.map(h=>`<div>${esc(h.textContent)}</div>`).join('')
+      : '<div style="color:#777">Keine Abschnitte vorhanden.</div>';
+  }
+  document.body.classList.add('report-mode');window.scrollTo(0,0);
+}
+
+/* ---------- PDF-Download ---------- */
+function pdfName(){
+  let n=($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';
+  return 'Preisermittlung '+n+'.pdf';
+}
+function downloadPDF(){
+  const run=()=>{
+    html2pdf().set({
+      margin:[12,12,14,12],
+      filename:pdfName(),
+      pagebreak:{mode:['avoid-all','css']},
+      html2canvas:{scale:2,useCORS:true,ignoreElements:el=>el.classList&&el.classList.contains('no-print')},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+    }).from($('report')).save();
+  };
+  if(window.html2pdf){run();return;}
+  let s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  s.onload=run;
+  s.onerror=()=>{alert('Kein Internet für den direkten PDF-Download.\nEs öffnet sich der Druckdialog – dort "Als PDF speichern" wählen.');window.print();};
+  document.body.appendChild(s);
+}
+
+/* ---------- Persistence ---------- */
+/* ---------- Fotos ---------- */
+let PHOTOS=[]; // {id, cat:'objekt'|'schaden', caption, data(JPEG-DataURL)}
+function addPhotos(files, cat){
+  [...files].forEach(f=>{
+    if(!f.type||!f.type.startsWith('image/'))return;
+    let r=new FileReader();
+    r.onload=()=>downscale(r.result,1400,0.75,dataUrl=>{
+      PHOTOS.push({id:'p'+Date.now()+Math.random().toString(36).slice(2,6),cat,caption:'',data:dataUrl});
+      renderPhotos();autosave();
+    });
+    r.readAsDataURL(f);
+  });
+  let inp=$('file_'+cat); if(inp) inp.value='';
+}
+function downscale(src,maxDim,quality,cb,fmt){
+  let img=new Image();
+  img.onload=()=>{
+    let w=img.width,h=img.height;
+    if(Math.max(w,h)>maxDim){let s=maxDim/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+    let c=document.createElement('canvas');c.width=w;c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    try{cb(c.toDataURL(fmt||'image/jpeg',quality));}catch(e){cb(src);}
+  };
+  img.onerror=()=>cb(src);
+  img.src=src;
+}
+function renderPhotos(){
+  ['objekt','schaden','karte'].forEach(cat=>{
+    let g=$('gal_'+cat); if(!g)return; g.innerHTML='';
+    PHOTOS.filter(p=>p.cat===cat).forEach(p=>{
+      let d=document.createElement('div'); d.className='photo';
+      d.innerHTML=`<button class="del no-print" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
+      g.appendChild(d);
+    });
+  });
+}
+function delPhoto(id){PHOTOS=PHOTOS.filter(p=>p.id!==id);renderPhotos();autosave();}
+function capPhoto(id,v){let p=PHOTOS.find(x=>x.id===id);if(p){p.caption=v;autosave();}}
+
+/* ---------- Unterschrift-Scan (einzelnes Bild, PNG) ---------- */
+let SIGNATURE=null;
+function addSignature(files){
+  let f=files&&files[0]; if(!f||!f.type.startsWith('image/'))return;
+  let r=new FileReader();
+  r.onload=()=>downscale(r.result,600,1,dataUrl=>{SIGNATURE=dataUrl;renderSignature();autosave();},'image/png');
+  r.readAsDataURL(f);
+  let inp=$('file_sig'); if(inp) inp.value='';
+}
+function renderSignature(){
+  let box=$('sig_preview'); if(!box)return;
+  box.innerHTML = SIGNATURE
+    ? `<img src="${SIGNATURE}"> <button class="del no-print" style="position:static;display:inline-block;vertical-align:top;margin-left:8px" onclick="clearSignature()">✕ entfernen</button>`
+    : '<span style="color:var(--muted);font-size:12px">Kein Unterschrift-Bild eingefügt.</span>';
+}
+function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
+
+/* ---------- Persistence ---------- */
+function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
+function apply(o){Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
+function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE};}
+function restore(obj){
+  if(obj&&obj.fields){apply(obj.fields);PHOTOS=Array.isArray(obj.photos)?obj.photos:[];SIGNATURE=obj.signature||null;}
+  else{apply(obj);PHOTOS=[];SIGNATURE=null;}   // Altformat (flache Feldliste)
+  renderPhotos();renderSignature();renderWKRows();
+}
+function autosave(){
+  if(SILENT)return;
+  try{localStorage.setItem('vb_wert2',JSON.stringify(snapshot()));}
+  catch(e){try{localStorage.setItem('vb_wert2',JSON.stringify({fields:collect(),photos:[],signature:SIGNATURE}));}catch(e2){}}
+}
+function save(){let name=($('ek_anschrift').value||'Wertermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Wertermittlung';let b=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name+'.json';a.click();}
+function loadFile(){let i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{let f=i.files[0];let r=new FileReader();r.onload=()=>{try{restore(JSON.parse(r.result));}catch(e){alert('Datei konnte nicht gelesen werden.');}};r.readAsText(f);};i.click();}
+function neu(){if(confirm('Neue leere Wertermittlung? Ungespeicherte Daten gehen verloren.')){localStorage.removeItem('vb_wert2');location.reload();}}
+
+/* ---------- Nav ---------- */
+function buildNav(){
+  let nav=$('nav');nav.innerHTML='';
+  let w = modus()==='wohnung';
+  document.querySelectorAll('section[data-nav]').forEach(s=>{
+    if(w && s.classList.contains('haus-only'))return;
+    if(!w && s.classList.contains('wohnung-only'))return;
+    let a=document.createElement('a');a.href='#'+s.id;a.textContent=s.dataset.nav;
+    a.onclick=e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth',block:'start'});};
+    nav.appendChild(a);
+  });
+}
+
+/* ---------- Init ---------- */
+Object.keys(TYPES).forEach(t=>{let o=document.createElement('option');o.textContent=t;$('ek_typ').appendChild(o);});
+$('nhk_hg').innerHTML=buildNHK('nhkhg',false);   // GND/RND stehen in 2.2
+$('nhk_an').innerHTML=buildNHK('nhkan',true);    // Anbau: eigenes Baujahr → eigene GND/RND
+buildBGF('bgf_hg_tbl','bgfhg');
+buildBGF('bgf_an_tbl','bgfan');
+buildModPunkte();
+buildMietrolle();
+buildAufnahmeBauteile();
+buildUnterlagen();
+buildVergleich();
+buildMietspiegel();
+buildWK();
+buildRefTable();
+buildNav();
+document.addEventListener('input',compute);
+document.addEventListener('change',compute);
+let saved=localStorage.getItem('vb_wert2');
+if(saved){
+  try{restore(JSON.parse(saved));}catch(e){typWechsel();}
+  modusWechsel();
+  document.body.classList.add('started');   // gespeicherte Arbeit → direkt ins Formular
+}else{
+  $('ek_typ').value='Wohn-/Geschäftshaus (Mischnutzung)';typWechsel();modusWechsel();
+  showStart();                               // frischer Start → Auswahlbildschirm
+}
+// Installations-Button anbieten, solange die App nicht als App läuft
+// (iOS meldet kein 'beforeinstallprompt' – dort erklärt der Button den Weg über „Teilen")
+if(!istInstalliert()) $('installBtn').style.display='inline-block';
+</script>
+</body>
+</html>

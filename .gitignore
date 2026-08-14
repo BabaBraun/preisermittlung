@@ -1,0 +1,8 @@
+# Arbeitsdateien von Claude Code
+.claude/
+
+# Windows / Editor
+Thumbs.db
+desktop.ini
+*~
+*.tmp
