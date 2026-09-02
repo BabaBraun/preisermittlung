@@ -27,6 +27,33 @@ Als installierbare App (PWA) über GitHub Pages – siehe
 - Bericht mit Deckblatt, Inhaltsverzeichnis, Fotos und Unterschriftsfeld
 - Export als PDF, Word und Excel
 
+## Marktdatenbank
+
+Über den Schalter **📊 Marktdaten** in der Kopfzeile: eine eigene Sammlung von
+Angebots- und Kaufpreisen als Grundlage für den Vergleichswert und für die
+laufende Marktbeobachtung.
+
+- **Erfassen** – 48 Objektmerkmale, Preisverlauf mit Datum, Exposé-PDF als Anhang.
+  Der Exposé-Text lässt sich einfügen; ein Parser füllt das Formular vor.
+- **Bestand** – filter- und sortierbare Liste, CSV-Export für Excel.
+- **Übersicht** – Kennzahlen-Kacheln (Median €/m², Trend, Vermarktungsdauer,
+  Reduzierungsquote, eigene Abschlagsquote) und sechs Diagramme: Preisentwicklung
+  je Quartal, Ortsvergleich, Flächendegression, Baujahr, Vermarktung, eigene
+  Bewertung gegen Markt. Unter fünf Fällen wird keine Aussage ausgewiesen.
+- **Vergleich** – sucht zu einem Zielobjekt die ähnlichsten Fälle, leitet einen
+  Vergleichspreis ab und übergibt ihn in den Vordruck. Umgekehrt lässt sich ein
+  bewertetes Objekt aus der Preisermittlung in die Datenbank übernehmen.
+- **Datensicherung** – dauerhafter Speicher, Speicheranzeige, automatische
+  Zweitkopie ohne Anhänge, Sicherung als Datei (schlank oder vollständig).
+
+Angebots- und Kaufpreise werden getrennt geführt: Portalpreise sind
+Angebotspreise, echte Kaufpreise stammen aus eigenen Vermittlungen. Aus Fällen mit
+beidem berechnet die App die eigene Abschlagsquote, mit der sich Angebotspreise
+näherungsweise auf Kaufpreisniveau umrechnen lassen.
+
+Die Sammlung liegt in der IndexedDB des jeweiligen Geräts und wird **nicht**
+zwischen Geräten synchronisiert – Austausch über die Sicherungsdatei.
+
 ## Dateien
 
 | Datei | Zweck |
