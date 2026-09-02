@@ -462,6 +462,45 @@
     .mdb-head .sub{display:none}
     .mdb-head .sp .lbl{display:none}
   }
+  /* ---------- Objektsuche ---------- */
+  .search-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--rs);background:var(--field);color:var(--muted);font-weight:400;min-width:230px;justify-content:flex-start;cursor:text}
+  .search-btn:hover{border-color:var(--accent-2);background:var(--field)}
+  .search-btn .ic-svg{margin:0;color:var(--muted)}
+  .search-btn kbd{margin-left:auto;font:inherit;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px;background:var(--surface-2)}
+  .start-search{width:100%;height:48px;font-size:15px;margin:0 0 28px;min-width:0;border-radius:10px;box-shadow:var(--shadow)}
+  #suche{display:none;position:fixed;inset:0;z-index:400;background:rgba(20,18,16,.45);padding:9vh 16px 16px;overflow:auto}
+  #suche.on{display:block}
+  .suche-box{max-width:680px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .suche-kopf{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 16px;border-bottom:1px solid var(--line)}
+  .suche-kopf>span{display:flex;color:var(--muted)}
+  .suche-kopf>span .ic-svg{width:20px;height:20px}
+  .suche-kopf input{border:none;background:transparent;height:46px;padding:0;font-size:16px;box-shadow:none;border-radius:0}
+  .suche-kopf input:focus{box-shadow:none;border:none}
+  .suche-liste{max-height:60vh;overflow:auto}
+  .suche-grp{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);padding:12px 16px 4px;display:flex;justify-content:space-between}
+  .suche-grp em{font-style:normal;font-weight:500;letter-spacing:0;text-transform:none}
+  .suche-row{display:flex;align-items:center;gap:12px;padding:10px 16px 10px 13px;cursor:pointer;border-left:3px solid transparent}
+  .suche-row:hover,.suche-row.aktiv{background:var(--surface-2);border-left-color:var(--accent)}
+  .suche-row .ico{width:34px;height:34px;border-radius:var(--rs);background:var(--tint);color:var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .suche-row .ico.markt{background:var(--surface-2);color:var(--text-2)}
+  .suche-row .txt{min-width:0;flex:1}
+  .suche-row .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .suche-row .t .o{color:var(--muted);font-weight:400}
+  .suche-row .m{font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .suche-row .r{text-align:right;flex:0 0 auto}
+  .suche-row .r b{display:block;font-weight:500}
+  .suche-row .r span{font-size:11.5px;color:var(--muted)}
+  .suche-leer{padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+  .suche-fuss{display:flex;gap:14px;padding:8px 16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+  .suche-fuss kbd{font:inherit;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--surface-2)}
+  mark.hl{background:var(--warn-bg);color:inherit;border-radius:2px;padding:0 1px}
+  @media(max-width:1100px){
+    header.app .search-btn{min-width:0;width:36px;padding:0;justify-content:center;border-color:transparent;background:transparent}
+    header.app .search-btn span,header.app .search-btn kbd,.start-search kbd{display:none}
+    #suche{padding:8px 8px 16px}
+    .suche-fuss{display:none}
+    .suche-row .r{display:none}
+  }
 </style>
 </head>
 <body>
@@ -476,6 +515,7 @@
   <div class="start-inner">
     <div id="start-step0">
       <div class="greet"><h1 id="start_greet">Guten Tag.</h1><p class="lead" id="start-lead">Womit möchtest du arbeiten?</p></div>
+      <button class="search-btn start-search" onclick="sucheOeffnen()" data-ic="search"><span>Objekt suchen … Adresse, Ort, Auftraggeber, Objektart</span><kbd>Strg K</kbd></button>
       <div class="quick">
         <div class="tile q" onclick="startPreisermittlung()">
           <span class="qi fill" data-ic="plus"></span>
@@ -520,6 +560,7 @@
   <span class="vsep"></span>
   <div class="hdr-proj"><span id="hdr_proj">Neue Bewertung</span><span class="pill" id="hdr_sub">Vordruck</span></div>
   <div class="actions">
+    <button class="search-btn" onclick="sucheOeffnen()" title="Objekt suchen (Strg K)" data-ic="search"><span>Objekt suchen …</span><kbd>Strg K</kbd></button>
     <span class="saved">Automatisch gespeichert</span>
     <button class="icon" onclick="showStart()" title="Startseite" data-ic="home"></button>
     <button class="icon" onclick="oeffneProjekte()" title="Projekte" data-ic="folder"></button>
@@ -1397,6 +1438,18 @@
     <button class="on" onclick="document.body.classList.remove('cp-open');window.scrollTo({top:0,behavior:'smooth'})" data-ic="file-text">Bewertung</button>
     <button onclick="mdbOeffnen()" data-ic="chart">Markt</button>
     <button onclick="oeffneProjekte()" data-ic="folder">Projekte</button>
+  </div>
+</div>
+
+<div id="suche" onclick="if(event.target===this)sucheSchliessen()">
+  <div class="suche-box">
+    <div class="suche-kopf">
+      <span data-ic="search"></span>
+      <input id="suche_q" placeholder="Adresse, Ort, Auftraggeber, Objektart, Baujahr …" autocomplete="off" spellcheck="false" oninput="sucheLauf()" onkeydown="sucheTaste(event)">
+      <button class="icon" onclick="sucheSchliessen()" title="Schließen" data-ic="x"></button>
+    </div>
+    <div class="suche-liste" id="suche_liste"></div>
+    <div class="suche-fuss"><span><kbd>↑</kbd> <kbd>↓</kbd> wählen</span><span><kbd>Enter</kbd> öffnen</span><span><kbd>Esc</kbd> schließen</span><span style="margin-left:auto">durchsucht Bewertungen und Marktüberblick</span></div>
   </div>
 </div>
 
@@ -2651,7 +2704,7 @@ function renderSignature(){
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
 
 /* ---------- Persistence ---------- */
-function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay'))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
+function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay')||e.closest('#suche'))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
 function apply(o){Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
 function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE};}
 function restore(obj){
@@ -4185,6 +4238,111 @@ new MutationObserver(ms=>{
   let ib=$('installBtn'); if(ib&&ib.style.display==='inline-block') ib.style.display='inline-flex';
   if(!document.body.classList.contains('started')) startStep0();
 })();
+
+
+/* ---------- Objektsuche: Bewertungen (Projekte + aktuelle Arbeit) und Marktüberblick ---------- */
+var SUCHE={offen:false,q:'',hits:[],aktiv:0,markt:[]};
+function sNorm(s){ return (''+(s==null?'':s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss'); }
+function sEsc(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+async function sucheOeffnen(){
+  let o=$('suche'); if(!o)return;
+  o.classList.add('on'); SUCHE.offen=true;
+  let q=$('suche_q'); q.value=SUCHE.q||''; setTimeout(()=>{ q.focus(); q.select(); },30);
+  sucheLauf();
+  try{ SUCHE.markt=(typeof MDB_INIT!=='undefined'&&MDB_INIT)?MDBALL:await mdbAll(); }catch(e){ SUCHE.markt=[]; }
+  if(SUCHE.offen) sucheLauf();
+}
+function sucheSchliessen(){ let o=$('suche'); if(o)o.classList.remove('on'); SUCHE.offen=false; }
+function sucheQuellen(){
+  let out=[];
+  let cur=null; try{ cur=JSON.parse(localStorage.getItem('vb_wert2')); }catch(e){}
+  if(cur&&cur.fields){
+    let f=cur.fields;
+    if((f.ek_anschrift||'').trim()||(f.ek_ort||'').trim()) out.push({typ:'bew',id:'__cur',
+      titel:(f.ek_anschrift||'').trim()||'Aktuelle Bewertung', ort:(f.ek_ort||'').trim(),
+      meta:[f.ek_vordruck||f.ek_typ||'', f.ek_ag?'Auftraggeber '+f.ek_ag:'', f.ek_baujahr?'Bj. '+f.ek_baujahr:'', f.ek_wohnflaeche?f.ek_wohnflaeche+' m²':''].filter(Boolean),
+      preis:($('o_empfehlung')||{}).textContent||'', sub:'zuletzt geöffnet',
+      hay:[f.ek_anschrift,f.ek_ort,f.ek_ag,f.ek_typ,f.ek_wtyp,f.ek_vordruck,f.ek_nutzung,f.ek_baujahr,f.ek_wohnflaeche,f.ek_flst,'bewertung'].join(' '), ts:Date.now(),
+      go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); document.body.classList.add('started'); window.scrollTo(0,0); cockpitUpdate(); }});
+  }
+  let pj=[]; try{ pj=pjLoad(); }catch(e){}
+  pj.forEach(p=>{
+    let f=(p.data&&p.data.fields)||{};
+    if(out.length&&out[0].id==='__cur'&&out[0].titel===p.name)return;
+    out.push({typ:'bew',id:p.id, titel:p.name, ort:(f.ek_ort||'').trim(),
+      meta:[p.objekt||f.ek_vordruck||'', f.ek_ag?'Auftraggeber '+f.ek_ag:'', f.ek_baujahr?'Bj. '+f.ek_baujahr:'', f.ek_wohnflaeche?f.ek_wohnflaeche+' m²':''].filter(Boolean),
+      preis:p.empf||'', sub:p.datum||'',
+      hay:[p.name,p.objekt,f.ek_anschrift,f.ek_ort,f.ek_ag,f.ek_typ,f.ek_wtyp,f.ek_vordruck,f.ek_nutzung,f.ek_baujahr,f.ek_wohnflaeche,f.ek_flst,'bewertung projekt'].join(' '), ts:parseInt((''+p.id).slice(1))||0,
+      go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); projektLaden(p.id); }});
+  });
+  (SUCHE.markt||[]).forEach(o=>{
+    let d=mdbDeriv(o);
+    out.push({typ:'markt',id:o.id, titel:(o.strasse||'').trim()||'ohne Straße', ort:[o.plz,o.gemeinde,o.ortsteil].filter(Boolean).join(' '),
+      meta:[o.art||'', o.baujahr?'Bj. '+o.baujahr:'', d.wf?mdbInt(d.wf)+' m²':'', d.eurm2?mdbInt(d.eurm2)+' €/m²':''].filter(Boolean),
+      preis:d.wert?mdbEur(d.wert):'', sub:(d.basis==='KP'?'Kaufpreis':'Angebot')+(o.status?' · '+o.status:''),
+      hay:[o.strasse,o.gemeinde,o.ortsteil,o.plz,o.art,o.zustand,o.heizung,o.quelle,o.status,o.notiz,o.url,o.baujahr,o.wohnflaeche,o.preis,o.kaufpreis,'markt'].join(' '), ts:o.ts||0,
+      go:()=>{ sucheSchliessen(); mdbOeffnen().then(()=>mdbBearbeiten(o.id)); }});
+  });
+  return out;
+}
+function sucheLauf(){
+  let q=($('suche_q')||{}).value||''; SUCHE.q=q;
+  let tokens=sNorm(q).split(/\s+/).filter(Boolean);
+  let alle=sucheQuellen(), hits=[];
+  if(!tokens.length){ hits=alle.sort((a,b)=>b.ts-a.ts).slice(0,8); hits.forEach(h=>h.score=0); }
+  else{
+    alle.forEach(h=>{
+      let hay=sNorm(h.hay), tit=sNorm(h.titel+' '+h.ort), s=0;
+      for(const t of tokens){ if(hay.indexOf(t)<0){ s=-1; break; } s+= tit.indexOf(t)===0?30 : tit.indexOf(t)>=0?20 : 5; }
+      if(s>=0){ h.score=s; hits.push(h); }
+    });
+    hits.sort((a,b)=>b.score-a.score||b.ts-a.ts);
+  }
+  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
+  SUCHE.hits=bew.concat(markt); SUCHE.aktiv=0;
+  sucheRender(tokens,bew.length,markt.length);
+}
+function sucheMark(text,tokens){
+  let s=sEsc(text); if(!tokens.length)return s;
+  tokens.forEach(t=>{ if(t.length<2)return; let re=new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'); s=s.replace(re,'<mark class="hl">$1</mark>'); });
+  return s;
+}
+function sucheRender(tokens,nBew,nMarkt){
+  let el=$('suche_liste'), hits=SUCHE.hits;
+  if(!hits.length){
+    el.innerHTML='<div class="suche-leer">'+(SUCHE.q?'Keine Treffer für „'+sEsc(SUCHE.q)+'".<br>Gesucht wird in Adresse, Ort, Auftraggeber, Objektart, Baujahr, Fläche, Preis und Notizen.':'Noch keine Objekte vorhanden. Bewertungen erscheinen hier, sobald sie als Projekt gesichert sind; Marktobjekte, sobald sie erfasst sind.')+'</div>';
+    return;
+  }
+  const row=(h,i)=>'<div class="suche-row'+(i===SUCHE.aktiv?' aktiv':'')+'" data-i="'+i+'">'+
+    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':'file-text')+'</div>'+
+    '<div class="txt"><div class="t">'+sucheMark(h.titel,tokens)+(h.ort?' <span class="o">· '+sucheMark(h.ort,tokens)+'</span>':'')+'</div>'+
+    '<div class="m">'+sEsc(h.meta.join(' · '))+'</div></div>'+
+    '<div class="r"><b>'+(h.preis&&h.preis!=='0 €'?sEsc(h.preis):'')+'</b><span>'+sEsc(h.sub)+'</span></div></div>';
+  let h='', i=0;
+  if(nBew){ h+='<div class="suche-grp">Bewertungen<em>'+nBew+'</em></div>'; for(let k=0;k<nBew;k++){ h+=row(hits[i],i); i++; } }
+  if(nMarkt){ h+='<div class="suche-grp">Marktüberblick<em>'+nMarkt+'</em></div>'; for(let k=0;k<nMarkt;k++){ h+=row(hits[i],i); i++; } }
+  el.innerHTML=h;
+  el.querySelectorAll('.suche-row').forEach(r=>{
+    r.onclick=()=>SUCHE.hits[+r.dataset.i].go();
+    r.onmousemove=()=>{ if(SUCHE.aktiv!==+r.dataset.i){ SUCHE.aktiv=+r.dataset.i; sucheAktiv(false); } };
+  });
+}
+function sucheAktiv(scrollen){
+  $('suche_liste').querySelectorAll('.suche-row').forEach(x=>{ let on=+x.dataset.i===SUCHE.aktiv; x.classList.toggle('aktiv',on); if(on&&scrollen!==false) x.scrollIntoView({block:'nearest'}); });
+}
+function sucheTaste(e){
+  let n=SUCHE.hits.length;
+  if(e.key==='ArrowDown'){ e.preventDefault(); if(n){ SUCHE.aktiv=(SUCHE.aktiv+1)%n; sucheAktiv(); } }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); if(n){ SUCHE.aktiv=(SUCHE.aktiv-1+n)%n; sucheAktiv(); } }
+  else if(e.key==='Enter'){ e.preventDefault(); if(n) SUCHE.hits[SUCHE.aktiv].go(); }
+  else if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); sucheSchliessen(); }
+}
+document.addEventListener('keydown',e=>{
+  let tag=(e.target.tagName||'').toLowerCase(), inFeld=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
+  if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); SUCHE.offen?sucheSchliessen():sucheOeffnen(); }
+  else if(e.key==='/'&&!inFeld&&!SUCHE.offen){ e.preventDefault(); sucheOeffnen(); }
+});
+['input','change'].forEach(ev=>{ let s=$('suche'); if(s) s.addEventListener(ev,e=>e.stopPropagation()); });
 
 </script>
 </body>
