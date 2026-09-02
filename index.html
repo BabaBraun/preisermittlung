@@ -351,8 +351,23 @@
 <div id="startscreen">
   <div class="start-inner">
     <div class="brand"><div class="logo">🏠</div><div><h1>Rechnerische Preisermittlung</h1></div></div>
-    <p class="lead">Wähle zunächst die Art des Vordrucks – anschließend öffnet sich das passende Formular.</p>
-    <div id="start-step1">
+    <p class="lead" id="start-lead">Womit möchtest du arbeiten?</p>
+
+    <div id="start-step0">
+      <div class="big-choice" style="max-width:660px">
+        <div class="tile" onclick="mdbOeffnen()">
+          <div class="ic">📊</div><div class="t">Marktüberblick</div>
+          <div class="d">Objekte erfassen, Preise vergleichen,<br>Marktentwicklung auswerten</div>
+        </div>
+        <div class="tile" onclick="startPreisermittlung()">
+          <div class="ic">🏠</div><div class="t">Rechnerische Preisermittlung</div>
+          <div class="d">Substanz-, Ertrags- und<br>Vergleichswert nach ImmoWertV</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="start-step1" style="display:none">
+      <button class="back-btn" onclick="startStep0()">◀ zurück</button>
       <p class="step-label"><span class="num">1</span> Was möchtest du bewerten?</p>
       <div class="big-choice" style="grid-template-columns:repeat(3,1fr);max-width:820px">
         <div class="tile" onclick="pickKategorie('wohnung')"><div class="ic">🏢</div><div class="t">Eigentumswohnung</div><div class="d">Vergleichs- + Ertragswert</div></div>
@@ -373,7 +388,7 @@
   <div class="actions">
     <button class="ghost" onclick="showStart()">◀ Vordruck</button>
     <button class="ghost" id="installBtn" onclick="appInstallieren()">📲 Installieren</button>
-    <button class="ghost" onclick="mdbOeffnen()">📊 Marktdaten</button>
+    <button class="ghost" onclick="mdbOeffnen()">📊 Marktüberblick</button>
     <button class="ghost" onclick="oeffneProjekte()">📁 Projekte</button>
     <button class="ghost" onclick="save()">💾 Datei</button>
     <button class="ghost" onclick="loadFile()">📂 Öffnen</button>
@@ -406,7 +421,7 @@
 <div id="mdb_overlay" class="overlay">
   <div class="mdbwrap">
     <div class="mdb-head">
-      <h2>📊 Marktdatenbank</h2>
+      <h2>📊 Marktüberblick</h2>
       <span class="sub" id="mdb_headinfo">–</span>
       <div class="sp">
         <button class="ghost" onclick="mdbTab('erf');mdbNeu()">＋ Objekt</button>
@@ -897,7 +912,7 @@
         <tfoot><tr class="total"><th colspan="5" style="text-align:right">Durchschnitt €/m²</th><th id="o_vgl_avg">–</th></tr></tfoot>
       </table>
       <button class="plus no-print" onclick="uebernehmeVergleichspreis()">↑ Durchschnitt als Vergleichspreis übernehmen</button>
-      <button class="plus no-print" onclick="mdbVergleichAusVordruck()">📊 Vergleichsobjekte aus der Marktdatenbank suchen</button>
+      <button class="plus no-print" onclick="mdbVergleichAusVordruck()">📊 Vergleichsobjekte aus dem Marktüberblick suchen</button>
 
       <h3>5b.2 · Preisansatz</h3>
       <div class="grid three">
@@ -1126,7 +1141,7 @@
       <div class="xrow" id="xemp_2"><div class="field"><label>Bezeichnung</label><input id="xemp2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xemp2_val" type="text" value="0"></div></div>
       <button class="plus no-print" onclick="showNext('xemp',2)">＋ weitere Position</button>
       <div class="subtotal" style="font-size:16px;margin-top:14px"><span>Empfohlener Preisansatz</span><span id="o_empfehlung">0 €</span></div>
-      <button class="plus no-print" onclick="mdbAusVordruck()">📊 Objekt in die Marktdatenbank aufnehmen</button>
+      <button class="plus no-print" onclick="mdbAusVordruck()">📊 Objekt in den Marktüberblick aufnehmen</button>
       <div class="row-calc" style="margin-top:6px"><span>Verhandlungsspanne</span><b id="o_spanne">–</b></div>
 
       <h3>9.1 · Sensitivität <span class="u" style="font-weight:400">(Auswirkung veränderter Annahmen)</span></h3>
@@ -1748,8 +1763,22 @@ const VORDRUCKE = [
 const KAT_TITEL = {wohnung:'Eigentumswohnung – Vordruck wählen', wohnhaus:'Wohnhaus – Vordruck wählen', gewerbe:'Gewerbe – Vordruck wählen'};
 function showStart(){
   document.body.classList.remove('started');
+  startStep0();
+  window.scrollTo(0,0);
+}
+/* Stufe 0 = Marktüberblick oder Preisermittlung, Stufe 1 = Kategorie, Stufe 2 = Vordruck */
+function startStep0(){
+  $('start-step0').style.display='';
+  $('start-step1').style.display='none';
+  $('start-step2').style.display='none';
+  setT('start-lead','Womit möchtest du arbeiten?');
+  window.scrollTo(0,0);
+}
+function startPreisermittlung(){
+  $('start-step0').style.display='none';
   $('start-step1').style.display='';
   $('start-step2').style.display='none';
+  setT('start-lead','Wähle die Art des Vordrucks – anschließend öffnet sich das passende Formular.');
   window.scrollTo(0,0);
 }
 function startBack(){ $('start-step1').style.display=''; $('start-step2').style.display='none'; }
@@ -1760,6 +1789,7 @@ function pickKategorie(kat){
     tiles.insertAdjacentHTML('beforeend',
       `<div class="tile" onclick="pickVordruck('${v.id}')"><div class="ic">${v.icon}</div><div class="t">${v.label}</div><div class="d">${v.sub||'&nbsp;'}</div></div>`);
   });
+  $('start-step0').style.display='none';
   $('start-step1').style.display='none';
   $('start-step2').style.display='';
   window.scrollTo(0,0);
@@ -2710,7 +2740,11 @@ async function mdbOeffnen(){
   }
   mdbRender(); mdbBackupCheck();
 }
-function mdbClose(){ $('mdb_overlay').classList.remove('on'); document.body.style.overflow=''; }
+function mdbClose(){
+  $('mdb_overlay').classList.remove('on'); document.body.style.overflow='';
+  /* vom Startbildschirm aus geoeffnet: dorthin zurueck, nicht in ein leeres Formular */
+  if(!document.body.classList.contains('started')) startStep0();
+}
 function mdbTab(t){
   ['dash','liste','erf','vgl','sich'].forEach(x=>{
     $('mdbp_'+x).classList.toggle('on',x===t);
