@@ -1,6 +1,6 @@
-# Rechnerische Preisermittlung
+# ImmoApp
 
-Web-App zur rechnerischen Preisermittlung von Immobilien nach ImmoWertV –
+Web-App für Immobilienberater: rechnerische Preisermittlung nach ImmoWertV –
 Substanz-(Sachwert-), Ertrags- und Vergleichswertverfahren, Aufnahmebogen für den
 Ortstermin, Fotodokumentation und druckfertiger Bericht.
 

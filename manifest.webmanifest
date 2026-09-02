@@ -1,7 +1,7 @@
 {
-  "name": "Rechnerische Preisermittlung",
-  "short_name": "Preisermittlung",
-  "description": "Wertermittlung von Immobilien nach ImmoWertV – Substanz-, Ertrags- und Vergleichswert, Aufnahmebogen und Bericht.",
+  "name": "ImmoApp",
+  "short_name": "ImmoApp",
+  "description": "Rechnerische Preisermittlung nach ImmoWertV und Marktüberblick mit eigener Angebots- und Kaufpreissammlung.",
   "lang": "de",
   "dir": "ltr",
   "start_url": "./index.html",
