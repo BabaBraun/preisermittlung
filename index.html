@@ -290,6 +290,11 @@
     body.cp-open .cp-note{display:none}
     #mbar{display:block}
     header.app .saved,header.app .pill{display:none}
+    /* Markt, Finanzierung und Projekte stehen am Handy in der unteren Leiste --
+       oben wuerden sie die Kopfzeile ueberlaufen lassen. */
+    header.app button[onclick="mdbOeffnen()"],
+    header.app button[onclick="finOeffnen()"],
+    header.app button[onclick="oeffneProjekte()"]{display:none}
     header.app{padding:0 8px 0 16px;padding-top:env(safe-area-inset-top);gap:10px}
     header.app .actions{gap:2px}
     header.app .actions .lbl{display:none}
@@ -317,6 +322,10 @@
     .gallery{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
     .modal{padding:18px 14px}
     header.app #hdr_proj{max-width:160px;font-size:13px}
+    /* Platz fuer Export und Bericht: Wortmarke und Einstellungen wandern ins Menue */
+    header.app .wordmark,header.app .vsep,
+    header.app button[onclick="themeToggle()"],
+    header.app #installBtn{display:none}
     body.report-mode #report{padding:16px 14px}
   }
 
@@ -652,6 +661,9 @@
         <button onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste erstellen</button>
         <div class="sep"></div>
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
+        <div class="sep"></div>
+        <button onclick="themeToggle()" data-ic="moon">Hell / Dunkel umschalten</button>
+        <button onclick="appInstallieren()" data-ic="download">Als App installieren</button>
         <div class="sep"></div>
         <button onclick="dsgvoOeffnen()" data-ic="shield">Datenschutz</button>
         <button onclick="lockSetupOeffnen()" data-ic="lock">App-Sperre</button>
