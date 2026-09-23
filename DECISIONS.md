@@ -88,9 +88,18 @@ unnötiges DSGVO-Risiko ohne fachlichen Mehrwert.
 Windows Hello, Android-Fingerabdruck) über die WebAuthn-API nutzt, um die App zu entsperren.
 
 **Begründung/Grenzen:** Das ist **kein** echtes Server-Auth (es gibt keinen Server, der etwas verifiziert)
-— die Registrierung erzeugt ein Schlüsselpaar, dessen öffentlicher Teil lokal abgelegt wird, und beim
-Entsperren wird die Signatur lokal im Browser geprüft. Das schützt zuverlässig vor einem kurzen Blick auf
-das offen herumliegende Handy (die App zeigt ohne erfolgreiche Biometrie keine Inhalte), schützt aber nicht
-vor jemandem, der direkten technischen Zugriff auf den Browserspeicher hat (z. B. über die
-Entwicklertools). Eine vollständige Verschlüsselung der IndexedDB-Inhalte wäre der nächste, deutlich
-aufwendigere Schritt und wird in der Roadmap als spätere Ausbaustufe vermerkt, nicht jetzt umgesetzt.
+und auch keine eigene kryptografische Signaturprüfung im Code — implementiert ist der Standard-Ablauf
+`navigator.credentials.create()`/`.get()` mit `userVerification:'required'`. Eine erfolgreich aufgelöste
+`get()`-Anfrage beweist, dass Betriebssystem und Browser auf diesem Gerät gerade eine Face-ID-/Touch-ID-/
+Gerätecode-Prüfung verlangt und bestanden haben — die App vertraut dieser Plattform-Zusicherung, statt selbst
+eine COSE-Public-Key-Signatur zu verifizieren (das würde einen CBOR-Parser erfordern und stünde in keinem
+Verhältnis zum Sicherheitsgewinn, da ohne Server ohnehin kein unabhängiger zweiter Prüfpfad existiert). Das
+schützt zuverlässig vor einem kurzen Blick auf das offen herumliegende Handy (die App zeigt bis zur
+erfolgreichen Prüfung nichts an und blockiert auch die Bedienung), schützt aber nicht vor jemandem mit
+direktem technischen Zugriff auf den Browserspeicher (z. B. über die Entwicklertools). **Bewusst kein
+Wiederherstellungscode:** Funktioniert die Biometrie auf diesem Gerät später nicht mehr, ist der einzige
+Weg zurück das Löschen der Website-Daten (Datenverlust, wenn keine Sicherung vorliegt) — ein Recovery-Code
+wäre entweder eine Sicherheitslücke (Umgehung der Sperre) oder unverhältnismäßiger Aufwand für ein rein
+lokales Gate; die Einrichtung weist deshalb ausdrücklich darauf hin, vorher eine Sicherung anzulegen. Eine
+vollständige Verschlüsselung der IndexedDB-Inhalte wäre der nächste, deutlich aufwendigere Schritt und wird
+in der Roadmap als spätere Ausbaustufe vermerkt, nicht jetzt umgesetzt.

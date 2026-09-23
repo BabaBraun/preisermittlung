@@ -504,6 +504,23 @@
 </style>
 </head>
 <body>
+<div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:#1A1918;color:#ECE8E1;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
+  <div style="width:56px;height:56px;border-radius:14px;background:#2E62A0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;font-size:22px">IA</div>
+  <div style="font-family:'IBM Plex Serif',Georgia,serif;font-size:19px;font-weight:600">ImmoApp ist gesperrt</div>
+  <div id="lock_status" style="font-size:13px;color:#B5AFA5;max-width:280px;line-height:1.5">Zum Fortfahren mit Face ID, Touch ID oder Gerätecode entsperren.</div>
+  <button id="lock_btn" onclick="iaLockVersuch()" style="height:46px;padding:0 22px;border-radius:8px;border:none;background:#2E62A0;color:#fff;font:inherit;font-weight:500;font-size:14px;cursor:pointer">Entsperren</button>
+</div>
+<script>
+(function(){
+  try{
+    if(localStorage.getItem('ia_lock_enabled')==='1'){
+      var o=document.getElementById('lock_overlay');
+      o.style.display='flex';
+      document.documentElement.style.overflow='hidden';
+    }
+  }catch(e){}
+})();
+</script>
 <div id="startscreen">
   <div class="start-head">
     <span class="wordmark">ImmoApp</span>
@@ -582,6 +599,7 @@
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
         <div class="sep"></div>
         <button onclick="dsgvoOeffnen()" data-ic="shield">Datenschutz</button>
+        <button onclick="lockSetupOeffnen()" data-ic="lock">App-Sperre</button>
       </div>
     </div>
     <button class="primary" onclick="druckbericht()" data-ic="file-text"><span class="lbl">Bericht</span></button>
@@ -1479,6 +1497,27 @@
       oder ein USB-Stick) — das liegt außerhalb dieser App. Bitte entsprechend sensibel behandeln, besonders
       wenn eigene Kaufpreise oder Auftraggeber-Namen enthalten sind.</p>
     <div style="text-align:right;margin-top:14px"><button class="primary" onclick="dsgvoSchliessen()">Verstanden</button></div>
+  </div>
+</div>
+
+<div id="lock_setup_overlay" class="overlay" onclick="if(event.target===this)lockSetupSchliessen()">
+  <div class="modal">
+    <h2 style="margin-top:0">App-Sperre</h2>
+    <p class="hint" style="margin-top:-6px">Face ID, Touch ID oder der Gerätecode entsperren die App — ohne eigenes
+      Passwort, ohne Server. Nützlich, wenn unterwegs Kundendaten auf dem Bildschirm stehen.</p>
+    <div id="lock_setup_status" style="font-size:13px;line-height:1.6;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rs);padding:12px 14px;margin:10px 0"></div>
+    <div id="lock_setup_warn" class="flag" style="display:none;margin-top:0">
+      Wichtig: Funktioniert Face ID/Touch ID auf diesem Gerät später nicht mehr (z. B. neues Gerät, Zurücksetzen),
+      ist der einzige Weg zurück in die App das Löschen der Website-Daten dieses Geräts — dabei gehen alle lokal
+      gespeicherten Bewertungen und der Marktüberblick verloren, sofern keine Sicherung vorhanden ist.
+      <b>Bitte vorher eine Sicherung anlegen</b> (Export-Menü → Als Datei sichern, sowie im Marktüberblick unter
+      Datensicherung).
+    </div>
+    <div class="mdb-actions" style="margin-top:14px">
+      <button id="lock_setup_ein" class="primary" onclick="iaLockEinrichten()">Einrichten</button>
+      <button id="lock_setup_aus" class="danger" style="display:none" onclick="iaLockDeaktivieren()">Deaktivieren</button>
+      <button onclick="lockSetupSchliessen()" style="margin-left:auto">Schließen</button>
+    </div>
   </div>
 </div>
 
@@ -2783,6 +2822,7 @@ buildRefTable();
 buildNav();
 document.addEventListener('input',compute);
 document.addEventListener('change',compute);
+iaLockAutoStart();
 let saved=localStorage.getItem('vb_wert2');
 if(saved){
   try{restore(JSON.parse(saved));}catch(e){typWechsel();}
@@ -4016,7 +4056,8 @@ var IA_ICONS={
   'chevron-right':'<path d="m9 6 6 6-6 6"/>',
   shield:'<path d="M12 3 4 6v6c0 4.5 3.4 7.8 8 9 4.6-1.2 8-4.5 8-9V6z"/>',
   more:'<circle cx="12" cy="5" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="12" cy="19" r="1.1"/>',
-  export:'<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>'
+  export:'<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',
@@ -4052,6 +4093,91 @@ function a11yLabels(root){
     lab.setAttribute('for',inp.id);
   });
   (root||document).querySelectorAll('button[title]:not([aria-label])').forEach(b=>b.setAttribute('aria-label',b.title));
+}
+
+
+/* ---------- App-Sperre: Face ID / Touch ID / Windows Hello ueber WebAuthn -----------------
+   Rein lokal: kein Server verifiziert etwas. Eine erfolgreiche navigator.credentials.get()
+   mit userVerification:'required' beweist, dass Betriebssystem/Browser auf DIESEM Geraet
+   gerade eine Biometrie-/Code-Pruefung verlangt und bestanden haben. Das schuetzt zuverlaessig
+   vor einem kurzen Blick auf das entsperrte Geraet, nicht vor technischem Zugriff auf den
+   Browserspeicher (z.B. Entwicklertools) -- siehe DECISIONS.md D5. */
+function iaB64(buf){ return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
+function iaUnB64(s){ let bin=atob(s), a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }
+function iaLockVerfuegbar(){ return !!(window.PublicKeyCredential && navigator.credentials); }
+async function iaLockPlattformVorhanden(){
+  if(!iaLockVerfuegbar())return false;
+  try{ return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }catch(e){ return false; }
+}
+async function iaLockEinrichten(){
+  if(!(await iaLockPlattformVorhanden())){
+    alert('Auf diesem Gerät/Browser ist keine Face ID-, Touch ID- oder Gerätecode-Sperre verfügbar.');
+    return;
+  }
+  try{
+    let cred=await navigator.credentials.create({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:'ImmoApp'},
+      user:{id:crypto.getRandomValues(new Uint8Array(16)), name:'immoapp-geraet', displayName:'ImmoApp Gerätesperre'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred'},
+      timeout:60000, attestation:'none'
+    }});
+    if(!cred) throw new Error('abgebrochen');
+    localStorage.setItem('ia_lock_cred', iaB64(cred.rawId));
+    localStorage.setItem('ia_lock_enabled','1');
+    lockSetupRender();
+    alert('App-Sperre eingerichtet. Beim nächsten Öffnen wird Face ID/Touch ID/der Gerätecode verlangt.');
+  }catch(e){
+    if(e && e.name==='NotAllowedError') return;   // abgebrochen, keine Fehlermeldung noetig
+    alert('Einrichtung fehlgeschlagen: '+(e.message||e));
+  }
+}
+function iaLockDeaktivieren(){
+  if(!confirm('App-Sperre wirklich deaktivieren?')) return;
+  localStorage.removeItem('ia_lock_enabled'); localStorage.removeItem('ia_lock_cred');
+  lockSetupRender();
+}
+async function iaLockPruefen(){
+  let credId=localStorage.getItem('ia_lock_cred');
+  if(!credId) return true;
+  try{
+    let assertion=await navigator.credentials.get({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials:[{id:iaUnB64(credId), type:'public-key'}],
+      userVerification:'required', timeout:60000
+    }});
+    return !!assertion;
+  }catch(e){ return false; }
+}
+async function iaLockVersuch(){
+  setT('lock_status','Wird geprüft …'); $('lock_btn').disabled=true;
+  let ok=await iaLockPruefen();
+  if(ok){ iaLockOeffnen(); return; }
+  setT('lock_status','Entsperren nicht möglich. Bitte erneut versuchen — oder, falls dieses Gerät die Sperre nicht mehr erfüllen kann, in den Geräteeinstellungen die Website-Daten löschen (siehe Hinweis bei der Einrichtung).');
+  $('lock_btn').disabled=false;
+}
+function iaLockOeffnen(){
+  let o=$('lock_overlay'); if(o)o.style.display='none';
+  document.documentElement.style.overflow='';
+}
+async function iaLockAutoStart(){
+  if(localStorage.getItem('ia_lock_enabled')!=='1') return;
+  let ok=await iaLockPruefen();
+  if(ok) iaLockOeffnen();
+  else setT('lock_status','Zum Fortfahren mit Face ID, Touch ID oder Gerätecode entsperren.');
+}
+function lockSetupOeffnen(){ $('lock_setup_overlay').classList.add('on'); lockSetupRender(); }
+function lockSetupSchliessen(){ $('lock_setup_overlay').classList.remove('on'); }
+async function lockSetupRender(){
+  let an=localStorage.getItem('ia_lock_enabled')==='1';
+  let verf=await iaLockPlattformVorhanden();
+  $('lock_setup_ein').style.display=an?'none':'';
+  $('lock_setup_aus').style.display=an?'':'none';
+  $('lock_setup_warn').style.display=an?'none':'block';
+  setT('lock_setup_status', an
+    ? '✓ App-Sperre ist aktiv. Beim nächsten Öffnen wird entsperrt.'
+    : (verf ? 'Noch nicht eingerichtet.' : 'Dieses Gerät/dieser Browser unterstützt keine Plattform-Biometrie — „Einrichten" wird fehlschlagen.'));
 }
 
 /* ---------- Dunkelmodus ---------- */
