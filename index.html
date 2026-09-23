@@ -459,6 +459,23 @@
   .pdfrow .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pdfrow .sz{color:var(--muted);font-size:11.5px}
   .pdfrow button{padding:4px 10px;font-size:12px}
+  /* Wiedervorlagen */
+  .auf-zeile{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .auf-zeile:last-child{border-bottom:none}
+  .auf-zeile input[type=checkbox]{margin-top:2px;width:18px;height:18px;flex:0 0 auto}
+  .auf-zeile .txt{flex:1;min-width:0}
+  .auf-zeile .t{font-size:13.5px;line-height:1.4}
+  .auf-zeile.fertig .t{text-decoration:line-through;color:var(--muted)}
+  .auf-zeile .m{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+  .auf-zeile .frist{font-weight:600}
+  .auf-zeile .frist.ueber{color:var(--bad)}
+  .auf-zeile .frist.heute{color:var(--warn)}
+  .auf-zeile .weg{border:none;background:none;color:var(--muted);padding:4px;cursor:pointer;flex:0 0 auto}
+  .auf-zeile .weg:hover{color:var(--bad)}
+  .auf-leer{padding:26px 16px;text-align:center;color:var(--muted);font-size:13px}
+  .auf-badge{position:absolute;top:3px;right:3px;min-width:17px;height:17px;border-radius:9px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none}
+  .hat-badge{position:relative}
+  .start-auf{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:36px}
   .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
   .fin-zeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
   .fin-zeile:last-child{border-bottom:none}
@@ -543,6 +560,7 @@
     <span class="wordmark">ImmoApp</span>
     <div class="start-actions">
       <button class="icon" onclick="oeffneProjekte()" title="Projekte" data-ic="folder"></button>
+      <button class="icon hat-badge" id="auf_btn_start" onclick="aufOeffnen()" title="Wiedervorlagen" data-ic="check"></button>
       <button class="icon" onclick="themeToggle()" title="Dunkelmodus" data-ic="moon"></button>
     </div>
   </div>
@@ -571,6 +589,10 @@
           <div class="t">Marktüberblick</div>
           <div class="d">Bestand durchsuchen, Vergleichsobjekte finden, Entwicklung auswerten.</div>
         </div>
+      </div>
+      <div id="start_auf_block" style="display:none">
+        <div class="recent-head"><h2 id="start_auf_titel">Fällig</h2><a href="#" onclick="aufOeffnen();return false;">Alle Wiedervorlagen</a></div>
+        <div class="start-auf" id="start_auf"></div>
       </div>
       <div class="recent">
         <div class="recent-head"><h2>Zuletzt bearbeitet</h2><a href="#" onclick="oeffneProjekte();return false;">Alle Projekte</a></div>
@@ -605,6 +627,7 @@
     <button class="icon" onclick="oeffneProjekte()" title="Projekte" data-ic="folder"></button>
     <button class="icon" onclick="mdbOeffnen()" title="Marktüberblick" data-ic="chart"></button>
     <button class="icon" onclick="finOeffnen()" title="Finanzierung" data-ic="calc"></button>
+    <button class="icon hat-badge" id="auf_btn_hdr" onclick="aufOeffnen()" title="Wiedervorlagen" data-ic="check"></button>
     <button class="icon" onclick="themeToggle()" title="Dunkelmodus" data-ic="moon"></button>
     <button class="icon" id="installBtn" onclick="appInstallieren()" title="Als App installieren" data-ic="download"></button>
     <span class="vsep"></span>
@@ -1692,6 +1715,32 @@
   </div>
 </div>
 
+<div id="auf_overlay" class="overlay" onclick="if(event.target===this)aufSchliessen()">
+  <div class="modal" style="max-width:720px">
+    <h2 style="margin-top:0">Wiedervorlagen</h2>
+    <p class="hint" style="margin-top:-6px">Fällige Aufgaben erscheinen beim Öffnen der App auf der Startseite.
+      Die Liste liegt auf diesem Gerät und funktioniert auch offline.</p>
+    <div class="grid" style="grid-template-columns:2fr 1fr;align-items:end;gap:10px">
+      <div class="field"><label>Aufgabe</label><input id="auf_text" placeholder="z.B. Energieausweis beim Eigentümer anfordern" onkeydown="if(event.key==='Enter')aufNeu()"></div>
+      <div class="field"><label>Fällig am</label><input id="auf_frist" type="date"></div>
+    </div>
+    <div class="grid" style="grid-template-columns:2fr 1fr;align-items:end;gap:10px;margin-top:10px">
+      <div class="field"><label>Objekt / Bezug <span class="u">optional</span></label><input id="auf_objekt" placeholder="z.B. Musterstraße 5, Ilsfeld"></div>
+      <div class="field"><label>&nbsp;</label><button class="primary" onclick="aufNeu()" data-ic="plus">Hinzufügen</button></div>
+    </div>
+    <div style="display:flex;gap:6px;margin:18px 0 10px;flex-wrap:wrap">
+      <button class="secondary" id="auf_f_offen" onclick="aufFilter('offen')">Offen</button>
+      <button class="secondary" id="auf_f_alle" onclick="aufFilter('alle')">Alle</button>
+      <span id="auf_zusammenfassung" style="margin-left:auto;align-self:center;font-size:12.5px;color:var(--muted)"></span>
+    </div>
+    <div style="border:1px solid var(--line);border-radius:var(--rs);overflow:hidden" id="auf_liste"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <button onclick="aufErledigteLoeschen()" style="border:none;background:none;color:var(--muted);font-size:12.5px;padding:0">Erledigte entfernen</button>
+      <button onclick="aufSchliessen()">Schließen</button>
+    </div>
+  </div>
+</div>
+
 <div id="report"></div>
 
 <script>
@@ -1775,6 +1824,109 @@ const RND_COEFF=[
   [0.2520,0.5580,0.9463,12],[0.2260,0.4990,0.9442,11],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10]
 ];
 
+
+
+/* ---------- Aufgaben und Wiedervorlagen ------------------------------------------------
+   Bewusst als In-App-Liste ohne Push-Benachrichtigungen: echte Hintergrund-Benachrichtigungen
+   brauchen zwingend einen Server (siehe DECISIONS.md D1). Faellige Aufgaben zeigen sich
+   stattdessen beim Oeffnen der App auf der Startseite und im Zaehler der Kopfzeile. */
+var AUF_KEY='ia_aufgaben', AUF_FILTER='offen';
+function aufLoad(){ try{ return JSON.parse(localStorage.getItem(AUF_KEY))||[]; }catch(e){ return []; } }
+function aufStore(list){ try{ localStorage.setItem(AUF_KEY,JSON.stringify(list)); return true; }catch(e){ alert('Speicher voll — bitte erledigte Wiedervorlagen entfernen.'); return false; } }
+function aufHeute(){ return new Date().toISOString().slice(0,10); }
+function aufTage(frist){ if(!frist) return null; return Math.round((new Date(frist+'T00:00:00')-new Date(aufHeute()+'T00:00:00'))/86400000); }
+function aufFristText(frist){
+  let t=aufTage(frist);
+  if(t===null) return {txt:'ohne Frist', cls:''};
+  if(t<0) return {txt:Math.abs(t)+' Tag'+(Math.abs(t)===1?'':'e')+' überfällig', cls:'ueber'};
+  if(t===0) return {txt:'heute fällig', cls:'heute'};
+  if(t===1) return {txt:'morgen fällig', cls:'heute'};
+  return {txt:'in '+t+' Tagen', cls:''};
+}
+function aufOffenFaellig(){ return aufLoad().filter(a=>!a.erledigt && a.frist && aufTage(a.frist)<=0); }
+function aufNeu(){
+  let text=($('auf_text').value||'').trim();
+  if(!text){ $('auf_text').focus(); return; }
+  let list=aufLoad();
+  list.push({id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), text:text,
+    frist:$('auf_frist').value||'', objekt:($('auf_objekt').value||'').trim(), erledigt:false, angelegt:Date.now()});
+  if(!aufStore(list)) return;
+  $('auf_text').value=''; $('auf_frist').value=''; $('auf_objekt').value='';
+  aufRender(); aufBadge(); $('auf_text').focus();
+}
+function aufToggle(id){
+  let list=aufLoad(), a=list.find(x=>x.id===id); if(!a)return;
+  a.erledigt=!a.erledigt; a.erledigtAm=a.erledigt?Date.now():null;
+  aufStore(list); aufRender(); aufBadge(); aufStartRender();
+}
+function aufLoeschen(id){
+  let list=aufLoad().filter(x=>x.id!==id);
+  aufStore(list); aufRender(); aufBadge(); aufStartRender();
+}
+function aufErledigteLoeschen(){
+  let list=aufLoad(), n=list.filter(x=>x.erledigt).length;
+  if(!n){ alert('Es sind keine erledigten Wiedervorlagen vorhanden.'); return; }
+  if(!confirm(n+' erledigte Wiedervorlage'+(n===1?'':'n')+' entfernen?')) return;
+  aufStore(list.filter(x=>!x.erledigt)); aufRender(); aufBadge();
+}
+function aufFilter(f){ AUF_FILTER=f; aufRender(); }
+function aufSortiert(list){
+  return list.slice().sort((a,b)=>{
+    if(a.erledigt!==b.erledigt) return a.erledigt?1:-1;
+    if(!a.frist&&!b.frist) return b.angelegt-a.angelegt;
+    if(!a.frist) return 1; if(!b.frist) return -1;
+    return a.frist<b.frist?-1:a.frist>b.frist?1:0;
+  });
+}
+function aufZeile(a){
+  let f=aufFristText(a.frist);
+  return '<div class="auf-zeile'+(a.erledigt?' fertig':'')+'">'
+    +'<input type="checkbox" '+(a.erledigt?'checked':'')+' aria-label="Erledigt" onchange="aufToggle(&quot;'+a.id+'&quot;)">'
+    +'<div class="txt"><div class="t">'+sEsc(a.text)+'</div><div class="m">'
+    +(a.erledigt?'<span>erledigt</span>':'<span class="frist '+f.cls+'">'+sEsc(f.txt)+'</span>')
+    +(a.frist?'<span>'+new Date(a.frist+'T00:00:00').toLocaleDateString('de-DE')+'</span>':'')
+    +(a.objekt?'<span>'+sEsc(a.objekt)+'</span>':'')+'</div></div>'
+    +'<button class="weg" aria-label="Wiedervorlage löschen" onclick="aufLoeschen(&quot;'+a.id+'&quot;)">'+iaSvg('trash')+'</button></div>';
+}
+function aufRender(){
+  let alle=aufLoad();
+  let list=aufSortiert(AUF_FILTER==='offen'?alle.filter(a=>!a.erledigt):alle);
+  let el=$('auf_liste'); if(!el)return;
+  el.innerHTML=list.length?list.map(aufZeile).join('')
+    :'<div class="auf-leer">'+(alle.length?'Keine offenen Wiedervorlagen — gut gemacht.':'Noch keine Wiedervorlage angelegt.')+'</div>';
+  let offen=alle.filter(a=>!a.erledigt).length, faellig=aufOffenFaellig().length;
+  setT('auf_zusammenfassung', offen+' offen'+(faellig?' · '+faellig+' fällig':''));
+  ['offen','alle'].forEach(f=>{ let b=$('auf_f_'+f); if(b) b.classList.toggle('primary',AUF_FILTER===f); });
+}
+function aufBadge(){
+  let n=aufOffenFaellig().length;
+  ['auf_btn_hdr','auf_btn_start'].forEach(id=>{
+    let b=$(id); if(!b)return;
+    let alt=b.querySelector('.auf-badge'); if(alt) alt.remove();
+    if(n) b.insertAdjacentHTML('beforeend','<span class="auf-badge">'+(n>9?'9+':n)+'</span>');
+    b.title='Wiedervorlagen'+(n?' — '+n+' fällig':'');
+    b.setAttribute('aria-label',b.title);
+  });
+}
+function aufStartRender(){
+  let block=$('start_auf_block'), el=$('start_auf'); if(!block||!el)return;
+  let faellig=aufSortiert(aufOffenFaellig());
+  if(!faellig.length){ block.style.display='none'; return; }
+  block.style.display='';
+  setT('start_auf_titel', faellig.length+' Wiedervorlage'+(faellig.length===1?'':'n')+' fällig');
+  el.innerHTML=faellig.slice(0,5).map(aufZeile).join('')
+    +(faellig.length>5?'<div class="auf-leer" style="padding:10px">und '+(faellig.length-5)+' weitere</div>':'');
+}
+function aufOeffnen(){
+  $('auf_overlay').classList.add('on');
+  if(!$('auf_frist').value) $('auf_frist').value=aufHeute();
+  let adr=(($('ek_anschrift')||{}).value||'').trim();
+  if(adr && !$('auf_objekt').value && document.body.classList.contains('started')) $('auf_objekt').value=adr;
+  aufRender(); setTimeout(()=>$('auf_text').focus(),50);
+}
+function aufSchliessen(){ $('auf_overlay').classList.remove('on'); aufStartRender(); aufBadge(); }
+['input','change'].forEach(ev=>{ let o=$('auf_overlay'); if(o) o.addEventListener(ev,e=>e.stopPropagation()); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('auf_overlay'); if(o&&o.classList.contains('on')) aufSchliessen(); } });
 
 /* ---------- Finanzierungsrechner: Annuitaetendarlehen mit Nebenkosten und Tilgungsplan ----
    Deutsche Bankpraxis: Annuitaet = Darlehen x (Sollzins + anfaengliche Tilgung) / 100,
@@ -4837,6 +4989,7 @@ function startStep0(){
   let n=0; try{ n=pjLoad().length; }catch(e){}
   setT('start-lead', new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+(n?' · '+n+' gesicherte Projekt'+(n===1?'':'e'):''));
   startRecent(); startFoot();
+  try{ aufStartRender(); aufBadge(); }catch(e){}
   window.scrollTo(0,0);
 }
 function startPreisermittlung(){
@@ -4857,6 +5010,7 @@ new MutationObserver(ms=>{
     themeApply(t);
   }catch(e){}
   iconify(document); unitsInField(document); a11yLabels(document); stepBadges();
+  try{ aufBadge(); }catch(e){}
   buildNav(); cockpitUpdate();
   let ib=$('installBtn'); if(ib&&ib.style.display==='inline-block') ib.style.display='inline-flex';
   if(!document.body.classList.contains('started')) startStep0();
