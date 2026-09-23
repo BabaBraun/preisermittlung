@@ -842,6 +842,14 @@
         <div class="field"><label>Anwesend</label><input id="au_anwesend" placeholder="z.B. Eigentümer, Makler"></div>
       </div>
 
+      <div class="group-title">Standort</div>
+      <div class="grid three">
+        <div class="field"><label>Breitengrad</label><input id="au_lat" type="text" placeholder="–" readonly></div>
+        <div class="field"><label>Längengrad</label><input id="au_lon" type="text" placeholder="–" readonly></div>
+        <div class="field no-print"><label>&nbsp;</label><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" onclick="ortErfassen()" data-ic="map">Standort erfassen</button><a id="au_kartelink" href="#" target="_blank" rel="noopener" style="display:none;font-size:13px">Karte öffnen ↗</a></div></div>
+      </div>
+      <p class="hint no-print" id="au_ortstatus" style="margin-top:-6px"></p>
+
       <h3>Räume &amp; Flächen</h3>
       <div class="grid four">
         <div class="field"><label>Anzahl Zimmer</label><input id="au_zimmer" type="text" value=""></div>
@@ -2508,6 +2516,7 @@ function druckbericht(){
     dl('Heizungsart','au_heizung_art'),dl('Heizung Baujahr / Fabrikat','au_heizung_bj'),dl('Warmwasser','au_ww'),
     dl('Fenster','au_fenster'),dl('Dämmung Fassade','au_daemm_fassade'),dl('Dämmung Dach','au_daemm_dach'),
     dl('Elektro','au_elektro'),dl('Energieausweis','au_energieausweis'),dl('Energiekennwert','au_energiewert',' kWh/(m²·a)'),
+    (($('au_lat').value||'').trim()&&($('au_lon').value||'').trim())?L('Standort (GPS)',esc($('au_lat').value)+', '+esc($('au_lon').value)):'',
     dl('Energieeffizienzklasse','au_energieklasse'),dl('Aufzug','au_aufzug'),dl('Barrierefreiheit','au_barriere')].join('');
   let auBt=aufnahmeBauteileListe();
   let auBlock='';
@@ -4095,6 +4104,30 @@ function a11yLabels(root){
   (root||document).querySelectorAll('button[title]:not([aria-label])').forEach(b=>b.setAttribute('aria-label',b.title));
 }
 
+
+
+/* ---------- Standort erfassen (Geolocation) im Aufnahmebogen ---------- */
+function ortErfassen(){
+  if(!navigator.geolocation){ setT('au_ortstatus','Dieses Gerät oder dieser Browser unterstützt keine Standorterfassung.'); return; }
+  setT('au_ortstatus','Standort wird ermittelt …');
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      let lat=pos.coords.latitude.toFixed(6), lon=pos.coords.longitude.toFixed(6);
+      $('au_lat').value=lat; $('au_lon').value=lon;
+      let genau=Math.round(pos.coords.accuracy||0);
+      setT('au_ortstatus','Standort erfasst'+(genau?' (Genauigkeit \u00b1'+genau+' m)':'')+'.');
+      let link=$('au_kartelink'); if(link){ link.href='https://www.google.com/maps?q='+lat+','+lon; link.style.display='inline'; }
+      autosave();
+    },
+    err=>{
+      let msg = err.code===1 ? 'Standortzugriff wurde verweigert \u2014 bitte in den Geräteeinstellungen für diese Seite erlauben.'
+              : err.code===2 ? 'Standort konnte nicht ermittelt werden (kein Empfang/Signal).'
+              : 'Zeitüberschreitung bei der Standortermittlung \u2014 bitte erneut versuchen.';
+      setT('au_ortstatus',msg);
+    },
+    {enableHighAccuracy:true, timeout:15000, maximumAge:60000}
+  );
+}
 
 /* ---------- App-Sperre: Face ID / Touch ID / Windows Hello ueber WebAuthn -----------------
    Rein lokal: kein Server verifiziert etwas. Eine erfolgreiche navigator.credentials.get()
