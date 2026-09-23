@@ -1302,6 +1302,51 @@
     </section>
 
     <!-- FOTODOKUMENTATION -->
+
+    <section class="card" id="s-energie" data-nav="⑦e Energetische Qualität">
+      <h2>⑦e Energetische Qualität</h2>
+      <label class="toggle no-print"><input type="checkbox" id="en_aktiv" onchange="compute()"> Energetische Qualität als Zu-/Abschlag berücksichtigen</label>
+      <div id="en_body">
+        <p class="hint">Die energetische Beschaffenheit ist ein besonderes objektspezifisches Merkmal (§ 8 Abs. 3 ImmoWertV).
+          Sie wird hier gegenüber einem marktüblichen Normalzustand bewertet — wahlweise als Marktabschlag je Effizienzklasse
+          oder als kapitalisierte Energiekostendifferenz. Das Ergebnis fließt als eigene Position in die Preisempfehlung.</p>
+
+        <div class="flag">Doppelzählung beachten: Sind Fenster, Dämmung und Heizung bereits über die Modernisierungspunkte
+          in Abschnitt ② erfasst, wirkt die energetische Qualität dort schon über die Restnutzungsdauer auf den Substanzwert.
+          Dieser Zu-/Abschlag ist dann zurückhaltend anzusetzen (oder nur auf den Ertrags-/Vergleichswertanteil zu beziehen)
+          und im Bericht zu begründen.</p>
+
+        <h3>7e.1 · Energetischer Zustand</h3>
+        <div class="grid four">
+          <div class="field"><label>Energiekennwert <span class="u">kWh/(m²·a)</span></label><input id="en_kennwert" type="text" value="0"></div>
+          <div class="field"><label>Effizienzklasse <span class="u">(aus Kennwert oder manuell)</span></label>
+            <select id="en_klasse" onchange="enKlasseManuell()"><option>A+</option><option>A</option><option>B</option><option>C</option><option selected>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="field"><label>Marktüblicher Normalzustand <span class="u">Referenzklasse</span></label>
+            <select id="en_ref_klasse"><option>A+</option><option>A</option><option>B</option><option>C</option><option selected>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+          <div class="field no-print"><label>&nbsp;</label><button type="button" onclick="enAusAufnahme()" data-ic="arrow-down">Aus Aufnahmebogen</button></div>
+        </div>
+        <div class="row-calc"><span>Abweichung vom Normalzustand</span><b id="o_en_stufen">–</b></div>
+
+        <h3>7e.2 · Herleitung</h3>
+        <div class="grid three">
+          <div class="field"><label>Verfahren</label>
+            <select id="en_modus" onchange="compute()">
+              <option value="markt">Marktabschlag je Effizienzklasse</option>
+              <option value="kosten">Kapitalisierte Energiekostendifferenz</option>
+            </select></div>
+          <div class="field en-markt"><label>Zu-/Abschlag <span class="u">% je Klassenstufe</span></label><input id="en_pct_stufe" type="text" value="2,5"></div>
+          <div class="field en-kosten" style="display:none"><label>Wärmepreis <span class="u">€/kWh (inkl. CO₂)</span></label><input id="en_preis_kwh" type="text" value="0,12"></div>
+          <div class="field en-kosten" style="display:none"><label>Kapitalisierungszins <span class="u">%</span></label><input id="en_zins" type="text" value="3"></div>
+          <div class="field en-kosten" style="display:none"><label>Betrachtungszeitraum <span class="u">Jahre</span></label><input id="en_jahre" type="text" value="20"></div>
+        </div>
+        <div class="row-calc en-kosten" style="display:none"><span>Mehr-/Minderverbrauch <span class="from">(Kennwert − Referenz) × Wohnfläche</span></span><b id="o_en_kwh">0 kWh/Jahr</b></div>
+        <div class="row-calc en-kosten" style="display:none"><span>Energiekostendifferenz je Jahr</span><b id="o_en_jahr">0 €</b></div>
+        <div class="row-calc en-kosten" style="display:none"><span>× Barwertfaktor <span id="o_en_vf_txt"></span></span><b id="o_en_vf">0</b></div>
+        <div class="row-calc en-markt"><span>Prozentualer Zu-/Abschlag auf den gewichteten Mittelwert</span><b id="o_en_pct">0 %</b></div>
+        <div class="subtotal" style="font-size:15px"><span>Zu-/Abschlag energetische Qualität</span><span id="o_energie">0 €</span></div>
+      </div>
+    </section>
+
     <section class="card" id="s-fotos" data-nav="⑧ Fotos">
       <h2>⑧ Fotodokumentation</h2>
       <p class="hint">Bilder werden auf max. 1400 px verkleinert. Zum dauerhaften Sichern (inkl. Bilder) bitte <b>💾 Speichern</b> nutzen — Bilder werden in die Projektdatei aufgenommen.</p>
@@ -1334,6 +1379,7 @@
       <div class="row-calc" id="row_e_vgl"><span>Vergleichswert <span class="u">(Gewichtung · Wert)</span></span><b id="o_e_vgl">–</b></div>
       <div class="row-calc"><span>Gewichteter Mittelwert</span><b id="o_e_mittel">0 €</b></div>
       <div class="row-calc" id="row_e_pv"><span>+ Barwert PV-Anlage <span class="u">(objektspez. Merkmal, voll)</span></span><b id="o_e_pv">0 €</b></div>
+      <div class="row-calc" id="row_e_energie"><span>± Energetische Qualität <span class="u">(objektspez. Merkmal)</span></span><b id="o_e_energie">0 €</b></div>
       <div class="row-calc"><span>− Belastung Nießbrauch / Wohnrecht</span><b id="o_e_niess">0 €</b></div>
       <div class="row-calc" id="row_e_erbbau"><span>− Korrektur Erbbaurecht</span><b id="o_e_erbbau">0 €</b></div>
       <div class="row-calc" id="row_e_wk"><span>− Wertkorrekturen § 8 Abs. 3</span><b id="o_e_wk">0 €</b></div>
@@ -1611,6 +1657,14 @@ const RND_COEFF=[
   [0.3640,0.8080,0.9622,16],[0.3300,0.7350,0.9528,15],[0.3040,0.6760,0.9506,14],[0.2780,0.6170,0.9485,13],
   [0.2520,0.5580,0.9463,12],[0.2260,0.4990,0.9442,11],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10]
 ];
+/* ---------- Energetische Qualitaet: Klassengrenzen der GEG-Skala (kWh/(m2a)) ----------
+   Steht bewusst bei den uebrigen Fachtabellen: compute() laeuft frueh und braucht sie
+   bereits beim ersten Durchlauf. */
+const EN_KLASSEN=[['A+',30],['A',50],['B',75],['C',100],['D',130],['E',160],['F',200],['G',250],['H',1e9]];
+function enKlasseAusKennwert(k){ for(let i=0;i<EN_KLASSEN.length;i++){ if(k<=EN_KLASSEN[i][1]) return EN_KLASSEN[i][0]; } return 'H'; }
+function enIdx(kl){ let i=EN_KLASSEN.findIndex(x=>x[0]===kl); return i<0?4:i; }
+function enRefKennwert(kl){ let i=enIdx(kl); return i>=EN_KLASSEN.length-1?300:EN_KLASSEN[i][1]; }
+
 function computeRND(alter,gnd,points){
   if(gnd<=0)return 0;
   if(alter<=0)return gnd;
@@ -2332,7 +2386,37 @@ function compute(){
   let mittelBasis=g*substanz+(1-g)*ertrag;
   let gv=vwAktiv?Math.min(Math.max(num('gew_vergleich'),0),100)/100:0;
   let mittel=vwAktiv?((1-gv)*mittelBasis+gv*vergleichWert):mittelBasis;
-  let empfehlung=mittel+pvWert-niessWert-erbbauAbzug-wkSumme+sumExtras('xemp',2);
+  /* ---- Energetische Qualitaet (SS 8 Abs. 3 ImmoWertV) ---- */
+  let enAktiv=$('en_aktiv').checked, enModus=$('en_modus').value;
+  let enKennwert=num('en_kennwert');
+  if(enKennwert>0 && !$('en_klasse').dataset.manuell) $('en_klasse').value=enKlasseAusKennwert(enKennwert);
+  let enStufen=enIdx($('en_klasse').value)-enIdx($('en_ref_klasse').value);   /* positiv = schlechter als Referenz */
+  let enRefKw=enRefKennwert($('en_ref_klasse').value);
+  let enMehrKwh=0, enMehrJahr=0, enVf=0, enPct=0, energieWert=0;
+  if(enModus==='kosten'){
+    enMehrKwh=(enKennwert>0?enKennwert-enRefKw:0)*num('ek_wohnflaeche');   /* nicht wf: wird in compute() erst spaeter deklariert */
+    enMehrJahr=enMehrKwh*num('en_preis_kwh');
+    enVf=barwertfaktor(num('en_zins'),num('en_jahre'));
+    energieWert=enAktiv?-enMehrJahr*enVf:0;
+  }else{
+    enPct=-enStufen*num('en_pct_stufe');
+    energieWert=enAktiv?mittel*enPct/100:0;
+  }
+  setT('o_en_stufen', enStufen===0?'entspricht dem Normalzustand ('+$('en_ref_klasse').value+')'
+      : (enStufen>0? enStufen+' Klasse'+(enStufen>1?'n':'')+' schlechter als '+$('en_ref_klasse').value
+                   : Math.abs(enStufen)+' Klasse'+(Math.abs(enStufen)>1?'n':'')+' besser als '+$('en_ref_klasse').value));
+  setT('o_en_kwh',num2(enMehrKwh)+' kWh/Jahr');
+  setT('o_en_jahr',eur(enMehrJahr));
+  setT('o_en_vf',num2(enVf));
+  setT('o_en_vf_txt','('+num2(num('en_jahre'))+' J / '+num2(num('en_zins'))+' %)');
+  setT('o_en_pct',(enPct>0?'+':'')+num2(enPct)+' %');
+  setT('o_energie',(energieWert>0?'+ ':energieWert<0?'− ':'')+eur(Math.abs(energieWert)));
+  document.querySelectorAll('.en-markt').forEach(e=>e.style.display=enModus==='markt'?'':'none');
+  document.querySelectorAll('.en-kosten').forEach(e=>e.style.display=enModus==='kosten'?'':'none');
+  $('row_e_energie').style.display=enAktiv&&energieWert!==0?'':'none';
+  setT('o_e_energie',(energieWert>0?'+ ':energieWert<0?'− ':'')+eur(Math.abs(energieWert)));
+
+  let empfehlung=mittel+pvWert+energieWert-niessWert-erbbauAbzug-wkSumme+sumExtras('xemp',2);
   let vh=num('verhandlung')/100;
   $('row_e_vgl').style.display=vwAktiv?'':'none';
   $('row_e_erbbau').style.display=ebAktiv?'':'none';
@@ -2405,7 +2489,7 @@ function compute(){
   setT('r_empfehlung',eur(empfehlung));setT('r_sub',eur(substanz));setT('r_er',eur(ertrag));
   setT('r_mittel',eur(mittel));setT('r_niess',eur(niessWert));setT('r_boden',eur(bodenwert));
 
-  window._R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,modPunkte,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
+  window._R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};
@@ -2658,6 +2742,14 @@ function druckbericht(){
     <tr class="total"><td>Preis nach Gebäudeertrag</td><td>${eur(R.ertrag)}</td></tr>
    </table>
    ${R.mietrolleAktiv?`<h3>Mietrolle (wohnungsweise)</h3><table><tr><td><b>Einheit</b></td><td><b>Miete p.a.</b></td></tr>${(function(){let rows='';for(let i=0;i<14;i++){let bez=($('mr_bez'+i).value||'').trim();let pa=(num('mr_fl'+i)*num('mr_pm2'+i)+num('mr_pau'+i))*12;if(pa>0)rows+=L((bez||'Einheit '+(i+1))+(($('mr_gesch'+i).value||'').trim()?' ('+esc($('mr_gesch'+i).value.trim())+')':''),eur(pa));}return rows;})()}<tr class="total"><td>Summe Jahresrohertrag</td><td>${eur(R.mrSumme)}</td></tr></table>`:''}
+   ${$('en_aktiv').checked&&R.energieWert!==0?`<h2>Energetische Qualität</h2><table>
+    ${L('Energiekennwert',R.enKennwert>0?num2(R.enKennwert)+' kWh/(m²·a)':'–')}
+    ${L('Effizienzklasse',esc($('en_klasse').value)+' (Normalzustand: '+esc($('en_ref_klasse').value)+')')}
+    ${R.enModus==='kosten'
+      ? L('Mehr-/Minderverbrauch',num2(R.enMehrKwh)+' kWh/Jahr')+L('Energiekostendifferenz / Jahr',eur(R.enMehrJahr))+L('× Barwertfaktor',num2(R.enVf))
+      : L('Abweichung',R.enStufen+' Klassenstufen')+L('Ansatz',num2(num('en_pct_stufe'))+' % je Stufe')+L('Zu-/Abschlag',num2(R.enPct)+' %')}
+    <tr class="total"><td>Zu-/Abschlag energetische Qualität</td><td>${(R.energieWert>0?'+ ':'− ')+eur(Math.abs(R.energieWert))}</td></tr>
+   </table>`:''}
    ${$('pv_aktiv').checked?`<h2>Photovoltaik-Anlage</h2><table>${L('Reinertrag Solar / Jahr',eur(R.pvRein))}${L('× Barwertfaktor',num2(R.pvVf))}<tr class="total"><td>Barwert der PV-Anlage</td><td>${eur(R.pvWert)}</td></tr></table>`:''}
    ${mspBlock}
    ${w ? (vglRows?'<h2>Vergleichsobjekte</h2><table>'+vglRows+'<tr class="total"><td>Durchschnitt</td><td>'+$('o_vgl_avg').textContent+'</td></tr></table>':'') : vergleichBlock}
@@ -2671,6 +2763,7 @@ function druckbericht(){
     ${R.vwAktiv?L('Preis nach Vergleichswert (Gewichtung '+num2(R.gv*100)+' %)',eur(R.vergleichWert)):''}
     ${L('Gewichteter Mittelwert',eur(R.mittel))}
     ${$('pv_aktiv').checked?L('+ Barwert PV-Anlage',eur(R.pvWert)):''}
+    ${$('en_aktiv').checked&&R.energieWert!==0?L((R.energieWert>0?'+ ':'− ')+'Energetische Qualität',eur(Math.abs(R.energieWert))):''}
     ${niessRow}
     ${R.ebAktiv?L('− Korrektur Erbbaurecht',eur(R.erbbauAbzug)):''}
     ${R.wkSumme?L('− Wertkorrekturen § 8 Abs. 3',eur(R.wkSumme)):''}
@@ -4106,6 +4199,17 @@ function a11yLabels(root){
 
 
 
+
+/* Kennwert und Klasse aus dem Aufnahmebogen uebernehmen, damit nichts doppelt erfasst wird */
+function enKlasseManuell(){ $('en_klasse').dataset.manuell='1'; compute(); }
+function enAusAufnahme(){
+  let k=num('au_energiewert'), kl=($('au_energieklasse')||{value:'–'}).value;
+  if(k>0){ $('en_kennwert').value=num2(k); $('en_klasse').dataset.manuell=''; }
+  if(kl && kl!=='–'){ $('en_klasse').value=kl; $('en_klasse').dataset.manuell='1'; }
+  if(!(k>0) && (!kl||kl==='–')){ alert('Im Aufnahmebogen (①b) sind weder Energiekennwert noch Effizienzklasse eingetragen.'); return; }
+  compute();
+}
+
 /* ---------- Standort erfassen (Geolocation) im Aufnahmebogen ---------- */
 function ortErfassen(){
   if(!navigator.geolocation){ setT('au_ortstatus','Dieses Gerät oder dieser Browser unterstützt keine Standorterfassung.'); return; }
@@ -4244,7 +4348,7 @@ function stepBadges(){
   document.querySelectorAll('.card h2').forEach(h=>{
     if(h.querySelector('.step'))return;
     let t=h.firstChild; if(!t||t.nodeType!==3)return;
-    let m=t.nodeValue.match(/^\s*([①-⑳])\s?([a-d])?\s*/); if(!m)return;
+    let m=t.nodeValue.match(/^\s*([①-⑳])\s?([a-e])?\s*/); if(!m)return;
     let n=(m[1].charCodeAt(0)-0x2460+1)+(m[2]||'');
     t.nodeValue=t.nodeValue.slice(m[0].length);
     h.insertAdjacentHTML('afterbegin','<span class="step">'+n+'</span>');
@@ -4284,11 +4388,11 @@ function voll(){
 
 /* ---------- Navigation mit Status ---------- */
 var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-fotos']],
-                  ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv']],
+                  ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie']],
                   ['Abschluss',['s-empfehlung','s-rendite','s-sign']]];
-var NAV_TOGGLE={'s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv'};
-var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-empfehlung':'o_empfehlung'};
-function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-d]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
+var NAV_TOGGLE={'s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv'};
+var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-empfehlung':'o_empfehlung'};
+function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-e]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
 function navSichtbar(s){ let w=modus()==='wohnung'; return !(w&&s.classList.contains('haus-only'))&&!(!w&&s.classList.contains('wohnung-only')); }
 function navLink(s){
   let a=document.createElement('a'); a.href='#'+s.id; a.dataset.sec=s.id;
