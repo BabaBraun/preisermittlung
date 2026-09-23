@@ -32,10 +32,10 @@
     --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
     --bg:#F4F2ED; --card:#FFFFFF; --surface-2:#FAF8F4; --field:#FFFFFF;
     --line:#E3DFD7; --line-2:#CFC9BE; --track:#EDEAE3;
-    --text:#1E1C19; --text-2:#5F5A52; --muted:#8C867C;
+    --text:#1E1C19; --text-2:#5F5A52; --muted:#726D64;
     --accent:#1B4B7A; --accent-btn:#1B4B7A; --accent-d:#163D63; --accent-2:#7FA0C3;
     --tint:#E9EFF6; --tint-b:#C5D4E5;
-    --ok:#2F7A50; --ok-bg:#E6F2EA; --warn:#B4791C; --warn-bg:#FBF1DF; --bad:#B03A3A; --bad-bg:#F8E7E7;
+    --ok:#2F7A50; --ok-bg:#E6F2EA; --warn:#926217; --warn-bg:#FBF1DF; --bad:#B03A3A; --bad-bg:#F8E7E7;
     --shadow:0 1px 2px rgba(30,28,25,.05),0 6px 20px rgba(30,28,25,.06);
     --r:12px; --rs:8px;
     --blue:var(--text); --blue-d:#2A2926; --blue-l:#F1EEE8; --ek:var(--text);
@@ -44,7 +44,7 @@
   html[data-theme="dark"]{
     --bg:#1A1918; --card:#232220; --surface-2:#2A2926; --field:#1E1D1B;
     --line:#363430; --line-2:#4A473F; --track:#34322E;
-    --text:#ECE8E1; --text-2:#B5AFA5; --muted:#7F796F;
+    --text:#ECE8E1; --text-2:#B5AFA5; --muted:#948F84;
     --accent:#8FB3DE; --accent-btn:#2E62A0; --accent-d:#A9C6EA; --accent-2:#4F7FB5;
     --tint:#223246; --tint-b:#34517A;
     --ok:#6FC593; --ok-bg:#1F3328; --warn:#E0B15C; --warn-bg:#3A2F17; --bad:#E08484; --bad-bg:#3D2222;
@@ -76,7 +76,7 @@
   button.primary{background:var(--accent-btn);color:#fff;border-color:var(--accent-btn)}
   button.primary:hover{filter:brightness(1.08)}
   button.ghost,button.secondary{background:var(--card);border-color:var(--line-2);color:var(--text)}
-  button.icon{width:36px;height:36px;padding:0;border-color:transparent;background:transparent;color:var(--text-2)}
+  button.icon{width:44px;height:44px;padding:0;border-color:transparent;background:transparent;color:var(--text-2)}
   button.icon:hover{background:var(--surface-2);color:var(--text)}
   button.plus{background:transparent;color:var(--accent);border:1px dashed var(--line-2);padding:6px 12px;font-size:12.5px;margin-top:8px}
   button.plus:hover{border-color:var(--accent);background:var(--tint)}
@@ -537,7 +537,7 @@
         <div class="recent-head"><h2>Zuletzt bearbeitet</h2><a href="#" onclick="oeffneProjekte();return false;">Alle Projekte</a></div>
         <div class="recent-list" id="start_recent"></div>
       </div>
-      <div class="start-foot"><span data-ic="shield"></span><span id="start_foot_t">Alle Daten bleiben auf diesem Gerät.</span></div>
+      <button class="start-foot" onclick="dsgvoOeffnen()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit"><span data-ic="shield"></span><span id="start_foot_t">Alle Daten bleiben auf diesem Gerät.</span><span style="text-decoration:underline;margin-left:4px">Details</span></button>
     </div>
     <div id="start-step1" style="display:none">
       <button class="back-btn" onclick="startStep0()" data-ic="arrow-left">Zurück</button>
@@ -580,6 +580,8 @@
         <button onclick="druckeAufnahmebogen()" data-ic="printer">Aufnahmebogen drucken</button>
         <div class="sep"></div>
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
+        <div class="sep"></div>
+        <button onclick="dsgvoOeffnen()" data-ic="shield">Datenschutz</button>
       </div>
     </div>
     <button class="primary" onclick="druckbericht()" data-ic="file-text"><span class="lbl">Bericht</span></button>
@@ -599,7 +601,7 @@
       <thead><tr><th style="width:44%">Projekt</th><th>Objekt</th><th>Zuletzt</th><th>Aktionen</th></tr></thead>
       <tbody></tbody>
     </table>
-    <div style="text-align:right;margin-top:14px"><button onclick="schliesseProjekte()">Schließen</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><button onclick="dsgvoOeffnen()" data-ic="shield" style="border:none;background:none;color:var(--muted);font-size:12.5px;padding:0">Datenschutz — wo liegen diese Daten?</button><button onclick="schliesseProjekte()">Schließen</button></div>
   </div>
 </div>
 
@@ -1280,17 +1282,17 @@
 
       <h3>Objektfotos <span class="u" style="font-weight:400">(Außen-/Innenansichten, Lage)</span></h3>
       <div class="drop no-print" onclick="document.getElementById('file_objekt').click()">📷 Objektfotos hier klicken zum Hinzufügen (oder Datei-Dialog)</div>
-      <input type="file" id="file_objekt" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'objekt')">
+      <input type="file" id="file_objekt" accept="image/*" multiple capture="environment" style="display:none" onchange="addPhotos(this.files,'objekt')">
       <div class="gallery" id="gal_objekt"></div>
 
       <h3 style="margin-top:18px">Schadensfotos <span class="u" style="font-weight:400">(Mängel, Bauschäden, Instandhaltungsstau)</span></h3>
       <div class="drop no-print" onclick="document.getElementById('file_schaden').click()">🛠 Schadensfotos hier klicken zum Hinzufügen</div>
-      <input type="file" id="file_schaden" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'schaden')">
+      <input type="file" id="file_schaden" accept="image/*" multiple capture="environment" style="display:none" onchange="addPhotos(this.files,'schaden')">
       <div class="gallery" id="gal_schaden"></div>
 
       <h3 style="margin-top:18px">Karten &amp; Pläne <span class="u" style="font-weight:400">(Lageplan, Bodenrichtwertkarte, FNP-/B-Plan-Auszug, Flurkarte)</span></h3>
       <div class="drop no-print" onclick="document.getElementById('file_karte').click()">🗺 Karten &amp; Pläne hier klicken zum Hinzufügen (Screenshot aus BORIS-BW, Geoportal …)</div>
-      <input type="file" id="file_karte" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'karte')">
+      <input type="file" id="file_karte" accept="image/*" multiple capture="environment" style="display:none" onchange="addPhotos(this.files,'karte')">
       <div class="gallery" id="gal_karte"></div>
 
       <h3 style="margin-top:18px">Deckblatt</h3>
@@ -1450,6 +1452,33 @@
     </div>
     <div class="suche-liste" id="suche_liste"></div>
     <div class="suche-fuss"><span><kbd>↑</kbd> <kbd>↓</kbd> wählen</span><span><kbd>Enter</kbd> öffnen</span><span><kbd>Esc</kbd> schließen</span><span style="margin-left:auto">durchsucht Bewertungen und Marktüberblick</span></div>
+  </div>
+</div>
+
+<div id="dsgvo_overlay" class="overlay" onclick="if(event.target===this)dsgvoSchliessen()">
+  <div class="modal">
+    <h2 style="margin-top:0">Datenschutz</h2>
+    <p class="hint" style="margin-top:-6px">Kurz und vollständig — alles, was diese App mit Daten macht, steht hier.</p>
+    <h3 style="margin-top:16px">Wo liegen deine Daten?</h3>
+    <p style="font-size:13px;line-height:1.6">Ausschließlich auf diesem Gerät, in diesem Browser. Die laufende Bewertung
+      liegt im lokalen Browserspeicher, der Marktüberblick in einer lokalen Datenbank auf dem Gerät (inklusive
+      angehängter PDFs und Fotos). Es gibt keinen Server — nichts wird automatisch irgendwohin übertragen oder
+      mit anderen Geräten synchronisiert.</p>
+    <h3>Was wird über Auftraggeber und Kunden gespeichert?</h3>
+    <p style="font-size:13px;line-height:1.6">Nur das, was du selbst einträgst (z. B. der Name im Feld
+      „Auftraggeber(in)“). Der Marktüberblick speichert bewusst <b>keine</b> Käufer- oder Verkäufernamen —
+      nur Objektdaten, Preise und die Datenquelle.</p>
+    <h3>Wie löschst du Daten wieder?</h3>
+    <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
+      Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
+      löschbar, der Datensatz bleibt dabei erhalten. Alles auf einmal: die Website-Daten dieser Seite über die
+      Browser- bzw. Geräteeinstellungen löschen — das entfernt dann auch alle lokalen Sicherungskopien
+      (nicht aber Dateien, die du bereits exportiert hast).</p>
+    <h3>Und die Sicherungsdateien (.json)?</h3>
+    <p style="font-size:13px;line-height:1.6">Die liegen dort, wo du sie beim Speichern ablegst (z. B. OneDrive
+      oder ein USB-Stick) — das liegt außerhalb dieser App. Bitte entsprechend sensibel behandeln, besonders
+      wenn eigene Kaufpreise oder Auftraggeber-Namen enthalten sind.</p>
+    <div style="text-align:right;margin-top:14px"><button class="primary" onclick="dsgvoSchliessen()">Verstanden</button></div>
   </div>
 </div>
 
@@ -2409,7 +2438,8 @@ function druckbericht(){
     bt('Markteinschätzung','vermarktung_besch')
   ].join('');
   if(beschreibungBlock) beschreibungBlock='<h2>Objektbeschreibung</h2>'+beschreibungBlock;
-  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${p.data}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
+  const IA_FOTOLABEL={objekt:'Objektfoto',schaden:'Schadensfoto',karte:'Kartenausschnitt'};
+  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${p.data}" alt="${esc(p.caption||IA_FOTOLABEL[cat]||'Foto')}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
   let fotoBlock=PHOTOS.some(p=>p.cat==='objekt'||p.cat==='schaden')?('<h2>Fotodokumentation</h2>'+
     (PHOTOS.some(p=>p.cat==='objekt')?'<h3>Objektfotos</h3>'+fotoGrid('objekt'):'')+
     (PHOTOS.some(p=>p.cat==='schaden')?'<h3>Schadensfotos</h3>'+fotoGrid('schaden'):'')):'';
@@ -2515,7 +2545,7 @@ function druckbericht(){
   let signBlock = `<div class="signblock">
      <div class="sigcol">
        <p class="sig-place">${sigOrt?esc(sigOrt)+', den '+esc(sigDatum):esc(sigDatum)}</p>
-       ${SIGNATURE?`<img class="sig-img" src="${SIGNATURE}">`:''}
+       ${SIGNATURE?`<img class="sig-img" src="${SIGNATURE}" alt="Unterschrift">`:''}
        <div class="sig-line${SIGNATURE?' hasimg':''}">${sigName?esc(sigName):'&nbsp;'}${sigFunk?'<br><span style="color:#666">'+esc(sigFunk)+'</span>':''}</div>
      </div>
      <div class="sigcol"></div>
@@ -2530,7 +2560,7 @@ function druckbericht(){
      <div class="kopf">${esc(kopf)}</div>
      <h1>Rechnerische Preisermittlung</h1>
      <div class="sub">${esc(objektTyp)}</div>
-     ${titelbild?`<img class="titelbild" src="${titelbild}">`:''}
+     ${titelbild?`<img class="titelbild" src="${titelbild}" alt="Titelbild">`:''}
      <table>
       ${L('Objekt',esc($('ek_anschrift').value||'–'))}
       ${L('Auftraggeber(in)',esc($('ek_ag').value||'–'))}
@@ -2641,6 +2671,8 @@ function downloadPDF(){
   if(window.html2pdf){run();return;}
   let s=document.createElement('script');
   s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  s.integrity='sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
+  s.crossOrigin='anonymous';
   s.onload=run;
   s.onerror=()=>{alert('Kein Internet für den direkten PDF-Download.\nEs öffnet sich der Druckdialog – dort "Als PDF speichern" wählen.');window.print();};
   document.body.appendChild(s);
@@ -2678,7 +2710,7 @@ function renderPhotos(){
     let g=$('gal_'+cat); if(!g)return; g.innerHTML='';
     PHOTOS.filter(p=>p.cat===cat).forEach(p=>{
       let d=document.createElement('div'); d.className='photo';
-      d.innerHTML=`<button class="del no-print" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
+      d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}" alt="${(p.caption||IA_FOTOLABEL[p.cat]||'Foto').replace(/"/g,'&quot;')}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
       g.appendChild(d);
     });
   });
@@ -2698,7 +2730,7 @@ function addSignature(files){
 function renderSignature(){
   let box=$('sig_preview'); if(!box)return;
   box.innerHTML = SIGNATURE
-    ? `<img src="${SIGNATURE}"> <button class="del no-print" style="position:static;display:inline-block;vertical-align:top;margin-left:8px" onclick="clearSignature()">✕ entfernen</button>`
+    ? `<img src="${SIGNATURE}" alt="Unterschrift"> <button class="del no-print" aria-label="Unterschrift entfernen" style="position:static;display:inline-block;vertical-align:top;margin-left:8px" onclick="clearSignature()">✕ entfernen</button>`
     : '<span style="color:var(--muted);font-size:12px">Kein Unterschrift-Bild eingefügt.</span>';
 }
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
@@ -4008,6 +4040,20 @@ function iconify(root){
   if(root.matches&&root.matches('[data-ic]')&&!root.querySelector(':scope>svg.ic-svg')) root.insertAdjacentHTML('afterbegin',iaSvg(root.dataset.ic));
 }
 
+
+/* ---------- Barrierefreiheit: Label-Feld-Kopplung + aria-label aus title ---------- */
+let IA_AUTOID=0;
+function a11yLabels(root){
+  (root||document).querySelectorAll('.field, .mdb-filter .field').forEach(f=>{
+    let lab=f.querySelector(':scope>label'); if(!lab||lab.hasAttribute('for'))return;
+    let inp=f.querySelector(':scope>input,:scope>select,:scope>textarea,:scope>.inwrap>input');
+    if(!inp)return;
+    if(!inp.id) inp.id='ia_auto_'+(IA_AUTOID++);
+    lab.setAttribute('for',inp.id);
+  });
+  (root||document).querySelectorAll('button[title]:not([aria-label])').forEach(b=>b.setAttribute('aria-label',b.title));
+}
+
 /* ---------- Dunkelmodus ---------- */
 function themeApply(t){
   document.documentElement.setAttribute('data-theme',t);
@@ -4224,7 +4270,7 @@ function showStart(){ document.body.classList.remove('started'); document.body.c
 
 /* ---------- Beobachter: neu eingefügte Bereiche bekommen Icons und Einheiten ---------- */
 new MutationObserver(ms=>{
-  ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1&&!(n.tagName==='svg'||n.tagName==='SVG')){ iconify(n); unitsInField(n); } }));
+  ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType===1&&!(n.tagName==='svg'||n.tagName==='SVG')){ iconify(n); unitsInField(n); a11yLabels(n); } }));
 }).observe(document.body,{childList:true,subtree:true});
 
 /* ---------- Start ---------- */
@@ -4233,7 +4279,7 @@ new MutationObserver(ms=>{
     let t=localStorage.getItem('ia_theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
     themeApply(t);
   }catch(e){}
-  iconify(document); unitsInField(document); stepBadges();
+  iconify(document); unitsInField(document); a11yLabels(document); stepBadges();
   buildNav(); cockpitUpdate();
   let ib=$('installBtn'); if(ib&&ib.style.display==='inline-block') ib.style.display='inline-flex';
   if(!document.body.classList.contains('started')) startStep0();
@@ -4343,6 +4389,11 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='/'&&!inFeld&&!SUCHE.offen){ e.preventDefault(); sucheOeffnen(); }
 });
 ['input','change'].forEach(ev=>{ let s=$('suche'); if(s) s.addEventListener(ev,e=>e.stopPropagation()); });
+
+
+/* ---------- Datenschutz-Hinweis (gebuendelt an einer Stelle statt verstreut) ---------- */
+function dsgvoOeffnen(){ let o=$('dsgvo_overlay'); if(o)o.classList.add('on'); }
+function dsgvoSchliessen(){ let o=$('dsgvo_overlay'); if(o)o.classList.remove('on'); }
 
 </script>
 </body>

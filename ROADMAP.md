@@ -9,14 +9,14 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 
 | # | Was | Kategorie | Begründung |
 |---|---|---|---|
-| 1 | [ ] Kontrastfehler beheben (gedämpfte Textfarbe hell/dunkel, Warnfarbe hell) | Barrierefreiheit | 3 CSS-Variablen, behebt WCAG-AA-Verstoß in sehr vielem Text |
-| 2 | [ ] Label-Feld-Kopplung für Screenreader (for/id, generisch per Skript) | Barrierefreiheit | Betrifft über 200 Felder, mit einer generischen Laufzeit-Kopplung lösbar statt 200 Handänderungen |
-| 3 | [ ] aria-label auf allen Icon-only-Buttons | Barrierefreiheit | Ergänzt vorhandene title-Attribute um verlässliche Screenreader-Unterstützung |
-| 4 | [ ] alt-Text auf allen Bildern (Fotos, Unterschrift, Titelbild) | Barrierefreiheit | 3 Stellen |
-| 5 | [ ] Touch-Targets der Icon-Buttons auf 44×44 px | Barrierefreiheit | Apple-HIG-/WCAG-Empfehlung, wenige CSS-Zeilen |
-| 6 | [ ] Subresource-Integrity-Hash für html2pdf.js | Sicherheit | Schließt eine konkrete, kleine Lücke |
-| 7 | [ ] Kamera-Eingaben mit capture="environment" | native Funktion | Ein-Tap-Kamera statt allgemeinem Dateidialog, kein Zusatzcode nötig |
-| 8 | [ ] DSGVO-Hinweis gebündelt (wo liegen Daten, wie löschen) | Datenschutz | Ein Infopunkt in der App statt verstreuter Einzelfunktionen |
+| 1 | [x] Kontrastfehler beheben (gedämpfte Textfarbe hell/dunkel, Warnfarbe hell) | Barrierefreiheit | 3 CSS-Variablen, behebt WCAG-AA-Verstoß in sehr vielem Text |
+| 2 | [x] Label-Feld-Kopplung für Screenreader (for/id, generisch per Skript) | Barrierefreiheit | Betrifft über 200 Felder, mit einer generischen Laufzeit-Kopplung lösbar statt 200 Handänderungen |
+| 3 | [x] aria-label auf allen Icon-only-Buttons | Barrierefreiheit | Ergänzt vorhandene title-Attribute um verlässliche Screenreader-Unterstützung |
+| 4 | [x] alt-Text auf allen Bildern (Fotos, Unterschrift, Titelbild) | Barrierefreiheit | 3 Stellen |
+| 5 | [x] Touch-Targets der Icon-Buttons auf 44×44 px | Barrierefreiheit | Apple-HIG-/WCAG-Empfehlung, wenige CSS-Zeilen |
+| 6 | [x] Subresource-Integrity-Hash für html2pdf.js | Sicherheit | Schließt eine konkrete, kleine Lücke |
+| 7 | [x] Kamera-Eingaben mit capture="environment" | native Funktion | Ein-Tap-Kamera statt allgemeinem Dateidialog, kein Zusatzcode nötig |
+| 8 | [x] DSGVO-Hinweis gebündelt (wo liegen Daten, wie löschen) | Datenschutz | Ein Infopunkt in der App statt verstreuter Einzelfunktionen |
 
 ## Phase 2 — Substanzielle Erweiterungen (hoher Impact, mittlerer Aufwand)
 
@@ -53,6 +53,11 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 ---
 
 ## Fortschreibung (wird nach jedem fertigen Block ergänzt)
+
+**2026-09-23, nach Phase 1:** Alle 8 Quick Wins umgesetzt, im Browser verifiziert (Kontrastwerte,
+44px-Buttons, 208 von 209 Formularfeldern mit korrekter Label-Kopplung, SRI-Hash lädt nachweislich, Kamera-
+Capture nur auf den drei Fotofeldern, Datenschutz-Panel von drei Stellen erreichbar), einzeln committet.
+Keine Regression im Rechenkern, im Marktüberblick oder in der Suche festgestellt.
 
 Noch keine Iteration abgeschlossen — Stand direkt nach Audit und Priorisierung, bevor die erste Zeile
 Code geändert wurde. Wird nach Phase 1 aktualisiert.
