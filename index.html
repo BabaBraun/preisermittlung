@@ -201,7 +201,7 @@
   .mbar-cp .cp-pill{padding:4px 10px;font-size:12px}
   .mbar-cp .chev{margin-left:auto;color:var(--text-2);display:flex;transition:transform .2s}
   body.cp-open .mbar-cp .chev{transform:rotate(180deg)}
-  .mbar-tabs{height:60px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:6px 8px 4px}
+  .mbar-tabs{height:60px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px 4px}
   .mbar-tabs button{border:none;background:transparent;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);padding:0;border-radius:var(--rs)}
   .mbar-tabs button .ic-svg{width:22px;height:22px;margin:0}
   .mbar-tabs button.on{color:var(--accent)}
@@ -214,7 +214,7 @@
   .start-inner{max-width:1040px;margin:0 auto;padding:48px 40px 48px}
   .greet h1{font-size:28px;font-weight:600;letter-spacing:-.3px;margin:0 0 6px;color:var(--text);font-family:var(--sans)}
   .greet .lead{color:var(--text-2);margin:0 0 32px;font-size:14px}
-  .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px}
+  .quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-bottom:36px}
   .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;cursor:pointer;text-align:center;transition:.15s;user-select:none;box-shadow:var(--shadow)}
   .tile:hover{border-color:var(--accent-2);transform:translateY(-1px)}
   .tile.q{text-align:left;padding:22px 22px 20px;min-height:148px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
@@ -459,7 +459,17 @@
   .pdfrow .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pdfrow .sz{color:var(--muted);font-size:11.5px}
   .pdfrow button{padding:4px 10px;font-size:12px}
+  .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .fin-zeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .fin-zeile:last-child{border-bottom:none}
+  .fin-zeile b{font-weight:600;color:var(--text);white-space:nowrap}
+  .fin-zeile .sub{font-size:11.5px;color:var(--muted)}
+  .fin-rate{background:var(--tint);border:1px solid var(--tint-b);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+  .fin-rate .k{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--accent)}
+  .fin-rate .v{font-size:30px;font-weight:600;letter-spacing:-.5px;color:var(--text);line-height:1.15;margin-top:4px}
+  .fin-rate .s{font-size:12.5px;color:var(--text-2);margin-top:3px}
   @media(max-width:1000px){
+    .fin-grid{grid-template-columns:1fr}
     .kpis{grid-template-columns:repeat(2,1fr)}
     .mdb-filter{grid-template-columns:repeat(2,1fr)}
     .mdb-stat{grid-template-columns:1fr}
@@ -551,6 +561,11 @@
           <div class="t">Objekt erfassen</div>
           <div class="d">Angebot oder Verkauf in den Marktüberblick aufnehmen — Exposé-Text einfügen genügt.</div>
         </div>
+        <div class="tile q" onclick="finOeffnen()">
+          <span class="qi" data-ic="calc"></span>
+          <div class="t">Finanzierung</div>
+          <div class="d">Rate, Nebenkosten und Tilgungsplan für das Beratungsgespräch durchrechnen.</div>
+        </div>
         <div class="tile q" onclick="mdbOeffnen()">
           <span class="qi" data-ic="chart"></span>
           <div class="t">Marktüberblick</div>
@@ -589,6 +604,7 @@
     <button class="icon" onclick="showStart()" title="Startseite" data-ic="home"></button>
     <button class="icon" onclick="oeffneProjekte()" title="Projekte" data-ic="folder"></button>
     <button class="icon" onclick="mdbOeffnen()" title="Marktüberblick" data-ic="chart"></button>
+    <button class="icon" onclick="finOeffnen()" title="Finanzierung" data-ic="calc"></button>
     <button class="icon" onclick="themeToggle()" title="Dunkelmodus" data-ic="moon"></button>
     <button class="icon" id="installBtn" onclick="appInstallieren()" title="Als App installieren" data-ic="download"></button>
     <span class="vsep"></span>
@@ -1523,6 +1539,7 @@
   <div class="mbar-tabs">
     <button class="on" onclick="document.body.classList.remove('cp-open');window.scrollTo({top:0,behavior:'smooth'})" data-ic="file-text">Bewertung</button>
     <button onclick="mdbOeffnen()" data-ic="chart">Markt</button>
+    <button onclick="finOeffnen()" data-ic="calc">Finanz.</button>
     <button onclick="oeffneProjekte()" data-ic="folder">Projekte</button>
   </div>
 </div>
@@ -1583,6 +1600,94 @@
       <button id="lock_setup_ein" class="primary" onclick="iaLockEinrichten()">Einrichten</button>
       <button id="lock_setup_aus" class="danger" style="display:none" onclick="iaLockDeaktivieren()">Deaktivieren</button>
       <button onclick="lockSetupSchliessen()" style="margin-left:auto">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<div id="fin_overlay" class="overlay">
+  <div class="mdbwrap">
+    <div class="mdb-head">
+      <h2 data-ic="calc">Finanzierung</h2>
+      <span class="sub">Annuitätendarlehen · Nebenkosten · Tilgungsplan</span>
+      <div class="sp">
+        <button class="secondary" onclick="finAusBewertung()" data-ic="arrow-down"><span class="lbl">Aus Bewertung</span></button>
+        <button class="secondary" onclick="finDrucken()" data-ic="printer"><span class="lbl">Drucken</span></button>
+        <button class="icon" onclick="finSchliessen()" title="Schließen" data-ic="x"></button>
+      </div>
+    </div>
+    <div class="mdb-body">
+      <div class="fin-grid">
+        <div>
+          <div class="mdb-box">
+            <h3>Kaufpreis und Nebenkosten</h3>
+            <p class="hint">Grunderwerbsteuer in Baden-Württemberg 5,0 %. Notar und Grundbuch zusammen rund 2,0 %.
+              Maklercourtage bei Wohnimmobilien geteilt, hier der Käuferanteil.</p>
+            <div class="grid">
+              <div class="field"><label>Kaufpreis <span class="u">€</span></label><input id="fin_kaufpreis" type="text" value="0" oninput="finRechnen()"></div>
+              <div class="field"><label>Modernisierung / Umbau <span class="u">€</span></label><input id="fin_moderni" type="text" value="0" oninput="finRechnen()"></div>
+              <div class="field"><label>Grunderwerbsteuer <span class="u">%</span></label><input id="fin_grest" type="text" value="5,0" oninput="finRechnen()"></div>
+              <div class="field"><label>Notar und Grundbuch <span class="u">%</span></label><input id="fin_notar" type="text" value="2,0" oninput="finRechnen()"></div>
+              <div class="field"><label>Maklercourtage <span class="u">% (Käuferanteil)</span></label><input id="fin_makler" type="text" value="3,57" oninput="finRechnen()"></div>
+              <div class="field"><label>Eigenkapital <span class="u">€</span></label><input id="fin_ek" type="text" value="0" oninput="finRechnen()"></div>
+            </div>
+          </div>
+          <div class="mdb-box">
+            <h3>Darlehen</h3>
+            <div class="grid">
+              <div class="field"><label>Sollzins <span class="u">% p.a.</span></label><input id="fin_zins" type="text" value="3,5" oninput="finRechnen()"></div>
+              <div class="field"><label>Anfängliche Tilgung <span class="u">% p.a.</span></label><input id="fin_tilgung" type="text" value="2,0" oninput="finRechnen()"></div>
+              <div class="field"><label>Zinsbindung <span class="u">Jahre</span></label><input id="fin_bindung" type="text" value="10" oninput="finRechnen()"></div>
+              <div class="field"><label>Sondertilgung <span class="u">€ pro Jahr</span></label><input id="fin_sonder" type="text" value="0" oninput="finRechnen()"></div>
+            </div>
+            <h3 class="sep">Förderdarlehen (optional)</h3>
+            <p class="hint">Programme und Konditionen der KfW und des Landes ändern sich laufend — Beträge und Zinssätze
+              bitte vor dem Gespräch auf kfw.de bzw. bei der L-Bank prüfen und hier eintragen. Typische Bausteine:
+              Wohneigentum für Familien, klimafreundlicher Neubau, altersgerechter Umbau, Einzelmaßnahmen zur
+              energetischen Sanierung.</p>
+            <div class="grid three">
+              <div class="field"><label>Betrag <span class="u">€</span></label><input id="fin_kfw" type="text" value="0" oninput="finRechnen()"></div>
+              <div class="field"><label>Sollzins <span class="u">% p.a.</span></label><input id="fin_kfw_zins" type="text" value="2,0" oninput="finRechnen()"></div>
+              <div class="field"><label>Tilgung <span class="u">% p.a.</span></label><input id="fin_kfw_tilgung" type="text" value="2,0" oninput="finRechnen()"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="fin-rate">
+            <div class="k">Monatliche Rate gesamt</div>
+            <div class="v" id="fin_rate">0 €</div>
+            <div class="s" id="fin_rate_sub">–</div>
+          </div>
+          <div class="mdb-box">
+            <h3>Gesamtkosten und Finanzierungsbedarf</h3>
+            <div class="fin-zeile"><span>Kaufpreis</span><b id="fin_o_kp">0 €</b></div>
+            <div class="fin-zeile"><span>+ Grunderwerbsteuer <span class="sub" id="fin_o_grest_p"></span></span><b id="fin_o_grest">0 €</b></div>
+            <div class="fin-zeile"><span>+ Notar und Grundbuch <span class="sub" id="fin_o_notar_p"></span></span><b id="fin_o_notar">0 €</b></div>
+            <div class="fin-zeile"><span>+ Maklercourtage <span class="sub" id="fin_o_makler_p"></span></span><b id="fin_o_makler">0 €</b></div>
+            <div class="fin-zeile"><span>+ Modernisierung / Umbau</span><b id="fin_o_moderni">0 €</b></div>
+            <div class="fin-zeile"><span><b>Gesamtkosten</b></span><b id="fin_o_gesamt">0 €</b></div>
+            <div class="fin-zeile"><span>− Eigenkapital <span class="sub" id="fin_o_ek_p"></span></span><b id="fin_o_ek">0 €</b></div>
+            <div class="fin-zeile"><span><b>Finanzierungsbedarf</b></span><b id="fin_o_bedarf">0 €</b></div>
+            <div class="fin-zeile"><span>davon Förderdarlehen</span><b id="fin_o_kfw">0 €</b></div>
+            <div class="fin-zeile"><span>davon Bankdarlehen</span><b id="fin_o_bank">0 €</b></div>
+            <div class="fin-zeile"><span>Auslauf zum Kaufpreis <span class="sub">(Darlehen ÷ Kaufpreis)</span></span><b id="fin_o_auslauf">–</b></div>
+          </div>
+          <div class="mdb-box">
+            <h3>Verlauf</h3>
+            <div class="fin-zeile"><span>Zinsanteil im ersten Monat</span><b id="fin_o_z1">0 €</b></div>
+            <div class="fin-zeile"><span>Tilgungsanteil im ersten Monat</span><b id="fin_o_t1">0 €</b></div>
+            <div class="fin-zeile"><span>Restschuld am Ende der Zinsbindung</span><b id="fin_o_rest">0 €</b></div>
+            <div class="fin-zeile"><span>Gezahlte Zinsen bis dahin</span><b id="fin_o_zins_bindung">0 €</b></div>
+            <div class="fin-zeile"><span>Laufzeit bis zur Volltilgung</span><b id="fin_o_laufzeit">–</b></div>
+            <div class="fin-zeile"><span>Zinsen insgesamt bis zur Volltilgung</span><b id="fin_o_zins_gesamt">0 €</b></div>
+            <div id="fin_hinweis"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mdb-box">
+        <h3>Tilgungsplan</h3>
+        <p class="hint">Jahresübersicht beider Darlehen zusammen. Die Zeile am Ende der Zinsbindung ist hervorgehoben.</p>
+        <div class="mdb-scroll"><table class="mdb-tbl" id="fin_plan"><thead></thead><tbody></tbody></table></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1669,6 +1774,125 @@ const RND_COEFF=[
   [0.3640,0.8080,0.9622,16],[0.3300,0.7350,0.9528,15],[0.3040,0.6760,0.9506,14],[0.2780,0.6170,0.9485,13],
   [0.2520,0.5580,0.9463,12],[0.2260,0.4990,0.9442,11],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10]
 ];
+
+
+/* ---------- Finanzierungsrechner: Annuitaetendarlehen mit Nebenkosten und Tilgungsplan ----
+   Deutsche Bankpraxis: Annuitaet = Darlehen x (Sollzins + anfaengliche Tilgung) / 100,
+   monatlich nachschuessig gezahlt. Sondertilgung jeweils am Jahresende. */
+function finTilgungsverlauf(betrag, zinsPct, tilgPct, sonderJahr, maxJahre){
+  let rate=betrag*(zinsPct+tilgPct)/100/12;
+  let rest=betrag, zinsSumme=0, jahre=[], monate=0, tilgt=true;
+  const leer={rate:0, jahre:[], monate:0, zinsSumme:0, tilgt:true, restNach:()=>0, zinsBis:()=>0};
+  if(!(betrag>0)||!(rate>0)) return leer;
+  for(let j=1;j<=(maxJahre||60)&&rest>0.01;j++){
+    let zinsJahr=0, tilgJahr=0, start=rest;
+    for(let m=0;m<12&&rest>0.01;m++){
+      let z=rest*zinsPct/100/12;
+      let t=rate-z;
+      zinsJahr+=z; monate++;
+      if(t<=0.005){ tilgt=false; continue; }   /* Rate deckt nur die Zinsen: keine Tilgung */
+      t=Math.min(t,rest); tilgJahr+=t; rest-=t;
+    }
+    let sonder=Math.min(sonderJahr||0, rest);
+    if(sonder>0){ rest-=sonder; tilgJahr+=sonder; }
+    zinsSumme+=zinsJahr;
+    jahre.push({jahr:j, start:start, zins:zinsJahr, tilgung:tilgJahr, sonder:sonder, ende:rest});
+    if(rest<=0.01) break;
+    if(!tilgt) break;   /* ohne Tilgung bringen weitere Jahre keine Erkenntnis */
+  }
+  return {rate:rate, jahre:jahre, monate:monate, zinsSumme:zinsSumme, tilgt:tilgt,
+    restNach:j=>{ let e=jahre.find(x=>x.jahr===j); return e?e.ende:(jahre.length?jahre[jahre.length-1].ende:betrag); },
+    zinsBis:j=>{ let bis=jahre.filter(x=>x.jahr<=j); let s=bis.reduce((a,x)=>a+x.zins,0);
+      /* laeuft das Darlehen ohne Tilgung, gelten die Zinsen des letzten Jahres fort */
+      if(!tilgt&&jahre.length&&j>jahre.length) s+=jahre[jahre.length-1].zins*(j-jahre.length);
+      return s; }};
+}
+function finRechnen(){
+  try{
+    let kp=num('fin_kaufpreis'), mod=num('fin_moderni');
+    let grest=kp*num('fin_grest')/100, notar=kp*num('fin_notar')/100, makler=kp*num('fin_makler')/100;
+    let gesamt=kp+grest+notar+makler+mod;
+    let ek=num('fin_ek'), bedarf=Math.max(gesamt-ek,0);
+    let kfw=Math.min(num('fin_kfw'),bedarf), bank=Math.max(bedarf-kfw,0);
+    let bindung=Math.max(Math.round(num('fin_bindung')),0);
+
+    setT('fin_o_kp',eur(kp));
+    setT('fin_o_grest',eur(grest)); setT('fin_o_grest_p',num2(num('fin_grest'))+' %');
+    setT('fin_o_notar',eur(notar)); setT('fin_o_notar_p',num2(num('fin_notar'))+' %');
+    setT('fin_o_makler',eur(makler)); setT('fin_o_makler_p',num2(num('fin_makler'))+' %');
+    setT('fin_o_moderni',eur(mod)); setT('fin_o_gesamt',eur(gesamt));
+    setT('fin_o_ek','− '+eur(ek)); setT('fin_o_ek_p',gesamt>0?num2(ek/gesamt*100)+' % der Gesamtkosten':'');
+    setT('fin_o_bedarf',eur(bedarf)); setT('fin_o_kfw',eur(kfw)); setT('fin_o_bank',eur(bank));
+    setT('fin_o_auslauf',kp>0?num2(bedarf/kp*100)+' %':'–');
+
+    let a=finTilgungsverlauf(bank,num('fin_zins'),num('fin_tilgung'),num('fin_sonder'),60);
+    let b=finTilgungsverlauf(kfw,num('fin_kfw_zins'),num('fin_kfw_tilgung'),0,60);
+    let rate=a.rate+b.rate;
+    setT('fin_rate',eur(rate));
+    setT('fin_rate_sub', bedarf>0
+      ? eur(bank)+' Bankdarlehen'+(kfw>0?' + '+eur(kfw)+' Förderdarlehen':'')+' · '+num2(num('fin_zins'))+' % Zins, '+num2(num('fin_tilgung'))+' % Tilgung'
+      : 'Kaufpreis und Eigenkapital eintragen');
+
+    let z1=bank*num('fin_zins')/100/12 + kfw*num('fin_kfw_zins')/100/12;
+    setT('fin_o_z1',eur(z1)); setT('fin_o_t1',eur(Math.max(rate-z1,0)));
+    let restA=a.restNach(bindung), restB=b.restNach(bindung);
+    setT('fin_o_rest',eur(restA+restB));
+    setT('fin_o_zins_bindung',eur(a.zinsBis(bindung)+b.zinsBis(bindung)));
+    let monate=Math.max(a.monate,b.monate);
+    let getilgt=(!bank||a.tilgt)&&(!kfw||b.tilgt);
+    let voll=getilgt&&(!bank||(a.jahre.length&&a.jahre[a.jahre.length-1].ende<=0.01))&&(!kfw||(b.jahre.length&&b.jahre[b.jahre.length-1].ende<=0.01));
+    setT('fin_o_laufzeit', !(bedarf>0) ? '–'
+      : !getilgt ? 'keine Tilgung — die Rate deckt nur die Zinsen'
+      : voll ? Math.floor(monate/12)+' Jahre '+(monate%12)+' Monate'
+      : 'über 60 Jahre');
+    setT('fin_o_zins_gesamt',eur(a.zinsSumme+b.zinsSumme));
+
+    let hinweise=[];
+    if(bank>0&&num('fin_tilgung')<1) hinweise.push('Anfängliche Tilgung unter 1 % — die Laufzeit wird sehr lang und die Zinslast entsprechend hoch.');
+    if(kp>0&&ek<grest+notar+makler) hinweise.push('Das Eigenkapital deckt nicht einmal die Kaufnebenkosten — die Bank verlangt in der Regel mindestens deren Finanzierung aus Eigenmitteln.');
+    if(kp>0&&bedarf/kp>1) hinweise.push('Der Finanzierungsbedarf übersteigt den Kaufpreis (Auslauf über 100 %) — Vollfinanzierung mit deutlichem Zinsaufschlag.');
+    if(kp>0&&bedarf/kp>0.8&&bedarf/kp<=1) hinweise.push('Auslauf über 80 % — üblicherweise mit Zinsaufschlag verbunden.');
+    $('fin_hinweis').innerHTML=hinweise.map(h=>'<div class="mdb-warn">'+sEsc(h)+'</div>').join('');
+
+    finPlanRender(a,b,bindung);
+  }catch(e){}
+}
+function finPlanRender(a,b,bindung){
+  let n=Math.max(a.jahre.length,b.jahre.length);
+  let thead=$('fin_plan').querySelector('thead'), tb=$('fin_plan').querySelector('tbody');
+  thead.innerHTML='<tr><th>Jahr</th><th>Restschuld Jahresanfang</th><th>Zinsen</th><th>Tilgung</th><th>Restschuld Jahresende</th></tr>';
+  if(!n){ tb.innerHTML='<tr><td colspan="5"><div class="mdb-empty">Kaufpreis, Eigenkapital und Konditionen eintragen.</div></td></tr>'; return; }
+  let zeilen='';
+  for(let j=1;j<=Math.min(n,60);j++){
+    let ea=a.jahre.find(x=>x.jahr===j), eb=b.jahre.find(x=>x.jahr===j);
+    let start=(ea?ea.start:0)+(eb?eb.start:0);
+    let zins=(ea?ea.zins:0)+(eb?eb.zins:0);
+    let tilg=(ea?ea.tilgung:0)+(eb?eb.tilgung:0);
+    let ende=(ea?ea.ende:0)+(eb?eb.ende:0);
+    let markiert=(j===bindung);
+    zeilen+='<tr'+(markiert?' style="background:var(--tint);font-weight:600"':'')+'><td>'+j+(markiert?' · Ende Zinsbindung':'')+'</td>'
+      +'<td class="r">'+eur(start)+'</td><td class="r">'+eur(zins)+'</td><td class="r">'+eur(tilg)+'</td><td class="r strong">'+eur(ende)+'</td></tr>';
+  }
+  tb.innerHTML=zeilen;
+}
+function finOeffnen(){
+  $('fin_overlay').classList.add('on'); document.body.style.overflow='hidden';
+  if(!num('fin_kaufpreis')) finAusBewertung(true);
+  finRechnen();
+}
+function finSchliessen(){
+  $('fin_overlay').classList.remove('on'); document.body.style.overflow='';
+  if(!document.body.classList.contains('started')) startStep0();
+}
+function finAusBewertung(still){
+  /* mdbNum statt parseNum: parseNum liest "267.901" als 267,901 (Punkt = Dezimaltrenner ohne Komma) */
+  let emp=mdbNum((($('o_empfehlung')||{}).textContent)||'');
+  if(emp>0){ $('fin_kaufpreis').value=Math.round(emp); finRechnen(); }
+  else if(!still) alert('In der Bewertung steht noch keine Preisempfehlung — bitte zuerst die Eckdaten ausfüllen oder den Kaufpreis von Hand eintragen.');
+}
+function finDrucken(){ window.print(); }
+['input','change'].forEach(ev=>{ let f=$('fin_overlay'); if(f) f.addEventListener(ev,e=>e.stopPropagation()); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let f=$('fin_overlay'); if(f&&f.classList.contains('on')) finSchliessen(); } });
 
 /* ---------- Plausibilitaetspruefung der Eingaben --------------------------------------
    Bewusst nur Werte, die fachlich kaum vorkommen koennen (Zahlendreher, Vertipper,
@@ -4247,7 +4471,8 @@ var IA_ICONS={
   shield:'<path d="M12 3 4 6v6c0 4.5 3.4 7.8 8 9 4.6-1.2 8-4.5 8-9V6z"/>',
   more:'<circle cx="12" cy="5" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="12" cy="19" r="1.1"/>',
   export:'<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
-  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h2M12 11h2M16 11h.01"/><path d="M8 15h2M12 15h2M16 15h.01"/><path d="M8 18h6"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',
