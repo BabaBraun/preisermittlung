@@ -362,6 +362,14 @@
   #report .chart .b3{background:#d6dee6}
   #report .chart .legend{display:flex;gap:18px;font-size:11.5px;margin-top:6px;flex-wrap:wrap}
   #report .chart .legend i{display:inline-block;width:11px;height:11px;margin-right:5px;vertical-align:-1px}
+  #report .ul-liste{margin:14px 0}
+  #report .ul-pos{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;break-inside:avoid}
+  #report .ul-pos .kasten{width:15px;height:15px;border:1.5px solid #555;flex:0 0 auto;margin-top:1px;text-align:center;line-height:13px;font-size:12px}
+  #report .ul-pos.da .kasten{border-color:#2F7A50;color:#2F7A50}
+  #report .ul-pos.da .bez{color:#555}
+  #report .ul-pos .bez{flex:1}
+  #report .ul-pos .status{font-size:11px;color:#777;white-space:nowrap}
+  #report .ul-hinweis{font-size:11.5px;color:#555;line-height:1.6;margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
   #report .runhead{display:none}
   @media print{
     body{background:#fff}
@@ -641,6 +649,7 @@
         <button onclick="exportWord()" data-ic="file-text">Word-Dokument</button>
         <button onclick="exportExcel()" data-ic="chart">Excel-Tabelle</button>
         <button onclick="druckeAufnahmebogen()" data-ic="printer">Aufnahmebogen drucken</button>
+        <button onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste erstellen</button>
         <div class="sep"></div>
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
         <div class="sep"></div>
@@ -879,7 +888,8 @@
     <section class="card" id="s-aufnahme" data-nav="①b Aufnahmebogen">
       <h2>①b Aufnahmebogen · Ortsbesichtigung</h2>
       <p class="hint">Checkliste für den Ortstermin — am Handy/Tablet direkt ausfüllbar. Die Angaben erscheinen im Bericht unter „Feststellungen der Ortsbesichtigung".
-        <button class="plus no-print" style="margin-left:8px" onclick="druckeAufnahmebogen()">🖨 Leer ausdrucken (zum Mitnehmen)</button></p>
+        <button class="plus no-print" style="margin-left:8px" onclick="druckeAufnahmebogen()">🖨 Leer ausdrucken (zum Mitnehmen)</button>
+        <button class="plus no-print" style="margin-left:8px" onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste für den Eigentümer</button></p>
 
       <div class="grid three">
         <div class="group-title">Termin</div>
@@ -1825,6 +1835,44 @@ const RND_COEFF=[
 ];
 
 
+
+
+/* ---------- Unterlagen-Checkliste als eigenstaendiges Dokument ---------------------------
+   Zum Mitgeben oder Mailen an den Eigentuemer: was liegt vor, was fehlt noch.
+   Nutzt dieselbe Druckstrecke wie der Bericht. */
+function druckeUnterlagen(){
+  const esc=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let st=unterlagenStatus();
+  let adr=(($('ek_anschrift')||{}).value||'').trim();
+  let ag=(($('ek_ag')||{}).value||'').trim();
+  let ersteller=(($('ek_ersteller')||{}).value||'').trim();
+  let funktion=(($('ek_ersteller_funktion')||{}).value||'').trim();
+  let kopf=(($('cfg_kopf')||{}).value||'Immobilien-Preisermittlung').trim();
+  let heute=new Date().toLocaleDateString('de-DE');
+  let zeilen=AU_UNTERLAGEN.map((u,i)=>{
+    let da=(($('au_ul'+i)||{}).checked)===true;
+    return '<div class="ul-pos'+(da?' da':'')+'"><span class="kasten">'+(da?'✓':'')+'</span>'
+      +'<span class="bez">'+esc(u)+'</span>'
+      +'<span class="status">'+(da?'liegt vor':'wird benötigt')+'</span></div>';
+  }).join('');
+  $('report').innerHTML=
+   '<div class="runhead">'+esc(kopf)+' · Unterlagen'+(adr?' · '+esc(adr):'')+'</div>'
+   +'<h1>Benötigte Unterlagen</h1>'
+   +'<table>'
+   +(adr?'<tr><td>Objekt</td><td>'+esc(adr)+'</td></tr>':'')
+   +(ag?'<tr><td>Auftraggeber(in)</td><td>'+esc(ag)+'</td></tr>':'')
+   +'<tr><td>Stand</td><td>'+heute+'</td></tr>'
+   +'<tr><td>Vollständigkeit</td><td>'+st.da.length+' von '+AU_UNTERLAGEN.length+' vorhanden</td></tr>'
+   +'</table>'
+   +'<div class="ul-liste">'+zeilen+'</div>'
+   +'<div class="ul-hinweis">Bitte die noch fehlenden Unterlagen zusammenstellen — sie werden für eine belastbare '
+   +'Wertermittlung und für die Vermarktung benötigt. Kopien oder Scans genügen in der Regel; Grundbuchauszug und '
+   +'Baulastenauskunft sollten nicht älter als drei Monate sein.'
+   +(ersteller?'<br><br>Bei Rückfragen: '+esc(ersteller)+(funktion?', '+esc(funktion):''):'')
+   +'</div>';
+  document.body.classList.add('report-mode');
+  window.scrollTo(0,0);
+}
 
 /* ---------- Aufgaben und Wiedervorlagen ------------------------------------------------
    Bewusst als In-App-Liste ohne Push-Benachrichtigungen: echte Hintergrund-Benachrichtigungen
