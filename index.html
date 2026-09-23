@@ -185,6 +185,13 @@
   .cp-prog{height:6px;border-radius:999px;background:var(--track);overflow:hidden}
   .cp-prog i{display:block;height:100%;background:var(--ok);border-radius:999px;width:0;transition:width .3s}
   .cp-next{font-size:12.5px;color:var(--text-2)} .cp-next a{font-weight:500;color:var(--accent);text-decoration:none}
+  .cp-pruef{display:flex;flex-direction:column;gap:7px}
+  .cp-pruef .pz{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;cursor:pointer;text-align:left;background:none;border:none;padding:0;color:var(--text-2);width:100%;font-family:inherit}
+  .cp-pruef .pz:hover{color:var(--text)}
+  .cp-pruef .pz .pd{width:7px;height:7px;border-radius:50%;flex:0 0 auto;margin-top:5px;background:var(--warn)}
+  .cp-pruef .pz.fehler .pd{background:var(--bad)}
+  input.pruef-warn,select.pruef-warn{border-color:var(--warn);background:var(--warn-bg)}
+  input.pruef-fehler,select.pruef-fehler{border-color:var(--bad);background:var(--bad-bg)}
   .cp-note{font-size:11.5px;color:var(--muted);text-align:center}
 
   /* ---------- Untere Leiste (Handy / Tablet) ---------- */
@@ -1497,6 +1504,11 @@
         <div class="cp-prog"><i id="cp_prog"></i></div>
         <div class="cp-next">Nächster Schritt: <a href="#" id="cp_next">–</a></div>
       </div>
+      <div id="cp_pruef_block" style="display:none">
+        <div class="cp-sep"></div>
+        <div class="cp-lbl" id="cp_pruef_titel">Prüfhinweise</div>
+        <div class="cp-pruef" id="cp_pruef"></div>
+      </div>
     </div>
     <div class="cp-note">Änderungen werden automatisch auf diesem Gerät gespeichert.</div>
   </aside>
@@ -1657,6 +1669,82 @@ const RND_COEFF=[
   [0.3640,0.8080,0.9622,16],[0.3300,0.7350,0.9528,15],[0.3040,0.6760,0.9506,14],[0.2780,0.6170,0.9485,13],
   [0.2520,0.5580,0.9463,12],[0.2260,0.4990,0.9442,11],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10],[0.2000,0.4400,0.9420,10]
 ];
+
+/* ---------- Plausibilitaetspruefung der Eingaben --------------------------------------
+   Bewusst nur Werte, die fachlich kaum vorkommen koennen (Zahlendreher, Vertipper,
+   logische Widersprueche) -- keine Warnung bei blossen Ungewoehnlichkeiten, sonst werden
+   die Hinweise ignoriert. Jeder Hinweis springt beim Anklicken zum betroffenen Feld. */
+var PLAUSI_REGELN=[
+  {f:'ek_baujahr', s:'fehler', t:()=>{let b=num('ek_baujahr');return b>0&&b>new Date().getFullYear()+2;},
+   m:()=>'Baujahr liegt in der Zukunft.'},
+  {f:'ek_baujahr', s:'fehler', t:()=>{let b=num('ek_baujahr');return b>0&&b<1500;},
+   m:()=>'Baujahr unter 1500 — vermutlich ein Zahlendreher.'},
+  {f:'ek_sanierung', s:'fehler', t:()=>{let b=num('ek_baujahr'),sa=num('ek_sanierung');return sa>0&&b>0&&sa<b;},
+   m:()=>'Sanierungsjahr liegt vor dem Baujahr.'},
+  {f:'ek_sanierung', s:'fehler', t:()=>{let sa=num('ek_sanierung');return sa>0&&sa>new Date().getFullYear()+2;},
+   m:()=>'Sanierungsjahr liegt in der Zukunft.'},
+  {f:'ek_wohnflaeche', s:'warn', t:()=>{let w=num('ek_wohnflaeche');return w>0&&w<20;},
+   m:()=>'Wohnfläche unter 20 m² — bitte prüfen.'},
+  {f:'ek_wohnflaeche', s:'warn', t:()=>{let w=num('ek_wohnflaeche');return w>900;},
+   m:()=>'Wohnfläche über 900 m² — bitte prüfen (Zahlendreher?).'},
+  {f:'ek_wohnflaeche', s:'fehler', t:()=>{let w=num('ek_wohnflaeche'),b=parseNum(($('o_bgf_hg')||{}).textContent||'');
+     return w>0&&b>0&&!$('anbau_aktiv').checked&&w>b*1.05;},
+   m:()=>'Wohnfläche ist größer als die Bruttogrundfläche — das kann nicht sein.'},
+  {f:'ek_brw', s:'warn', t:()=>{let b=num('ek_brw');return b>0&&b<10;},
+   m:()=>'Bodenrichtwert unter 10 €/m² — bitte prüfen.'},
+  {f:'ek_brw', s:'warn', t:()=>num('ek_brw')>2500,
+   m:()=>'Bodenrichtwert über 2.500 €/m² — außerhalb von Spitzenlagen ungewöhnlich.'},
+  {f:'ek_miete_wohnen', s:'warn', t:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');
+     return m>0&&w>0&&(m/w)<3;},
+   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht nur '+num2(m/w)+' €/m² — bitte prüfen (Jahres- statt Monatsmiete eingetragen?).';}},
+  {f:'ek_miete_wohnen', s:'warn', t:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');
+     return m>0&&w>0&&(m/w)>30;},
+   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht '+num2(m/w)+' €/m² — bitte prüfen.';}},
+  {f:'nhkhg_rnd', s:'fehler', t:()=>{let r=num('nhkhg_rnd'),g=num('nhkhg_gnd');return r>0&&g>0&&r>g;},
+   m:()=>'Restnutzungsdauer ist länger als die Gesamtnutzungsdauer.'},
+  {f:'er_zins_basis', s:'warn', t:()=>{let z=num('er_zins_basis')+num('er_zins_adj');return z>0&&(z<0.5||z>10);},
+   m:()=>{let z=num('er_zins_basis')+num('er_zins_adj');return 'Liegenschaftszins von '+num2(z)+' % liegt außerhalb der üblichen Bandbreite (rund 1–8 %).';}},
+  {f:'markt_faktor', s:'warn', t:()=>{let f=num('markt_faktor');return f>0&&(f<0.5||f>1.8);},
+   m:()=>'Marktanpassungsfaktor außerhalb 0,5–1,8 — bitte gegen den Sachwertfaktor des Gutachterausschusses prüfen.'},
+  {f:'ek_hausgeld', s:'warn', t:()=>{let h=num('ek_hausgeld'),w=num('ek_wohnflaeche');return h>0&&w>0&&(h/w)>7;},
+   m:()=>{let h=num('ek_hausgeld'),w=num('ek_wohnflaeche');return 'Hausgeld entspricht '+num2(h/w)+' €/m² im Monat — ungewöhnlich hoch.';}},
+  {f:'verhandlung', s:'warn', t:()=>num('verhandlung')>25,
+   m:()=>'Verhandlungsspanne über 25 % — das macht die Preisempfehlung wenig aussagekräftig.'},
+  /* Bewusst KEINE Regel auf die Abweichung zwischen Substanz- und Ertragswert:
+     bei eigengenutzten Ein-/Zweifamilienhaeusern liegt der Sachwert strukturell weit ueber
+     dem Ertragswert. Eine Warnung darauf traefe fast jede Hausbewertung und wuerde die
+     uebrigen Hinweise entwerten. Die methodisch saubere Ergebnispruefung ist die
+     Plausibilisierung gegen den Marktvergleich in Abschnitt 9.1. */
+  {f:'ek_miete_wohnen', s:'warn', t:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')*12+num('ek_miete_gewerbe')*12;
+     if(!(m>0)||!(R.empfehlung>0)) return false; let fak=R.empfehlung/m; return fak<10||fak>45;},
+   m:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')*12+num('ek_miete_gewerbe')*12;
+     return 'Kaufpreisfaktor von '+num2(R.empfehlung/m)+' Jahresmieten — außerhalb der üblichen Bandbreite.';}}
+];
+function plausiPruefen(){
+  let hinweise=[];
+  PLAUSI_REGELN.forEach(r=>{ try{ if(r.t()) hinweise.push({feld:r.f, stufe:r.s, text:r.m()}); }catch(e){} });
+  return hinweise;
+}
+function plausiRender(){
+  let hinweise;
+  try{ hinweise=plausiPruefen(); }catch(e){ return; }
+  document.querySelectorAll('.pruef-warn,.pruef-fehler').forEach(e=>e.classList.remove('pruef-warn','pruef-fehler'));
+  let block=$('cp_pruef_block'), liste=$('cp_pruef');
+  if(!block||!liste) return;
+  if(!hinweise.length){ block.style.display='none'; liste.innerHTML=''; return; }
+  block.style.display='';
+  let fehler=hinweise.filter(h=>h.stufe==='fehler').length;
+  setT('cp_pruef_titel', hinweise.length+' Prüfhinweis'+(hinweise.length>1?'e':'')+(fehler?' · '+fehler+' kritisch':''));
+  liste.innerHTML=hinweise.map((h,i)=>'<button type="button" class="pz'+(h.stufe==='fehler'?' fehler':'')+'" data-i="'+i+'">'
+    +'<span class="pd"></span><span>'+sEsc(h.text)+'</span></button>').join('');
+  liste.querySelectorAll('.pz').forEach(b=>{
+    let h=hinweise[+b.dataset.i];
+    b.onclick=()=>{ let e=$(h.feld); if(!e)return; e.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>{ try{e.focus({preventScroll:true});}catch(x){} },350); };
+  });
+  hinweise.forEach(h=>{ let e=$(h.feld); if(e) e.classList.add(h.stufe==='fehler'?'pruef-fehler':'pruef-warn'); });
+}
+
 /* ---------- Energetische Qualitaet: Klassengrenzen der GEG-Skala (kWh/(m2a)) ----------
    Steht bewusst bei den uebrigen Fachtabellen: compute() laeuft frueh und braucht sie
    bereits beim ersten Durchlauf. */
@@ -4465,6 +4553,7 @@ function cockpitUpdate(){
     let v=voll(); setT('cp_voll', v.ok+' / '+v.n+' Pflichtfelder'); let pr=$('cp_prog'); if(pr)pr.style.width=(v.n?Math.round(v.ok/v.n*100):0)+'%';
     let nx=$('cp_next'); if(nx){ nx.textContent=v.next?v.next.label:'alle Pflichtfelder sind erfasst'; nx.onclick=e=>{ e.preventDefault(); if(v.next)v.next.go(); }; }
     setT('mb_empf', ($('r_empfehlung')||{}).textContent||'0 €');
+    plausiRender();
     navStatus();
   }catch(e){}
 }
