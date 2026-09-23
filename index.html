@@ -1497,6 +1497,93 @@
     </section>
 
     <!-- RENDITE & INVESTITION -->
+
+    <section class="card" id="s-belwert" data-nav="⑨c Beleihungswert">
+      <h2>⑨c Beleihungswert nach BelWertV</h2>
+      <label class="toggle no-print"><input type="checkbox" id="bw_aktiv" onchange="compute()"> Beleihungswert ermitteln</label>
+      <div id="bw_body">
+        <p class="hint">Der Beleihungswert ist der Wert, der unabhängig von konjunkturellen Schwankungen und unter
+          Ausschaltung spekulativer Elemente während der gesamten Dauer der Beleihung erzielt werden kann (§ 3 BelWertV).
+          Er ist <b>nicht</b> der Verkehrswert und liegt regelmäßig darunter. Die Vorgaben der Verordnung sind unten als
+          Mindestwerte vorbelegt und einzeln überschreibbar — jede Abweichung ist im Bericht zu begründen.</p>
+
+        <h3>9c.1 · Grundlagen</h3>
+        <div class="grid four">
+          <div class="field"><label>Nutzungsart <span class="u">§ 12 Abs. 4</span></label>
+            <select id="bw_nutzung" onchange="bwNutzungWechsel()"><option value="wohnen">Wohnnutzung</option><option value="gewerbe">Gewerbliche Nutzung</option></select></div>
+          <div class="field"><label>Rendite 30-j. Bundesanleihe <span class="u">% — tagesaktuell prüfen</span></label><input id="bw_bund" type="text" value="2,5"></div>
+          <div class="field"><label>Kapitalisierungszins <span class="u">%</span></label><input id="bw_zins" type="text" value="5,0"></div>
+          <div class="field"><label>Objektart <span class="u">Anlage 2: Höchst-RND</span></label>
+            <select id="bw_objektart" onchange="compute()">
+              <option value="80">Wohnhaus — max. 80 Jahre</option>
+              <option value="60">Geschäfts-/Bürohaus — max. 60 Jahre</option>
+              <option value="40">Hotel, Klinik, Lagerhalle — max. 40 Jahre</option>
+              <option value="30">Freizeitimmobilie, Tankstelle — max. 30 Jahre</option>
+            </select></div>
+        </div>
+        <div class="row-calc"><span>Mindestzins nach § 12 Abs. 4 <span class="from" id="o_bw_zins_regel"></span></span><b id="o_bw_zins_min">–</b></div>
+        <div class="flag" id="bw_zins_warn" style="display:none"></div>
+
+        <h3>9c.2 · Ertragswert nach BelWertV</h3>
+        <p class="hint">Maßgeblich ist die <b>nachhaltig erzielbare</b> Miete (§ 10). Liegt die nachhaltige Miete über der
+          vertraglich vereinbarten, gilt regelmäßig die Vertragsmiete. Bewirtschaftungskosten mindestens 15 % des
+          Rohertrags (§ 11 Abs. 2).</p>
+        <div class="grid four">
+          <div class="field"><label>Nachhaltiger Rohertrag <span class="u">€/Jahr</span></label><input id="bw_roh" type="text" value="0"></div>
+          <div class="field no-print"><label>&nbsp;</label><button type="button" onclick="bwAusBewertung()" data-ic="arrow-down">Werte übernehmen</button></div>
+          <div class="field"><label>Bewirtschaftungskosten <span class="u">% des Rohertrags</span></label><input id="bw_bewirt" type="text" value="15"></div>
+          <div class="field"><label>Restnutzungsdauer <span class="u">Jahre (wirtschaftlich)</span></label><input id="bw_rnd" type="text" value="0"></div>
+        </div>
+        <div class="row-calc"><span>Rohertrag</span><b id="o_bw_roh">0 €</b></div>
+        <div class="row-calc"><span>− Bewirtschaftungskosten <span class="from" id="o_bw_bewirt_p"></span></span><b id="o_bw_bewirt">0 €</b></div>
+        <div class="row-calc"><span>= Reinertrag</span><b id="o_bw_rein">0 €</b></div>
+        <div class="row-calc"><span>− Bodenwertverzinsung <span class="from" id="o_bw_bodenzins_p"></span></span><b id="o_bw_bodenzins">0 €</b></div>
+        <div class="row-calc"><span>= Gebäudereinertrag</span><b id="o_bw_gebrein">0 €</b></div>
+        <div class="row-calc"><span>× Vervielfältiger <span class="from" id="o_bw_vf_txt"></span></span><b id="o_bw_vf">0</b></div>
+        <div class="row-calc"><span>+ Bodenwert</span><b id="o_bw_boden">0 €</b></div>
+        <div class="subtotal"><span>Ertragswert nach BelWertV</span><span id="o_bw_ertrag">0 €</span></div>
+
+        <h3>9c.3 · Sachwert nach BelWertV</h3>
+        <p class="hint">Vom Herstellungswert ist ein Sicherheitsabschlag von mindestens 10 % abzuziehen (§ 16 Abs. 2).
+          Außenanlagen im Regelfall höchstens 5 % des Herstellungswerts (§ 16 Abs. 1).</p>
+        <div class="grid four">
+          <div class="field"><label>Herstellungswert Gebäude <span class="u">€ (nach Alterswertminderung)</span></label><input id="bw_herstell" type="text" value="0"></div>
+          <div class="field"><label>Außenanlagen <span class="u">€</span></label><input id="bw_aussen" type="text" value="0"></div>
+          <div class="field"><label>Sicherheitsabschlag <span class="u">% — mind. 10</span></label><input id="bw_sicher" type="text" value="10"></div>
+          <div class="field"><label>Bodenwert <span class="u">€</span></label><input id="bw_bodenwert" type="text" value="0"></div>
+        </div>
+        <div class="row-calc"><span>Herstellungswert inkl. Außenanlagen</span><b id="o_bw_hw">0 €</b></div>
+        <div class="row-calc"><span>− Sicherheitsabschlag <span class="from" id="o_bw_sicher_p"></span></span><b id="o_bw_sicherbetrag">0 €</b></div>
+        <div class="row-calc"><span>+ Bodenwert</span><b id="o_bw_boden2">0 €</b></div>
+        <div class="subtotal"><span>Sachwert nach BelWertV</span><span id="o_bw_sachwert">0 €</span></div>
+        <div class="flag" id="bw_sicher_warn" style="display:none"></div>
+
+        <h3>9c.4 · Ableitung des Beleihungswerts</h3>
+        <div class="grid three">
+          <div class="field"><label>Wertansatz <span class="u">§ 4</span></label>
+            <select id="bw_ansatz" onchange="compute()">
+              <option value="min">Niedrigerer aus Ertrags- und Sachwert (Regelfall, § 4 Abs. 1)</option>
+              <option value="sach">Sachwertorientiert — EFH/ZFH/ETW, eigennutzungsgeeignet (§ 4 Abs. 2)</option>
+              <option value="ertrag">Ertragswert allein</option>
+            </select></div>
+          <div class="field"><label>Abschlag Besichtigung <span class="u">% — § 24</span></label>
+            <select id="bw_besichtigung" onchange="compute()">
+              <option value="0">Vollständige Besichtigung — kein Abschlag</option>
+              <option value="5">Videobesichtigung — mind. 5 %</option>
+              <option value="10">Ohne Innenbesichtigung — mind. 10 %</option>
+            </select></div>
+          <div class="field"><label>Weiterer Abschlag <span class="u">% (Begründung im Bericht)</span></label><input id="bw_abschlag" type="text" value="0"></div>
+        </div>
+        <div class="row-calc"><span>Ertragswert</span><b id="o_bw_e_ertrag">0 €</b></div>
+        <div class="row-calc"><span>Sachwert</span><b id="o_bw_e_sach">0 €</b></div>
+        <div class="row-calc"><span>Ausgangswert <span class="from" id="o_bw_ansatz_txt"></span></span><b id="o_bw_ausgang">0 €</b></div>
+        <div class="row-calc"><span>− Abschläge <span class="from" id="o_bw_abschlag_p"></span></span><b id="o_bw_abschlag_betrag">0 €</b></div>
+        <div class="subtotal" style="font-size:16px"><span>Beleihungswert</span><span id="o_beleihungswert">0 €</span></div>
+        <div class="row-calc"><span>Verhältnis zur Preisempfehlung</span><b id="o_bw_quote">–</b></div>
+        <div class="flag" id="bw_hinweise"></div>
+      </div>
+    </section>
+
     <section class="card" id="s-rendite" data-nav="⑨b Rendite & Investition">
       <h2>⑨b Rendite &amp; Investitionskosten</h2>
       <p class="hint">Kennzahlen für Kapitalanleger. Kaufpreis leer/0 = empfohlener Preisansatz aus ⑨ wird übernommen.</p>
@@ -1715,6 +1802,7 @@
             <div class="fin-zeile"><span>davon Förderdarlehen</span><b id="fin_o_kfw">0 €</b></div>
             <div class="fin-zeile"><span>davon Bankdarlehen</span><b id="fin_o_bank">0 €</b></div>
             <div class="fin-zeile"><span>Auslauf zum Kaufpreis <span class="sub">(Darlehen ÷ Kaufpreis)</span></span><b id="fin_o_auslauf">–</b></div>
+            <div class="fin-zeile" id="fin_zeile_bw" style="display:none"><span>Auslauf zum Beleihungswert <span class="sub" id="fin_o_bw_wert"></span></span><b id="fin_o_auslauf_bw">–</b></div>
           </div>
           <div class="mdb-box">
             <h3>Verlauf</h3>
@@ -1886,6 +1974,33 @@ function druckeUnterlagen(){
   window.scrollTo(0,0);
 }
 
+
+/* ---------- Beleihungswert nach BelWertV: Vorbelegung aus der Bewertung ---------- */
+function bwNutzungWechsel(){
+  /* Zins und Objektart auf die Bandbreite der Nutzungsart setzen (SS 12 Abs. 4) */
+  let wohnen=$('bw_nutzung').value==='wohnen';
+  let min=num('bw_bund')+(wohnen?3:4);
+  min=Math.min(Math.max(min,wohnen?3.5:4.5),wohnen?5.5:6.5);
+  $('bw_zins').value=num2(min);
+  $('bw_objektart').value=wohnen?'80':'60';
+  compute();
+}
+function bwAusBewertung(){
+  let R=window._R||{};
+  if(R.roh>0) $('bw_roh').value=Math.round(R.roh);
+  if(R.bodenwert>0) $('bw_bodenwert').value=Math.round(R.bodenwert);
+  /* Herstellungswert: Gebaeudeanteil ohne Bodenwert und ohne Marktanpassung --
+     die Marktanpassung ist ein Verkehrswertinstrument und im Beleihungswert nicht anzusetzen. */
+  let herstell=(R.hgVor||0)+(R.anVor||0);
+  if(herstell>0) $('bw_herstell').value=Math.round(herstell);
+  if(R.erRND>0) $('bw_rnd').value=num2(R.erRND);
+  /* Nutzungsart aus dem Vordruck ableiten */
+  let typ=((($('ek_typ')||{}).value)||'').toLowerCase();
+  if(/b(ü|ue)ro|laden|gesch(ä|ae)ft|gewerbe|betrieb|halle/.test(typ)){ $('bw_nutzung').value='gewerbe'; $('bw_objektart').value='60'; }
+  compute();
+  if(!(R.roh>0)&&!(herstell>0)) alert('In der Bewertung stehen noch keine übernehmbaren Werte — bitte zuerst Eckdaten, Bruttogrundfläche und Miete erfassen.');
+}
+
 /* ---------- Aufgaben und Wiedervorlagen ------------------------------------------------
    Bewusst als In-App-Liste ohne Push-Benachrichtigungen: echte Hintergrund-Benachrichtigungen
    brauchen zwingend einen Server (siehe DECISIONS.md D1). Faellige Aufgaben zeigen sich
@@ -2036,6 +2151,10 @@ function finRechnen(){
     setT('fin_o_ek','− '+eur(ek)); setT('fin_o_ek_p',gesamt>0?num2(ek/gesamt*100)+' % der Gesamtkosten':'');
     setT('fin_o_bedarf',eur(bedarf)); setT('fin_o_kfw',eur(kfw)); setT('fin_o_bank',eur(bank));
     setT('fin_o_auslauf',kp>0?num2(bedarf/kp*100)+' %':'–');
+    let bwWert=parseNum((($('o_beleihungswert')||{}).textContent)||'')?mdbNum((($('o_beleihungswert')||{}).textContent)||''):0;
+    $('fin_zeile_bw').style.display=bwWert>0?'':'none';
+    setT('fin_o_bw_wert',bwWert>0?'('+eur(bwWert)+')':'');
+    setT('fin_o_auslauf_bw',bwWert>0?num2(bedarf/bwWert*100)+' %':'–');
 
     let a=finTilgungsverlauf(bank,num('fin_zins'),num('fin_tilgung'),num('fin_sonder'),60);
     let b=finTilgungsverlauf(kfw,num('fin_kfw_zins'),num('fin_kfw_tilgung'),0,60);
@@ -2130,12 +2249,14 @@ var PLAUSI_REGELN=[
    m:()=>'Bodenrichtwert unter 10 €/m² — bitte prüfen.'},
   {f:'ek_brw', s:'warn', t:()=>num('ek_brw')>2500,
    m:()=>'Bodenrichtwert über 2.500 €/m² — außerhalb von Spitzenlagen ungewöhnlich.'},
+  /* Achtung: ek_miete_wohnen ist die JAHRESmiete (Feldeinheit €/Jahr).
+     Fuer die Pruefung je Quadratmeter und Monat deshalb durch 12 teilen. */
   {f:'ek_miete_wohnen', s:'warn', t:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');
-     return m>0&&w>0&&(m/w)<3;},
-   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht nur '+num2(m/w)+' €/m² — bitte prüfen (Jahres- statt Monatsmiete eingetragen?).';}},
+     return m>0&&w>0&&(m/12/w)<3;},
+   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht nur '+num2(m/12/w)+' €/m² im Monat — bitte prüfen (Monats- statt Jahresmiete eingetragen?).';}},
   {f:'ek_miete_wohnen', s:'warn', t:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');
-     return m>0&&w>0&&(m/w)>30;},
-   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht '+num2(m/w)+' €/m² — bitte prüfen.';}},
+     return m>0&&w>0&&(m/12/w)>30;},
+   m:()=>{let m=num('ek_miete_wohnen'),w=num('ek_wohnflaeche');return 'Miete entspricht '+num2(m/12/w)+' €/m² im Monat — bitte prüfen.';}},
   {f:'nhkhg_rnd', s:'fehler', t:()=>{let r=num('nhkhg_rnd'),g=num('nhkhg_gnd');return r>0&&g>0&&r>g;},
    m:()=>'Restnutzungsdauer ist länger als die Gesamtnutzungsdauer.'},
   {f:'er_zins_basis', s:'warn', t:()=>{let z=num('er_zins_basis')+num('er_zins_adj');return z>0&&(z<0.5||z>10);},
@@ -2151,9 +2272,9 @@ var PLAUSI_REGELN=[
      dem Ertragswert. Eine Warnung darauf traefe fast jede Hausbewertung und wuerde die
      uebrigen Hinweise entwerten. Die methodisch saubere Ergebnispruefung ist die
      Plausibilisierung gegen den Marktvergleich in Abschnitt 9.1. */
-  {f:'ek_miete_wohnen', s:'warn', t:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')*12+num('ek_miete_gewerbe')*12;
+  {f:'ek_miete_wohnen', s:'warn', t:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')+num('ek_miete_gewerbe');
      if(!(m>0)||!(R.empfehlung>0)) return false; let fak=R.empfehlung/m; return fak<10||fak>45;},
-   m:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')*12+num('ek_miete_gewerbe')*12;
+   m:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')+num('ek_miete_gewerbe');
      return 'Kaufpreisfaktor von '+num2(R.empfehlung/m)+' Jahresmieten — außerhalb der üblichen Bandbreite.';}}
 ];
 function plausiPruefen(){
@@ -2953,6 +3074,87 @@ function compute(){
   setT('o_e_sub',eur(substanz));setT('o_e_er',eur(ertrag));setT('o_e_mittel',eur(mittel));
   setT('o_e_pv','+ '+eur(pvWert));
   setT('o_e_niess','− '+eur(niessWert));setT('o_empfehlung',eur(empfehlung));
+
+  /* ---- Beleihungswert nach BelWertV ---- */
+  let bwAktiv=$('bw_aktiv').checked;
+  let bwWohnen=$('bw_nutzung').value==='wohnen';
+  let bwZinsMin=num('bw_bund')+(bwWohnen?3:4);
+  let bwSpanneMin=bwWohnen?3.5:4.5, bwSpanneMax=bwWohnen?5.5:6.5;
+  bwZinsMin=Math.min(Math.max(bwZinsMin,bwSpanneMin),bwSpanneMax);
+  let bwZins=num('bw_zins');
+  setT('o_bw_zins_regel','(mind. '+(bwWohnen?3:4)+' Prozentpunkte über der Bundesanleihe, Bandbreite '+num2(bwSpanneMin)+'–'+num2(bwSpanneMax)+' %)');
+  setT('o_bw_zins_min',num2(bwZinsMin)+' %');
+  let bwZinsOk=bwZins>=bwZinsMin-0.001;
+  $('bw_zins_warn').style.display=(bwAktiv&&!bwZinsOk)?'':'none';
+  $('bw_zins_warn').textContent='Der angesetzte Kapitalisierungszins von '+num2(bwZins)+' % liegt unter dem Mindestsatz von '
+    +num2(bwZinsMin)+' % nach § 12 Abs. 4 BelWertV. Eine Unterschreitung ist nur bei erstklassigen Immobilien und nur um bis zu 0,5 Prozentpunkte zulässig (§ 12 Abs. 5) und muss begründet werden.';
+
+  let bwRndMax=num($('bw_objektart').value)||80;
+  let bwRnd=Math.min(num('bw_rnd'),bwRndMax);
+  let bwRoh=num('bw_roh');
+  let bwBewirtP=Math.max(num('bw_bewirt'),0);
+  let bwBewirt=bwRoh*bwBewirtP/100;
+  let bwRein=bwRoh-bwBewirt;
+  let bwBoden=num('bw_bodenwert');
+  let bwBodenZins=bwBoden*bwZins/100;
+  let bwGebRein=bwRein-bwBodenZins;
+  let bwVf=barwertfaktor(bwZins,bwRnd);
+  let bwErtrag=bwRnd>0&&bwRoh>0 ? Math.max(bwGebRein,0)*bwVf+bwBoden : 0;
+
+  setT('o_bw_roh',eur(bwRoh));
+  setT('o_bw_bewirt','− '+eur(bwBewirt)); setT('o_bw_bewirt_p','('+num2(bwBewirtP)+' %, mind. 15 % nach § 11 Abs. 2)');
+  setT('o_bw_rein',eur(bwRein));
+  setT('o_bw_bodenzins','− '+eur(bwBodenZins)); setT('o_bw_bodenzins_p','('+eur(bwBoden)+' × '+num2(bwZins)+' %)');
+  setT('o_bw_gebrein',eur(bwGebRein));
+  setT('o_bw_vf',num2(bwVf)); setT('o_bw_vf_txt','('+num2(bwRnd)+' J'+(num('bw_rnd')>bwRndMax?' — auf Höchstwert der Anlage 2 gekürzt':'')+' / '+num2(bwZins)+' %)');
+  setT('o_bw_boden',eur(bwBoden)); setT('o_bw_boden2',eur(bwBoden));
+  setT('o_bw_ertrag',eur(bwErtrag));
+
+  let bwHerstell=num('bw_herstell')+num('bw_aussen');
+  let bwSicherP=Math.max(num('bw_sicher'),0);
+  let bwSicherBetrag=bwHerstell*bwSicherP/100;
+  let bwSachwert=bwHerstell>0 ? bwHerstell-bwSicherBetrag+bwBoden : 0;
+  setT('o_bw_hw',eur(bwHerstell));
+  setT('o_bw_sicherbetrag','− '+eur(bwSicherBetrag)); setT('o_bw_sicher_p','('+num2(bwSicherP)+' %)');
+  setT('o_bw_sachwert',eur(bwSachwert));
+  $('bw_sicher_warn').style.display=(bwAktiv&&bwSicherP<10&&bwHerstell>0)?'':'none';
+  $('bw_sicher_warn').textContent='Der Sicherheitsabschlag von '+num2(bwSicherP)+' % unterschreitet den Mindestabschlag von 10 % nach § 16 Abs. 2 BelWertV.';
+
+  let bwAnsatz=$('bw_ansatz').value;
+  let bwAusgang=0, bwAnsatzTxt='';
+  if(bwAnsatz==='sach'){ bwAusgang=bwSachwert; bwAnsatzTxt='(Sachwert, § 4 Abs. 2)'; }
+  else if(bwAnsatz==='ertrag'){ bwAusgang=bwErtrag; bwAnsatzTxt='(Ertragswert)'; }
+  else {
+    let kandidaten=[bwErtrag,bwSachwert].filter(x=>x>0);
+    bwAusgang=kandidaten.length?Math.min.apply(null,kandidaten):0;
+    bwAnsatzTxt=kandidaten.length>1?(bwErtrag<=bwSachwert?'(Ertragswert — der niedrigere)':'(Sachwert — der niedrigere)'):'(einziger ermittelter Wert)';
+  }
+  let bwAbschlagP=num('bw_besichtigung')+num('bw_abschlag');
+  let bwAbschlagBetrag=bwAusgang*bwAbschlagP/100;
+  let beleihungswert=bwAktiv?Math.max(bwAusgang-bwAbschlagBetrag,0):0;
+  setT('o_bw_e_ertrag',eur(bwErtrag)); setT('o_bw_e_sach',eur(bwSachwert));
+  setT('o_bw_ausgang',eur(bwAusgang)); setT('o_bw_ansatz_txt',bwAnsatzTxt);
+  setT('o_bw_abschlag_betrag','− '+eur(bwAbschlagBetrag)); setT('o_bw_abschlag_p',bwAbschlagP>0?'('+num2(bwAbschlagP)+' %)':'');
+  setT('o_beleihungswert',eur(beleihungswert));
+  setT('o_bw_quote', (beleihungswert>0&&empfehlung>0) ? num2(beleihungswert/empfehlung*100)+' % der Preisempfehlung' : '–');
+
+  let bwHin=[];
+  if(bwAktiv){
+    if(bwAnsatz==='min'&&bwErtrag>0&&bwSachwert>0&&bwSachwert<bwErtrag)
+      bwHin.push('Der Sachwert liegt unter dem Ertragswert und ist damit maßgeblich. Nach § 4 Abs. 1 darf der Ertragswert ohnehin nicht überschritten werden.');
+    if(bwAnsatz==='sach')
+      bwHin.push('Sachwertorientierung nach § 4 Abs. 2 ist nur zulässig, wenn das Objekt nach Objekt- und Standortqualität zweifelsfrei zur Eigennutzung geeignet ist — im Bericht festhalten.');
+    if(beleihungswert>0&&empfehlung>0&&beleihungswert>empfehlung)
+      bwHin.push('Der Beleihungswert liegt über der Preisempfehlung. Das widerspricht dem nachhaltigen Wertbegriff des § 3 BelWertV und ist zu prüfen.');
+    if(beleihungswert>0&&beleihungswert<=600000)
+      bwHin.push('Bei einem abzusichernden Darlehensbetrag bis 600.000 € einschließlich aller Vorlasten ist das Kleindarlehensverfahren nach § 24 BelWertV zulässig.');
+    if(bwRoh>0&&bwGebRein<0)
+      bwHin.push('Der Gebäudereinertrag ist negativ: die Bodenwertverzinsung von '+eur(bwBodenZins)+' übersteigt den Reinertrag von '+eur(bwRein)+'. Der Ertragswert entspricht dann rechnerisch dem Bodenwert. Bitte Mietansatz, Kapitalisierungszins und Bodenwert prüfen.');
+    if(bwRoh<=0&&bwHerstell<=0)
+      bwHin.push('Noch keine Werte erfasst — „Werte übernehmen" holt Rohertrag, Herstellungswert, Bodenwert und Restnutzungsdauer aus der Bewertung.');
+  }
+  $('bw_hinweise').innerHTML=bwHin.map(t=>'<div style="margin:4px 0">'+t+'</div>').join('');
+  $('bw_hinweise').style.display=bwHin.length?'':'none';
   setT('o_spanne',eur(empfehlung*(1-vh))+'  –  '+eur(empfehlung*(1+vh)));
 
   // Miete-Plausibilität
@@ -3013,7 +3215,7 @@ function compute(){
   setT('r_empfehlung',eur(empfehlung));setT('r_sub',eur(substanz));setT('r_er',eur(ertrag));
   setT('r_mittel',eur(mittel));setT('r_niess',eur(niessWert));setT('r_boden',eur(bodenwert));
 
-  window._R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
+  window._R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,beleihungswert,bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};
@@ -3266,6 +3468,19 @@ function druckbericht(){
     <tr class="total"><td>Preis nach Gebäudeertrag</td><td>${eur(R.ertrag)}</td></tr>
    </table>
    ${R.mietrolleAktiv?`<h3>Mietrolle (wohnungsweise)</h3><table><tr><td><b>Einheit</b></td><td><b>Miete p.a.</b></td></tr>${(function(){let rows='';for(let i=0;i<14;i++){let bez=($('mr_bez'+i).value||'').trim();let pa=(num('mr_fl'+i)*num('mr_pm2'+i)+num('mr_pau'+i))*12;if(pa>0)rows+=L((bez||'Einheit '+(i+1))+(($('mr_gesch'+i).value||'').trim()?' ('+esc($('mr_gesch'+i).value.trim())+')':''),eur(pa));}return rows;})()}<tr class="total"><td>Summe Jahresrohertrag</td><td>${eur(R.mrSumme)}</td></tr></table>`:''}
+   ${$('bw_aktiv').checked&&R.beleihungswert>0?`<h2>Beleihungswert nach BelWertV</h2>
+    <p class="beschr">Der Beleihungswert ist der Wert, der unabhängig von vorübergehenden Wertschwankungen und unter
+    Ausschaltung spekulativer Elemente während der gesamten Dauer der Beleihung erzielt werden kann (§ 3 BelWertV).
+    Er ist nicht mit dem Verkehrswert gleichzusetzen.</p>
+    <table>
+    ${L('Kapitalisierungszinssatz',num2(R.bwZins)+' % (Mindestsatz § 12 Abs. 4: '+num2(R.bwZinsMin)+' %)')}
+    ${L('Restnutzungsdauer',num2(R.bwRnd)+' Jahre')}
+    ${R.bwRoh>0?L('Nachhaltiger Rohertrag',eur(R.bwRoh))+L('− Bewirtschaftungskosten (§ 11 Abs. 2)',eur(R.bwBewirt))+L('× Vervielfältiger',num2(R.bwVf))+L('Ertragswert',eur(R.bwErtrag)):''}
+    ${R.bwHerstell>0?L('Herstellungswert inkl. Außenanlagen',eur(R.bwHerstell))+L('− Sicherheitsabschlag (§ 16 Abs. 2, '+num2(R.bwSicherP)+' %)',eur(R.bwSicherBetrag))+L('Sachwert',eur(R.bwSachwert)):''}
+    ${L('Ausgangswert',eur(R.bwAusgang))}
+    ${R.bwAbschlagP>0?L('− Abschläge ('+num2(R.bwAbschlagP)+' %)',eur(R.bwAbschlagBetrag)):''}
+    <tr class="total"><td>Beleihungswert</td><td>${eur(R.beleihungswert)}</td></tr>
+   </table>`:''}
    ${$('en_aktiv').checked&&R.energieWert!==0?`<h2>Energetische Qualität</h2><table>
     ${L('Energiekennwert',R.enKennwert>0?num2(R.enKennwert)+' kWh/(m²·a)':'–')}
     ${L('Effizienzklasse',esc($('en_klasse').value)+' (Normalzustand: '+esc($('en_ref_klasse').value)+')')}
@@ -4914,9 +5129,9 @@ function voll(){
 /* ---------- Navigation mit Status ---------- */
 var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-fotos']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie']],
-                  ['Abschluss',['s-empfehlung','s-rendite','s-sign']]];
-var NAV_TOGGLE={'s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv'};
-var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-empfehlung':'o_empfehlung'};
+                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign']]];
+var NAV_TOGGLE={'s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
+var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-belwert':'o_beleihungswert','s-empfehlung':'o_empfehlung'};
 function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-e]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
 function navSichtbar(s){ let w=modus()==='wohnung'; return !(w&&s.classList.contains('haus-only'))&&!(!w&&s.classList.contains('wohnung-only')); }
 function navLink(s){
