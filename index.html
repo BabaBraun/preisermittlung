@@ -586,6 +586,9 @@
   .menu-list button{border-radius:12px;padding:10px 12px}
   .menu-list button:hover{background:var(--tint)}
   .search-btn{border-radius:999px;border-color:var(--line)}
+  /* Beschriftung darf sich kürzen — sonst schiebt der lange Suchhinweis die Startseite am Handy über den Rand */
+  .search-btn{max-width:100%;overflow:hidden}
+  .search-btn span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 
   /* Eingabefelder: weich, leicht getönt, beim Fokus hell */
   input,select,textarea{border-radius:14px;border-color:var(--line)}
