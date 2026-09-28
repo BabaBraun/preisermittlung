@@ -30,26 +30,32 @@
   :root{
     --sans:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
     --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
-    --bg:#F4F2ED; --card:#FFFFFF; --surface-2:#FAF8F4; --field:#FFFFFF;
-    --line:#E3DFD7; --line-2:#CFC9BE; --track:#EDEAE3;
-    --text:#1E1C19; --text-2:#5F5A52; --muted:#726D64;
-    --accent:#1B4B7A; --accent-btn:#1B4B7A; --accent-d:#163D63; --accent-2:#7FA0C3;
-    --tint:#E9EFF6; --tint-b:#C5D4E5;
-    --ok:#2F7A50; --ok-bg:#E6F2EA; --warn:#926217; --warn-bg:#FBF1DF; --bad:#B03A3A; --bad-bg:#F8E7E7;
-    --shadow:0 1px 2px rgba(30,28,25,.05),0 6px 20px rgba(30,28,25,.06);
-    --r:12px; --rs:8px;
-    --blue:var(--text); --blue-d:#2A2926; --blue-l:#F1EEE8; --ek:var(--text);
+    --bg:#EEF3FA; --card:#FFFFFF; --surface-2:#F4F8FD; --field:#F4F8FD;
+    --line:#DCE5F1; --line-2:#C5D3E6; --line-soft:#E6EDF6; --track:#E3EBF6;
+    --text:#0F1E36; --text-2:#465872; --muted:#5E6F88;
+    --accent:#1D5BC4; --accent-btn:#1D5BC4; --accent-d:#174BA3; --accent-2:#8DB2EA;
+    --tint:#E6EFFD; --tint-b:#C4D8F6;
+    --ok:#23734A; --ok-bg:#E3F4EA; --warn:#8A5A10; --warn-bg:#FCF1DD; --bad:#B0303A; --bad-bg:#FBE8EA;
+    --shadow:0 1px 2px rgba(15,30,54,.04),0 8px 24px rgba(15,30,54,.06);
+    --shadow-lg:0 4px 12px rgba(15,30,54,.06),0 20px 44px rgba(15,30,54,.11);
+    --accent-glow:rgba(29,91,196,.26);
+    --glass:rgba(255,255,255,.82);
+    --r:22px; --rs:14px;
+    --blue:var(--text); --blue-d:#16284A; --blue-l:#EAF1FB; --ek:var(--text);
     color-scheme:light;
   }
   html[data-theme="dark"]{
-    --bg:#1A1918; --card:#232220; --surface-2:#2A2926; --field:#1E1D1B;
-    --line:#363430; --line-2:#4A473F; --track:#34322E;
-    --text:#ECE8E1; --text-2:#B5AFA5; --muted:#948F84;
-    --accent:#8FB3DE; --accent-btn:#2E62A0; --accent-d:#A9C6EA; --accent-2:#4F7FB5;
-    --tint:#223246; --tint-b:#34517A;
-    --ok:#6FC593; --ok-bg:#1F3328; --warn:#E0B15C; --warn-bg:#3A2F17; --bad:#E08484; --bad-bg:#3D2222;
-    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
-    --blue-d:#2E2C29; --blue-l:#2E2C29;
+    --bg:#0B1422; --card:#131E30; --surface-2:#1A2740; --field:#0F1929;
+    --line:#22334F; --line-2:#33486A; --line-soft:#1C2A42; --track:#1E2D48;
+    --text:#E6EEF9; --text-2:#A6B8D0; --muted:#8A9DB8;
+    --accent:#7FB0F5; --accent-btn:#2A6BDB; --accent-d:#A5C7F8; --accent-2:#4A7FD0;
+    --tint:#16284A; --tint-b:#28457A;
+    --ok:#6FCF98; --ok-bg:#12301F; --warn:#E8B866; --warn-bg:#33270F; --bad:#F08A8A; --bad-bg:#3A1B20;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 28px rgba(0,0,0,.38);
+    --shadow-lg:0 4px 14px rgba(0,0,0,.4),0 22px 50px rgba(0,0,0,.5);
+    --accent-glow:rgba(42,107,219,.4);
+    --glass:rgba(19,30,48,.82);
+    --blue-d:#1A2740; --blue-l:#1A2740;
     color-scheme:dark;
   }
   *{box-sizing:border-box}
@@ -325,12 +331,12 @@
     /* Platz fuer Export und Bericht: Wortmarke und Einstellungen wandern ins Menue */
     header.app .wordmark,header.app .vsep,
     header.app button[onclick="themeToggle()"],
-    header.app #installBtn{display:none}
+    header.app #installBtn{display:none!important}   /* steht als Inline-Stil am Element, daher !important */
     body.report-mode #report{padding:16px 14px}
   }
 
   /* ---------- Bericht (immer helles Dokument) ---------- */
-  #report{display:none;--blue:#1E1C19;--blue-d:#1E1C19;--accent:#1B4B7A;--line:#E3DFD7;--muted:#6B665E;--blue-l:#F1EEE8;--text:#1E1C19;color:#1E1C19;background:#fff;color-scheme:light}
+  #report{display:none;--blue:#0F1E36;--blue-d:#0F1E36;--accent:#1D5BC4;--line:#DCE5F1;--muted:#5E6F88;--blue-l:#EEF3FA;--text:#0F1E36;color:#0F1E36;background:#fff;color-scheme:light}
   body.report-mode{background:#fff}
   body.report-mode .wrap,body.report-mode header.app,body.report-mode #mbar,body.report-mode #startscreen{display:none!important}
   body.report-mode #report{display:block;max-width:900px;margin:0 auto;padding:30px}
@@ -340,7 +346,7 @@
   #report h3{color:var(--accent);font-size:13px;margin:12px 0 2px}
   #report table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
   #report table td{padding:6px 8px;border-bottom:1px solid var(--line)}
-  #report table tr:nth-child(even) td{background:#FAF8F4}
+  #report table tr:nth-child(even) td{background:#F5F8FC}
   #report table td:last-child{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
   #report .total td{font-weight:700;color:var(--accent);border-top:2px solid var(--accent);background:transparent!important}
   #report .disc{font-size:11px;color:#555;margin-top:20px;line-height:1.5}
@@ -552,14 +558,102 @@
     .suche-fuss{display:none}
     .suche-row .r{display:none}
   }
+
+  /* =====================================================================
+     Formsprache rund & modern — große Radien, Pillen, Schalter, weiche Tiefe,
+     schwebende Leiste. Nur Form und Tiefe; Farben kommen aus den Variablen.
+     Der Bericht (#report) bleibt ein nüchternes Dokument und ist ausgenommen.
+     ===================================================================== */
+  /* Flächen: keine harten Kanten, Tiefe über Schatten statt über Linien */
+  .card,.cp-card,.kpi,.tile,.mdb-box,.mdb-chart,.mdb-filter,.recent-list,.start-auf,.modal,.suche-box,nav.side{border-color:var(--line-soft);box-shadow:var(--shadow)}
+  .modal,.suche-box{border-radius:28px;box-shadow:var(--shadow-lg)}
+  .card{padding:26px 28px}
+  .tile{transition:transform .18s ease,box-shadow .18s ease,border-color .18s}
+  .tile:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--tint-b)}
+  .tile .qi{border-radius:16px}
+  .tile .qi.fill{box-shadow:0 8px 20px var(--accent-glow)}
+  .card h2 .step{border-radius:12px}
+
+  /* Schaltflächen als Pillen, Icon-Schalter als Kreise */
+  button{border-radius:999px;padding:9px 18px;transition:background .15s,box-shadow .15s,transform .1s,filter .15s}
+  button:active{transform:scale(.97)}
+  button.primary{box-shadow:0 6px 18px var(--accent-glow)}
+  button.primary:hover{filter:brightness(1.06)}
+  button.icon{border-radius:50%}
+  button.icon:hover{background:var(--tint);color:var(--accent)}
+  button.plus{border-radius:999px;padding:7px 14px}
+  .menu-list{border-radius:20px;padding:8px;border-color:var(--line-soft);box-shadow:var(--shadow-lg)}
+  .menu-list button{border-radius:12px;padding:10px 12px}
+  .menu-list button:hover{background:var(--tint)}
+  .search-btn{border-radius:999px;border-color:var(--line)}
+
+  /* Eingabefelder: weich, leicht getönt, beim Fokus hell */
+  input,select,textarea{border-radius:14px;border-color:var(--line)}
+  input:focus,select:focus,textarea:focus{background:var(--card);box-shadow:0 0 0 4px var(--tint)}
+  input[type=checkbox],input[type=radio]{border-radius:6px}
+  .inwrap .unit{right:14px}
+
+  /* Abschnittsschalter im iOS-Stil — wie in der Vorlage */
+  .toggle input[type=checkbox]{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:999px;background:var(--line-2);border:none;position:relative;cursor:pointer;transition:background .2s;flex:0 0 auto;margin:0}
+  .toggle input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .22s cubic-bezier(.3,.7,.4,1)}
+  .toggle input[type=checkbox]:checked{background:var(--accent-btn)}
+  .toggle input[type=checkbox]:checked::after{transform:translateX(18px)}
+  .toggle input[type=checkbox]:focus-visible{outline:none;box-shadow:0 0 0 4px var(--tint)}
+  .toggle{gap:12px}
+
+  /* Tabellen, Summen, Hinweise: rund und ohne Seitenstreifen */
+  table.nhk,table.ref,.hist,.mdb-scroll{border-radius:16px;border-color:var(--line-soft)}
+  .subtotal{border-radius:16px;border:none;background:var(--tint);color:var(--text)}
+  .flag,.mdb-ok,.mdb-warn,.mdb-crit{border-left:none;border-radius:16px;padding:12px 16px}
+  .pdfrow,.mdb-stat div{border-radius:14px}
+  .drop{border-radius:20px}
+  .photo{border-radius:16px}
+  .photo .del{border-radius:50%}
+  .fin-rate{border-radius:22px;border:none;background:linear-gradient(135deg,var(--tint) 0%,var(--surface-2) 100%)}
+  .kpi.on{border-color:var(--tint-b)}
+
+  /* Kopfzeilen gläsern statt harter Trennlinie */
+  header.app,.start-head,.mdb-head{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);border-bottom:1px solid var(--line-soft)}
+
+  /* Navigation: weiche Pillen */
+  nav.side{border-radius:24px;padding:12px 10px}
+  nav.side a{border-radius:14px}
+  nav.side a:hover{background:var(--tint)}
+
+  /* Reiter im Marktüberblick als Pillen */
+  .mdb-tabs{gap:6px;padding:8px 14px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
+  .mdb-tabs button{border-radius:999px;border-bottom:none;padding:8px 16px}
+  .mdb-tabs button.on{background:var(--tint);color:var(--accent)}
+  .mdb-chartpick button{border-radius:999px}
+
+  /* Dialog-Hintergrund bläulich und leicht unscharf */
+  .overlay,#suche{background:rgba(10,20,40,.40);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  /* Vollbild-Module (Marktüberblick, Finanzierung) sind keine Dialoge: kein Rand, deckender Grund, keine Unschärfe */
+  #mdb_overlay,#fin_overlay{padding:0;background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+
+  /* Handy: schwebende Insel unten, wie die Leiste in der Vorlage */
+  @media(max-width:1100px){
+    #mbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));border-radius:28px;border:1px solid var(--line-soft);
+      background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+      box-shadow:var(--shadow-lg);padding-bottom:0;overflow:hidden}
+    .mbar-tabs{border-top:1px solid var(--line-soft);padding:6px 8px 8px;gap:4px}
+    .mbar-tabs button{border-radius:18px}
+    .mbar-tabs button.on{background:var(--tint)}
+    .wrap{padding-bottom:180px}
+    nav.side{border-radius:0;background:var(--bg);box-shadow:none}
+    nav.side a{border-radius:999px;border-color:var(--line-soft)}
+    body.cp-open aside.result{bottom:calc(150px + env(safe-area-inset-bottom))}
+    body.cp-open aside.result .cp-card{border-radius:28px;box-shadow:var(--shadow-lg)}
+    .card{padding:20px 18px;border-radius:24px}
+  }
 </style>
 </head>
 <body>
-<div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:#1A1918;color:#ECE8E1;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
-  <div style="width:56px;height:56px;border-radius:14px;background:#2E62A0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;font-size:22px">IA</div>
+<div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:radial-gradient(120% 80% at 50% 0%,#16284A 0%,#0B1422 60%);color:#E6EEF9;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
+  <div style="width:64px;height:64px;border-radius:20px;background:#2A6BDB;box-shadow:0 10px 30px rgba(42,107,219,.45);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;font-size:22px">IA</div>
   <div style="font-family:'IBM Plex Serif',Georgia,serif;font-size:19px;font-weight:600">ImmoApp ist gesperrt</div>
   <div id="lock_status" style="font-size:13px;color:#B5AFA5;max-width:280px;line-height:1.5">Zum Fortfahren mit Face ID, Touch ID oder Gerätecode entsperren.</div>
-  <button id="lock_btn" onclick="iaLockVersuch()" style="height:46px;padding:0 22px;border-radius:8px;border:none;background:#2E62A0;color:#fff;font:inherit;font-weight:500;font-size:14px;cursor:pointer">Entsperren</button>
+  <button id="lock_btn" onclick="iaLockVersuch()" style="height:50px;padding:0 30px;border-radius:999px;border:none;background:#2A6BDB;box-shadow:0 8px 24px rgba(42,107,219,.4);color:#fff;font:inherit;font-weight:500;font-size:14px;cursor:pointer">Entsperren</button>
 </div>
 <script>
 (function(){
@@ -1382,7 +1476,7 @@
         <div class="flag">Doppelzählung beachten: Sind Fenster, Dämmung und Heizung bereits über die Modernisierungspunkte
           in Abschnitt ② erfasst, wirkt die energetische Qualität dort schon über die Restnutzungsdauer auf den Substanzwert.
           Dieser Zu-/Abschlag ist dann zurückhaltend anzusetzen (oder nur auf den Ertrags-/Vergleichswertanteil zu beziehen)
-          und im Bericht zu begründen.</p>
+          und im Bericht zu begründen.</div>
 
         <h3>7e.1 · Energetischer Zustand</h3>
         <div class="grid four">
@@ -3033,6 +3127,7 @@ function compute(){
   let mittel=vwAktiv?((1-gv)*mittelBasis+gv*vergleichWert):mittelBasis;
   /* ---- Energetische Qualitaet (SS 8 Abs. 3 ImmoWertV) ---- */
   let enAktiv=$('en_aktiv').checked, enModus=$('en_modus').value;
+  $('en_body').style.opacity=enAktiv?1:.4;
   let enKennwert=num('en_kennwert');
   if(enKennwert>0 && !$('en_klasse').dataset.manuell) $('en_klasse').value=enKlasseAusKennwert(enKennwert);
   let enStufen=enIdx($('en_klasse').value)-enIdx($('en_ref_klasse').value);   /* positiv = schlechter als Referenz */
@@ -3077,6 +3172,7 @@ function compute(){
 
   /* ---- Beleihungswert nach BelWertV ---- */
   let bwAktiv=$('bw_aktiv').checked;
+  $('bw_body').style.opacity=bwAktiv?1:.4;   /* wie PV: ausgeschaltete Abschnitte gedimmt */
   let bwWohnen=$('bw_nutzung').value==='wohnen';
   let bwZinsMin=num('bw_bund')+(bwWohnen?3:4);
   let bwSpanneMin=bwWohnen?3.5:4.5, bwSpanneMax=bwWohnen?5.5:6.5;
@@ -5062,7 +5158,7 @@ function themeApply(t){
   document.documentElement.setAttribute('data-theme',t);
   try{ localStorage.setItem('ia_theme',t); }catch(e){}
   document.querySelectorAll('[data-ic="moon"],[data-ic="sun"]').forEach(b=>{ b.dataset.ic=(t==='dark'?'sun':'moon'); b.title=(t==='dark'?'Hellmodus':'Dunkelmodus'); let s=b.querySelector(':scope>svg.ic-svg'); if(s)s.remove(); iconify(b); });
-  let m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=(t==='dark'?'#232220':'#FFFFFF');
+  let m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=(t==='dark'?'#0B1422':'#FFFFFF');
 }
 function themeToggle(){ themeApply(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
 
