@@ -78,3 +78,9 @@ Abweichung zwischen Substanz- und Ertragswert wurde **wieder entfernt**, weil si
 strukturell falsch anschlägt und damit alle übrigen Hinweise entwertet hätte; und echte
 Push-Benachrichtigungen wurden **nicht** gebaut, weil sie ohne Server nicht zuverlässig funktionieren —
 stattdessen die verlässliche In-App-Liste.
+
+**2026-09-28, Raumliste nach WoFlV:** Im Aufnahmebogen gibt es jetzt eine Raumliste mit Anrechnung nach § 4 WoFlV
+(am Verordnungswortlaut geprüft: ab 2 m voll, 1–2 m halb, unter 1 m nicht; Balkone und Terrassen in der Regel ein
+Viertel, höchstens die Hälfte; Zubehörräume nach § 2 Abs. 3 gar nicht; kein pauschaler Putzabzug). Die Wohnfläche
+in den Eckdaten bleibt frei eintragbar — die Übernahme aus der Liste ist ein Schalter, und beim Ausschalten bleibt
+der Wert stehen und ist wieder änderbar. Am Handy erscheint jeder Raum als Karte statt als Tabelle.

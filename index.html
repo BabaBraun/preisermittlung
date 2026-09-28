@@ -649,6 +649,47 @@
     body.cp-open aside.result .cp-card{border-radius:28px;box-shadow:var(--shadow-lg)}
     .card{padding:20px 18px;border-radius:24px}
   }
+
+  /* Raumliste */
+  .feld-info{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .feld-info:empty{display:none}
+  .feld-info a{color:var(--accent);font-weight:500;text-decoration:none}
+  input.aus-raumliste{background:var(--tint);border-color:var(--tint-b);cursor:default}
+  #rl_tbl td,#rl_tbl th{text-align:left}
+  #rl_tbl td:nth-child(3),#rl_tbl th:nth-child(3),#rl_tbl td:nth-child(5),#rl_tbl th:nth-child(5),#rl_tbl tfoot th{text-align:right}
+  #rl_tbl input,#rl_tbl select{height:34px;font-size:13px}
+  #rl_tbl select{padding:0 28px 0 10px;background-position:right 8px center}
+  #rl_tbl td:first-child input{min-width:150px}
+  #rl_tbl td:nth-child(2) select{min-width:92px}
+  #rl_tbl td:nth-child(3) input{min-width:110px;text-align:right}
+  #rl_tbl td:nth-child(4) select{min-width:230px}
+  #rl_tbl .rl-erg{white-space:nowrap}
+  #rl_tbl .rl-von{display:block;font-size:11px;color:var(--muted);font-weight:400}
+  /* Am Handy: jeder Raum als Karte statt einer Tabelle, die man seitlich schieben muss */
+  @media(max-width:640px){
+    #rl_tbl{display:block;overflow:visible;white-space:normal;border:0;border-radius:0;background:none}
+    #rl_tbl thead{display:none}
+    #rl_tbl tbody{display:grid;gap:10px}
+    #rl_tbl tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;padding:12px;border:1px solid var(--line-soft);border-radius:var(--rs);background:var(--surface-2)}
+    #rl_tbl tbody td{display:block;padding:0;border:0;text-align:left;min-width:0}
+    #rl_tbl tbody td:nth-child(1),#rl_tbl tbody td:nth-child(4),#rl_tbl tbody td:nth-child(5){grid-column:1/-1}
+    #rl_tbl tbody td:nth-child(2)::before{content:'Geschoss'}
+    #rl_tbl tbody td:nth-child(3)::before{content:'Grundfläche'}
+    #rl_tbl tbody td:nth-child(4)::before{content:'Anrechnung § 4 WoFlV'}
+    #rl_tbl tbody td:nth-child(2)::before,#rl_tbl tbody td:nth-child(3)::before,#rl_tbl tbody td:nth-child(4)::before{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin:0 0 4px 2px;text-align:left}
+    #rl_tbl input,#rl_tbl select,#rl_tbl td:first-child input,#rl_tbl td:nth-child(2) select,#rl_tbl td:nth-child(3) input,#rl_tbl td:nth-child(4) select{width:100%;min-width:0;height:44px;font-size:15px}
+    #rl_tbl tbody td.rl-erg{display:flex;align-items:baseline;gap:8px;white-space:normal;padding-top:8px;border-top:1px solid var(--line-soft)}
+    #rl_tbl tbody td.rl-erg::before{content:'Wohnfläche';font-size:12px;color:var(--text-2);margin-right:auto;order:-2}
+    #rl_tbl tbody td.rl-erg .rl-von{display:inline;order:-1}
+    #rl_tbl tfoot{display:block;margin-top:10px}
+    #rl_tbl tfoot tr{display:grid;grid-template-columns:auto 1fr 1fr;align-items:end;gap:10px;padding:12px 14px;border-radius:var(--rs);background:var(--tint)}
+    #rl_tbl tfoot th{display:block;padding:0;border:0;background:none;text-align:right}
+    #rl_tbl tfoot th:nth-child(1){text-align:left}
+    #rl_tbl tfoot th:nth-child(3){display:none}
+    #o_rl_grund::before{content:'Grundfläche'}
+    #o_rl_wfl::before{content:'Wohnfläche'}
+    #o_rl_grund::before,#o_rl_wfl::before{display:block;font-size:10.5px;font-weight:500;opacity:.8}
+  }
 </style>
 </head>
 <body>
@@ -977,7 +1018,7 @@
 
       <div class="grid" style="margin-top:14px">
         <div class="group-title">Flächen &amp; Baujahr</div>
-        <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"></div>
+        <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"><span class="feld-info" id="rl_eck_hint"></span></div>
         <div class="field"><label>Gewerbe-/Nutzfläche <span class="u">m²</span></label><input id="ek_nutzflaeche" type="text" value="0"></div>
         <div class="field"><label>Baujahr Hauptgebäude</label><input id="ek_baujahr" type="text" value="0"></div>
         <div class="field"><label>Letzte Sanierung <span class="u">(Jahr, optional)</span></label><input id="ek_sanierung" type="text" placeholder="z.B. 2018"></div>
@@ -1026,6 +1067,22 @@
         <div class="field"><label>Dachgeschoss</label><select id="au_dg"><option>–</option><option>ausgebaut</option><option>ausbaufähig</option><option>nicht ausgebaut</option><option>Flachdach</option></select></div>
         <div class="field"><label>Balkon / Terrasse</label><input id="au_balkon" placeholder="z.B. Balkon Süd 8 m²"></div>
       </div>
+
+      <h3>Raumliste &amp; Wohnfläche nach WoFlV</h3>
+      <p class="hint">Grundfläche je Raum nach lichten Maßen ab Vorderkante der Bekleidung (§ 3 WoFlV), ohne pauschalen
+        Putzabzug. Fläche direkt eintragen oder als Länge × Breite, z.&nbsp;B. <b>4,20 x 3,55</b>. Räume mit Dachschräge in zwei
+        Zeilen teilen: der Teil ab 2&nbsp;m lichter Höhe zählt voll, der Teil zwischen 1 und 2&nbsp;m zur Hälfte. Den Grundriss aus
+        einer Scan-App als Bild unter ⑧&nbsp;Fotos → Karten &amp; Pläne anhängen.</p>
+      <label class="toggle no-print"><input type="checkbox" id="rl_aktiv" onchange="compute()"> Wohnfläche aus der Raumliste übernehmen</label>
+      <p class="hint no-print" id="rl_modus_hint" style="margin-top:-4px"></p>
+      <table class="nhk" id="rl_tbl">
+        <thead><tr><th>Raum</th><th>Geschoss</th><th>Grundfläche</th><th>Anrechnung § 4 WoFlV</th><th>Wohnfläche m²</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th colspan="2" style="text-align:right">Summe</th><th id="o_rl_grund">–</th><th></th><th id="o_rl_wfl">–</th></tr></tfoot>
+      </table>
+      <input type="hidden" id="rl_visible" value="5">
+      <datalist id="rl_raeume"></datalist>
+      <button class="plus no-print" onclick="addRLRow()">＋ weiterer Raum</button>
 
       <h3>Technik &amp; Ausstattung</h3>
       <div class="grid four">
@@ -1526,7 +1583,7 @@
       <input type="file" id="file_schaden" accept="image/*" multiple capture="environment" style="display:none" onchange="addPhotos(this.files,'schaden')">
       <div class="gallery" id="gal_schaden"></div>
 
-      <h3 style="margin-top:18px">Karten &amp; Pläne <span class="u" style="font-weight:400">(Lageplan, Bodenrichtwertkarte, FNP-/B-Plan-Auszug, Flurkarte)</span></h3>
+      <h3 style="margin-top:18px">Karten &amp; Pläne <span class="u" style="font-weight:400">(Grundriss, Lageplan, Bodenrichtwertkarte, FNP-/B-Plan-Auszug, Flurkarte)</span></h3>
       <div class="drop no-print" onclick="document.getElementById('file_karte').click()">🗺 Karten &amp; Pläne hier klicken zum Hinzufügen (Screenshot aus BORIS-BW, Geoportal …)</div>
       <input type="file" id="file_karte" accept="image/*" multiple capture="environment" style="display:none" onchange="addPhotos(this.files,'karte')">
       <div class="gallery" id="gal_karte"></div>
@@ -2699,6 +2756,145 @@ function computeMietspiegel(){
 }
 
 /* ---------- Wertkorrekturen § 8 Abs. 3 ---------- */
+/* ---------- Raumliste und Wohnfläche nach WoFlV --------------------------------------
+   Anrechnung nach § 4 WoFlV (am Verordnungswortlaut geprüft):
+     lichte Höhe ab 2 m voll, 1 bis unter 2 m zur Hälfte, unter 1 m gar nicht;
+     unbeheizbare Wintergärten und Schwimmbäder zur Hälfte;
+     Balkone, Loggien, Dachgärten, Terrassen in der Regel zu einem Viertel, höchstens zur Hälfte.
+   Zubehörräume (Keller, Abstellräume außerhalb der Wohnung, Waschküche, Heizung, Garage)
+   zählen nach § 2 Abs. 3 nicht. Kein pauschaler Putzabzug (§ 3).
+   Steht bei den übrigen Tabellen-Bausteinen, weil compute() die Liste beim ersten Lauf braucht. */
+const N_RL=24;
+const RL_FAKTOREN=[
+  ['voll',   1,    '100 % — lichte Höhe ab 2 m'],
+  ['halb',   0.5,  '50 % — lichte Höhe 1 bis unter 2 m'],
+  ['null',   0,    '0 % — lichte Höhe unter 1 m'],
+  ['wg',     0.5,  '50 % — unbeheizter Wintergarten, Schwimmbad'],
+  ['bal',    0.25, '25 % — Balkon, Loggia, Terrasse (Regelfall)'],
+  ['balmax', 0.5,  '50 % — Balkon, Terrasse (Höchstsatz, begründen)'],
+  ['zub',    0,    '0 % — Zubehörraum (Keller, Waschküche, Heizung, Garage)']
+];
+const RL_RAEUME=['Wohnzimmer','Esszimmer','Wohn-/Esszimmer','Küche','Schlafzimmer','Kinderzimmer','Arbeitszimmer',
+  'Gästezimmer','Ankleide','Bad','Duschbad','Gäste-WC','Flur','Diele','Abstellraum','Hauswirtschaftsraum',
+  'Balkon','Loggia','Terrasse','Dachterrasse','Wintergarten (beheizt)','Wintergarten (unbeheizt)',
+  'Kellerraum','Abstellraum außerhalb der Wohnung','Waschküche','Heizungsraum','Garage','Dachboden'];
+const RL_GESCHOSSE=['KG','EG','1. OG','2. OG','3. OG','DG','Spitzboden'];
+
+function rlFaktor(key){ let f=RL_FAKTOREN.find(x=>x[0]===key); return f?f[1]:1; }
+function rlFaktorText(key){ let f=RL_FAKTOREN.find(x=>x[0]===key); return f?f[2]:RL_FAKTOREN[0][2]; }
+/* Fläche direkt ("14,7") oder als Länge × Breite ("4,20 x 3,50", auch * oder ×) */
+function rlFlaeche(s){
+  s=(''+(s||'')).trim(); if(!s) return 0;
+  let teile=s.split(/\s*[x×*]\s*/i).filter(t=>t!=='');
+  if(teile.length===2) return parseNum(teile[0])*parseNum(teile[1]);
+  return parseNum(s);
+}
+function buildRaumliste(){
+  let tb=$('rl_tbl'); if(!tb) return;
+  tb=tb.querySelector('tbody'); tb.innerHTML='';
+  let fOpts=RL_FAKTOREN.map(f=>'<option value="'+f[0]+'">'+f[2]+'</option>').join('');
+  let gOpts='<option value=""></option>'+RL_GESCHOSSE.map(g=>'<option>'+g+'</option>').join('');
+  for(let i=0;i<N_RL;i++){
+    tb.insertAdjacentHTML('beforeend',
+      '<tr id="rl_row'+i+'">'
+      +'<td><input id="rl_name'+i+'" type="text" list="rl_raeume" placeholder="Raum" aria-label="Raum '+(i+1)+': Bezeichnung" style="text-align:left" oninput="rlVorschlag('+i+')"></td>'
+      +'<td><select id="rl_gesch'+i+'" aria-label="Raum '+(i+1)+': Geschoss">'+gOpts+'</select></td>'
+      +'<td><input id="rl_fl'+i+'" type="text" placeholder="m² oder L x B" aria-label="Raum '+(i+1)+': Grundfläche"></td>'
+      +'<td><select id="rl_faktor'+i+'" aria-label="Raum '+(i+1)+': Anrechnung" onchange="this.dataset.manuell=\'1\'">'+fOpts+'</select></td>'
+      +'<td id="rl_wfl'+i+'" class="rl-erg">–</td></tr>');
+  }
+  let dl=$('rl_raeume'); if(dl) dl.innerHTML=RL_RAEUME.map(r=>'<option value="'+r+'">').join('');
+}
+/* Anrechnung aus der Raumbezeichnung vorschlagen — nur solange der Faktor noch auf dem
+   Standard steht und nicht von Hand gewählt wurde */
+function rlVorschlag(i){
+  let sel=$('rl_faktor'+i); if(!sel||sel.dataset.manuell||sel.value!=='voll') return;
+  let n=($('rl_name'+i).value||'').toLowerCase();
+  let v=null;
+  if(/balkon|loggia|terrasse|dachgarten/.test(n)) v='bal';
+  else if(/unbeheiz|schwimmbad|pool/.test(n)) v='wg';
+  else if(/keller|waschk(ü|ue)che|heizungs|heizraum|garage|dachboden|bodenraum|trockenraum|au(ß|ss)erhalb/.test(n)) v='zub';
+  if(v) sel.value=v;
+}
+function renderRLRows(){
+  let vis=Math.max(5,Math.min(N_RL,parseInt(num('rl_visible'))||5));
+  for(let i=0;i<N_RL;i++){
+    let r=$('rl_row'+i); if(!r) continue;
+    let hat=(($('rl_name'+i).value||'').trim()!=='')||(($('rl_fl'+i).value||'').trim()!=='');
+    r.style.display=(i<vis||hat)?'':'none';
+  }
+}
+function addRLRow(){
+  let vis=Math.max(5,Math.min(N_RL,parseInt(num('rl_visible'))||5));
+  $('rl_visible').value=Math.min(vis+1,N_RL); renderRLRows();
+  let neu=$('rl_name'+Math.min(vis,N_RL-1)); if(neu) neu.focus();
+}
+function rlDaten(){
+  let zeilen=[], grund=0, wfl=0;
+  for(let i=0;i<N_RL;i++){
+    if(!$('rl_fl'+i)) break;
+    let g=rlFlaeche($('rl_fl'+i).value); if(!(g>0)) continue;
+    let key=$('rl_faktor'+i).value, f=rlFaktor(key);
+    zeilen.push({i:i, name:($('rl_name'+i).value||'').trim()||('Raum '+(i+1)), gesch:$('rl_gesch'+i).value,
+      grund:g, key:key, faktor:f, wfl:g*f, ausdruck:/[x×*]/i.test($('rl_fl'+i).value)});
+    grund+=g; wfl+=g*f;
+  }
+  return {zeilen:zeilen, grund:grund, wfl:wfl};
+}
+/* Läuft am Anfang von compute(): Summen bilden und — nur wenn der Schalter an ist —
+   die Wohnfläche der Eckdaten füllen. Sonst bleibt das Eckdatenfeld frei beschreibbar. */
+function raumlisteSync(){
+  if(!$('rl_name0')) return;
+  let d=rlDaten();
+  for(let i=0;i<N_RL;i++){
+    let z=d.zeilen.find(x=>x.i===i), zelle=$('rl_wfl'+i); if(!zelle) continue;
+    if(!z){ zelle.textContent='–'; continue; }
+    zelle.innerHTML='<b>'+num2(z.wfl)+'</b>'+((z.faktor!==1||z.ausdruck)?'<span class="rl-von">von '+num2(z.grund)+' m²</span>':'');
+  }
+  let n=d.zeilen.length;
+  setT('o_rl_grund', n?num2(d.grund)+' m²':'–');
+  setT('o_rl_wfl', n?num2(d.wfl)+' m²':'–');
+  let aktiv=$('rl_aktiv').checked, feld=$('ek_wohnflaeche');
+  let uebernehmen=aktiv&&n>0;
+  if(uebernehmen) feld.value=num2(d.wfl);
+  feld.readOnly=uebernehmen;
+  feld.classList.toggle('aus-raumliste',uebernehmen);
+  feld.title=uebernehmen?'Wird aus der Raumliste im Aufnahmebogen übernommen':'';
+  let manuell=num('ek_wohnflaeche'), hint='';
+  if(uebernehmen) hint='Die Wohnfläche in den Eckdaten wird aus dieser Liste übernommen. Zum freien Eintragen den Schalter ausschalten — der Wert bleibt dann stehen und ist wieder änderbar.';
+  else if(aktiv) hint='Noch keine Räume mit Fläche erfasst — bis dahin gilt der in den Eckdaten eingetragene Wert.';
+  else if(n&&manuell>0){
+    let abw=(d.wfl-manuell)/manuell*100;
+    hint='Die Raumliste ergibt '+num2(d.wfl)+' m², in den Eckdaten stehen '+num2(manuell)+' m²'
+      +(Math.abs(abw)>=0.5?' — Abweichung '+(abw>0?'+':'')+num2(abw)+' %.':' — stimmt überein.');
+  }
+  else if(n) hint='Die Raumliste ergibt '+num2(d.wfl)+' m². Mit dem Schalter wird sie als Wohnfläche übernommen.';
+  else hint='Die Wohnfläche wird in den Eckdaten frei eingetragen. Wer Raum für Raum misst, erfasst die Räume hier und schaltet die Übernahme ein.';
+  setT('rl_modus_hint',hint);
+  let eh=$('rl_eck_hint');
+  if(eh){
+    if(uebernehmen) eh.innerHTML='aus der Raumliste (①b) · <a href="#" onclick="rlZurListe();return false;">ansehen</a>';
+    else if(n) eh.innerHTML='Raumliste: '+num2(d.wfl)+' m² · <a href="#" onclick="rlUebernehmen();return false;">übernehmen</a>';
+    else eh.innerHTML='';
+  }
+  renderRLRows();
+}
+function rlUebernehmen(){ $('rl_aktiv').checked=true; compute(); autosave(); }
+function rlZurListe(){ let t=$('rl_tbl'); if(t) t.scrollIntoView({behavior:'smooth',block:'center'}); }
+/* Bericht: Aufstellung nach WoFlV, mit Hinweis ob die angesetzte Wohnfläche daraus stammt */
+function raumlisteBericht(esc){
+  let d=rlDaten(); if(!d.zeilen.length) return '';
+  let zeilen=d.zeilen.map(z=>'<tr><td>'+esc(z.name)+(z.gesch?' <span style="color:#5E6F88">('+esc(z.gesch)+')</span>':'')+'</td>'
+    +'<td>'+num2(z.grund)+' m²</td><td>'+esc(rlFaktorText(z.key).split(' — ')[0])+'</td><td>'+num2(z.wfl)+' m²</td></tr>').join('');
+  let angesetzt=num('ek_wohnflaeche'), ausListe=$('rl_aktiv').checked;
+  let satz= ausListe ? 'Die angesetzte Wohnfläche von '+num2(angesetzt)+' m² ist dieser Aufstellung entnommen.'
+    : (angesetzt>0 && Math.abs(angesetzt-d.wfl)>=0.01 ? 'Angesetzt wurde abweichend eine Wohnfläche von '+num2(angesetzt)+' m² (lt. Eckdaten).' : '');
+  return '<h3>Wohnflächenberechnung nach WoFlV</h3><table>'
+    +'<tr><td><b>Raum</b></td><td><b>Grundfläche</b></td><td><b>Anrechnung</b></td><td><b>Wohnfläche</b></td></tr>'
+    +zeilen+'<tr class="total"><td>Summe</td><td>'+num2(d.grund)+' m²</td><td></td><td>'+num2(d.wfl)+' m²</td></tr></table>'
+    +'<div class="beschr">Grundflächen nach lichten Maßen (§ 3 WoFlV), Anrechnung nach § 4 WoFlV.'+(satz?' '+satz:'')+'</div>';
+}
+
 const N_WK=14;
 const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
   ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
@@ -2938,6 +3134,7 @@ function buildRefTable(){
 
 /* ---------- MAIN ---------- */
 function compute(){
+  raumlisteSync();   /* zuerst: füllt ggf. die Wohnfläche, die alles Weitere liest */
   let istWohnung = modus()==='wohnung';
   // Bodenwert (Anteil I + optionale Anteile II/III) — bei Wohnung im Vergleichspreis enthalten
   let bodenwert = 0;
@@ -3435,6 +3632,8 @@ function druckbericht(){
     if(auBt.length) auBlock+='<h3>Besondere Bauteile</h3><div class="beschr">'+esc(auBt.join(' · '))+'</div>';
     auBlock+=bt('Mängel / Auffälligkeiten','au_maengel')+bt('Sonstige Notizen','au_notizen');
   }
+  let rlBlock=raumlisteBericht(esc);
+  if(rlBlock){ if(!auBlock) auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>'; auBlock+=rlBlock; }
   let ulSt=unterlagenStatus();
   if(ulSt.da.length) auBlock+='<h3>Vorliegende Unterlagen</h3><div class="beschr">'+esc(ulSt.da.join(' · '))
     +(ulSt.fehlt.length?'\nNicht vorgelegt: '+esc(ulSt.fehlt.join(' · ')):'')+'</div>';
@@ -3758,6 +3957,7 @@ buildUnterlagen();
 buildVergleich();
 buildMietspiegel();
 buildWK();
+buildRaumliste();
 buildRefTable();
 buildNav();
 document.addEventListener('input',compute);
