@@ -164,4 +164,9 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   Interessenten („passt“ bzw. „passt fast“ mit Begründung, geprüfte Finanzierung zuerst) mit „Angebot vermerken“,
   in der Akte die passenden Objekte aus Projekten und offener Bewertung. Kundenliste mit Filter
   „Kaufinteressenten“. Präsentationsfolie „Vorgemerkte Käufer“ nur mit Anzahlen.
+- **B3 Vermarktung und Eigentümer-Bericht — erledigt.** Abschnitt ⑬: Stand (Akquise bis Verkauft), Marktbeginn,
+  Angebotspreis, Protokoll mit Rückmeldungen der Interessenten (Besichtigungen bekannter Kunden landen auch in deren
+  Akte), Kennzahlen und häufigste Einwände. Eigentümer-Bericht ohne Interessentennamen mit Empfehlung der App (z. B.
+  Preisüberprüfung ab 40 % „Preis zu hoch“ bei mindestens fünf Besichtigungen), teilbar als PDF. Übersicht aller
+  Objekte in Vermarktung mit fälligen Berichten (älter als sieben Tage), Hinweis auf der Startseite.
 
