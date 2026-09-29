@@ -84,3 +84,10 @@ stattdessen die verlässliche In-App-Liste.
 Viertel, höchstens die Hälfte; Zubehörräume nach § 2 Abs. 3 gar nicht; kein pauschaler Putzabzug). Die Wohnfläche
 in den Eckdaten bleibt frei eintragbar — die Übernahme aus der Liste ist ein Schalter, und beim Ausschalten bleibt
 der Wert stehen und ist wieder änderbar. Am Handy erscheint jeder Raum als Karte statt als Tabelle.
+
+**2026-09-29, Grundrisse (D6):** Grundrisse werden von Claude aus Foto oder PDF gelesen und als Code in die
+App eingefügt. Die App zeichnet sie maßstabsgetreu in vier Darstellungen (Raumaufteilung, Raumumrisse mit
+Maßen, Architektenplan, mit Einrichtung) und fragt beim Anlegen jedes Mal, welche. Die Räume gehen mit der
+Fläche laut Plan in die Raumliste, die Pläne erscheinen im Aufnahmebogen, bei den Fotos, im Bericht und im
+Word-Export. Offen: Test mit echten Plänen des Nutzers; ein Zeichen-Editor in der App wurde bewusst
+zurückgestellt (Räume sind bearbeitbar, Wände und Maße laufen über den Code).

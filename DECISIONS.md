@@ -103,3 +103,25 @@ wäre entweder eine Sicherheitslücke (Umgehung der Sperre) oder unverhältnism�
 lokales Gate; die Einrichtung weist deshalb ausdrücklich darauf hin, vorher eine Sicherung anzulegen. Eine
 vollständige Verschlüsselung der IndexedDB-Inhalte wäre der nächste, deutlich aufwendigere Schritt und wird
 in der Roadmap als spätere Ausbaustufe vermerkt, nicht jetzt umgesetzt.
+
+---
+
+## D6 (2026-09-29) — Grundrisse: Claude liest das Bild, die App zeichnet aus einem Datenformat
+
+**Entscheidung:** Die App erkennt Grundrisse nicht selbst. Den fotografierten Plan liest Claude außerhalb der
+App (claude.ai-Projekt, Claude-App am Handy oder Claude Code am PC) nach `GRUNDRISS-ANLEITUNG.md` und gibt
+einen JSON-Code aus. Die App liest diesen Code, zeichnet daraus den Plan als SVG in vier Darstellungen und
+übernimmt die Räume in die Raumliste. Gespeichert wird der Code des Geschosses, nicht die Zeichnung.
+
+**Begründung:** Eine Bilderkennung in der App bräuchte entweder einen Server mit KI-Zugang (widerspricht D2,
+dazu ein API-Schlüssel, der in einer öffentlichen App nicht sicher abzulegen ist) oder eine Erkennung im
+Browser, die Maßzahlen und Wände aus Fotos nicht verlässlich genug liest. Das Datenformat trennt die zwei
+Aufgaben sauber: Lesen (fehleranfällig, braucht Rückfragen und Prüfsummen) und Zeichnen (deterministisch,
+prüfbar). Weil die Zeichnung erst beim Anzeigen entsteht, lassen sich alle vier Darstellungen aus denselben
+Daten erzeugen, Korrekturen laufen über den Code, und der Plan ist wenige KB groß statt eines Bildes.
+
+**Grenzen:** Genau wird der Plan nur so weit, wie die Maße im Original stehen. Ohne Maße ist er
+proportional und wird als „nicht maßstäblich“ gekennzeichnet, bis ein bekanntes Maß eingetragen ist.
+Die Raumliste übernimmt auf Wunsch des Nutzers die Fläche laut Plan; die aus den Maßen berechnete Fläche
+dient als Kontrolle (Markierung ab 3 % Abweichung). Das Foto geht an Anthropic — deshalb der Hinweis, den
+Plankopf mit Eigentümer und Adresse abzudecken.
