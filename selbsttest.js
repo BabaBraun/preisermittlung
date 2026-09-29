@@ -92,6 +92,19 @@ window.iaSelbsttest=function(){
     pruef('Bausteine','Raumfläche „4,20 x 3,55“',rlFlaeche('4,20 x 3,55'),14.91,1e-9);
   });
 
+  sicher('Förderung','Aufruf',()=>{
+    // Stand: BAFA BEG EM Gebäudehülle 07/2026, KfW 458 Merkblatt 09/2026 — Antrag am 01.10.2026 bzw. 01.09.2027
+    const o=(x)=>Object.assign({we:1,isfp:false,selbst:true,eink:'',kind:false,heizung:'gas',heizAlter:25,datum:new Date('2026-10-01T12:00:00')},x);
+    pruef('Förderung','Hülle 41.550 € ohne iSFP: 15 % von höchstens 30.000 €',sanFoerderung(41550,0,o()).huelle,4500,0.01);
+    pruef('Förderung','Hülle 41.550 € mit iSFP: 15 % + 5 % auf den Teil über 30.000 €',sanFoerderung(41550,0,o({isfp:true})).huelle,6810,0.01);
+    pruef('Förderung','Wärmepumpe 33.000 €, Gaskessel 25 J, selbstgenutzt: 46 % von 28.000 €',sanFoerderung(0,33000,o()).heizung,12880,0.01);
+    pruef('Förderung','… mit Einkommen bis 30.000 €: Deckel 80 %',sanFoerderung(0,33000,o({eink:'30'})).heizung,22400,0.01);
+    pruef('Förderung','… vermietet: nur Grundförderung 30 %',sanFoerderung(0,33000,o({selbst:false})).heizung,8400,0.01);
+    pruef('Förderung','… Gaskessel erst 12 Jahre alt: kein Klimageschwindigkeitsbonus',sanFoerderung(0,33000,o({heizAlter:12})).heizung,8400,0.01);
+    pruef('Förderung','… Antrag 01.09.2027: 38 % von 26.500 €',sanFoerderung(0,33000,o({datum:new Date('2027-09-01T12:00:00')})).heizung,10070,0.01);
+    pruef('Förderung','Förderfähige Kosten erste WE ab 01.08.2028',sanHeizCap1(new Date('2028-08-01T12:00:00')),25000,0);
+  });
+
   sicher('Grundriss','Aufruf',()=>{
     let N=grNorm(GRUNDRISS);
     pruef('Grundriss','Wohnfläche laut Plan mit Terrasse zu 25 %',grSumme(N).wfl,77.90,0.005);

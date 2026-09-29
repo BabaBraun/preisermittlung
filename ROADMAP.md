@@ -145,4 +145,8 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   Verwaltung der Marktberichte mit Modell und Tabellen; Modellkonformität nach § 10 ImmoWertV mit Warnung
   in der Plausibilitätsprüfung; Berichtsabschnitt „Datengrundlagen und Modellkonformität“. Nebenbei behoben:
   Der Projektname in der Kopfzeile überlappte bei rund 1.200 px Breite das Suchfeld.
+- **A2 Sanierungsweg — erledigt.** Abschnitt ⑦f: Ausgangslage, sechs Maßnahmen mit Richtwerten (überschreibbar),
+  Förderung nach BAFA BEG EM Gebäudehülle (Stand 07/2026) und KfW 458 (Merkblatt 09/2026) inklusive der
+  datumsabhängigen Absenkungen ab 2027, Effizienzklasse vorher/nachher, Heizkosten, grobe Wertwirkung;
+  Berichtsabschnitt „Sanierungsweg“; acht neue Prüfungen im Selbsttest (jetzt 54).
 
