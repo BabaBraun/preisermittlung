@@ -35,7 +35,7 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 | # | Was | Kategorie | Begründung |
 |---|---|---|---|
 | 16 | [x] Beleihungswert nach BelWertV inkl. Sicherheitsabschläge | Bewertung (C) | Größte fachliche Lücke; eigenes Regelwerk (§§ 4–7, 16 ff. BelWertV), braucht sorgfältige, separate Umsetzung |
-| 17 | [ ] Exposé-Generator (Vertriebsdokument, nicht Bewertungsbericht) | Berater-Feature (D) | Eigenständiges Layout, eigene Textbausteine, Fotoauswahl getrennt vom Wertermittlungsbericht |
+| 17 | [x] Exposé-Generator (Vertriebsdokument, nicht Bewertungsbericht) — 2026-09-29 | Berater-Feature (D) | Eigenständiges Layout, eigene Textbausteine, Fotoauswahl getrennt vom Wertermittlungsbericht |
 | 18 | [ ] Kundenakte (mehrere Objekte/Vorgänge je Kunde, Historie) | Berater-Feature (D) | Geht über die heutige „ein Bewertungsstand = ein Projekt"-Logik hinaus, braucht ein neues Datenmodell |
 | 19 | [ ] compute() modularisieren (ein Verfahren = eine Funktion) | Code-Qualität | Kein Nutzerwert direkt sichtbar, aber Voraussetzung, um Phase-3-Verfahren wie BelWertV sauber einzuhängen |
 | 20 | [x] Automatisierte Regressionstests für die Rechenkerne (Selbsttest, 2026-09-29) | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
@@ -109,3 +109,10 @@ Berichtsabschnitte, Kundenakte):
   zwei vollständige Referenzbewertungen (Wohnhaus mit PV, Energie und Beleihungswert; Eigentumswohnung).
   Alle Sollwerte unabhängig nachgerechnet; ein eingebauter Fehler von 0,1 % im Barwertfaktor schlägt an
   12 Stellen an. Die offene Bewertung bleibt beim Test unverändert.
+- **3. Exposé — erledigt.** Abschnitt ⑪ mit Titel- und Textvorschlägen aus der Bewertung, Kaufpreis bewusst
+  als eigene Eingabe (Preisempfehlung nur als Vorschlag), Fotoauswahl mit Titelbild (Schadensfotos
+  abgewählt), Grundrisse in wählbarer Darstellung, Ansprechpartner (auf Wunsch gemerkt) und die
+  Pflichtangaben zum Energieausweis nach § 87 GModG — am Wortlaut geprüft; das GEG heißt inzwischen
+  Gebäudemodernisierungsgesetz, § 87 ist unverändert. Die Angaben werden nur aus eindeutig erfassten Quellen
+  übernommen, eine Prüfung meldet fehlende Pflichtangaben. Ausgabe als eigenes Dokument (ohne Bewertungszahlen,
+  ohne Straße, wenn nicht gewünscht) zum Ansehen, Drucken und als PDF.

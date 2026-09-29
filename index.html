@@ -776,6 +776,56 @@
   .pj-sicherung-k{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .pj-sicherung-k button{margin-left:0!important}
   .start-pj-backup{color:var(--warn)!important;margin-top:6px}
+
+  /* Exposé: Auswahl im Formular */
+  .ex-fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:8px 0 4px}
+  .ex-foto{position:relative;display:block;border-radius:12px;overflow:hidden;border:2px solid var(--line);cursor:pointer;background:var(--surface-2)}
+  .ex-foto.on{border-color:var(--accent)}
+  .ex-foto img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;opacity:.45;transition:opacity .15s}
+  .ex-foto.on img{opacity:1}
+  .ex-foto input{position:absolute;top:8px;left:8px;width:20px;height:20px}
+  .ex-foto .nr{position:absolute;top:7px;right:8px;background:var(--accent-btn);color:#fff;border-radius:999px;font-size:11px;padding:2px 8px;font-weight:600}
+  .ex-foto small{display:block;padding:5px 8px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ex-foto .ex-titel-k{position:absolute;top:6px;right:6px;padding:3px 9px;font-size:11px;background:rgba(255,255,255,.92);color:#1D5BC4;border:none;border-radius:999px}
+  .ex-pflicht{margin:10px 0 0;padding:10px 14px;border-radius:var(--rs);font-size:12.5px}
+  .ex-pflicht:empty{display:none}
+  .ex-pflicht.ok{background:var(--ok-bg);color:var(--ok)}
+  .ex-pflicht.fehlt{background:var(--warn-bg);color:var(--warn)}
+  /* Exposé: Dokument (in #report, hell wie der Bericht) */
+  #report.expose{max-width:820px;font-family:var(--sans)}
+  #report.expose .ex-leiste{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  #report.expose h1,#report.expose h2,#report.expose h3{font-family:var(--sans)}
+  #report.expose .ex-kopf{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#5E6F88;margin-bottom:10px}
+  #report.expose h1{font-size:28px;line-height:1.2;border:none;margin:0 0 6px;padding:0;color:#0F1E36;letter-spacing:-.2px}
+  #report.expose .ex-sub{font-size:15px;color:#465872;margin:0 0 16px}
+  #report.expose .ex-hero{width:100%;max-height:430px;object-fit:cover;border-radius:14px;display:block;margin:0 0 16px}
+  #report.expose .ex-preis{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 18px;border-radius:14px;background:#1D5BC4;color:#fff;margin:0 0 12px}
+  #report.expose .ex-preis span{font-size:11.5px;letter-spacing:1.2px;text-transform:uppercase;opacity:.85}
+  #report.expose .ex-preis b{font-size:26px;font-weight:700}
+  #report.expose .ex-preis small{font-size:12px;opacity:.92;margin-left:auto}
+  #report.expose .ex-fakten{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 6px}
+  #report.expose .ex-fakt{background:#F4F8FD;border:1px solid #E6EDF6;border-radius:12px;padding:9px 12px;break-inside:avoid}
+  #report.expose .ex-fakt span{display:block;font-size:10px;color:#5E6F88;text-transform:uppercase;letter-spacing:.9px}
+  #report.expose .ex-fakt b{font-size:14.5px;color:#0F1E36;font-weight:600}
+  #report.expose h2{font-size:17px;color:#1D5BC4;border-bottom:2px solid #E6EFFD;padding-bottom:6px;margin:26px 0 10px}
+  #report.expose .ex-text{font-size:13px;line-height:1.65;white-space:pre-wrap;color:#223047}
+  #report.expose ul.ex-liste{columns:2;column-gap:30px;margin:0;padding-left:18px;font-size:13px;line-height:1.75;color:#223047}
+  #report.expose ul.ex-liste li{break-inside:avoid}
+  #report.expose .ex-bilder{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  #report.expose .ex-bilder figure{margin:0;break-inside:avoid}
+  #report.expose .ex-bilder img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block}
+  #report.expose .ex-bilder figcaption{font-size:11px;color:#5E6F88;margin-top:4px}
+  #report.expose table.ex-energie td:first-child{color:#465872}
+  #report.expose .ex-kontakt{display:flex;gap:16px;align-items:center;padding:16px 18px;border-radius:14px;background:#F4F8FD;border:1px solid #E6EDF6;font-size:13px;line-height:1.55;break-inside:avoid}
+  #report.expose .ex-kontakt b{font-size:15px}
+  #report.expose .ex-kontakt .ini{width:52px;height:52px;border-radius:50%;background:#1D5BC4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:0 0 auto}
+  #report.expose .ex-hinweis{font-size:10.5px;color:#5E6F88;line-height:1.5;margin-top:24px}
+  @media(max-width:640px){
+    #report.expose .ex-fakten{grid-template-columns:1fr 1fr}
+    #report.expose ul.ex-liste{columns:1}
+    #report.expose .ex-bilder{grid-template-columns:1fr}
+    #report.expose h1{font-size:23px}
+  }
 </style>
 </head>
 <body>
@@ -884,6 +934,7 @@
         <button onclick="exportExcel()" data-ic="chart">Excel-Tabelle</button>
         <button onclick="druckeAufnahmebogen()" data-ic="printer">Aufnahmebogen drucken</button>
         <button onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste erstellen</button>
+        <button onclick="exposeAnzeigen()" data-ic="camera">Exposé</button>
         <div class="sep"></div>
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
         <div class="sep"></div>
@@ -1886,6 +1937,68 @@
       <input type="file" id="file_sig" accept="image/*" style="display:none" onchange="addSignature(this.files)">
       <div id="sig_preview" style="margin-top:10px"></div>
     </section>
+
+    <section class="card" id="s-expose" data-nav="⑪ Exposé">
+      <h2>⑪ Exposé</h2>
+      <p class="hint">Verkaufsexposé aus den erfassten Daten — ohne Bewertungszahlen. Leer gelassene Felder füllt die App aus
+        der Bewertung (grau vorgeschlagen), alles lässt sich überschreiben.</p>
+      <div class="gr-aktionen no-print"><button class="primary" onclick="exposeAnzeigen()" data-ic="file-text">Exposé ansehen</button>
+        <button class="secondary" onclick="exposeAnzeigen(true)" data-ic="download">Als PDF herunterladen</button></div>
+
+      <h3>Titel &amp; Preis</h3>
+      <div class="grid">
+        <div class="field full"><label>Titel</label><input id="ex_titel"></div>
+        <div class="field full"><label>Untertitel <span class="u">optional</span></label><input id="ex_untertitel" placeholder="z. B. Ruhige Lage mit Blick ins Grüne"></div>
+        <div class="field"><label>Kaufpreis <span class="u">€</span></label><input id="ex_preis" type="text" value=""><span class="feld-info" id="ex_preis_info"></span></div>
+        <div class="field"><label>Käuferprovision <span class="u">optional</span></label><input id="ex_provision" placeholder="z. B. 3,57 % inkl. MwSt."></div>
+        <div class="field"><label>Verfügbar ab</label><input id="ex_frei" placeholder="z. B. nach Vereinbarung"></div>
+        <div class="field"><label>Adresse im Exposé</label><select id="ex_adresse"><option value="ort">nur den Ort zeigen</option><option value="voll">vollständige Anschrift zeigen</option></select></div>
+      </div>
+
+      <h3>Texte</h3>
+      <p class="hint">Leer gelassen, übernimmt das Exposé die Beschreibungen aus ④ und die Ausstattung aus dem Aufnahmebogen.
+        Mit den Knöpfen holst du sie zum Überarbeiten hierher.</p>
+      <div class="field"><label>Objektbeschreibung</label><textarea id="ex_text_objekt" rows="5"></textarea></div>
+      <div class="field" style="margin-top:10px"><label>Ausstattung</label><textarea id="ex_text_ausstattung" rows="6"></textarea></div>
+      <div class="field" style="margin-top:10px"><label>Lage</label><textarea id="ex_text_lage" rows="4"></textarea></div>
+      <div class="field" style="margin-top:10px"><label>Sonstiges <span class="u">optional</span></label><textarea id="ex_text_sonst" rows="3"></textarea></div>
+      <div class="gr-zeile no-print"><button class="secondary" onclick="exVorschlag('objekt')">Objektbeschreibung aus ④</button>
+        <button class="secondary" onclick="exVorschlag('ausstattung')">Ausstattung aus dem Aufnahmebogen</button>
+        <button class="secondary" onclick="exVorschlag('lage')">Lage aus ④</button></div>
+
+      <h3>Bilder</h3>
+      <p class="hint">Standardmäßig sind alle Objektfotos gewählt, Schadensfotos nicht. Das erste gewählte Foto ist Titelbild.</p>
+      <div class="ex-fotos" id="ex_fotowahl"></div>
+      <input type="hidden" id="ex_fotos" value=""><input type="hidden" id="ex_titelbild" value="">
+
+      <h3>Grundrisse</h3>
+      <div class="grid"><div class="field"><label>Grundrisse im Exposé</label><select id="ex_gr">
+        <option value="plan">wie beim Grundriss gewählt</option><option value="aufteilung">Raumaufteilung</option><option value="umrisse">Raumumrisse mit Maßen</option>
+        <option value="architekt">Architektenplan</option><option value="einrichtung">Mit Einrichtung</option><option value="keine">keine Grundrisse</option></select></div></div>
+
+      <h3>Energieausweis — Pflichtangaben nach § 87 GModG (bisher GEG)</h3>
+      <p class="hint">Liegt ein Energieausweis vor, gehören diese Angaben in jede Anzeige. Leere Felder übernimmt die App aus dem
+        Aufnahmebogen und den Objektdaten, aber nur, wo die Angabe dort eindeutig erfasst ist.</p>
+      <div class="grid">
+        <div class="field"><label>Art des Energieausweises</label><select id="ex_ea_art"><option value="">aus Aufnahmebogen / Objektdaten</option><option>Bedarfsausweis</option><option>Verbrauchsausweis</option><option>liegt nicht vor</option></select></div>
+        <div class="field"><label>Endenergiebedarf bzw. -verbrauch <span class="u">kWh/(m²·a)</span></label><input id="ex_ea_wert"></div>
+        <div class="field"><label>Wesentlicher Energieträger der Heizung</label><input id="ex_ea_traeger"></div>
+        <div class="field"><label>Baujahr laut Energieausweis</label><input id="ex_ea_baujahr"></div>
+        <div class="field"><label>Energieeffizienzklasse</label><input id="ex_ea_klasse"></div>
+        <div class="field"><label>Endenergie Strom <span class="u">kWh/(m²·a), nur Nichtwohngebäude</span></label><input id="ex_ea_strom"></div>
+      </div>
+      <p class="ex-pflicht" id="ex_pflicht"></p>
+
+      <h3>Ansprechpartner</h3>
+      <div class="grid">
+        <div class="field"><label>Name</label><input id="ex_k_name"></div>
+        <div class="field"><label>Funktion</label><input id="ex_k_funktion"></div>
+        <div class="field"><label>Telefon</label><input id="ex_k_tel" type="tel"></div>
+        <div class="field"><label>E-Mail</label><input id="ex_k_mail" type="email"></div>
+        <div class="field full"><label>Unternehmen <span class="u">(steht klein über dem Titel)</span></label><input id="ex_k_firma"></div>
+      </div>
+      <label class="chk no-print" style="margin-top:8px"><input type="checkbox" id="ex_k_merken" checked> Ansprechpartner für neue Exposés merken (nur auf diesem Gerät)</label>
+    </section>
     <div style="height:40px"></div>
   </main>
 
@@ -1961,7 +2074,8 @@
     <h3>Was wird über Auftraggeber und Kunden gespeichert?</h3>
     <p style="font-size:13px;line-height:1.6">Nur das, was du selbst einträgst (z. B. der Name im Feld
       „Auftraggeber(in)“). Der Marktüberblick speichert bewusst <b>keine</b> Käufer- oder Verkäufernamen —
-      nur Objektdaten, Preise und die Datenquelle.</p>
+      nur Objektdaten, Preise und die Datenquelle. Für Exposés merkt sich die App auf Wunsch deine eigenen
+      Kontaktangaben als Ansprechpartner, ebenfalls nur auf diesem Gerät.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -2250,6 +2364,7 @@ function druckeUnterlagen(){
       +'<span class="bez">'+esc(u)+'</span>'
       +'<span class="status">'+(da?'liegt vor':'wird benötigt')+'</span></div>';
   }).join('');
+  $('report').className=''; delete $('report').dataset.pdfname;
   $('report').innerHTML=
    '<div class="runhead">'+esc(kopf)+' · Unterlagen'+(adr?' · '+esc(adr):'')+'</div>'
    +'<h1>Benötigte Unterlagen</h1>'
@@ -3957,6 +4072,201 @@ function grAnleitungZeigen(){
 ['input','change'].forEach(ev=>{ let o=$('gr_overlay'); if(o) o.addEventListener(ev,e=>e.stopPropagation()); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('gr_overlay'); if(o&&o.classList.contains('on')) grSchliessen(); } });
 
+/* ---------- Exposé ---------------------------------------------------------------------
+   Verkaufsexposé aus den erfassten Daten, bewusst ohne Bewertungszahlen. Jedes Feld in ⑪ überschreibt;
+   leer gelassene Felder füllt die App aus Eckdaten, Aufnahmebogen, Objektdaten und Beschreibung.
+   Gezeichnet wird wie der Bericht in #report (Klasse „expose“), damit Drucken und PDF denselben Weg nehmen.
+   Pflichtangaben zum Energieausweis nach § 87 GModG (bis 2026 GEG), am Gesetzeswortlaut geprüft. */
+const EX_KONTAKT_KEY='ia_expose_kontakt';
+function exV(id){ let e=$(id); return e?(''+(e.value==null?'':e.value)).trim():''; }
+function exWahl(id){ let e=$(id); if(!e) return ''; if(e.tagName==='SELECT'){ let o=e.options[e.selectedIndex]; if(!o||/^[–-]?$/.test(o.text.trim())) return ''; } return exV(id); }
+function exOrt(){
+  let a=exV('ek_anschrift'), m=a.match(/\b\d{5}\s+([^,]+)/);
+  if(m) return m[1].trim();
+  let t=a.split(',').map(x=>x.trim()).filter(Boolean);
+  return t.length>1?t[t.length-1]:'';
+}
+function exObjektart(){
+  if(modus()==='wohnung') return exV('ek_wtyp')||'Eigentumswohnung';
+  let t=exV('ek_typ');
+  const M=[[/^EFH freistehend/,'Freistehendes Einfamilienhaus'],[/^Doppel-\/Reihenendhaus/,'Doppelhaushälfte / Reihenendhaus'],[/^Reihenmittelhaus/,'Reihenmittelhaus'],
+    [/^Mehrfamilienhaus/,'Mehrfamilienhaus'],[/^Wohn-\/Geschäftshaus/,'Wohn- und Geschäftshaus'],[/^Geschäftshaus/,'Geschäftshaus'],[/^Bürogebäude/,'Bürogebäude'],[/^Betriebs/,'Gewerbeobjekt']];
+  let f=M.find(x=>x[0].test(t)); return f?f[1]:(t.split(' · ')[0]||'Immobilie');
+}
+function exTitelVorschlag(){ let o=exOrt(); return exObjektart()+(o?' in '+o:''); }
+function exWohngebaeude(){ return modus()==='wohnung'||!/^(Geschäftshaus ohne|Bürogebäude|Betriebs)/.test(exV('ek_typ')); }
+function exKontaktGemerkt(){ try{ return JSON.parse(localStorage.getItem(EX_KONTAKT_KEY))||{}; }catch(e){ return {}; } }
+function exKontakt(){
+  let g=exKontaktGemerkt();
+  return {name:exV('ex_k_name')||g.name||exV('ek_ersteller'), funktion:exV('ex_k_funktion')||g.funktion||exV('ek_ersteller_funktion'),
+    tel:exV('ex_k_tel')||g.tel||'', mail:exV('ex_k_mail')||g.mail||'', firma:exV('ex_k_firma')||g.firma||exV('cfg_kopf')};
+}
+function exKontaktMerken(){
+  if(!$('ex_k_merken')||!$('ex_k_merken').checked) return;
+  let k={name:exV('ex_k_name'),funktion:exV('ex_k_funktion'),tel:exV('ex_k_tel'),mail:exV('ex_k_mail'),firma:exV('ex_k_firma')};
+  if(!Object.values(k).some(Boolean)) return;
+  try{ localStorage.setItem(EX_KONTAKT_KEY,JSON.stringify(Object.assign(exKontaktGemerkt(),Object.fromEntries(Object.entries(k).filter(x=>x[1]))))); }catch(e){}
+}
+function exTraeger(h){
+  h=(h||'').toLowerCase(); if(!h) return '';
+  if(/fernw/.test(h)) return 'Fernwärme'; if(/wärmepumpe|waermepumpe/.test(h)) return 'Strom (Wärmepumpe)';
+  if(/pellet|holz|biomasse|hackschnitzel/.test(h)) return 'Holz (Pellets)'; if(/öl|oel/.test(h)) return 'Heizöl';
+  if(/gas/.test(h)) return 'Erdgas'; if(/strom|nachtspeicher|elektro/.test(h)) return 'Strom'; return '';
+}
+/* Energieausweis: Pflichtangaben nach § 87 Abs. 1 GModG — nur aus eindeutig erfassten Quellen, nicht geraten */
+function exEnergie(){
+  let art=exV('ex_ea_art');
+  if(!art){ let a=exWahl('au_energieausweis'), o=exV('od_energieausweis');
+    art=/Bedarf/.test(a)?'Bedarfsausweis':/Verbrauch/.test(a)?'Verbrauchsausweis':/nicht/.test(a)?'liegt nicht vor':
+        /Bedarf/.test(o)?'Bedarfsausweis':/Verbrauch/.test(o)?'Verbrauchsausweis':''; }
+  return {art:art, wert:exV('ex_ea_wert')||exV('au_energiewert'), traeger:exV('ex_ea_traeger')||exTraeger(exV('au_heizung_art')),
+    bj:exV('ex_ea_baujahr')||(num('ek_baujahr')>0?exV('ek_baujahr'):''), klasse:exV('ex_ea_klasse')||exWahl('au_energieklasse')||exV('od_effizienz'),
+    strom:exV('ex_ea_strom'), wohn:exWohngebaeude()};
+}
+function exPflichtFehlt(E){
+  if(!/Bedarf|Verbrauch/.test(E.art)) return E.art?[]:['Art des Energieausweises (oder „liegt nicht vor“)'];
+  let f=[];
+  if(!E.wert) f.push(E.wohn?'Endenergiewert':'Endenergiewert Wärme');
+  if(!E.wohn&&!E.strom) f.push('Endenergiewert Strom');
+  if(!E.traeger) f.push('wesentlicher Energieträger');
+  if(E.wohn&&!E.bj) f.push('Baujahr laut Energieausweis');
+  if(E.wohn&&!E.klasse) f.push('Energieeffizienzklasse');
+  return f;
+}
+function exAusstattungVorschlag(){
+  let z=[], w=id=>exWahl(id);
+  if(exV('au_zimmer')) z.push(exV('au_zimmer')+' Zimmer');
+  if(exV('au_baeder')) z.push(exV('au_baeder')+(/^1$/.test(exV('au_baeder'))?' Bad':' Bäder')+(w('au_tageslichtbad')==='ja'?', Tageslichtbad':''));
+  if(w('au_gaeste_wc')==='ja') z.push('Gäste-WC');
+  let k=w('au_kueche'); if(/verbleibt/.test(k)) z.push('Einbauküche (verbleibt)'); else if(/entfernt/.test(k)) z.push('Einbauküche vorhanden (wird nicht übernommen)');
+  if(w('au_keller')&&!/nicht/.test(w('au_keller'))) z.push(w('au_keller').replace(/^./,c=>c.toUpperCase()));
+  let dg=w('au_dg'); if(dg==='ausgebaut') z.push('Dachgeschoss ausgebaut'); else if(dg==='ausbaufähig') z.push('Dachgeschoss ausbaufähig');
+  if(exV('au_balkon')) z.push(exV('au_balkon'));
+  if(exV('au_heizung_art')) z.push('Heizung: '+exV('au_heizung_art')+(exV('au_heizung_bj')?' ('+exV('au_heizung_bj')+')':''));
+  let ww=w('au_ww'); if(ww) z.push('Warmwasser '+ww.replace('zentral über Heizung','zentral über die Heizung'));
+  if(exV('au_fenster')) z.push('Fenster: '+exV('au_fenster'));
+  let fa=w('au_daemm_fassade'); if(/vorhanden|Kern/.test(fa)) z.push('Fassadendämmung'+(/WDVS/.test(fa)?' (WDVS)':/Kern/.test(fa)?' (Kerndämmung)':'')); else if(fa==='teilweise') z.push('Fassade teilweise gedämmt');
+  let da=w('au_daemm_dach'); if(da==='vorhanden') z.push('Dach bzw. oberste Geschossdecke gedämmt'); else if(da==='teilweise') z.push('Dach teilweise gedämmt');
+  let el=w('au_elektro'); if(el==='zeitgemäß') z.push('Elektrik zeitgemäß'); else if(el==='teilerneuert') z.push('Elektrik teilerneuert');
+  if(w('au_aufzug')==='ja') z.push('Aufzug');
+  let ba=w('au_barriere'); if(ba==='weitgehend') z.push('Weitgehend barrierefrei'); else if(ba==='teilweise') z.push('Teilweise barrierefrei');
+  if(num('ek_anz_stell')>0) z.push(exV('ek_anz_stell')+(num('ek_anz_stell')===1?' Stellplatz':' Stellplätze'));
+  let t=z.map(x=>'• '+x).join('\n');
+  if(exV('modernisierung')) t+=(t?'\n\n':'')+'Modernisierungen: '+exV('modernisierung');
+  return t;
+}
+function exVorschlag(art){
+  let ziel={objekt:'ex_text_objekt',ausstattung:'ex_text_ausstattung',lage:'ex_text_lage'}[art], t='';
+  if(art==='objekt') t=[exV('gebaeude_besch'),exV('grundstueck_besch'),exV('eindruck')].filter(Boolean).join('\n\n');
+  if(art==='ausstattung') t=exAusstattungVorschlag();
+  if(art==='lage') t=[exV('lage_mikro'),exV('lage_makro')].filter(Boolean).join('\n\n');
+  if(!t){ alert(art==='ausstattung'?'Im Aufnahmebogen sind noch keine Ausstattungsmerkmale erfasst.':'In ④ Objektdaten & Beschreibung steht dazu noch kein Text.'); return; }
+  if(exV(ziel)&&!confirm('Den vorhandenen Text ersetzen?')) return;
+  $(ziel).value=t; autosave(); exStatus();
+}
+/* Fotoauswahl: ex_fotos = JSON-Liste der gewählten ids (leer = alle Objektfotos), ex_titelbild = id */
+function exFotoIds(){
+  let v=exV('ex_fotos');
+  if(!v) return PHOTOS.filter(p=>p.cat==='objekt').map(p=>p.id);
+  try{ let a=JSON.parse(v); return PHOTOS.filter(p=>a.includes(p.id)).map(p=>p.id); }catch(e){ return []; }
+}
+function exTitelbild(ids){ let t=exV('ex_titelbild'); return ids.includes(t)?t:(ids[0]||''); }
+function exFotoWahlRender(){
+  let box=$('ex_fotowahl'); if(!box) return;
+  let liste=PHOTOS.filter(p=>p.cat==='objekt').concat(PHOTOS.filter(p=>p.cat==='karte'),PHOTOS.filter(p=>p.cat==='schaden'));
+  if(!liste.length){ box.innerHTML='<p class="hint" style="margin:0;grid-column:1/-1">Noch keine Fotos — sie werden unter ⑧ Fotodokumentation aufgenommen.</p>'; return; }
+  let ids=exFotoIds(), titel=exTitelbild(ids);
+  const art={objekt:'Objektfoto',karte:'Karte / Plan',schaden:'Schadensfoto'};
+  box.innerHTML=liste.map(p=>{ let an=ids.includes(p.id);
+    return '<label class="ex-foto'+(an?' on':'')+'"><input type="checkbox"'+(an?' checked':'')+' onchange="exFotoSetzen(\''+p.id+'\',this.checked)" aria-label="'+sEsc(p.caption||art[p.cat])+' ins Exposé">'
+      +'<img src="'+p.data+'" alt="">'+(an&&p.id===titel?'<span class="nr">Titelbild</span>':'')
+      +'<small>'+sEsc(p.caption||art[p.cat])+'</small>'
+      +(an&&p.id!==titel?'<button type="button" class="ex-titel-k" onclick="event.preventDefault();exTitelSetzen(\''+p.id+'\')">Als Titelbild</button>':'')+'</label>'; }).join('');
+}
+function exFotoSetzen(id,an){
+  let ids=exFotoIds(); if(an&&!ids.includes(id)) ids.push(id); if(!an) ids=ids.filter(x=>x!==id);
+  $('ex_fotos').value=JSON.stringify(PHOTOS.filter(p=>ids.includes(p.id)).map(p=>p.id)); exFotoWahlRender(); autosave();
+}
+function exTitelSetzen(id){ $('ex_titelbild').value=id; exFotoWahlRender(); autosave(); }
+/* Hinweise im Formular: Vorschläge als Platzhalter, Preisvorschlag, Pflichtangaben */
+function exStatus(){
+  if(!$('ex_titel')) return;
+  $('ex_titel').placeholder=exTitelVorschlag();
+  let g=exKontaktGemerkt();
+  [['ex_k_name',g.name||exV('ek_ersteller')],['ex_k_funktion',g.funktion||exV('ek_ersteller_funktion')],['ex_k_tel',g.tel],['ex_k_mail',g.mail],['ex_k_firma',g.firma||exV('cfg_kopf')]]
+    .forEach(x=>{ if($(x[0])) $(x[0]).placeholder=x[1]||''; });
+  let emp=(window._R&&window._R.empfehlung)||0, info=$('ex_preis_info');
+  if(info) info.innerHTML=emp>0?'Preisempfehlung der Bewertung: '+eur(Math.round(emp/1000)*1000)+(exV('ex_preis')?'':' · <a href="#" onclick="$(\'ex_preis\').value=\''+Math.round(emp/1000)*1000+'\';exStatus();autosave();return false;">übernehmen</a>'):'';
+  let E=exEnergie(), f=exPflichtFehlt(E), st=$('ex_pflicht');
+  if(st){ st.className='ex-pflicht '+(f.length?'fehlt':'ok');
+    st.textContent=!E.art?'Art des Energieausweises fehlt — ohne Angabe erscheint im Exposé kein Energieabschnitt.'
+      :E.art==='liegt nicht vor'?'Im Exposé steht: Ein Energieausweis liegt derzeit nicht vor.'
+      :f.length?'Pflichtangaben unvollständig — es fehlt: '+f.join(', ')+'.':'Pflichtangaben nach § 87 GModG vollständig.'; }
+  [['ex_ea_wert',exV('au_energiewert')],['ex_ea_traeger',exTraeger(exV('au_heizung_art'))],['ex_ea_baujahr',num('ek_baujahr')>0?exV('ek_baujahr'):''],
+   ['ex_ea_klasse',exWahl('au_energieklasse')||exV('od_effizienz')]].forEach(x=>{ if($(x[0])) $(x[0]).placeholder=x[1]||''; });
+}
+function exZahl(v){ let n=zahlLesen(v,true); return n?n.toLocaleString('de-DE',{maximumFractionDigits:2}):''; }
+
+function exposeAnzeigen(pdf){
+  compute(); exKontaktMerken();
+  const esc=sEsc;
+  let w=modus()==='wohnung', ort=exOrt(), E=exEnergie(), K=exKontakt();
+  let titel=exV('ex_titel')||exTitelVorschlag();
+  let adresse=exV('ex_adresse')==='voll'?exV('ek_anschrift'):ort;
+  if(!exV('ex_titel')&&exV('ex_adresse')!=='voll'&&ort&&titel.indexOf(ort)>=0) adresse='';   // Ort steht schon im Titel
+  let unter=[exV('ex_untertitel'),adresse].filter(Boolean).join(' · ');
+  let preis=num('ex_preis');
+  let fotoIds=exFotoIds(), titelId=exTitelbild(fotoIds), titelFoto=PHOTOS.find(p=>p.id===titelId);
+  let weitere=PHOTOS.filter(p=>fotoIds.includes(p.id)&&p.id!==titelId);
+  let fakten=[['Objektart',exObjektart()],
+    ['Wohnfläche',num('ek_wohnflaeche')>0?'ca. '+exZahl(exV('ek_wohnflaeche'))+' m²':''],
+    ['Zimmer',exV('au_zimmer')],
+    [w?'Etage':'Grundstück',w?exV('ek_etage'):(num('ek_gs_flaeche')>0?'ca. '+exZahl(exV('ek_gs_flaeche'))+' m²':'')],
+    ['Baujahr',num('ek_baujahr')>0?exV('ek_baujahr'):''],
+    ['Bäder',exV('au_baeder')],
+    ['Heizung',exV('au_heizung_art')],
+    ['Energieklasse',/Bedarf|Verbrauch/.test(E.art)&&E.wohn?E.klasse:''],
+    ['Stellplätze',num('ek_anz_stell')>0?exV('ek_anz_stell'):''],
+    ['Verfügbar',exV('ex_frei')]].filter(x=>x[1]);
+  let tObj=exV('ex_text_objekt')||[exV('gebaeude_besch'),exV('grundstueck_besch')].filter(Boolean).join('\n\n');
+  let tAus=exV('ex_text_ausstattung')||exAusstattungVorschlag();
+  let tLage=exV('ex_text_lage')||[exV('lage_mikro'),exV('lage_makro')].filter(Boolean).join('\n\n');
+  let tSonst=exV('ex_text_sonst');
+  const block=(h,t)=>t?'<h2>'+h+'</h2>'+(/^• /m.test(t)&&!/\n\n/.test(t)?'<ul class="ex-liste">'+t.split('\n').map(z=>'<li>'+esc(z.replace(/^•\s*/,''))+'</li>').join('')+'</ul>':'<div class="ex-text">'+esc(t)+'</div>'):'';
+  let energie='';
+  if(E.art==='liegt nicht vor') energie='<h2>Energieausweis</h2><div class="ex-text">Ein Energieausweis liegt derzeit nicht vor.</div>';
+  else if(E.art){
+    let bed=/Bedarf/.test(E.art), zeilen=[['Art des Energieausweises',E.art],
+      [(bed?'Endenergiebedarf':'Endenergieverbrauch')+(E.wohn?'':' Wärme'),E.wert?exZahl(E.wert)+' kWh/(m²·a)':''],
+      E.wohn?null:[(bed?'Endenergiebedarf':'Endenergieverbrauch')+' Strom',E.strom?exZahl(E.strom)+' kWh/(m²·a)':''],
+      ['Wesentlicher Energieträger der Heizung',E.traeger],
+      E.wohn?['Baujahr laut Energieausweis',E.bj]:null,
+      E.wohn?['Energieeffizienzklasse',E.klasse]:null].filter(z=>z&&z[1]);
+    energie='<h2>Energieausweis</h2><table class="ex-energie">'+zeilen.map(z=>'<tr><td>'+z[0]+'</td><td>'+esc(z[1])+'</td></tr>').join('')+'</table>';
+  }
+  let wahl=exV('ex_gr')||'plan', grund='';
+  if(wahl!=='keine'&&GRUNDRISSE.length) grund='<h2>Grundrisse</h2>'+GRUNDRISSE.map(p=>{ let N=grNorm(p.d);
+    return '<figure class="gr-fig">'+grSVG(N,wahl==='plan'?p.darst:wahl)+'</figure>'; }).join('');   // Titel steht in der Zeichnung
+  let bilder=weitere.length?'<h2>Bilder</h2><div class="ex-bilder">'+weitere.map(p=>'<figure><img src="'+p.data+'" alt="'+esc(p.caption||'Foto')+'">'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>').join('')+'</div>':'';
+  let ini=(K.name||'').split(/\s+/).filter(Boolean).map(s=>s[0]).slice(0,2).join('').toUpperCase();
+  let kontakt=(K.name||K.tel||K.mail)?'<h2>Ihr Ansprechpartner</h2><div class="ex-kontakt">'+(ini?'<div class="ini">'+esc(ini)+'</div>':'')+'<div>'
+    +(K.name?'<b>'+esc(K.name)+'</b>':'')+(K.funktion?'<div>'+esc(K.funktion)+'</div>':'')+(K.firma?'<div>'+esc(K.firma)+'</div>':'')
+    +(K.tel?'<div>Telefon '+esc(K.tel)+'</div>':'')+(K.mail?'<div>'+esc(K.mail)+'</div>':'')+'</div></div>':'';
+  let r=$('report'); r.className='expose'; r.dataset.pdfname='Exposé '+(titel.replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Immobilie');
+  r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="document.body.classList.remove(\'report-mode\')">← zurück</button>'
+    +'<button onclick="window.print()">Drucken</button><button onclick="downloadPDF()">PDF herunterladen</button></div>'
+    +(K.firma?'<div class="ex-kopf">'+esc(K.firma)+'</div>':'')
+    +'<h1>'+esc(titel)+'</h1>'+(unter?'<p class="ex-sub">'+esc(unter)+'</p>':'')
+    +(titelFoto?'<img class="ex-hero" src="'+titelFoto.data+'" alt="'+esc(titelFoto.caption||titel)+'">':'')
+    +'<div class="ex-preis"><span>Kaufpreis</span><b>'+(preis>0?eur(preis):'auf Anfrage')+'</b>'+(exV('ex_provision')?'<small>Käuferprovision: '+esc(exV('ex_provision'))+'</small>':'')+'</div>'
+    +(fakten.length?'<div class="ex-fakten">'+fakten.map(f=>'<div class="ex-fakt"><span>'+f[0]+'</span><b>'+esc(f[1])+'</b></div>').join('')+'</div>':'')
+    +block('Objektbeschreibung',tObj)+block('Ausstattung',tAus)+block('Lage',tLage)+block('Sonstiges',tSonst)
+    +energie+bilder+grund+kontakt
+    +'<p class="ex-hinweis">Dieses Exposé dient der Information. Die Angaben beruhen auf Informationen des Eigentümers und vorliegenden Unterlagen und wurden sorgfältig zusammengestellt; für Richtigkeit und Vollständigkeit wird keine Gewähr übernommen. Grundrisse dienen der Orientierung, maßgeblich sind die Bauunterlagen. Zwischenverkauf vorbehalten.</p>';
+  document.body.classList.add('report-mode'); window.scrollTo(0,0);
+  if(pdf) setTimeout(downloadPDF,150);
+}
+
 const N_WK=14;
 const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
   ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
@@ -4577,6 +4887,7 @@ function compute(){
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};
+  try{ exStatus(); }catch(e){}
   autosave();
 }
 
@@ -4802,6 +5113,7 @@ function druckbericht(){
    <div class="toc" id="report_toc"></div>
    <div class="pagebreak"></div>` : '';
 
+  $('report').className=''; delete $('report').dataset.pdfname;
   $('report').innerHTML=`
    <button class="primary no-print" onclick="document.body.classList.remove('report-mode')">← zurück</button>
    <button class="no-print" onclick="window.print()">🖨 Drucken</button>
@@ -4900,6 +5212,7 @@ function druckbericht(){
 
 /* ---------- PDF-Download ---------- */
 function pdfName(){
+  let r=$('report'); if(r&&r.dataset.pdfname) return r.dataset.pdfname+'.pdf';
   let n=($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';
   return 'Preisermittlung '+n+'.pdf';
 }
@@ -4960,6 +5273,7 @@ function renderPhotos(){
       g.appendChild(d);
     });
   });
+  try{ exFotoWahlRender(); }catch(e){}
 }
 function delPhoto(id){PHOTOS=PHOTOS.filter(p=>p.id!==id);fotosGeaendert();renderPhotos();autosave();}
 function capPhoto(id,v){let p=PHOTOS.find(x=>x.id===id);if(p){p.caption=v;fotosGeaendert();autosave();}}
@@ -6518,7 +6832,7 @@ function voll(){
 /* ---------- Navigation mit Status ---------- */
 var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-fotos']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie']],
-                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign']]];
+                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign','s-expose']]];
 var NAV_TOGGLE={'s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
 var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-belwert':'o_beleihungswert','s-empfehlung':'o_empfehlung'};
 function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-e]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
