@@ -171,3 +171,23 @@ Die Gesamtsicherung enthält Kunden und Wiedervorlagen (Dateiversion 2). Das Dat
 Version 1 auf 2 wartet, statt abzubrechen, wenn ein älteres Fenster die Datenbank noch offen hält — ein
 Abbruch hätte die App auf den leeren localStorage zurückfallen lassen. Ohne IndexedDB (manche privaten
 Fenster) ist die Kundenakte nicht verfügbar; die App sagt das, statt Kundendaten ungeschützter abzulegen.
+
+---
+
+## D9 (2026-09-29) — Marktdaten des Gutachterausschusses: Struktur ja, vorbelegte Werte nein
+
+**Entscheidung:** Sachwertfaktoren und Liegenschaftszinssätze werden je Immobilienmarktbericht als Datensatz
+mit Quelle, Stand, Gebiet und Modell (NHK, Gesamtnutzungsdauer, Restnutzungsdauer, Alterswertminderung)
+gepflegt. Die App gibt keine Werte vor. Jede Bewertung merkt sich den verwendeten Satz und je Ansatz die
+Quelle; der Bericht weist beides im Abschnitt „Datengrundlagen und Modellkonformität“ aus.
+
+**Begründung:** Zuständig für Abstatt, Beilstein und Ilsfeld ist der Gemeinsame Gutachterausschuss
+südwestlicher Landkreis Heilbronn (Geschäftsstelle Eppingen). Er stellt online nur die Bodenrichtwerte
+bereit; einen frei verfügbaren Marktbericht mit Sachwertfaktoren und Liegenschaftszinsen gab es bei der
+Recherche nicht. Werte aus anderen Berichten (etwa Stadt Heilbronn) zu übernehmen wäre fachlich falsch.
+Nach § 10 ImmoWertV dürfen die Daten zudem nur im Modell ihrer Ableitung angewendet werden — deshalb
+vergleicht die App das Modell des Satzes mit der Bewertung und warnt bei Abweichungen.
+
+**Umsetzung:** Datensätze im localStorage (`ia_parameter`), teilbar als Datei für Kolleginnen und Kollegen
+und Teil der Gesamtsicherung. Die Abfrage des Sachwertfaktors wählt die Zeile, in deren Spanne der
+vorläufige Sachwert fällt; liegt er außerhalb, die nächste Klasse mit Hinweis.

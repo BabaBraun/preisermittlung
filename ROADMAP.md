@@ -137,3 +137,12 @@ Neu aufgefallen in dieser Runde (für später):
 | 34 | [ ] App-Sperre, GPS und Speicherumzug auf dem iPhone gegenprüfen | Nur mit simulierten Antworten bzw. in Chrome getestet |
 | 35 | [ ] Neue Bewertung direkt aus der Kundenakte beginnen | Heute: Bewertung anlegen, dann zuordnen — ein Schritt zu viel |
 | 36 | [ ] Dateigröße: index.html ist auf 552 KB gewachsen | Weitere Module (wie der Selbsttest) als eigene, bei Bedarf geladene Dateien auslagern |
+
+**2026-09-29, Runde „Profi-Qualität, dann Vertrieb“** (vom Nutzer beauftragt: erst Richtung Gutachter, dann
+Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investorenrechnung):
+
+- **A1 Datengrundlagen (D9) — erledigt.** Abschnitt ④b: je Ansatz Wert, Wert laut Marktbericht und Quelle;
+  Verwaltung der Marktberichte mit Modell und Tabellen; Modellkonformität nach § 10 ImmoWertV mit Warnung
+  in der Plausibilitätsprüfung; Berichtsabschnitt „Datengrundlagen und Modellkonformität“. Nebenbei behoben:
+  Der Projektname in der Kopfzeile überlappte bei rund 1.200 px Breite das Suchfeld.
+
