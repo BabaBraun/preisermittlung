@@ -91,3 +91,12 @@ Maßen, Architektenplan, mit Einrichtung) und fragt beim Anlegen jedes Mal, welc
 Fläche laut Plan in die Raumliste, die Pläne erscheinen im Aufnahmebogen, bei den Fotos, im Bericht und im
 Word-Export. Offen: Test mit echten Plänen des Nutzers; ein Zeichen-Editor in der App wurde bewusst
 zurückgestellt (Räume sind bearbeitbar, Wände und Maße laufen über den Code).
+
+**2026-09-29, Umsetzungsrunde „Punkte 1–5“** (vom Nutzer beauftragt: Speicher, Rechenkern, Exposé,
+Berichtsabschnitte, Kundenakte):
+
+- **1. Speicherumbau (D7) — erledigt.** Projekte und Fotos in der IndexedDB, automatische Übernahme des
+  Altbestands, sichtbarer Hinweis statt stiller Verluste, Belegungsanzeige, Gesamtsicherung mit Einspielen
+  und Erinnerung. Dabei gefunden und behoben: Die Fotogalerie der App brach seit Phase 1 beim ersten Foto
+  ohne Bildunterschrift ab (Bezeichnungstabelle nur lokal im Bericht definiert) — neu aufgenommene Fotos
+  waren in der App unsichtbar, im Bericht aber vorhanden.

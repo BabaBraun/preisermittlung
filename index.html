@@ -766,6 +766,16 @@
     #gr_overlay table.gr-raeume input[type=checkbox]{width:auto;height:auto}
     #gr_overlay table.gr-raeume td:nth-child(3)::before{content:'Fläche laut Plan (m²)';display:block;font-size:11px;font-weight:600;color:var(--text-2);margin:0 0 4px 2px}
   }
+
+  /* Speicher: Warnhinweis, Sicherung */
+  .speicher-warn{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 72px);z-index:260;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    max-width:760px;margin:0 auto;padding:12px 14px 12px 16px;border-radius:var(--rs);background:var(--bad-bg);color:var(--bad);border:1px solid currentColor;box-shadow:var(--shadow-lg);font-size:13px;line-height:1.45}
+  .speicher-warn span{flex:1 1 260px}
+  .speicher-warn[hidden],.start-pj-backup[hidden]{display:none!important}
+  .pj-sicherung{margin-top:16px;padding:12px 14px;border-radius:var(--rs);background:var(--surface-2);border:1px solid var(--line-soft)}
+  .pj-sicherung-k{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .pj-sicherung-k button{margin-left:0!important}
+  .start-pj-backup{color:var(--warn)!important;margin-top:6px}
 </style>
 </head>
 <body>
@@ -830,6 +840,7 @@
         <div class="recent-list" id="start_recent"></div>
       </div>
       <button class="start-foot" onclick="dsgvoOeffnen()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit"><span data-ic="shield"></span><span id="start_foot_t">Alle Daten bleiben auf diesem Gerät.</span><span style="text-decoration:underline;margin-left:4px">Details</span></button>
+      <button class="start-foot start-pj-backup" id="start_pj_backup" hidden onclick="oeffneProjekte()"><span data-ic="download"></span><span></span></button>
     </div>
     <div id="start-step1" style="display:none">
       <button class="back-btn" onclick="startStep0()" data-ic="arrow-left">Zurück</button>
@@ -900,6 +911,13 @@
       <thead><tr><th style="width:44%">Projekt</th><th>Objekt</th><th>Zuletzt</th><th>Aktionen</th></tr></thead>
       <tbody></tbody>
     </table>
+    <div class="pj-sicherung">
+      <p class="hint" id="pj_speicher" style="margin:0">–</p>
+      <div class="pj-sicherung-k"><button class="secondary" onclick="pjAlleSichern()" data-ic="download">Alle Projekte sichern</button>
+        <button class="secondary" onclick="pjSicherungEinspielen()">Sicherung einspielen</button></div>
+      <p class="hint" style="margin:6px 0 0">Die Gesamtsicherung enthält alle Projekte mit Fotos und Grundrissen in einer Datei. Sie ist der Weg zurück,
+        wenn das Gerät verloren geht oder die App vom Home-Bildschirm gelöscht wird.</p>
+    </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><button onclick="dsgvoOeffnen()" data-ic="shield" style="border:none;background:none;color:var(--muted);font-size:12.5px;padding:0">Datenschutz — wo liegen diese Daten?</button><button onclick="schliesseProjekte()">Schließen</button></div>
   </div>
 </div>
@@ -1936,8 +1954,8 @@
     <p class="hint" style="margin-top:-6px">Kurz und vollständig — alles, was diese App mit Daten macht, steht hier.</p>
     <h3 style="margin-top:16px">Wo liegen deine Daten?</h3>
     <p style="font-size:13px;line-height:1.6">Ausschließlich auf diesem Gerät, in diesem Browser. Die laufende Bewertung
-      liegt im lokalen Browserspeicher, der Marktüberblick in einer lokalen Datenbank auf dem Gerät (inklusive
-      angehängter PDFs und Fotos). Es gibt keinen Server — nichts wird automatisch irgendwohin übertragen oder
+      liegt im lokalen Browserspeicher, gesicherte Projekte und alle Fotos in einer lokalen Datenbank auf dem Gerät,
+      der Marktüberblick in einer eigenen lokalen Datenbank (inklusive angehängter PDFs und Fotos). Es gibt keinen Server — nichts wird automatisch irgendwohin übertragen oder
       mit anderen Geräten synchronisiert.</p>
     <h3>Was wird über Auftraggeber und Kunden gespeichert?</h3>
     <p style="font-size:13px;line-height:1.6">Nur das, was du selbst einträgst (z. B. der Name im Feld
@@ -1967,8 +1985,8 @@
       Wichtig: Funktioniert Face ID/Touch ID auf diesem Gerät später nicht mehr (z. B. neues Gerät, Zurücksetzen),
       ist der einzige Weg zurück in die App das Löschen der Website-Daten dieses Geräts — dabei gehen alle lokal
       gespeicherten Bewertungen und der Marktüberblick verloren, sofern keine Sicherung vorhanden ist.
-      <b>Bitte vorher eine Sicherung anlegen</b> (Export-Menü → Als Datei sichern, sowie im Marktüberblick unter
-      Datensicherung).
+      <b>Bitte vorher eine Sicherung anlegen</b> (Projekte → Alle Projekte sichern, Export-Menü → Als Datei sichern, sowie im
+      Marktüberblick unter Datensicherung).
     </div>
     <div class="mdb-actions" style="margin-top:14px">
       <button id="lock_setup_ein" class="primary" onclick="iaLockEinrichten()">Einrichten</button>
@@ -2096,6 +2114,9 @@
 <div id="gr_overlay" class="overlay" onclick="if(event.target===this)grSchliessen()">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="gr_titel"><div id="gr_inhalt"></div></div>
 </div>
+
+<div id="speicher_warn" class="speicher-warn" role="alert" hidden><span id="speicher_warn_t"></span>
+  <button class="primary" onclick="save()">Als Datei sichern</button></div>
 
 <div id="report"></div>
 
@@ -2661,20 +2682,146 @@ function unterlagenStatus(){
   return {da,fehlt};
 }
 
-/* ---------- Projekt-Bibliothek ---------- */
+/* ---------- Projekt-Bibliothek und Fotospeicher --------------------------------------
+   Projekte und Fotos liegen in der IndexedDB „ia_bewertungen“ (D7). Vorher lag alles im localStorage,
+   der auf dem iPhone nur rund 5 MB fasst: Nach wenigen Projekten mit Fotos schlug das Sichern fehl, und
+   die automatische Zwischenspeicherung ließ die Fotos stillschweigend weg.
+   - projekte: vollständige Projekte samt Fotos (keyPath id)
+   - arbeit:   Fotos der laufenden Bewertung (Schlüssel 'fotos'); Felder, Grundrisse und Unterschrift
+               bleiben klein und schnell im localStorage 'vb_wert2' (mit fotosInDb:true)
+   - meta:     z. B. letzte Gesamtsicherung
+   PJ_CACHE hält die Projektliste ohne Fotos im Arbeitsspeicher, damit Startseite und Suche weiter ohne
+   Warten lesen können; die Fotos eines Projekts werden erst beim Öffnen geholt. Ohne IndexedDB (manche
+   privaten Fenster) arbeitet die App wie bisher mit dem localStorage, meldet volle Speicher aber sichtbar. */
 const PJ_KEY='vb_projekte';
-function pjLoad(){try{return JSON.parse(localStorage.getItem(PJ_KEY))||[];}catch(e){return [];}}
-function pjStore(list){try{localStorage.setItem(PJ_KEY,JSON.stringify(list));return true;}catch(e){alert('Speicher voll — bitte ältere Projekte löschen oder Fotos reduzieren.');return false;}}
-function oeffneProjekte(){$('projekt_overlay').classList.add('on');if(!$('pj_name').value)$('pj_name').value=$('ek_anschrift').value||'';renderProjekte();}
+const IA_DB_NAME='ia_bewertungen', IA_DB_VER=1;
+var IA_DB=null, IA_DB_BEREIT=false, IA_BEREIT_P=Promise.resolve(false);
+var PJ_CACHE=[];                 // {id,name,objekt,datum,empf,voll,geaendert,nFotos,data:{fields,signature,grundrisse}}
+var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der Datenbank
+var FOTO_GEAENDERT=false, FOTO_TIMER=null;
+var SPEICHER_FEHLER={};
+
+function iaDbOeffnen(){
+  return new Promise((ok,fehler)=>{
+    if(!window.indexedDB){ fehler(new Error('Keine IndexedDB verfügbar')); return; }
+    let rq; try{ rq=indexedDB.open(IA_DB_NAME,IA_DB_VER); }catch(e){ fehler(e); return; }
+    rq.onupgradeneeded=()=>{ let db=rq.result;
+      if(!db.objectStoreNames.contains('projekte')) db.createObjectStore('projekte',{keyPath:'id'});
+      if(!db.objectStoreNames.contains('arbeit')) db.createObjectStore('arbeit');
+      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta'); };
+    rq.onsuccess=()=>ok(rq.result);
+    rq.onerror=()=>fehler(rq.error||new Error('IndexedDB nicht verfügbar'));
+    rq.onblocked=()=>fehler(new Error('IndexedDB blockiert'));
+  });
+}
+/* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist */
+function iaTx(store,modus,arbeit){
+  return new Promise((ok,fehler)=>{
+    if(!IA_DB){ fehler(new Error('Keine Datenbank')); return; }
+    let tx, rq;
+    try{ tx=IA_DB.transaction(store,modus); rq=arbeit(tx.objectStore(store)); }catch(e){ fehler(e); return; }
+    tx.oncomplete=()=>ok(rq&&typeof rq==='object'&&'readyState' in rq?rq.result:undefined);
+    tx.onerror=()=>fehler(tx.error||new Error('Speichern fehlgeschlagen'));
+    tx.onabort=()=>fehler(tx.error||new Error('Speichern abgebrochen'));
+  });
+}
+function iaGet(store,key){ return iaTx(store,'readonly',s=>s.get(key)); }
+function iaPut(store,wert,key){ return iaTx(store,'readwrite',s=>key===undefined?s.put(wert):s.put(wert,key)); }
+function iaDel(store,key){ return iaTx(store,'readwrite',s=>s.delete(key)); }
+function iaAlle(store){ return iaTx(store,'readonly',s=>s.getAll()); }
+function iaFehlerText(e){
+  let n=e&&(e.name||''), m=e&&(e.message||'');
+  if(n==='QuotaExceededError'||/quota/i.test(m)) return 'Der Speicher des Geräts ist voll';
+  return m||'unbekannter Fehler';
+}
+function iaMB(b){ if(!(b>0)) return '0 MB'; return b>=1e9?num2(b/1e9)+' GB':(b>=1e7?Math.round(b/1e6):num2(b/1e6))+' MB'; }
+
+/* Sichtbarer Hinweis, wenn etwas nicht gespeichert werden konnte — nie mehr stillschweigend */
+function speicherFehler(bereich,text){
+  if(text) SPEICHER_FEHLER[bereich]=text; else delete SPEICHER_FEHLER[bereich];
+  let el=$('speicher_warn'); if(!el) return;
+  let t=Object.keys(SPEICHER_FEHLER).map(k=>SPEICHER_FEHLER[k]);
+  if(!t.length){ el.hidden=true; return; }
+  $('speicher_warn_t').textContent=t.join(' ');
+  el.hidden=false;
+}
+
+function pjOhneFotos(r){
+  let d=r.data||{}, data=d.fields?{fields:d.fields,signature:d.signature||null,grundrisse:d.grundrisse||[]}:d;
+  return {id:r.id,name:r.name,objekt:r.objekt,datum:r.datum,empf:r.empf,voll:r.voll,geaendert:r.geaendert||0,
+    nFotos:Array.isArray(d.photos)?d.photos.length:0,data:data};
+}
+function pjLoad(){
+  if(IA_DB_BEREIT) return PJ_CACHE;
+  try{ return JSON.parse(localStorage.getItem(PJ_KEY))||[]; }catch(e){ return []; }
+}
+function pjStore(list){   // nur noch Rückfall ohne Datenbank
+  try{ localStorage.setItem(PJ_KEY,JSON.stringify(list)); return true; }
+  catch(e){ alert('Der Speicher dieses Browsers ist voll. Bitte ältere Projekte löschen oder als Datei sichern.'); return false; }
+}
+function pjCacheSetzen(r){ let c=pjOhneFotos(r), k=PJ_CACHE.findIndex(p=>p.id===c.id); if(k>=0) PJ_CACHE[k]=c; else PJ_CACHE.push(c); }
+
+/* Beim Start: Datenbank öffnen, Altbestand aus dem localStorage übernehmen, Liste und Fotos laden */
+async function iaSpeicherStart(){
+  try{ IA_DB=await iaDbOeffnen(); }catch(e){ IA_DB=null; FOTOS_IN_DB=false; speicherStatus(); return false; }
+  try{
+    let alt=null; try{ alt=JSON.parse(localStorage.getItem(PJ_KEY)); }catch(e){}
+    if(Array.isArray(alt)&&alt.length){
+      let vorhanden=new Set(await iaTx('projekte','readonly',s=>s.getAllKeys()));
+      await iaTx('projekte','readwrite',s=>{ alt.forEach(p=>{ if(p&&p.id&&!vorhanden.has(p.id)){
+        if(!p.geaendert) p.geaendert=parseInt((''+p.id).slice(1))||Date.now(); s.put(p); } }); });
+      let jetzt=new Set(await iaTx('projekte','readonly',s=>s.getAllKeys()));
+      if(alt.every(p=>!p||!p.id||jetzt.has(p.id))) localStorage.removeItem(PJ_KEY);   // erst nach geprüfter Übernahme
+    }
+    PJ_CACHE=(await iaAlle('projekte')).map(pjOhneFotos);
+    if(FOTO_GEAENDERT){ await iaPut('arbeit',PHOTOS,'fotos'); FOTO_GEAENDERT=false; }   // Fotos aus altem Arbeitsstand
+    else if(FOTOS_IN_DB){ let f=await iaGet('arbeit','fotos'); if(Array.isArray(f)){ PHOTOS=f; renderPhotos(); } }
+    IA_DB_BEREIT=true; FOTOS_IN_DB=true;
+    autosave();                                        // Arbeitsstand ab jetzt ohne Fotos im localStorage
+    try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
+    if(!document.body.classList.contains('started')) startStep0();
+    if($('projekt_overlay')&&$('projekt_overlay').classList.contains('on')) renderProjekte();
+    speicherStatus();
+    return true;
+  }catch(e){
+    console.warn('Datenbank nicht nutzbar, Rückfall auf localStorage',e);
+    IA_DB_BEREIT=false; IA_DB=null; FOTOS_IN_DB=false; speicherStatus();
+    return false;
+  }
+}
+function fotosGeaendert(){ FOTO_GEAENDERT=true; }
+function fotosSpeichernBald(){ clearTimeout(FOTO_TIMER); FOTO_TIMER=setTimeout(fotosJetztSpeichern,400); }
+function fotosJetztSpeichern(){
+  clearTimeout(FOTO_TIMER); FOTO_TIMER=null;
+  if(!IA_DB_BEREIT||!FOTO_GEAENDERT) return Promise.resolve();
+  FOTO_GEAENDERT=false;
+  return iaPut('arbeit',PHOTOS,'fotos').then(()=>speicherFehler('fotos',''))
+    .catch(e=>{ FOTO_GEAENDERT=true; speicherFehler('fotos','Die Fotos konnten nicht gespeichert werden ('+iaFehlerText(e)+'). Bitte über „Als Datei sichern“ sichern.'); });
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') fotosJetztSpeichern(); });
+
+/* Belegung, dauerhafter Speicher und letzte Sicherung im Projekte-Dialog */
+async function speicherStatus(){
+  let el=$('pj_speicher'); if(!el) return;
+  let liste=pjLoad(), n=liste.length, fotos=liste.reduce((s,p)=>s+(p.nFotos||0),0), t=[];
+  t.push(n+' Projekt'+(n===1?'':'e')+(fotos?' mit '+fotos+' Foto'+(fotos===1?'':'s'):''));
+  try{ if(navigator.storage&&navigator.storage.estimate){ let e=await navigator.storage.estimate(); if(e&&e.usage!=null) t.push(iaMB(e.usage)+' belegt'+(e.quota?' von '+iaMB(e.quota):'')); } }catch(e){}
+  try{ if(navigator.storage&&navigator.storage.persisted){ t.push(await navigator.storage.persisted()?'dauerhaft gespeichert':'bei Platzmangel darf der Browser löschen'); } }catch(e){}
+  let lb=null; if(IA_DB_BEREIT){ try{ lb=await iaGet('meta','lastBackup'); }catch(e){} }
+  t.push(lb&&lb.ts?'letzte Gesamtsicherung am '+new Date(lb.ts).toLocaleDateString('de-DE'):'noch keine Gesamtsicherung');
+  el.textContent=(IA_DB?'':'Ohne Datenbank (Rückfall auf den Browserspeicher) · ')+t.join(' · ');
+}
+function oeffneProjekte(){$('projekt_overlay').classList.add('on');if(!$('pj_name').value)$('pj_name').value=$('ek_anschrift').value||'';renderProjekte();speicherStatus();}
 function schliesseProjekte(){$('projekt_overlay').classList.remove('on');}
 function renderProjekte(){
-  let list=pjLoad(), tb=$('pj_tbl').querySelector('tbody'); tb.innerHTML='';
+  let list=pjLoad().slice().sort((a,b)=>(b.geaendert||0)-(a.geaendert||0)), tb=$('pj_tbl').querySelector('tbody'); tb.innerHTML='';
   if(!list.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted)">Noch keine Projekte gesichert.</td></tr>';return;}
+  const e=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   list.forEach(p=>{
     tb.insertAdjacentHTML('beforeend',
-      `<tr><td style="text-align:left">${(p.name||'ohne Namen').replace(/</g,'&lt;')}</td>
-       <td style="text-align:left">${(p.objekt||'–').replace(/</g,'&lt;')}</td>
-       <td>${p.datum||''}</td>
+      `<tr><td style="text-align:left">${e(p.name||'ohne Namen')}</td>
+       <td style="text-align:left">${e(p.objekt||'–')}${p.nFotos?'<br><span style="color:var(--muted);font-size:11.5px">'+p.nFotos+' Foto'+(p.nFotos===1?'':'s')+'</span>':''}</td>
+       <td>${e(p.datum||'')}</td>
        <td style="white-space:nowrap">
          <button onclick="projektLaden('${p.id}')">Öffnen</button>
          <button onclick="projektDuplizieren('${p.id}')">Duplizieren</button>
@@ -2682,32 +2829,106 @@ function renderProjekte(){
        </td></tr>`);
   });
 }
-function projektSichern(){
+async function projektSichern(){
   let name=($('pj_name').value||$('ek_anschrift').value||'Wertermittlung').trim();
-  let list=pjLoad();
-  let vorhanden=list.find(p=>p.name===name);
+  await IA_BEREIT_P;
+  let list=pjLoad(), vorhanden=list.find(p=>p.name===name);
   let eintrag={id:vorhanden?vorhanden.id:'p'+Date.now(),name,
     objekt:($('ek_typ').value||$('ek_wtyp').value||''),
-    datum:new Date().toLocaleDateString('de-DE'),empf:(($('o_empfehlung')||{}).textContent||''),voll:(function(){try{let v=voll();return {ok:v.ok,n:v.n};}catch(e){return null;}})(),data:snapshot()};
-  if(vorhanden) list[list.indexOf(vorhanden)]=eintrag; else list.push(eintrag);
-  if(pjStore(list)){renderProjekte();alert(vorhanden?'Projekt „'+name+'" aktualisiert.':'Projekt „'+name+'" gesichert.');}
+    datum:new Date().toLocaleDateString('de-DE'),empf:(($('o_empfehlung')||{}).textContent||''),
+    voll:(function(){try{let v=voll();return {ok:v.ok,n:v.n};}catch(e){return null;}})(),geaendert:Date.now(),data:snapshot()};
+  let meldung=vorhanden?'Projekt „'+name+'“ aktualisiert.':'Projekt „'+name+'“ gesichert.';
+  if(!IA_DB_BEREIT){
+    if(vorhanden) list[list.indexOf(vorhanden)]=eintrag; else list.push(eintrag);
+    if(pjStore(list)){renderProjekte();alert(meldung);}
+    return;
+  }
+  try{ await iaPut('projekte',eintrag); }
+  catch(e){ alert('Das Projekt konnte nicht gesichert werden: '+iaFehlerText(e)+'.\nBitte den Stand zusätzlich über „Als Datei sichern“ ablegen.'); return; }
+  pjCacheSetzen(eintrag); renderProjekte(); speicherStatus(); alert(meldung);
 }
-function projektLaden(id){
+async function projektLaden(id){
   let p=pjLoad().find(x=>x.id===id); if(!p)return;
-  if(!confirm('Projekt „'+p.name+'" öffnen? Der aktuelle Stand wird ersetzt.'))return;
-  restore(p.data);$('pj_name').value=p.name;
+  if(!confirm('Projekt „'+p.name+'“ öffnen? Der aktuelle Stand wird ersetzt.'))return;
+  let r=p;
+  if(IA_DB_BEREIT){ try{ r=await iaGet('projekte',id)||p; }catch(e){ alert('Das Projekt konnte nicht gelesen werden: '+iaFehlerText(e)+'.'); return; } }
+  restore(r.data);$('pj_name').value=r.name;
   document.body.classList.add('started');schliesseProjekte();window.scrollTo(0,0);
 }
-function projektDuplizieren(id){
-  let list=pjLoad(), p=list.find(x=>x.id===id); if(!p)return;
+async function projektDuplizieren(id){
+  let p=pjLoad().find(x=>x.id===id); if(!p)return;
   let name=prompt('Name der Kopie:',p.name+' (Kopie)'); if(!name)return;
-  list.push({id:'p'+Date.now(),name,objekt:p.objekt,datum:new Date().toLocaleDateString('de-DE'),data:p.data});
-  if(pjStore(list))renderProjekte();
+  let r=p;
+  if(IA_DB_BEREIT){ try{ r=await iaGet('projekte',id)||p; }catch(e){ alert('Das Projekt konnte nicht gelesen werden: '+iaFehlerText(e)+'.'); return; } }
+  let kopie={id:'p'+Date.now(),name,objekt:r.objekt,datum:new Date().toLocaleDateString('de-DE'),empf:r.empf,voll:r.voll,geaendert:Date.now(),data:r.data};
+  if(IA_DB_BEREIT){
+    try{ await iaPut('projekte',kopie); }catch(e){ alert('Die Kopie konnte nicht gesichert werden: '+iaFehlerText(e)+'.'); return; }
+    pjCacheSetzen(kopie); renderProjekte(); speicherStatus(); return;
+  }
+  let list=pjLoad(); list.push(kopie); if(pjStore(list))renderProjekte();
 }
-function projektLoeschen(id){
-  let list=pjLoad(), p=list.find(x=>x.id===id); if(!p)return;
-  if(!confirm('Projekt „'+p.name+'" endgültig löschen?'))return;
-  if(pjStore(list.filter(x=>x.id!==id)))renderProjekte();
+async function projektLoeschen(id){
+  let p=pjLoad().find(x=>x.id===id); if(!p)return;
+  if(!confirm('Projekt „'+p.name+'“ endgültig löschen?'))return;
+  if(IA_DB_BEREIT){
+    try{ await iaDel('projekte',id); }catch(e){ alert('Das Projekt konnte nicht gelöscht werden: '+iaFehlerText(e)+'.'); return; }
+    PJ_CACHE=PJ_CACHE.filter(x=>x.id!==id); renderProjekte(); speicherStatus(); return;
+  }
+  if(pjStore(pjLoad().filter(x=>x.id!==id)))renderProjekte();
+}
+/* Gesamtsicherung aller Projekte samt Fotos als eine Datei — der Weg zurück, falls das Gerät
+   verloren geht oder die App vom Home-Bildschirm gelöscht wird */
+async function pjAlleSichern(){
+  await IA_BEREIT_P;
+  let liste;
+  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); }catch(e){ alert('Die Projekte konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
+  if(!liste.length){ alert('Es sind noch keine Projekte gesichert.'); return; }
+  let datei={typ:'immoapp-projekte',version:1,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste};
+  let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+  if(IA_DB_BEREIT){ try{ await iaPut('meta',{ts:Date.now(),n:liste.length},'lastBackup'); }catch(e){} }
+  speicherStatus(); try{ pjSicherungsHinweis(); }catch(e){}
+}
+function pjSicherungEinspielen(){
+  let i=document.createElement('input'); i.type='file'; i.accept='.json,application/json';
+  i.onchange=()=>{ let f=i.files[0]; if(!f) return; let r=new FileReader(); r.onload=()=>pjSicherungAusText(r.result); r.readAsText(f); };
+  i.click();
+}
+async function pjSicherungAusText(text){
+      let o; try{ o=JSON.parse(text); }catch(e){ alert('Die Datei ist keine gültige Sicherung.'); return; }
+      let liste=(o&&o.typ==='immoapp-projekte'&&Array.isArray(o.projekte))?o.projekte:(Array.isArray(o)?o:null);
+      if(!liste){ alert(o&&o.fields?'Das ist eine einzelne Bewertung. Sie wird über „Datei öffnen“ im Export-Menü geladen.':'Die Datei ist keine Projektsicherung der ImmoApp.'); return; }
+      liste=liste.filter(p=>p&&p.id&&p.data);
+      if(!liste.length){ alert('In der Sicherung stehen keine Projekte.'); return; }
+      if(!confirm(liste.length+' Projekte aus der Sicherung übernehmen?\nGibt es ein Projekt schon, bleibt die neuere Fassung erhalten.')) return;
+      await IA_BEREIT_P;
+      let bestand=pjLoad(), neu=[], n={neu:0,ersetzt:0,gleich:0};
+      liste.forEach(p=>{ let da=bestand.find(x=>x.id===p.id);
+        if(!da){ n.neu++; neu.push(p); } else if((p.geaendert||0)>(da.geaendert||0)){ n.ersetzt++; neu.push(p); } else n.gleich++; });
+      if(IA_DB_BEREIT){
+        try{ await iaTx('projekte','readwrite',s=>{ neu.forEach(p=>s.put(p)); }); }
+        catch(e){ alert('Die Sicherung konnte nicht eingespielt werden: '+iaFehlerText(e)+'.'); return; }
+        neu.forEach(pjCacheSetzen);
+      } else {
+        let l=bestand.filter(x=>!neu.some(p=>p.id===x.id)).concat(neu); if(!pjStore(l)) return;
+      }
+      renderProjekte(); speicherStatus();
+      alert('Sicherung eingespielt: '+n.neu+' neu, '+n.ersetzt+' durch neuere Fassung ersetzt, '+n.gleich+' unverändert.');
+}
+/* Erinnerung auf der Startseite, wenn die Projekte länger nicht gesichert wurden */
+async function pjSicherungsHinweis(){
+  let el=$('start_pj_backup'); if(!el) return;
+  await IA_BEREIT_P;
+  let n=pjLoad().length, lb=null;
+  if(IA_DB_BEREIT){ try{ lb=await iaGet('meta','lastBackup'); }catch(e){} }
+  let alt=!lb||!lb.ts||(Date.now()-lb.ts)>14*864e5, neuSeit=lb&&lb.ts?pjLoad().filter(p=>(p.geaendert||0)>lb.ts).length:n;
+  if(n&&alt&&neuSeit){
+    el.querySelector('span:last-child').textContent=lb&&lb.ts
+      ?'Projekte zuletzt am '+new Date(lb.ts).toLocaleDateString('de-DE')+' gesichert, '+neuSeit+' seitdem geändert — jetzt sichern'
+      :n+' Projekt'+(n===1?'':'e')+' noch nie als Datei gesichert — jetzt sichern';
+    el.hidden=false;
+  } else el.hidden=true;
 }
 
 /* ---------- Sensitivität ---------- */
@@ -4677,13 +4898,14 @@ function downloadPDF(){
 /* ---------- Persistence ---------- */
 /* ---------- Fotos ---------- */
 let PHOTOS=[]; // {id, cat:'objekt'|'schaden', caption, data(JPEG-DataURL)}
+const FOTO_LABEL={objekt:'Objektfoto',schaden:'Schadensfoto',karte:'Kartenausschnitt'};   // Alt-Text ohne Bildunterschrift
 function addPhotos(files, cat){
   [...files].forEach(f=>{
     if(!f.type||!f.type.startsWith('image/'))return;
     let r=new FileReader();
     r.onload=()=>downscale(r.result,1400,0.75,dataUrl=>{
       PHOTOS.push({id:'p'+Date.now()+Math.random().toString(36).slice(2,6),cat,caption:'',data:dataUrl});
-      renderPhotos();autosave();
+      fotosGeaendert();renderPhotos();autosave();
     });
     r.readAsDataURL(f);
   });
@@ -4706,13 +4928,13 @@ function renderPhotos(){
     let g=$('gal_'+cat); if(!g)return; g.innerHTML='';
     PHOTOS.filter(p=>p.cat===cat).forEach(p=>{
       let d=document.createElement('div'); d.className='photo';
-      d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}" alt="${(p.caption||IA_FOTOLABEL[p.cat]||'Foto').replace(/"/g,'&quot;')}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
+      d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}" alt="${(p.caption||FOTO_LABEL[p.cat]||'Foto').replace(/"/g,'&quot;')}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
       g.appendChild(d);
     });
   });
 }
-function delPhoto(id){PHOTOS=PHOTOS.filter(p=>p.id!==id);renderPhotos();autosave();}
-function capPhoto(id,v){let p=PHOTOS.find(x=>x.id===id);if(p){p.caption=v;autosave();}}
+function delPhoto(id){PHOTOS=PHOTOS.filter(p=>p.id!==id);fotosGeaendert();renderPhotos();autosave();}
+function capPhoto(id,v){let p=PHOTOS.find(x=>x.id===id);if(p){p.caption=v;fotosGeaendert();autosave();}}
 
 /* ---------- Unterschrift-Scan (einzelnes Bild, PNG) ---------- */
 let SIGNATURE=null;
@@ -4738,16 +4960,34 @@ function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE,g
 function restore(obj){
   if(obj&&obj.fields){GRUNDRISSE=Array.isArray(obj.grundrisse)?obj.grundrisse:[];apply(obj.fields);PHOTOS=Array.isArray(obj.photos)?obj.photos:[];SIGNATURE=obj.signature||null;}
   else{GRUNDRISSE=[];apply(obj);PHOTOS=[];SIGNATURE=null;}   // Altformat (flache Feldliste)
-  renderPhotos();renderSignature();renderWKRows();grListen();
+  FOTO_GEAENDERT=!(obj&&obj.fotosInDb);   // Fotos kommen aus Datei/Projekt → in die Datenbank schreiben
+  renderPhotos();renderSignature();renderWKRows();grListen();autosave();
 }
 function autosave(){
   if(SILENT)return;
-  try{localStorage.setItem('vb_wert2',JSON.stringify(snapshot()));}
-  catch(e){try{localStorage.setItem('vb_wert2',JSON.stringify({fields:collect(),photos:[],signature:SIGNATURE,grundrisse:GRUNDRISSE}));}catch(e2){}}
+  let s=snapshot();
+  if(IA_DB_BEREIT||FOTOS_IN_DB){
+    try{ localStorage.setItem('vb_wert2',JSON.stringify({fields:s.fields,signature:s.signature,grundrisse:s.grundrisse,fotosInDb:true})); speicherFehler('arbeit',''); }
+    catch(e){ speicherFehler('arbeit','Der Arbeitsstand konnte nicht gespeichert werden ('+iaFehlerText(e)+'). Bitte über „Als Datei sichern“ sichern.'); }
+    if(IA_DB_BEREIT&&FOTO_GEAENDERT) fotosSpeichernBald();
+    return;
+  }
+  // Rückfall ohne Datenbank: wie früher im localStorage, aber ein voller Speicher wird jetzt gemeldet
+  try{ localStorage.setItem('vb_wert2',JSON.stringify(s)); speicherFehler('arbeit',''); }
+  catch(e){
+    try{ localStorage.setItem('vb_wert2',JSON.stringify({fields:s.fields,photos:[],signature:s.signature,grundrisse:s.grundrisse}));
+      speicherFehler('arbeit','Der Gerätespeicher ist voll: Die Fotos dieser Bewertung sind nur bis zum Schließen der App vorhanden. Bitte über „Als Datei sichern“ sichern.'); }
+    catch(e2){ speicherFehler('arbeit','Der Arbeitsstand konnte nicht gespeichert werden. Bitte über „Als Datei sichern“ sichern.'); }
+  }
 }
 function save(){let name=($('ek_anschrift').value||'Wertermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Wertermittlung';let b=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name+'.json';a.click();}
 function loadFile(){let i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{let f=i.files[0];let r=new FileReader();r.onload=()=>{try{restore(JSON.parse(r.result));}catch(e){alert('Datei konnte nicht gelesen werden.');}};r.readAsText(f);};i.click();}
-function neu(){if(confirm('Neue leere Wertermittlung? Ungespeicherte Daten gehen verloren.')){localStorage.removeItem('vb_wert2');location.reload();}}
+async function neu(){
+  if(!confirm('Neue leere Wertermittlung? Ungespeicherte Daten gehen verloren.'))return;
+  SILENT=true; localStorage.removeItem('vb_wert2');
+  try{ await IA_BEREIT_P; if(IA_DB_BEREIT){ clearTimeout(FOTO_TIMER); FOTO_GEAENDERT=false; await iaPut('arbeit',[],'fotos'); } }catch(e){}
+  location.reload();
+}
 
 /* ---------- Nav ---------- */
 function buildNav(){
@@ -4784,13 +5024,14 @@ document.addEventListener('change',compute);
 iaLockAutoStart();
 let saved=localStorage.getItem('vb_wert2');
 if(saved){
-  try{restore(JSON.parse(saved));}catch(e){typWechsel();}
+  try{let o=JSON.parse(saved);FOTOS_IN_DB=!!(o&&o.fotosInDb);restore(o);}catch(e){typWechsel();}
   modusWechsel();
   document.body.classList.add('started');   // gespeicherte Arbeit → direkt ins Formular
 }else{
   $('ek_typ').value='Wohn-/Geschäftshaus (Mischnutzung)';typWechsel();modusWechsel();
   showStart();                               // frischer Start → Auswahlbildschirm
 }
+IA_BEREIT_P=iaSpeicherStart();   // Projekte und Fotos aus der Datenbank (übernimmt beim ersten Mal den Altbestand)
 // Installations-Button anbieten, solange die App nicht als App läuft
 // (iOS meldet kein 'beforeinstallprompt' – dort erklärt der Button den Weg über „Teilen")
 if(!istInstalliert()) $('installBtn').style.display='inline-block';
@@ -6375,6 +6616,7 @@ function startFoot(){
   let t='Alle Daten bleiben auf diesem Gerät.';
   setT('start_foot_t',t);
   try{ if(typeof mdbMGet==='function') mdbMGet('lastBackup').then(lb=>{ if(lb&&lb.ts) setT('start_foot_t','Alle Daten bleiben auf diesem Gerät · Letzte Sicherung des Marktüberblicks: '+new Date(lb.ts).toLocaleDateString('de-DE')); }).catch(()=>{}); }catch(e){}
+  try{ pjSicherungsHinweis(); }catch(e){}
 }
 function startStep0(){
   $('start-step0').style.display=''; $('start-step1').style.display='none'; $('start-step2').style.display='none';

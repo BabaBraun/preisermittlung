@@ -125,3 +125,26 @@ proportional und wird als „nicht maßstäblich“ gekennzeichnet, bis ein beka
 Die Raumliste übernimmt auf Wunsch des Nutzers die Fläche laut Plan; die aus den Maßen berechnete Fläche
 dient als Kontrolle (Markierung ab 3 % Abweichung). Das Foto geht an Anthropic — deshalb der Hinweis, den
 Plankopf mit Eigentümer und Adresse abzudecken.
+
+---
+
+## D7 (2026-09-29) — Projekte und Fotos in die IndexedDB
+
+**Entscheidung:** Gesicherte Projekte (samt Fotos) und die Fotos der laufenden Bewertung liegen in der
+IndexedDB `ia_bewertungen`. Im localStorage bleibt nur der kleine Arbeitsstand (Felder, Grundrisse,
+Unterschrift) mit dem Merker `fotosInDb`. Beim ersten Start übernimmt die App den Altbestand und löscht den
+alten Schlüssel erst, nachdem sie geprüft hat, dass jedes Projekt in der Datenbank angekommen ist.
+
+**Begründung:** Der localStorage fasst auf dem iPhone rund 5 MB. Nach zwei, drei Objekten mit
+Fotodokumentation schlug das Sichern fehl, und die automatische Zwischenspeicherung ließ die Fotos
+stillschweigend weg. Die IndexedDB hat um Größenordnungen mehr Platz, trägt `navigator.storage.persist()`
+und wird vom Marktüberblick bereits genutzt (D2 bleibt gewahrt: alles lokal, kein Server).
+
+**Umsetzung und Grenzen:** Die Projektliste ohne Fotos liegt zusätzlich im Arbeitsspeicher, damit
+Startseite und Suche synchron lesen können; Fotos werden erst beim Öffnen geholt. Fotos der laufenden
+Bewertung werden gebündelt (400 ms) und beim Wechsel in den Hintergrund sofort geschrieben. Schlägt ein
+Schreibvorgang fehl, erscheint ein roter Hinweis mit „Als Datei sichern“ — es gibt keinen stillen Verlust
+mehr. Ohne IndexedDB (manche privaten Fenster) arbeitet die App wie vorher mit dem localStorage weiter und
+übernimmt diesen Bestand beim nächsten Start mit Datenbank. Die Datenbank verschwindet weiterhin, wenn die
+App vom Home-Bildschirm gelöscht wird; dafür gibt es die Gesamtsicherung aller Projekte als Datei mit
+Erinnerung auf der Startseite (nach 14 Tagen bzw. wenn seitdem Projekte geändert wurden).
