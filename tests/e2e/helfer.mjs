@@ -44,7 +44,7 @@ export async function ergebnisLesen(page) {
     const lauf = (o, p) => {
       for (const [k, v] of Object.entries(o || {})) {
         const n = p ? p + '.' + k : k;
-        if (typeof v === 'number') zahlen[n] = Number.isFinite(v) ? Math.round(v * 1e6) / 1e6 : String(v);
+        if (typeof v === 'number') zahlen[n] = Number.isFinite(v) ? (Math.round(v * 1e6) / 1e6 || 0) : String(v);   // −0 wie 0 (JSON kennt kein −0)
         else if (typeof v === 'boolean' || typeof v === 'string') zahlen[n] = v;
         else if (v && typeof v === 'object' && !Array.isArray(v) && p.split('.').length < 2) lauf(v, n);
       }
