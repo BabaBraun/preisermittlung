@@ -90,6 +90,9 @@ window.iaSelbsttest=function(){
     pruef('Bausteine','Anrechnung lichte Höhe 1–2 m',rlFaktor('halb'),0.5,0);
     pruef('Bausteine','Anrechnung Zubehörraum',rlFaktor('zub'),0,0);
     pruef('Bausteine','Raumfläche „4,20 x 3,55“',rlFlaeche('4,20 x 3,55'),14.91,1e-9);
+    let u=lageUtm32(49.0561,9.2466);   // Sollwert aus pyproj (EPSG:4258 → EPSG:25832)
+    pruef('Bausteine','Koordinaten UTM 32 Ost (Ilsfeld)',u.ost,518016.673,0.01);
+    pruef('Bausteine','Koordinaten UTM 32 Nord (Ilsfeld)',u.nord,5433721.469,0.01);
   });
 
   sicher('Förderung','Aufruf',()=>{

@@ -149,4 +149,9 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   Förderung nach BAFA BEG EM Gebäudehülle (Stand 07/2026) und KfW 458 (Merkblatt 09/2026) inklusive der
   datumsabhängigen Absenkungen ab 2027, Effizienzklasse vorher/nachher, Heizkosten, grobe Wertwirkung;
   Berichtsabschnitt „Sanierungsweg“; acht neue Prüfungen im Selbsttest (jetzt 54).
+- **A3 Lage-Check — erledigt.** In ④: acht Prüfpunkte (Bodenrichtwert, Hochwasser, Starkregen, Umgebungslärm,
+  Bebauungsplan, Baugrund, Altlasten, Baulasten) mit Link zum amtlichen Dienst; die App legt Adresse bzw.
+  UTM-32-Koordinaten in die Zwischenablage (Umrechnung gegen pyproj geprüft, < 1 mm). Ergebnis, Notiz und
+  Prüfdatum je Punkt, Berichtsabschnitt „Lage-Check“. Keine Adresssuche über fremde Dienste (Datenschutz).
+  Breiten- und Längengrad sind jetzt auch von Hand eintragbar.
 
