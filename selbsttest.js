@@ -80,6 +80,15 @@ window.iaSelbsttest=function(){
     let b=finTilgungsverlauf(362280,3.5,2,5000,60);
     pruef('Finanzierung','Laufzeit mit 5.000 € Sondertilgung (20 J 7 M)',b.monate,247,0);
     pruef('Finanzierung','Zinsen gesamt mit Sondertilgung',b.zinsSumme,146959.76,0.5);
+    // Budget-Check: 4.500 € netto − 2 × 1.000 € Lebenshaltung − 350 € Nebenkosten − 150 € Puffer = 2.000 € Rate
+    let c=finBudgetRechnen({netto:4500,erw:2,pErw:1000,wohnen:350,puffer:150,zins:3.5,tilgung:2,nkPct:10.57,ek:80000});
+    pruef('Finanzierung','Budget: tragbare Rate',c.rate,2000,0.001);
+    pruef('Finanzierung','Budget: Darlehen (2.000 € × 12 ÷ 5,5 %)',c.darlehen,436363.64,0.01);
+    pruef('Finanzierung','Budget: Kaufpreis nach 10,57 % Nebenkosten',c.maxKp,467001.57,0.01);
+    pruef('Finanzierung','Budget: Darlehen ergibt wieder die Rate',finTilgungsverlauf(c.darlehen,3.5,2,0,60).rate,2000,0.01);
+    let e=finBudgetRechnen({netto:4500,sonst:250,erw:2,kinder:1,pErw:1000,pKind:400,raten:300,wohnen:350,puffer:150,zins:3.5,tilgung:2,nkPct:10.57,ek:80000});
+    pruef('Finanzierung','Budget mit Kind, Kindergeld und Kreditrate: Kaufpreis',e.maxKp,378205.50,0.01);
+    pruef('Finanzierung','Budget: Anteil der Rate an den Einnahmen',e.quote,32.63,0.01);
   });
 
   sicher('Bausteine','Aufruf',()=>{

@@ -170,3 +170,9 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   Preisüberprüfung ab 40 % „Preis zu hoch“ bei mindestens fünf Besichtigungen), teilbar als PDF. Übersicht aller
   Objekte in Vermarktung mit fälligen Berichten (älter als sieben Tage), Hinweis auf der Startseite.
 
+- **B4 Finanzierbarkeit — erledigt.** Im Finanzierungsrechner „Was kann ich mir leisten?“: Haushaltsrechnung
+  (Einnahmen, Lebenshaltung je Erwachsenem/Kind, Kreditraten, Neben- und Instandhaltungskosten, Puffer) → tragbare
+  Rate → Darlehen → darstellbarer Kaufpreis nach Nebenkosten, Belastungsquote, Vergleich mit dem Kaufpreis.
+  Budget ins Suchprofil, „Finanzierungsgespräch vereinbaren“ (Wiedervorlage, Vermerk in der Akte, .ics-Termin),
+  „Finanzierungs-Check“ aus dem Exposé. Einkommensangaben nicht im Projekt, nur ausdrücklich in der Kundenakte;
+  keine Raten im Exposé (§ 17 PAngV). Sechs neue Prüfungen im Selbsttest (jetzt 62).

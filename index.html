@@ -1042,6 +1042,21 @@
   .start-vm[hidden]{display:none!important}
   #vm_overlay .modal button{margin-left:0}
   @media(max-width:640px){ .vm-kennzahlen{grid-template-columns:1fr 1fr} }
+
+  /* Budget-Check */
+  #fin_budget_box{scroll-margin-top:96px}
+  #fin_budget_box .fin-grid{margin-top:4px}
+  .fin-budget-top{background:var(--tint);margin:4px -10px;padding:10px!important;border-radius:var(--rs);border-bottom:none!important}
+  .fin-budget-top b{font-size:17px}
+  .fin-b-warn{color:var(--warn)}
+  .fin-b-vgl{margin:10px 0 0;padding:9px 12px;border-radius:var(--rs);font-size:13px}
+  .fin-b-vgl.ok{background:var(--ok-bg);color:var(--ok)}
+  .fin-b-vgl.warn{background:var(--warn-bg);color:var(--warn)}
+  .fin-b-aktionen{margin-top:12px}
+  .fin-termin{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--rs);background:var(--surface-2)}
+  .fin-termin h4{margin:0 0 8px;font-size:14px}
+  .fin-termin[hidden]{display:none}
+  @media print{ #fin_budget_box .fin-b-aktionen,#fin_termin{display:none!important} }
 </style>
 </head>
 <body>
@@ -2220,7 +2235,8 @@
         der Bewertung (grau vorgeschlagen), alles lässt sich überschreiben.</p>
       <div class="gr-aktionen no-print"><button class="primary" onclick="exposeAnzeigen()" data-ic="file-text">Exposé ansehen</button>
         <button class="secondary" onclick="exposeAnzeigen(true)" data-ic="download">Als PDF herunterladen</button>
-        <button class="secondary" onclick="exposeAnzeigen();pdfTeilen()" data-ic="upload">PDF teilen</button></div>
+        <button class="secondary" onclick="exposeAnzeigen();pdfTeilen()" data-ic="upload">PDF teilen</button>
+        <button class="secondary" onclick="finAusExpose()" data-ic="calc">Finanzierungs-Check</button></div>
       <div class="kk-treffer no-print" id="kk_treffer"></div>
 
       <h3>Titel &amp; Preis</h3>
@@ -2457,6 +2473,7 @@
       <div class="sp">
         <button class="secondary" onclick="finAusBewertung()" data-ic="arrow-down"><span class="lbl">Aus Bewertung</span></button>
         <button class="secondary" onclick="kdFinanzierungAblegen()" data-ic="users"><span class="lbl">Beim Kunden ablegen</span></button>
+        <button class="secondary" onclick="finTerminOeffnen()" data-ic="calendar"><span class="lbl">Gespräch vereinbaren</span></button>
         <button class="secondary" onclick="finDrucken()" data-ic="printer"><span class="lbl">Drucken</span></button>
         <button class="icon" onclick="finSchliessen()" title="Schließen" data-ic="x"></button>
       </div>
@@ -2527,6 +2544,49 @@
             <div class="fin-zeile"><span>Laufzeit bis zur Volltilgung</span><b id="fin_o_laufzeit">–</b></div>
             <div class="fin-zeile"><span>Zinsen insgesamt bis zur Volltilgung</span><b id="fin_o_zins_gesamt">0 €</b></div>
             <div id="fin_hinweis"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mdb-box" id="fin_budget_box">
+        <h3>Was kann ich mir leisten?</h3>
+        <p class="hint">Haushaltsrechnung für Kaufinteressenten. Aus Einnahmen und Ausgaben ergibt sich die tragbare Rate, daraus mit
+          Zins und Tilgung von oben das Darlehen und mit Eigenkapital und Nebenkosten der Kaufpreis. Die heutige Miete entfällt nach
+          dem Kauf und wird nicht abgezogen. Die Pauschalen sind Richtwerte — mit der Haushaltsrechnung der Bank abgleichen; sie bleiben
+          als deine Einstellung auf dem Gerät. Einkommensangaben werden nicht im Projekt gespeichert.</p>
+        <div class="fin-grid">
+          <div>
+            <div class="grid">
+              <div class="field"><label>Nettoeinkommen Haushalt <span class="u">€ im Monat</span></label><input id="fin_b_netto" type="text" value="" oninput="finBudget()"></div>
+              <div class="field"><label>Weitere Einnahmen <span class="u">€ im Monat, z. B. Kindergeld</span></label><input id="fin_b_sonst" type="text" value="" oninput="finBudget()"></div>
+              <div class="field"><label>Erwachsene</label><input id="fin_b_erw" type="text" value="2" oninput="finBudget()"></div>
+              <div class="field"><label>Kinder</label><input id="fin_b_kinder" type="text" value="0" oninput="finBudget()"></div>
+              <div class="field"><label>Lebenshaltung je Erwachsenem <span class="u">€ im Monat</span></label><input id="fin_b_pausch_erw" type="text" value="1.000" oninput="finBudget();finPauschSpeichern()"></div>
+              <div class="field"><label>Lebenshaltung je Kind <span class="u">€ im Monat</span></label><input id="fin_b_pausch_kind" type="text" value="400" oninput="finBudget();finPauschSpeichern()"></div>
+              <div class="field"><label>Bestehende Kreditraten <span class="u">€ im Monat</span></label><input id="fin_b_raten" type="text" value="" oninput="finBudget()"></div>
+              <div class="field"><label>Neben- und Instandhaltungskosten <span class="u">€ im Monat</span></label><input id="fin_b_wohnen" type="text" value="350" oninput="finBudget();finPauschSpeichern()"></div>
+              <div class="field"><label>Sicherheitspuffer <span class="u">€ im Monat</span></label><input id="fin_b_puffer" type="text" value="150" oninput="finBudget();finPauschSpeichern()"></div>
+            </div>
+          </div>
+          <div>
+            <div id="fin_b_ergebnis"></div>
+            <div class="gr-aktionen fin-b-aktionen">
+              <button class="secondary" onclick="finBudgetUebernehmen()" data-ic="users">Als Budget ins Suchprofil</button>
+              <button class="secondary" onclick="finTerminOeffnen()" data-ic="calendar">Finanzierungsgespräch vereinbaren</button>
+              <button class="secondary" onclick="finBudgetLeeren()" data-ic="x">Leeren</button>
+            </div>
+            <div id="fin_termin" class="fin-termin" hidden>
+              <h4>Finanzierungsgespräch vereinbaren</h4>
+              <div class="grid">
+                <div class="field"><label>Kunde</label><select id="fin_t_kunde"></select></div>
+                <div class="field"><label>Datum</label><input id="fin_t_datum" type="date"></div>
+                <div class="field"><label>Uhrzeit</label><input id="fin_t_zeit" type="time" value="10:00"></div>
+                <div class="field"><label>Notiz</label><input id="fin_t_notiz" type="text" placeholder="z. B. Ort, Unterlagen mitbringen"></div>
+              </div>
+              <p class="hint">Legt eine Wiedervorlage an, vermerkt den Termin in der Kundenakte und lädt einen Kalendereintrag (.ics)
+                für Outlook oder den iPhone-Kalender.</p>
+              <div class="gr-aktionen"><button class="primary" onclick="finTerminAnlegen()" data-ic="check">Termin anlegen</button>
+                <button class="secondary" onclick="$('fin_termin').hidden=true">Abbrechen</button></div>
+            </div>
           </div>
         </div>
       </div>
@@ -2968,6 +3028,7 @@ function finRechnen(){
     $('fin_hinweis').innerHTML=hinweise.map(h=>'<div class="mdb-warn">'+sEsc(h)+'</div>').join('');
 
     finPlanRender(a,b,bindung);
+    finBudget();
   }catch(e){}
 }
 function finPlanRender(a,b,bindung){
@@ -3005,6 +3066,7 @@ function finAusBewertung(still){
 }
 function finDrucken(){ window.print(); }
 ['input','change'].forEach(ev=>{ let f=$('fin_overlay'); if(f) f.addEventListener(ev,e=>e.stopPropagation()); });
+try{ finPauschLaden(); }catch(e){}
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let f=$('fin_overlay'); if(f&&f.classList.contains('on')) finSchliessen(); } });
 
 /* ---------- Plausibilitaetspruefung der Eingaben --------------------------------------
@@ -4868,7 +4930,7 @@ function kdAkte(id,fokus){
     +'<div class="kd-neu"><input id="kd_auf_text" placeholder="z. B. Unterlagen nachfragen" aria-label="Neue Wiedervorlage"><input id="kd_auf_frist" type="date" aria-label="Fällig am"><button class="secondary" onclick="kdAufgabeNeu()" data-ic="plus">Hinzufügen</button></div>'
 
     +'<h3>Finanzierungsrechnungen</h3>'
-    +(fin.length?'<div class="kd-karten">'+fin.map(x=>'<div class="kd-karte"><div><b>'+sEsc(x.titel||'Finanzierung')+'</b><span>'+sEsc([new Date(x.ts).toLocaleDateString('de-DE'),x.rate?'Rate '+eur(x.rate):'',x.bedarf?'Darlehen '+eur(x.bedarf):''].filter(Boolean).join(' · '))+'</span></div>'
+    +(fin.length?'<div class="kd-karten">'+fin.map(x=>'<div class="kd-karte"><div><b>'+sEsc(x.titel||'Finanzierung')+'</b><span>'+sEsc([new Date(x.ts).toLocaleDateString('de-DE'),x.rate?'Rate '+eur(x.rate):'',x.bedarf?'Darlehen '+eur(x.bedarf):'',x.budget?'Budget bis '+eur(x.budget):''].filter(Boolean).join(' · '))+'</span></div>'
       +'<div class="kd-k"><button class="secondary" onclick="kdFinanzierungOeffnen(\''+x.id+'\')">Öffnen</button><button class="secondary" onclick="kdFinanzierungWeg(\''+x.id+'\')">Löschen</button></div></div>').join('')+'</div>'
       :'<p class="hint" style="margin:0">Im Finanzierungsrechner über „Beim Kunden ablegen“ speichern.</p>')
     +'<div class="gr-zeile"><button class="secondary" onclick="kdSchliessen();finOeffnen()" data-ic="calc">Finanzierungsrechner öffnen</button></div>'
@@ -4916,7 +4978,8 @@ async function kdKontaktWeg(cid){
   k.kontakte=(k.kontakte||[]).filter(c=>c.id!==cid); if(await kdSpeichern(k)) kdAkte(k.id);
 }
 /* Finanzierungsrechnung beim Kunden ablegen und wieder öffnen */
-const KD_FIN_FELDER=['fin_kaufpreis','fin_moderni','fin_grest','fin_notar','fin_makler','fin_ek','fin_zins','fin_tilgung','fin_bindung','fin_sonder','fin_kfw','fin_kfw_zins','fin_kfw_tilgung'];
+const KD_FIN_FELDER=['fin_kaufpreis','fin_moderni','fin_grest','fin_notar','fin_makler','fin_ek','fin_zins','fin_tilgung','fin_bindung','fin_sonder','fin_kfw','fin_kfw_zins','fin_kfw_tilgung',
+  'fin_b_netto','fin_b_sonst','fin_b_erw','fin_b_kinder','fin_b_pausch_erw','fin_b_pausch_kind','fin_b_raten','fin_b_wohnen','fin_b_puffer'];
 function kdFinanzierungAblegen(){
   if(!kdVerfuegbar()) return;
   const ablegen=async id=>{
@@ -4925,7 +4988,8 @@ function kdFinanzierungAblegen(){
     let werte={}; KD_FIN_FELDER.forEach(f=>{ if($(f)) werte[f]=$(f).value; });
     let titel=(prompt('Bezeichnung der Rechnung:',exV('ek_anschrift')||'Finanzierung')||'').trim(); if(!titel) return;   // Datum steht ohnehin dabei
     k.finanzierungen=(k.finanzierungen||[]).concat([{id:'f'+Date.now().toString(36),ts:Date.now(),titel:titel,werte:werte,
-      rate:mdbNum(($('fin_rate')||{}).textContent),bedarf:mdbNum(($('fin_o_bedarf')||{}).textContent),rest:mdbNum(($('fin_o_rest')||{}).textContent)}]);
+      rate:mdbNum(($('fin_rate')||{}).textContent),bedarf:mdbNum(($('fin_o_bedarf')||{}).textContent),rest:mdbNum(($('fin_o_rest')||{}).textContent),
+      budget:window._FINB&&num('fin_b_netto')>0&&window._FINB.maxKp>0?vpRund(window._FINB.maxKp,1000):0}]);
     if(await kdSpeichern(k)) alert('Die Rechnung liegt jetzt in der Kundenakte von '+kdName(k)+'.');
   };
   if(!KD_CACHE.length){ if(confirm('Es gibt noch keinen Kunden. Jetzt einen anlegen?')) kdOeffnen(null,id=>ablegen(id)); return; }
@@ -4933,7 +4997,7 @@ function kdFinanzierungAblegen(){
 }
 function kdFinanzierungOeffnen(fid){
   let k=KD_CACHE.find(x=>x.id===KD_AKTIV), x=k&&(k.finanzierungen||[]).find(f=>f.id===fid); if(!x) return;
-  kdSchliessen(); finOeffnen();
+  kdSchliessen(); finOeffnen(); finBudgetLeeren();
   Object.keys(x.werte||{}).forEach(f=>{ if($(f)) $(f).value=x.werte[f]; });
   finRechnen();
 }
@@ -4952,7 +5016,7 @@ function kdExport(id){
     'Angelegt: '+d(k.erstellt),'Zuletzt geändert: '+d(k.geaendert),'Löschprüfung: '+d(k.loeschpruefung),'',
     'BEWERTUNGEN'].concat(kdBewertungen(id).map(p=>'- '+p.name+' ('+p.datum+')'),kdBewertungen(id).length?[]:['- keine'],['','WIEDERVORLAGEN'],
     kdAufgaben(id).map(a=>'- '+a.text+(a.frist?' (fällig '+d(a.frist)+')':'')+(a.erledigt?' — erledigt':'')),kdAufgaben(id).length?[]:['- keine'],['','FINANZIERUNGSRECHNUNGEN'],
-    (k.finanzierungen||[]).map(x=>'- '+x.titel+' ('+d(x.ts)+')'+(x.rate?', Rate '+eur(x.rate):'')),(k.finanzierungen||[]).length?[]:['- keine'],['','GESPRÄCHSNOTIZEN'],
+    (k.finanzierungen||[]).map(x=>'- '+x.titel+' ('+d(x.ts)+')'+(x.rate?', Rate '+eur(x.rate):'')+(x.budget?', Budget bis '+eur(x.budget):'')),(k.finanzierungen||[]).length?[]:['- keine'],['','GESPRÄCHSNOTIZEN'],
     (k.kontakte||[]).map(c=>'- '+d(c.datum)+' '+(c.art||'')+': '+c.text),(k.kontakte||[]).length?[]:['- keine']);
   let b=new Blob(['﻿'+z.join('\r\n')],{type:'text/plain;charset=utf-8'}), a=document.createElement('a');
   a.href=URL.createObjectURL(b); a.download='Kundendaten '+kdName(k).replace(/[^\wäöüÄÖÜß -]/g,'').trim()+'.txt';
@@ -5746,6 +5810,88 @@ function vmStartRender(){
   let faellig=l.filter(x=>['In Vermarktung','Reserviert'].includes(x.f.vm_status)&&(!x.f.vm_letzter||vmTage(x.f.vm_letzter)>7)).length;
   el.querySelector('span:last-child').textContent=l.length+' Objekt'+(l.length===1?'':'e')+' in Vermarktung'+(faellig?' · '+faellig+' Eigentümer-Bericht'+(faellig===1?'':'e')+' fällig':'');
   el.hidden=false;
+}
+
+/* ---------- Budget-Check „Was kann ich mir leisten?“ und Finanzierungsgespräch ------------------------
+   Haushaltsrechnung im Finanzierungsrechner. Die Einkommensangaben landen nicht im Projekt (fin_b_* ist von
+   collect() ausgenommen) — sie gehören dem Kaufinteressenten, nicht zur Bewertung des Verkäufers. In die
+   Kundenakte kommen sie nur über „Beim Kunden ablegen“ oder als Budget im Suchprofil. Die Pauschalen sind
+   Einstellungen des Beraters und bleiben auf dem Gerät. Konkrete Raten erscheinen nicht im Exposé: Werbung
+   mit Kreditkonditionen verlangt die Pflichtangaben des § 17 PAngV. */
+const FIN_PAUSCH_KEY='ia_fin_pauschalen', FIN_PAUSCH_FELDER=['fin_b_pausch_erw','fin_b_pausch_kind','fin_b_wohnen','fin_b_puffer'];
+function finPauschLaden(){ try{ let p=JSON.parse(localStorage.getItem(FIN_PAUSCH_KEY)||'{}'); FIN_PAUSCH_FELDER.forEach(f=>{ if(p[f]!=null&&$(f)) $(f).value=p[f]; }); }catch(e){} }
+function finPauschSpeichern(){ try{ let p={}; FIN_PAUSCH_FELDER.forEach(f=>{ if($(f)) p[f]=$(f).value; }); localStorage.setItem(FIN_PAUSCH_KEY,JSON.stringify(p)); }catch(e){} }
+/* Budget-Felder zurücksetzen, damit keine Einkommensdaten eines Kunden bei der nächsten Rechnung stehen bleiben */
+function finBudgetLeeren(){ ['fin_b_netto','fin_b_sonst','fin_b_raten'].forEach(f=>{ if($(f)) $(f).value=''; }); if($('fin_b_erw')) $('fin_b_erw').value='2'; if($('fin_b_kinder')) $('fin_b_kinder').value='0'; finPauschLaden(); finBudget(); }
+/* reine Rechnung (im Selbsttest geprüft): tragbare Rate → Darlehen → Kaufpreis nach Nebenkosten */
+function finBudgetRechnen(e){
+  let ein=(e.netto||0)+(e.sonst||0), leben=Math.max(0,e.erw||0)*(e.pErw||0)+Math.max(0,e.kinder||0)*(e.pKind||0);
+  let rate=ein-leben-(e.raten||0)-(e.wohnen||0)-(e.puffer||0), zt=((e.zins||0)+(e.tilgung||0))/100;
+  let darlehen=rate>0&&zt>0?rate*12/zt:0;
+  let maxKp=Math.max(0,(darlehen+(e.ek||0)-(e.mod||0))/(1+(e.nkPct||0)/100));
+  return {ein,leben,rate,darlehen,maxKp,quote:ein>0?rate/ein*100:0};
+}
+function finBudget(){
+  let el=$('fin_b_ergebnis'); if(!el) return null;
+  let netto=num('fin_b_netto'), sonst=num('fin_b_sonst'), erw=Math.max(0,num('fin_b_erw')), kinder=Math.max(0,num('fin_b_kinder'));
+  let raten=num('fin_b_raten'), wohnen=num('fin_b_wohnen'), puffer=num('fin_b_puffer'), mod=num('fin_moderni'), kp=num('fin_kaufpreis');
+  let B=finBudgetRechnen({netto,sonst,erw,kinder,pErw:num('fin_b_pausch_erw'),pKind:num('fin_b_pausch_kind'),raten,wohnen,puffer,
+    zins:num('fin_zins'),tilgung:num('fin_tilgung'),nkPct:num('fin_grest')+num('fin_notar')+num('fin_makler'),ek:num('fin_ek'),mod});
+  let {rate,darlehen,maxKp,quote,leben}=B; window._FINB=B;
+  if(!(netto>0)){ el.innerHTML='<p class="hint" style="margin:0">Nettoeinkommen eintragen, dann rechnet der Check.</p>'; return B; }
+  const z=(a,b,c)=>'<div class="fin-zeile'+(c?' '+c:'')+'"><span>'+a+'</span><b>'+b+'</b></div>';
+  el.innerHTML=z('Einnahmen im Monat',eur(netto+sonst))+z('− Lebenshaltung ('+(erw===1?'1 Erwachsener':erw+' Erwachsene')+(kinder?', '+(kinder===1?'1 Kind':kinder+' Kinder'):'')+')',eur(leben))
+    +(raten?z('− bestehende Kreditraten',eur(raten)):'')+z('− Neben- und Instandhaltungskosten der Immobilie',eur(wohnen))+z('− Sicherheitspuffer',eur(puffer))
+    +z('<b>Tragbare Monatsrate</b>','<b>'+eur(Math.max(0,rate))+'</b>')
+    +(rate>0?z('Darlehen bei '+num2(num('fin_zins'))+' % Zins und '+num2(num('fin_tilgung'))+' % Tilgung',eur(darlehen))
+      +z('<b>Darstellbarer Kaufpreis</b> <span class="sub">inkl. Eigenkapital, abzüglich Nebenkosten'+(mod?' und Modernisierung':'')+'</span>','<b>'+eur(vpRund(maxKp,1000))+'</b>','fin-budget-top')
+      +z('Anteil der Rate an den Einnahmen','<span class="'+(quote>40?'fin-b-warn':'')+'">'+num2(quote)+' %</span>')
+      +(kp>0?'<p class="fin-b-vgl '+(kp<=maxKp?'ok':'warn')+'">Der Kaufpreis von '+eur(kp)+(kp<=maxKp?' liegt im Budget.':' liegt rund '+eur(vpRund(kp-maxKp,1000))+' über dem Budget — mehr Eigenkapital, eine niedrigere Anfangstilgung oder ein Förderdarlehen prüfen.')+'</p>':'')
+      :'<p class="fin-b-vgl warn">Nach den Ausgaben bleibt keine Rate übrig. Ausgaben und Pauschalen prüfen.</p>')
+    +(quote>40?'<p class="hint" style="margin:6px 0 0">Mehr als 40 % der Einnahmen für die Rate sind knapp; Banken prüfen das im Einzelfall.</p>':'');
+  return B;
+}
+function finBudgetUebernehmen(){
+  let B=finBudget(); if(!B||!(B.maxKp>0)){ alert('Erst den Budget-Check ausfüllen.'); return; }
+  if(!kdVerfuegbar()) return;
+  let budget=Math.floor(B.maxKp/5000)*5000;
+  kdOeffnen(null,async id=>{ let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
+    k.suchprofil=Object.assign({aktiv:true,arten:[],orte:'',finanzierung:'offen',seit:aufHeute()},k.suchprofil||{},{aktiv:true,budget:budget});
+    if(await kdSpeichern(k)) alert('Budget '+eur(budget)+' im Suchprofil von '+kdName(k)+' eingetragen.'); });
+}
+/* Finanzierungsgespräch: Wiedervorlage, Vermerk in der Akte, Kalendereintrag (.ics) */
+function finTerminOeffnen(){
+  let o=$('fin_termin'); if(!o) return;
+  let sel=$('fin_t_kunde'); sel.innerHTML='<option value="">ohne Kundenakte</option>'+KD_CACHE.slice().sort((a,b)=>kdName(a).localeCompare(kdName(b))).map(k=>'<option value="'+k.id+'">'+sEsc(kdName(k))+'</option>').join('');
+  if(!$('fin_t_datum').value){ let d=new Date(Date.now()+2*864e5), p=n=>(''+n).padStart(2,'0'); $('fin_t_datum').value=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+  o.hidden=false; o.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function finTerminIcs(titel,datum,zeit,dauerMin,text){
+  let [h,m]=(zeit||'10:00').split(':').map(Number), d0=datum.replace(/-/g,'');
+  let ende=new Date(2000,0,1,h,m+(dauerMin||60)), p=n=>(''+n).padStart(2,'0');
+  let esc=s=>(''+s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+  let jetzt=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ImmoApp//DE','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+Date.now().toString(36)+'@immoapp','DTSTAMP:'+jetzt,
+    'DTSTART:'+d0+'T'+p(h)+p(m)+'00','DTEND:'+d0+'T'+p(ende.getHours())+p(ende.getMinutes())+'00','SUMMARY:'+esc(titel),'DESCRIPTION:'+esc(text||''),'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+async function finTerminAnlegen(){
+  let datum=$('fin_t_datum').value, zeit=$('fin_t_zeit').value||'10:00', kid=$('fin_t_kunde').value, notiz=($('fin_t_notiz').value||'').trim();
+  if(!datum){ alert('Bitte ein Datum wählen.'); return; }
+  let k=kid?KD_CACHE.find(x=>x.id===kid):null, name=k?kdName(k):'Kaufinteressent';
+  let titel='Finanzierungsgespräch '+name, objekt=num('fin_kaufpreis')>0?'Kaufpreis '+eur(num('fin_kaufpreis')):'';
+  let list=aufLoad(); list.push({id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),text:titel+' um '+zeit+' Uhr'+(notiz?' — '+notiz:''),frist:datum,objekt:objekt,kundeId:k?k.id:undefined,erledigt:false,angelegt:Date.now()});
+  aufStore(list); aufBadge();
+  if(k&&IA_DB_BEREIT){ k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum:aufHeute(),art:'Termin',text:'Finanzierungsgespräch vereinbart für '+new Date(datum+'T00:00:00').toLocaleDateString('de-DE')+', '+zeit+' Uhr'+(objekt?' ('+objekt+')':'')+(notiz?' — '+notiz:'')}]); await kdSpeichern(k); }
+  let ics=finTerminIcs(titel,datum,zeit,60,[objekt,notiz].filter(Boolean).join('\n'));
+  iaHerunterladen(new Blob([ics],{type:'text/calendar;charset=utf-8'}),'Termin '+name.replace(/[^\wäöüÄÖÜß -]/g,'').trim()+'.ics');
+  $('fin_termin').hidden=true; $('fin_t_notiz').value='';
+  iaHinweis('Termin angelegt: Wiedervorlage'+(k?', Kundenakte':'')+' und Kalendereintrag'); setTimeout(()=>iaHinweis(''),2800);
+}
+/* Aus dem Exposé: Finanzierungs-Check mit dem Objektpreis öffnen */
+function finAusExpose(){
+  let R=window._R||{}, p=num('ex_preis')||num('vp_angebot')||(R.empfehlung>0?vpRund(R.empfehlung,1000):0);
+  finOeffnen(); if(p>0){ $('fin_kaufpreis').value=Math.round(p).toLocaleString('de-DE'); finRechnen(); }
+  setTimeout(()=>{ let b=$('fin_budget_box'); if(b) b.scrollIntoView({behavior:'smooth',block:'start'}); },150);
 }
 
 const N_WK=14;
@@ -6840,7 +6986,7 @@ function renderSignature(){
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
 
 /* ---------- Persistence ---------- */
-function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay')||e.closest('#suche')||e.closest('#gr_overlay')||e.closest('#kd_overlay')||e.closest('#pq_overlay')||/^vm_n_/.test(e.id))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
+function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay')||e.closest('#suche')||e.closest('#gr_overlay')||e.closest('#kd_overlay')||e.closest('#pq_overlay')||/^(vm_n_|fin_b_|fin_t_)/.test(e.id))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
 function apply(o){Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
 function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE,grundrisse:GRUNDRISSE};}
 function restore(obj){
@@ -8152,6 +8298,7 @@ var IA_ICONS={
   shield:'<path d="M12 3 4 6v6c0 4.5 3.4 7.8 8 9 4.6-1.2 8-4.5 8-9V6z"/>',
   more:'<circle cx="12" cy="5" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="12" cy="19" r="1.1"/>',
   export:'<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+  calendar:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 10h16"/>',
   lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
   calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h2M12 11h2M16 11h.01"/><path d="M8 15h2M12 15h2M16 15h.01"/><path d="M8 18h6"/>'
 };
