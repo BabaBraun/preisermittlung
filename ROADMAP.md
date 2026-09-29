@@ -69,7 +69,7 @@ Kritische Neubewertung nach diesem Block — was dabei aufgefallen ist:
 | 27 | [x] Regressionstests mit den verifizierten Sollwerten (selbsttest.js, 46 Prüfungen) | Aus dieser Sitzung liegen exakt gegengerechnete Werte vor (Rate 1.660 €, Restschuld nach Zinsbindung 275.675 €, Beleihungswert 285.773 €, Sachwert nach BelWertV 389.054 €, energetischer Abschlag −10.501 € bzw. −14.729 €). Als Testfälle festgehalten schützen sie jede künftige Änderung. Hebt #20 in der Dringlichkeit |
 | 28 | [ ] Die zwei Plausibilitätsprüfungen zusammenführen | Die neue Eingabeprüfung (#12) und die Ergebnis-Plausibilisierung in Abschnitt 9.1 stehen unverbunden nebeneinander |
 | 29 | [ ] Vergleichswert nach § 19 BelWertV ergänzen | Das Modul deckt Ertrags- und Sachwert ab; der Vergleichswert mit eigenem Sicherheitsabschlag von mindestens 10 % fehlt noch |
-| 30 | [ ] Berichtsabschnitte auswählbar machen | Der Bericht ist durch die neuen Module deutlich länger geworden; nicht jeder Abschnitt gehört in jedes Gutachten |
+| 30 | [x] Berichtsabschnitte auswählbar machen (2026-09-29) | Der Bericht ist durch die neuen Module deutlich länger geworden; nicht jeder Abschnitt gehört in jedes Gutachten |
 | 31 | [ ] Dateigröße im Blick behalten | index.html ist von 324 KB auf 388 KB gewachsen. Noch unkritisch, aber die Einzeldatei-Architektur nähert sich der Grenze dessen, was sich angenehm bearbeiten und über eine langsame Mobilverbindung laden lässt |
 | 32 | [ ] Manifest um Schnellzugriffe ergänzen | Marktüberblick und Finanzierung direkt aus dem Kontextmenü des App-Icons — kleiner Aufwand, nette Wirkung |
 
@@ -116,3 +116,10 @@ Berichtsabschnitte, Kundenakte):
   Gebäudemodernisierungsgesetz, § 87 ist unverändert. Die Angaben werden nur aus eindeutig erfassten Quellen
   übernommen, eine Prüfung meldet fehlende Pflichtangaben. Ausgabe als eigenes Dokument (ohne Bewertungszahlen,
   ohne Straße, wenn nicht gewünscht) zum Ansehen, Drucken und als PDF.
+- **4. Berichtsumfang — erledigt.** In ⑩ lassen sich 20 Abschnitte in vier Gruppen einzeln abwählen;
+  mitgeliefert sind die Vorlagen „Vollständiger Bericht“, „Kurzbewertung für den Kunden“ (ohne Grundbuch-
+  und Besichtigungsinterna, Beleihungswert, Sensitivität, Plausibilisierung, Rendite) und „Bank intern“;
+  eigene Auswahlen lassen sich als Vorlage speichern. Die Vorlage lässt sich direkt in der Berichtsansicht
+  wechseln. Umsetzung als Filter über die fertigen Abschnitte (h2 bis h2), damit der geprüfte Berichtsaufbau
+  unverändert bleibt; Inhaltsverzeichnis und Nummerierung folgen der Auswahl. Der frühere Einzelschalter für
+  das Diagramm ist in der Auswahl aufgegangen.
