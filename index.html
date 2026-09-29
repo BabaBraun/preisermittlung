@@ -192,7 +192,7 @@
   .cp-prog i{display:block;height:100%;background:var(--ok);border-radius:999px;width:0;transition:width .3s}
   .cp-next{font-size:12.5px;color:var(--text-2)} .cp-next a{font-weight:500;color:var(--accent);text-decoration:none}
   .cp-pruef{display:flex;flex-direction:column;gap:7px}
-  .cp-pruef .pz{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;cursor:pointer;text-align:left;background:none;border:none;padding:0;color:var(--text-2);width:100%;font-family:inherit}
+  .cp-pruef .pz{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;cursor:pointer;text-align:left;background:none;border:none;padding:0;color:var(--text-2);width:100%;font-family:inherit;white-space:normal}
   .cp-pruef .pz:hover{color:var(--text)}
   .cp-pruef .pz .pd{width:7px;height:7px;border-radius:50%;flex:0 0 auto;margin-top:5px;background:var(--warn)}
   .cp-pruef .pz.fehler .pd{background:var(--bad)}
@@ -581,7 +581,7 @@
   button.primary:hover{filter:brightness(1.06)}
   button.icon{border-radius:50%}
   button.icon:hover{background:var(--tint);color:var(--accent)}
-  button.plus{border-radius:999px;padding:7px 14px}
+  button.plus{border-radius:999px;padding:7px 14px;max-width:100%;white-space:normal;line-height:1.35}
   .menu-list{border-radius:20px;padding:8px;border-color:var(--line-soft);box-shadow:var(--shadow-lg)}
   .menu-list button{border-radius:12px;padding:10px 12px}
   .menu-list button:hover{background:var(--tint)}
@@ -1057,6 +1057,27 @@
   .fin-termin h4{margin:0 0 8px;font-size:14px}
   .fin-termin[hidden]{display:none}
   @media print{ #fin_budget_box .fin-b-aktionen,#fin_termin{display:none!important} }
+
+  /* Investitionsrechnung */
+  #s-rendite:has(#iv_aktiv:not(:checked)) .iv-body{display:none}
+  .iv-body .grid{align-items:end}
+  .iv-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 10px}
+  .iv-kpi{padding:12px 14px;border-radius:var(--rs);background:var(--surface-2);border:1px solid var(--line-soft)}
+  .iv-kpi span{display:block;font-size:11.5px;color:var(--muted)}
+  .iv-kpi b{display:block;font-size:20px;color:var(--text);margin-top:2px}
+  .iv-kpi small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .iv-kpi.haupt{background:var(--tint);border-color:var(--tint-b)}
+  .iv-kpi.haupt b{color:var(--accent)}
+  .iv-kpi.warn b{color:var(--warn)}
+  .iv-text{font-size:13px;line-height:1.55;color:var(--text-2);margin:10px 0}
+  table.iv-tab{font-size:12px;margin-top:8px}
+  table.iv-tab th{white-space:normal;font-size:11px;vertical-align:bottom}
+  table.iv-tab caption{caption-side:bottom;text-align:left;font-size:11.5px;color:var(--muted);padding-top:6px}
+  table.iv-tab td.neg{color:var(--warn)}
+  #report table.iv-tab{font-size:9.5px;margin-top:10px}
+  #report table.iv-tab td{padding:3px 4px;text-align:right;white-space:nowrap}
+  #report table.iv-tab td:first-child{text-align:left}
+  @media(max-width:640px){ .iv-kpis{grid-template-columns:1fr 1fr} .iv-kpi b{font-size:17px} }
 </style>
 </head>
 <body>
@@ -2199,6 +2220,32 @@
       </div>
       <div class="row-calc" style="margin-top:8px"><span>Kaufpreisfaktor <span class="u">(Kaufpreis / Jahresrohertrag)</span></span><b id="o_re_faktor">–</b></div>
       <div class="flag" id="o_re_hinweis">Mieterträge in ① bzw. der Mietrolle eintragen, damit die Renditen berechnet werden.</div>
+
+      <h3 class="sep">Investitionsrechnung für Kapitalanleger</h3>
+      <label class="toggle no-print"><input type="checkbox" id="iv_aktiv" onchange="compute()"> Cashflow über die Haltedauer rechnen und im Bericht zeigen</label>
+      <div class="iv-body">
+        <p class="hint">Was bleibt dem Anleger Jahr für Jahr, und was bringt das Eigenkapital am Ende? Kaufpreis, Nebenkosten, Sanierung,
+          Miete und Bewirtschaftungskosten kommen von oben. Leere Felder füllt die App (grau vorgeschlagen). AfA nach § 7 Abs. 4 EStG:
+          2 %, vor 1925 fertiggestellt 2,5 %, ab 2023 fertiggestellt 3 %. Modellrechnung — ersetzt keine Steuerberatung und fließt nicht
+          in die Preisempfehlung ein.</p>
+        <div class="grid four">
+          <div class="field"><label>Eigenkapital <span class="u">€ · leer = Nebenkosten + 20 %</span></label><input id="iv_ek" type="text" value=""></div>
+          <div class="field"><label>Sollzins <span class="u">% p. a.</span></label><input id="iv_zins" type="text" value="3,8"></div>
+          <div class="field"><label>Anfängliche Tilgung <span class="u">% p. a.</span></label><input id="iv_tilgung" type="text" value="2,0"></div>
+          <div class="field"><label>Haltedauer <span class="u">Jahre</span></label><input id="iv_jahre" type="text" value="10"></div>
+          <div class="field"><label>Mietsteigerung <span class="u">% p. a.</span></label><input id="iv_miete_pa" type="text" value="1,5"></div>
+          <div class="field"><label>Kostensteigerung <span class="u">% p. a.</span></label><input id="iv_kosten_pa" type="text" value="2,0"></div>
+          <div class="field"><label>Wertentwicklung <span class="u">% p. a.</span></label><input id="iv_wert_pa" type="text" value="1,0"></div>
+          <div class="field"><label>Verkaufskosten <span class="u">%</span></label><input id="iv_verkauf" type="text" value="3,0"></div>
+          <div class="field"><label>Gebäudeanteil <span class="u">% · leer = Sachwert-Verhältnis</span></label><input id="iv_geb" type="text" value=""></div>
+          <div class="field"><label>AfA-Satz <span class="u">% · leer = nach Baujahr</span></label><input id="iv_afa" type="text" value=""></div>
+          <div class="field"><label>Grenzsteuersatz <span class="u">% inkl. Soli</span></label><input id="iv_steuer" type="text" value="35"></div>
+        </div>
+        <div id="iv_ergebnis"></div>
+        <div class="gr-tabelle"><table class="mdb-tbl iv-tab" id="iv_tab"></table></div>
+        <div class="gr-aktionen no-print"><button class="secondary" onclick="ivDokument()" data-ic="file-text">Als Dokument für den Anleger</button>
+          <button class="secondary" onclick="ivDokument(true)" data-ic="upload">Teilen</button></div>
+      </div>
     </section>
 
     <!-- ERSTELLER & UNTERSCHRIFT -->
@@ -4745,6 +4792,7 @@ const RP_ABSCHNITTE=[
   ['Ergebnis','sensitivitaet','Sensitivität',/^Sensitivität/],
   ['Ergebnis','plausi','Plausibilisierung',/^Plausibilisierung/],
   ['Ergebnis','rendite','Rendite und Investitionskosten',/^Rendite/],
+  ['Ergebnis','investition','Investitionsrechnung (Cashflow, Eigenkapitalrendite)',/^Investitionsrechnung/],
   ['Ergebnis','diagramm','Diagramm Zusammensetzung des Substanzwerts',/^Zusammensetzung des Substanzwerts/],
   ['Anlagen','grundrisse','Grundrisse',/^Grundrisse/],
   ['Anlagen','fotos','Fotodokumentation',/^Fotodokumentation/],
@@ -4752,7 +4800,7 @@ const RP_ABSCHNITTE=[
 ];
 const RP_VORLAGEN=[
   ['voll','Vollständiger Bericht',[]],
-  ['kunde','Kurzbewertung für den Kunden',['objektdaten','besichtigung','mieten','beleihung','sensitivitaet','plausi','rendite','karten']],
+  ['kunde','Kurzbewertung für den Kunden',['objektdaten','besichtigung','mieten','beleihung','sensitivitaet','plausi','rendite','investition','karten']],
   ['bank','Bank intern',['rendite','diagramm']]
 ];
 const RP_EIGENE_KEY='ia_bericht_vorlagen';
@@ -5894,6 +5942,142 @@ function finAusExpose(){
   setTimeout(()=>{ let b=$('fin_budget_box'); if(b) b.scrollIntoView({behavior:'smooth',block:'start'}); },150);
 }
 
+/* ---------- Investitionsrechnung für Kapitalanleger (⑨b) -----------------------------------------------
+   Cashflow über die Haltedauer: Miete und Bewirtschaftungskosten mit eigener Steigerung, Annuitätendarlehen
+   (monatlich wie im Finanzierungsrechner), AfA nach § 7 Abs. 4 EStG, Steuer mit dem persönlichen
+   Grenzsteuersatz (Verluste mindern andere Einkünfte), Verkauf am Ende mit Verkaufskosten und — innerhalb der
+   Zehnjahresfrist des § 23 EStG — Steuer auf den Veräußerungsgewinn. Ergebnis: Eigenkapitalrendite als
+   interner Zinsfuß vor und nach Steuern, Gesamtkapitalrendite ohne Kredit (zeigt den Hebel), Kapitaldienst-
+   deckung. Modellrechnung, keine Steuerberatung; fließt nicht in die Preisempfehlung ein. */
+function ivIrr(cfs){
+  const npv=r=>cfs.reduce((s,c,t)=>s+c/Math.pow(1+r,t),0);
+  let lo=-0.99, hi=1, flo=npv(lo), fhi=npv(hi);
+  if(!isFinite(flo)||!isFinite(fhi)||flo*fhi>0){ hi=10; fhi=npv(hi); if(flo*fhi>0) return null; }
+  for(let i=0;i<200;i++){ let mid=(lo+hi)/2, f=npv(mid); if(Math.abs(f)<1e-9) return mid; if(flo*f<0){ hi=mid; fhi=f; } else { lo=mid; flo=f; } }
+  return (lo+hi)/2;
+}
+function ivAfaSatz(baujahr){ return baujahr>0&&baujahr<1925?2.5:baujahr>=2023?3:2; }
+/* reine Rechnung (im Selbsttest geprüft) */
+function ivModell(p){
+  let n=Math.max(1,Math.min(30,Math.round(p.jahre||10))), ak=p.kp+(p.nk||0)+(p.san||0), ek=Math.max(0,p.ek||0);
+  let D0=Math.max(0,ak-ek), a=finTilgungsverlauf(D0,p.zins||0,p.tilg||0,0,60);
+  let afaBasis=(p.kp+(p.nk||0))*(p.gebAnteil||0)+(p.san||0), afaJahr=afaBasis*(p.afa||0)/100, st=(p.steuer||0)/100;
+  let jahre=[], afaSumme=0, letzte=a.jahre.length?a.jahre[a.jahre.length-1]:null;
+  for(let t=1;t<=n;t++){
+    let e=a.jahre[t-1]||(a.tilgt||!letzte?{zins:0,tilgung:0,ende:0}:{zins:letzte.zins,tilgung:0,ende:letzte.ende});
+    let miete=p.roh*Math.pow(1+(p.mietPa||0)/100,t-1), kosten=p.kosten*Math.pow(1+(p.kostenPa||0)/100,t-1);
+    let afa=Math.min(afaJahr,Math.max(0,afaBasis-afaSumme)); afaSumme+=afa;
+    let cfVor=miete-kosten-e.zins-e.tilgung, ergebnis=miete-kosten-e.zins-afa, steuer=ergebnis*st;
+    jahre.push({t,miete,kosten,zins:e.zins,tilgung:e.tilgung,cfVor,afa,ergebnis,steuer,cfNach:cfVor-steuer,rest:e.ende,wert:p.kp*Math.pow(1+(p.wertPa||0)/100,t)});
+  }
+  let L=jahre[n-1], V=L.wert, vk=V*(p.verkaufPct||0)/100;
+  let gewinn=V-vk-(ak-afaSumme), frei=n>=10, steuerVerk=frei?0:Math.max(0,gewinn)*st;
+  let erloes=V-vk-L.rest-steuerVerk, erloesVor=V-vk-L.rest;
+  let cfN=[-ek].concat(jahre.map(j=>j.cfNach)), cfV=[-ek].concat(jahre.map(j=>j.cfVor)), cfG=[-ak].concat(jahre.map(j=>j.miete-j.kosten));
+  cfN[n]+=erloes; cfV[n]+=erloesVor; cfG[n]+=V-vk;
+  let summeNach=jahre.reduce((s,j)=>s+j.cfNach,0), kd1=jahre[0].zins+jahre[0].tilgung;
+  let plus=jahre.find(j=>j.cfNach>=0);
+  return {n,ak,ek,D0,rate:a.rate,afaBasis,afaJahr,afaSumme,jahre,V,vk,gewinn,frei,steuerVerk,erloes,restN:L.rest,
+    irrNach:ek>0?ivIrr(cfN):null,irrVor:ek>0?ivIrr(cfV):null,irrGesamt:ivIrr(cfG),
+    dscr:kd1>0?(jahre[0].miete-jahre[0].kosten)/kd1:null,summeNach,zuwachs:summeNach+erloes-ek,multiple:ek>0?(summeNach+erloes)/ek:null,plusAb:plus?plus.t:null};
+}
+function ivEingaben(){
+  let R=window._R||{}, kp=R.reKP||0, bj=num('ek_baujahr');
+  let ekVor=Math.round(((R.reNK||0)+(R.reSan||0)+0.2*kp)/1000)*1000;
+  /* Aufteilung wie die Arbeitshilfe des BMF: Verhältnis Bodenwert zu Sachwert (Boden + Gebäude) */
+  let basis=R.substanz>0?R.substanz:R.empfehlung, bodenAnteil=basis>0&&R.bodenwert>0?Math.min(0.9,Math.max(0.05,R.bodenwert/basis)):0.2;
+  const leer=id=>!($(id)&&$(id).value.trim());
+  let vor={ek:ekVor,geb:(1-bodenAnteil)*100,afa:ivAfaSatz(bj)};
+  return {vor,p:{kp,nk:R.reNK||0,san:R.reSan||0,roh:R.roh||0,kosten:(R.roh||0)-(R.reRein||0),
+    ek:leer('iv_ek')?vor.ek:num('iv_ek'),zins:num('iv_zins'),tilg:num('iv_tilgung'),jahre:num('iv_jahre')||10,
+    mietPa:num('iv_miete_pa'),kostenPa:num('iv_kosten_pa'),wertPa:num('iv_wert_pa'),verkaufPct:num('iv_verkauf'),
+    gebAnteil:(leer('iv_geb')?vor.geb:num('iv_geb'))/100,afa:leer('iv_afa')?vor.afa:num('iv_afa'),steuer:num('iv_steuer')}};
+}
+const ivPct=v=>v==null||!isFinite(v)?'–':num2(v*100)+' %';
+function ivRechnen(){
+  let el=$('iv_ergebnis'); if(!el) return null;
+  if(!$('iv_aktiv').checked){ window._IV=null; return null; }
+  let {vor,p}=ivEingaben();
+  $('iv_ek').placeholder=Math.round(vor.ek).toLocaleString('de-DE');
+  $('iv_geb').placeholder=num2(vor.geb);
+  $('iv_afa').placeholder=num2(vor.afa);
+  if(!(p.kp>0)||!(p.roh>0)){ window._IV=null; el.innerHTML='<div class="flag">Für die Investitionsrechnung braucht es einen Kaufpreis und Mieterträge (① bzw. Mietrolle).</div>'; $('iv_tab').innerHTML=''; return null; }
+  let M=ivModell(p); M.p=p; window._IV=M;
+  const kpi=(k,v,s,c)=>'<div class="iv-kpi'+(c?' '+c:'')+'"><span>'+k+'</span><b>'+v+'</b>'+(s?'<small>'+s+'</small>':'')+'</div>';
+  el.innerHTML='<div class="iv-kpis">'
+    +kpi('Eigenkapitalrendite nach Steuern',ivPct(M.irrNach),'interner Zinsfuß über '+M.n+' Jahre','haupt')
+    +kpi('vor Steuern',ivPct(M.irrVor),'')
+    +kpi('Gesamtkapitalrendite',ivPct(M.irrGesamt),'ohne Kredit, vor Steuern')
+    +kpi('Cashflow im 1. Jahr',eur(M.jahre[0].cfNach/12)+' / Monat','nach Steuern · vor Steuern '+eur(M.jahre[0].cfVor/12),M.jahre[0].cfNach<0?'warn':'')
+    +kpi('Kapitaldienstdeckung',M.dscr!=null?num2(M.dscr)+'-fach':'–','Reinertrag ÷ Zins und Tilgung',M.dscr!=null&&M.dscr<1.2?'warn':'')
+    +kpi('Vermögenszuwachs',eur(M.zuwachs),'nach '+M.n+' Jahren, nach Steuern')+'</div>'
+    +'<div class="fin-zeile"><span>Eigenkapital</span><b>'+eur(M.ek)+'</b></div>'
+    +'<div class="fin-zeile"><span>Darlehen <span class="sub">'+num2(p.zins)+' % Zins, '+num2(p.tilg)+' % Tilgung, Rate '+eur(M.rate)+' / Monat</span></span><b>'+eur(M.D0)+'</b></div>'
+    +'<div class="fin-zeile"><span>AfA <span class="sub">'+num2(p.afa)+' % aus '+eur(M.afaBasis)+' (Gebäudeanteil '+num2(p.gebAnteil*100)+' %'+(p.san?' + Sanierung':'')+')</span></span><b>'+eur(M.afaJahr)+' / Jahr</b></div>'
+    +'<div class="fin-zeile"><span>Verkauf nach '+M.n+' Jahren <span class="sub">Wert '+eur(M.V)+' − Verkaufskosten '+eur(M.vk)+' − Restschuld '+eur(M.restN)+(M.frei?' · steuerfrei nach § 23 EStG':' − Steuer auf den Gewinn '+eur(M.steuerVerk))+'</span></span><b>'+eur(M.erloes)+'</b></div>'
+    +'<p class="iv-text">'+sEsc(ivText(M))+'</p>';
+  let kopf=['Jahr','Miete','Bewirt­schaftung','Zinsen','Tilgung','Cashflow vor Steuern','AfA','Steuer','Cashflow nach Steuern','Restschuld','Wert'], b=v=>eur(v).replace(' €','');
+  $('iv_tab').innerHTML='<thead><tr>'+kopf.map(k=>'<th>'+k+'</th>').join('')+'</tr></thead><tbody>'
+    +M.jahre.map(j=>'<tr><td>'+j.t+'</td>'+[j.miete,-j.kosten,-j.zins,-j.tilgung].map(v=>'<td class="r">'+b(v)+'</td>').join('')
+      +'<td class="r strong'+(j.cfVor<0?' neg':'')+'">'+b(j.cfVor)+'</td><td class="r">'+b(j.afa)+'</td><td class="r">'+b(-j.steuer)+'</td>'
+      +'<td class="r strong'+(j.cfNach<0?' neg':'')+'">'+b(j.cfNach)+'</td><td class="r">'+b(j.rest)+'</td><td class="r">'+b(j.wert)+'</td></tr>').join('')+'</tbody>'
+    +'<caption>Jahresübersicht in €. Steuer negativ = Zahlung, positiv = Erstattung.</caption>';
+  return M;
+}
+function ivText(M){
+  let p=M.p, t=[];
+  if(M.irrGesamt!=null&&M.irrNach!=null){
+    let g=M.irrGesamt*100;
+    t.push('Ohne Kredit brächte das Objekt '+num2(g)+' % im Jahr. Der Kredit kostet '+num2(p.zins)+' %. '
+      +(g>p.zins?'Weil das Objekt mehr abwirft als der Kredit kostet, hebt die Finanzierung die Eigenkapitalrendite (positiver Hebel).'
+        :'Weil der Kredit mehr kostet als das Objekt abwirft, drückt die Finanzierung die Eigenkapitalrendite (negativer Hebel) — mehr Eigenkapital oder ein niedrigerer Preis verbessern das Ergebnis.'));
+  } else if(!(M.ek>0)) t.push('Ohne Eigenkapital lässt sich keine Eigenkapitalrendite angeben.');
+  if(M.jahre[0].cfNach<0) t.push('Der laufende Cashflow ist anfangs negativ'+(M.plusAb?' und wird ab Jahr '+M.plusAb+' positiv':' und bleibt es über die Haltedauer')+' — der Anleger muss monatlich zuschießen.');
+  if(M.dscr!=null&&M.dscr<1.2) t.push('Die Kapitaldienstdeckung liegt unter 1,2; Banken verlangen für Anlageobjekte meist mehr.');
+  if(!M.frei) t.push('Verkauf innerhalb von zehn Jahren: Der Gewinn ist nach § 23 EStG zu versteuern.');
+  return t.join(' ');
+}
+function ivBericht(esc){
+  let M=window._IV; if(!M||!$('iv_aktiv').checked) return '';
+  let p=M.p, L=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
+  return '<h2>Investitionsrechnung über '+M.n+' Jahre</h2><table>'
+    +L('Investition (Kaufpreis, Nebenkosten'+(p.san?', Sanierung':'')+')',eur(M.ak))+L('Eigenkapital',eur(M.ek))
+    +L('Darlehen ('+num2(p.zins)+' % Zins, '+num2(p.tilg)+' % Tilgung)',eur(M.D0))
+    +L('Annahmen','Miete +'+num2(p.mietPa)+' % p. a., Kosten +'+num2(p.kostenPa)+' % p. a., Wert +'+num2(p.wertPa)+' % p. a., Grenzsteuersatz '+num2(p.steuer)+' %')
+    +L('AfA',eur(M.afaJahr)+' im Jahr ('+num2(p.afa)+' % aus '+eur(M.afaBasis)+')')
+    +L('Cashflow im 1. Jahr (vor / nach Steuern)',eur(M.jahre[0].cfVor)+' / '+eur(M.jahre[0].cfNach))
+    +L('Kapitaldienstdeckung im 1. Jahr',M.dscr!=null?num2(M.dscr)+'-fach':'–')
+    +L('Verkaufserlös nach '+M.n+' Jahren (nach Kosten, Restschuld'+(M.frei?'':', Steuer')+')',eur(M.erloes))
+    +L('Gesamtkapitalrendite (ohne Kredit, vor Steuern)',ivPct(M.irrGesamt))
+    +L('Eigenkapitalrendite vor Steuern',ivPct(M.irrVor))
+    +'<tr class="total"><td>Eigenkapitalrendite nach Steuern</td><td>'+ivPct(M.irrNach)+'</td></tr></table>'
+    +'<table class="iv-tab"><tr>'+['Jahr','Miete','Bewirtsch.','Zinsen','Tilgung','CF vor St.','AfA','Steuer','CF nach St.','Restschuld'].map(k=>'<td><b>'+k+'</b></td>').join('')+'</tr>'
+    +M.jahre.map(j=>'<tr><td>'+j.t+'</td>'+[j.miete,-j.kosten,-j.zins,-j.tilgung,j.cfVor,j.afa,-j.steuer,j.cfNach,j.rest].map(v=>'<td>'+eur(v).replace(' €','')+'</td>').join('')+'</tr>').join('')+'</table>'
+    +'<div class="beschr">'+esc(ivText(M))+' Beträge in €; Steuer negativ = Zahlung, positiv = Erstattung. Modellrechnung auf Grundlage der getroffenen Annahmen; sie ersetzt keine Steuerberatung. '
+    +'Bewirtschaftungskosten wie im Ertragsansatz (einschließlich Mietausfallwagnis); Verluste mindern andere Einkünfte.</div>';
+}
+/* eigenes Dokument für den Anleger */
+function ivDokument(teilen){
+  compute(); let M=window._IV;
+  if(!M){ alert($('iv_aktiv').checked?'Für die Investitionsrechnung fehlen Kaufpreis oder Mieterträge.':'Bitte zuerst „Cashflow über die Haltedauer rechnen“ einschalten.'); return; }
+  let K=exKontakt(), esc=sEsc, titel=exV('ex_titel')||exTitelVorschlag(), r=$('report');
+  r.className='expose invest'; r.dataset.pdfname='Investitionsrechnung '+(exV('ek_anschrift')||titel).replace(/[^\wäöüÄÖÜß -]/g,'').trim()+' '+aufHeute();
+  let R=window._R||{};
+  r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="document.body.classList.remove(\'report-mode\')">← zurück</button><button onclick="window.print()">Drucken</button>'
+    +'<button onclick="downloadPDF()">PDF herunterladen</button><button onclick="pdfTeilen()">Teilen</button></div>'
+    +(K.firma?'<div class="ex-kopf">'+esc(K.firma)+'</div>':'')
+    +'<h1>Investitionsrechnung</h1><p class="ex-sub">'+esc(exV('ek_anschrift')||titel)+' · Stand '+new Date().toLocaleDateString('de-DE')+'</p>'
+    +'<div class="ex-fakten">'+[['Kaufpreis',eur(M.p.kp)],['Jahresnettokaltmiete',eur(M.p.roh)],['Kaufpreisfaktor',R.reFaktor?num2(R.reFaktor)+'-fach':'–'],
+      ['Bruttomietrendite',R.reBrutto?num2(R.reBrutto)+' %':'–'],['Eigenkapitalrendite nach Steuern',ivPct(M.irrNach)],['Haltedauer',M.n+' Jahre']]
+      .map(f=>'<div class="ex-fakt"><span>'+f[0]+'</span><b>'+esc(''+f[1])+'</b></div>').join('')+'</div>'
+    +ivBericht(esc).replace(/^<h2>[^<]*<\/h2>/,'<h2>Ergebnis</h2>')
+    +((K.name||K.tel||K.mail)?'<h2>Ihr Ansprechpartner</h2><div class="ex-kontakt"><div><b>'+esc(K.name||'')+'</b>'+(K.funktion?'<div>'+esc(K.funktion)+'</div>':'')+(K.tel?'<div>Telefon '+esc(K.tel)+'</div>':'')+(K.mail?'<div>'+esc(K.mail)+'</div>':'')+'</div></div>':'')
+    +'<p class="ex-hinweis">Unverbindliche Modellrechnung. Mieten, Kosten, Zinsen und Wertentwicklung sind Annahmen; tatsächliche Ergebnisse können abweichen. '
+    +'Keine Steuer- oder Rechtsberatung — steuerliche Fragen bitte mit dem Steuerberater klären. Darlehenskonditionen sind beispielhaft und kein Angebot.</p>';
+  document.body.classList.add('report-mode'); window.scrollTo(0,0);
+  if(teilen) pdfTeilen();
+}
+
 const N_WK=14;
 const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
   ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
@@ -6517,6 +6701,7 @@ function compute(){
   try{ exStatus(); }catch(e){}
   try{ pqRender(); }catch(e){}
   try{ sanRechnen(); }catch(e){}
+  try{ ivRechnen(); }catch(e){}
   try{ lageAnzeige(); }catch(e){}
   try{ vpStatus(); }catch(e){}
   try{ kkStatus(); }catch(e){}
@@ -6827,6 +7012,7 @@ function druckbericht(){
    ${szBlock}
    ${plausiBlock}
    ${renditeBlock}
+   ${ivBericht(esc)}
    ${diagrammBlock}
    ${grBlock}
    ${fotoBlock}

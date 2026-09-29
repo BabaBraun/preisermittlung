@@ -91,6 +91,25 @@ window.iaSelbsttest=function(){
     pruef('Finanzierung','Budget: Anteil der Rate an den Einnahmen',e.quote,32.63,0.01);
   });
 
+  sicher('Investition','Aufruf',()=>{
+    pruef('Investition','Interner Zinsfuß −100 / +10 / +110',ivIrr([-100,10,110]),0.10,1e-9);
+    pruef('Investition','AfA-Satz Baujahr 1910 / 1985 / 2024',[1910,1985,2024].map(ivAfaSatz).join(' / '),'2.5 / 2 / 3');
+    // 1 Mio. € Kaufpreis, 10,57 % Nebenkosten, 60.000 € Miete, 12.000 € Kosten, 800.000 € Darlehen zu 3,8 % + 2 %, 10 Jahre
+    // Sollwerte aus einer unabhängigen Vergleichsrechnung (Python)
+    let M=ivModell({kp:1000000,nk:105700,san:0,roh:60000,kosten:12000,ek:305700,zins:3.8,tilg:2,jahre:10,
+      mietPa:1.5,kostenPa:2,wertPa:1,verkaufPct:3,gebAnteil:0.75,afa:2,steuer:35});
+    pruef('Investition','Cashflow 1. Jahr vor Steuern',M.jahre[0].cfVor,1600,0.01);
+    pruef('Investition','Cashflow 1. Jahr nach Steuern',M.jahre[0].cfNach,1146.35,0.01);
+    pruef('Investition','Kapitaldienstdeckung',M.dscr,1.0345,0.0001);
+    pruef('Investition','AfA im Jahr',M.afaJahr,16585.50,0.01);
+    pruef('Investition','Restschuld nach 10 Jahren',M.restN,605723.41,0.5);
+    pruef('Investition','Verkaufserlös nach Kosten und Restschuld',M.erloes,465760.05,0.5);
+    pruef('Investition','Eigenkapitalrendite nach Steuern',M.irrNach*100,4.8384,0.001);
+    pruef('Investition','Eigenkapitalrendite vor Steuern',M.irrVor*100,5.4971,0.001);
+    pruef('Investition','Gesamtkapitalrendite ohne Kredit',M.irrGesamt*100,4.3437,0.001);
+    pruef('Investition','Vermögenszuwachs nach Steuern',M.zuwachs,180510.82,0.5);
+  });
+
   sicher('Bausteine','Aufruf',()=>{
     pruef('Bausteine','Barwertfaktor 5 % / 20 Jahre',barwertfaktor(5,20),12.46221,0.00001);
     pruef('Bausteine','Restnutzungsdauer Anlage 2: 7 Punkte, Alter 41, GND 80',computeRND(41,80,7),43.98717,0.0001);

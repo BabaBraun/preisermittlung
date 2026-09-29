@@ -176,3 +176,11 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   Budget ins Suchprofil, „Finanzierungsgespräch vereinbaren“ (Wiedervorlage, Vermerk in der Akte, .ics-Termin),
   „Finanzierungs-Check“ aus dem Exposé. Einkommensangaben nicht im Projekt, nur ausdrücklich in der Kundenakte;
   keine Raten im Exposé (§ 17 PAngV). Sechs neue Prüfungen im Selbsttest (jetzt 62).
+- **B5 Investitionsrechnung — erledigt.** In ⑨b zuschaltbar: Cashflow Jahr für Jahr über 1–30 Jahre (Miet- und
+  Kostensteigerung, Annuitätendarlehen wie im Finanzierungsrechner, AfA nach § 7 Abs. 4 EStG mit Gebäudeanteil aus
+  dem Sachwert-Verhältnis, Steuer mit Grenzsteuersatz, Verkauf mit Verkaufskosten und § 23 EStG innerhalb von zehn
+  Jahren). Kennzahlen: Eigenkapitalrendite vor/nach Steuern (interner Zinsfuß), Gesamtkapitalrendite ohne Kredit
+  als Maß für den Hebel, Kapitaldienstdeckung, Vermögenszuwachs. Berichtsabschnitt „Investitionsrechnung“ und
+  eigenes Dokument für den Anleger. Zwölf neue Prüfungen im Selbsttest gegen eine unabhängige Vergleichsrechnung
+  (jetzt 74). Nebenbei behoben: lange Prüfhinweise und der Knopf „Vergleichsobjekte aus dem Marktüberblick“ liefen
+  über den Rand.
