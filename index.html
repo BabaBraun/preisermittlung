@@ -945,6 +945,69 @@
   .lage-erg{display:grid;grid-template-columns:auto 1fr;gap:6px}
   .lage-erg select,.lage-erg input{height:36px;font-size:13px}
   .lage-erg input[type=date]{grid-column:1/-1}
+
+  /* Verkäufer-Präsentation */
+  .vp-overlay{display:none;position:fixed;inset:0;z-index:480;background:#0B1422}
+  .vp-overlay.on{display:block}
+  .vp-folien{position:absolute;inset:0 0 64px 0}
+  .vp-slot{position:absolute;inset:0;display:none;padding:min(3vh,28px) min(3vw,40px)}
+  .vp-slot.on{display:block}
+  .vp-slot .vp-folie{height:100%;border-radius:18px}
+  .vp-steuer{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:14px;color:#cfd8e6;font-size:13px}
+  .vp-nav{width:44px;height:44px;border-radius:50%!important;border:1px solid rgba(255,255,255,.25)!important;background:transparent!important;color:#fff!important;font-size:22px;padding:0!important}
+  .vp-x{position:absolute;right:16px;font-size:16px}
+  .vp-punkte{display:flex;align-items:center;gap:6px}
+  .vp-punkte button{width:8px;height:8px;border-radius:4px!important;padding:0!important;border:none!important;background:rgba(255,255,255,.3)!important;min-height:0}
+  .vp-punkte button.on{background:#7FB0F5!important;width:22px}
+  .vp-folie{position:relative;display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.8vh,18px);padding:clamp(24px,5vh,56px) clamp(24px,5vw,72px) clamp(36px,6vh,64px);overflow:hidden;color:#0F1E36;font-family:var(--sans);background:#fff;box-sizing:border-box}
+  .vp-kicker{margin:0;font-size:clamp(12px,1.4vw,16px);letter-spacing:1.6px;text-transform:uppercase;color:#1D5BC4;font-weight:600}
+  .vp-folie h1{margin:0;font-size:clamp(28px,4.4vw,56px);line-height:1.1;letter-spacing:-.5px;font-family:var(--sans);border:none;padding:0;color:#0F1E36}
+  .vp-sub{margin:0;font-size:clamp(14px,1.6vw,20px);color:#465872;line-height:1.5;max-width:860px}
+  .vp-gross{font-size:clamp(32px,5.6vw,72px);font-weight:700;color:#1D5BC4;letter-spacing:-1px;line-height:1.05}
+  .vp-chips{display:flex;flex-wrap:wrap;gap:10px}
+  .vp-chips span{display:flex;flex-direction:column;padding:10px 16px;border-radius:12px;background:#F4F8FD;border:1px solid #E6EDF6;font-weight:600;font-size:clamp(14px,1.5vw,18px)}
+  .vp-chips small{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#5E6F88;font-weight:500}
+  .vp-verfahren{display:flex;flex-direction:column;gap:8px;max-width:760px}
+  .vp-verfahren div{display:grid;grid-template-columns:140px 1fr 120px;align-items:center;gap:12px;font-size:clamp(13px,1.3vw,16px)}
+  .vp-verfahren i{display:block;height:12px;border-radius:6px;background:#1D5BC4;opacity:.75}
+  .vp-verfahren b{text-align:right}
+  .vp-klein{margin:0;font-size:12px;color:#5E6F88}
+  .vp-kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .vp-kennzahlen div{padding:16px 18px;border-radius:14px;background:#F4F8FD;border:1px solid #E6EDF6}
+  .vp-kennzahlen b{display:block;font-size:clamp(22px,3vw,40px);color:#1D5BC4}
+  .vp-kennzahlen span{font-size:13px;color:#465872}
+  .vp-chart{width:100%;max-width:820px;height:auto;max-height:36vh}
+  .vp-leer{font-size:clamp(15px,1.7vw,20px);color:#465872;max-width:760px;line-height:1.55}
+  .vp-tab{width:100%;border-collapse:collapse;font-size:clamp(13px,1.3vw,16px)}
+  .vp-tab th{text-align:left;font-size:12px;color:#5E6F88;font-weight:600;padding:8px 10px;border-bottom:2px solid #E6EFFD}
+  .vp-tab td{padding:9px 10px;border-bottom:1px solid #E6EDF6;text-align:left!important;background:none!important}
+  .vp-empf{display:flex;flex-direction:column;gap:4px;padding:18px 22px;border-radius:16px;background:#1D5BC4;color:#fff;max-width:620px}
+  .vp-empf span{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;opacity:.85}
+  .vp-empf b{font-size:clamp(22px,3.2vw,40px)}
+  .vp-empf small{opacity:.9;font-size:14px}
+  .vp-plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+  .vp-plan li{display:grid;grid-template-columns:40px 180px 1fr;gap:14px;align-items:center;font-size:clamp(14px,1.5vw,19px)}
+  .vp-plan li::before{counter-increment:s;content:counter(s);width:32px;height:32px;border-radius:50%;background:#E6EFFD;color:#1D5BC4;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .vp-plan li b{color:#1D5BC4}
+  .vp-liste{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;font-size:clamp(15px,1.7vw,21px)}
+  .vp-liste li{padding-left:36px;position:relative;line-height:1.4}
+  .vp-liste li::before{content:'✓';position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:#E3F4EA;color:#23734A;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .vp-kontakt{display:flex;gap:22px;align-items:center;font-size:clamp(15px,1.6vw,20px);line-height:1.55}
+  .vp-kontakt b{font-size:clamp(20px,2.3vw,28px)}
+  .vp-kontakt .ini{width:84px;height:84px;border-radius:50%;background:#1D5BC4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:30px;flex:0 0 auto}
+  .vp-fuss{position:absolute;left:clamp(24px,5vw,72px);bottom:14px;font-size:11px;color:#8a97a8;letter-spacing:.6px}
+  .vp-folie.vp-titel{flex-direction:row;align-items:stretch;padding:0}
+  .vp-titel .vp-bild{flex:1 1 50%;background-size:cover;background-position:center}
+  .vp-titel .vp-titeltext{flex:1 1 50%;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:clamp(24px,5vh,56px) clamp(24px,4vw,56px)}
+  .vp-titel .vp-fuss{left:auto;right:clamp(24px,4vw,56px)}
+  @media(max-width:700px){ .vp-folie.vp-titel{flex-direction:column} .vp-titel .vp-bild{flex:0 0 38%} .vp-plan li{grid-template-columns:36px 1fr} .vp-plan li span{grid-column:2}
+    .vp-verfahren div{grid-template-columns:96px 1fr 90px} .vp-tab th:nth-child(2),.vp-tab td:nth-child(2),.vp-tab th:nth-child(6),.vp-tab td:nth-child(6){display:none} }
+  #report.praesentation{max-width:1040px}
+  #report.praesentation .vp-folie{aspect-ratio:281/192;border:1px solid #E6EDF6;margin:0 0 18px;page-break-after:always;break-after:page;page:quer}
+  #report.praesentation .vp-folie h1{border:none;padding:0;font-family:var(--sans)}
+  #report.praesentation .vp-folie:last-child{page-break-after:auto;break-after:auto;margin-bottom:0}
+  @page quer{size:A4 landscape;margin:10mm}
+  @media print{ #report.praesentation .vp-folie{margin:0;border:none;height:188mm;aspect-ratio:auto} }
 </style>
 </head>
 <body>
@@ -1057,6 +1120,7 @@
         <button onclick="druckeAufnahmebogen()" data-ic="printer">Aufnahmebogen drucken</button>
         <button onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste erstellen</button>
         <button onclick="exposeAnzeigen()" data-ic="camera">Exposé</button>
+        <button onclick="vpStarten()" data-ic="chart">Verkäufer-Präsentation</button>
         <div class="sep"></div>
         <button onclick="neu()" data-ic="file">Neue leere Bewertung</button>
         <div class="sep"></div>
@@ -2177,6 +2241,27 @@
       </div>
       <label class="chk no-print" style="margin-top:8px"><input type="checkbox" id="ex_k_merken" checked> Ansprechpartner für neue Exposés merken (nur auf diesem Gerät)</label>
     </section>
+
+    <section class="card" id="s-praesentation" data-nav="⑫ Präsentation">
+      <h2>⑫ Verkäufer-Präsentation</h2>
+      <p class="hint">Für das Akquisegespräch: Folien aus der Bewertung, den Exposé-Angaben und deinem Marktüberblick. Auf dem iPad
+        im Vollbild durchblättern (wischen, tippen oder Pfeiltasten), als PDF im Querformat oder direkt teilen.</p>
+      <div class="gr-aktionen no-print"><button class="primary" onclick="vpStarten()" data-ic="chart">Präsentation starten</button>
+        <button class="secondary" onclick="vpAlsDokument()" data-ic="download">Als PDF / Drucken</button>
+        <button class="secondary" onclick="vpAlsDokument(true)" data-ic="upload">Teilen</button></div>
+      <div class="grid">
+        <div class="field full"><label>Titel</label><input id="vp_titel"></div>
+        <div class="field"><label>Für <span class="u">optional</span></label><input id="vp_fuer" placeholder="z. B. Familie Muster"></div>
+        <div class="field"><label>Empfohlener Angebotspreis <span class="u">€</span></label><input id="vp_angebot" type="text" value=""></div>
+      </div>
+      <h3>Folien</h3>
+      <div class="rp-liste" id="vp_folienwahl"></div>
+      <input type="hidden" id="vp_folien" value="">
+      <div class="field" style="margin-top:10px"><label>Vermarktungsplan <span class="u">eine Zeile je Schritt, „Zeitraum: Inhalt“</span></label><textarea id="vp_plan" rows="4"></textarea></div>
+      <div class="field" style="margin-top:10px"><label>Ihre Vorteile <span class="u">eine Zeile je Punkt</span></label><textarea id="vp_vorteile" rows="5"></textarea></div>
+      <p class="hint">Leer gelassen, nimmt die Präsentation die grauen Vorschläge. Ansprechpartner und Unternehmen kommen aus ⑪ Exposé,
+        Marktzahlen aus deinem Marktüberblick (ab 5 eigenen Kaufpreisen).</p>
+    </section>
     <div style="height:40px"></div>
   </main>
 
@@ -2414,6 +2499,16 @@
 
 <div id="gr_overlay" class="overlay" onclick="if(event.target===this)grSchliessen()">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="gr_titel"><div id="gr_inhalt"></div></div>
+</div>
+
+<div id="vp_overlay" class="vp-overlay" role="dialog" aria-modal="true" aria-label="Präsentation">
+  <div class="vp-folien" id="vp_folien_box" onclick="if(!event.target.closest('a,button'))vpGehe(VP_INDEX+(event.clientX>innerWidth/2?1:-1))"></div>
+  <div class="vp-steuer">
+    <button class="vp-nav" onclick="vpGehe(VP_INDEX-1)" aria-label="Vorige Folie">‹</button>
+    <div class="vp-punkte" id="vp_punkte"></div><span class="vp-zaehler" id="vp_zaehler"></span>
+    <button class="vp-nav" onclick="vpGehe(VP_INDEX+1)" aria-label="Nächste Folie">›</button>
+    <button class="vp-nav vp-x" onclick="vpSchliessen()" aria-label="Präsentation beenden">✕</button>
+  </div>
 </div>
 
 <div id="pq_overlay" class="overlay" onclick="if(event.target===this)pqSchliessen()">
@@ -5213,6 +5308,155 @@ function lageBericht(esc){
     +(c?'<div class="beschr">Lage des Objekts: UTM 32 (EPSG:25832) '+c.ost+' / '+c.nord+'.</div>':'');
 }
 
+/* ---------- Verkäufer-Präsentation für das Akquisegespräch --------------------------------------------
+   Folien aus Bewertung, Exposé-Angaben und dem eigenen Marktüberblick. Zahlen aus dem Marktüberblick
+   erscheinen nur ab MDB_MIN_N Fällen; darunter sagt die Folie das offen, statt dünne Zahlen zu zeigen.
+   Vergleichsobjekte ohne Hausnummer (Datenschutz der früheren Verkäufer). Anzeige im Vollbild
+   (#vp_overlay) oder als Querformat-Seiten in #report für Drucken, PDF und Teilen. */
+const VP_FOLIEN=[['titel','Titel'],['wert','Was ist Ihr Haus wert?'],['markt','Der Markt vor Ort'],['vergleich','Vergleichbare Verkäufe'],
+  ['strategie','Angebot ist nicht Verkauf'],['plan','Vermarktungsplan'],['vorteile','Ihre Vorteile'],['kontakt','Kontakt']];
+const VP_PLAN='Woche 1–2: Unterlagen zusammenstellen, Fotos, Grundrisse und Exposé\nWoche 2–3: Vorvermarktung an vorgemerkte Interessenten mit geprüfter Finanzierung\nWoche 3–6: Veröffentlichung, Besichtigungen, wöchentlicher Bericht an Sie\nDanach: Verhandlung, Finanzierungsbestätigung des Käufers, Notartermin, Übergabe';
+const VP_VORTEILE='Käufer mit geprüfter Finanzierung — Beratung und Finanzierung aus einer Hand\nRegionale Kartei vorgemerkter Kaufinteressenten\nPreisermittlung nach den anerkannten Verfahren der ImmoWertV\nWöchentlicher Bericht über Anfragen, Besichtigungen und Rückmeldungen\nBegleitung bis zum Notartermin und zur Übergabe';
+const VP_ART={efh:['Einfamilienhaus','Zweifamilienhaus'],rh:['Doppelhaushälfte','Reihenhaus'],mfh:['Mehrfamilienhaus'],wgh:['Wohn-/Geschäftshaus'],etw:['Eigentumswohnung'],gewerbe:['Gewerbeobjekt']};
+var VP_DATEN=null, VP_INDEX=0;
+function vpAus(){ try{ let a=JSON.parse(exV('vp_folien')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function vpFolienRender(){
+  let box=$('vp_folienwahl'); if(!box) return; let aus=vpAus();
+  box.innerHTML=VP_FOLIEN.map(f=>'<label class="chk"><input type="checkbox" data-f="'+f[0]+'"'+(aus.includes(f[0])?'':' checked')+' onchange="vpFolieSchalten(this)"> '+f[1]+'</label>').join('');
+}
+function vpFolieSchalten(cb){ let a=vpAus().filter(x=>x!==cb.dataset.f); if(!cb.checked) a.push(cb.dataset.f); $('vp_folien').value=a.length?JSON.stringify(a):''; autosave(); }
+function vpObjektwort(){ let k=pqKategorie(); return k==='etw'?'Ihre Wohnung':k==='mfh'||k==='wgh'||k==='gewerbe'?'Ihre Immobilie':'Ihr Haus'; }
+function vpRund(v,s){ return Math.round(v/s)*s; }
+/* Marktzahlen aus dem eigenen Marktüberblick */
+async function vpMarkt(){
+  let alle=[]; try{ alle=(typeof MDB_INIT!=='undefined'&&MDB_INIT)?MDBALL:await mdbAll(); }catch(e){ alle=[]; }
+  let arten=VP_ART[pqKategorie()]||[], ort=exOrt(), wf=num('ek_wohnflaeche'), bj=num('ek_baujahr');
+  let passend=alle.filter(o=>arten.includes(o.art));
+  let kp=passend.filter(o=>mdbDeriv(o).basis==='KP'&&mdbDeriv(o).eurm2>0);
+  let imOrt=kp.filter(o=>ort&&(o.gemeinde||'').trim().toLowerCase()===ort.toLowerCase());
+  let basis=imOrt.length>=MDB_MIN_N?imOrt:kp, gebiet=imOrt.length>=MDB_MIN_N?ort:'der Region';
+  let heute=new Date(), vor12=new Date(heute-365.25*864e5).toISOString().slice(0,10), vor24=new Date(heute-2*365.25*864e5).toISOString().slice(0,10);
+  let j1=basis.filter(o=>(o.kp_datum||o.datum||'')>=vor12), j0=basis.filter(o=>{ let d=o.kp_datum||o.datum||''; return d>=vor24&&d<vor12; });
+  let med=l=>l.length?mdbMedian(l.map(o=>mdbDeriv(o).eurm2)):0;
+  // €/m² je Quartal, letzte 8 Quartale
+  let quartale=[]; for(let i=7;i>=0;i--){ let d=new Date(heute.getFullYear(),heute.getMonth()-3*i,1), q=d.getFullYear()+' Q'+(Math.floor(d.getMonth()/3)+1); if(!quartale.includes(q)) quartale.push(q); }
+  let proQ=quartale.map(q=>{ let l=basis.filter(o=>{ let d=o.kp_datum||o.datum; if(!d) return false; let x=new Date(d); return x.getFullYear()+' Q'+(Math.floor(x.getMonth()/3)+1)===q; }); return {q:q,n:l.length,wert:med(l)}; });
+  // Vergleichsobjekte: Kaufpreise, ähnliche Fläche, jüngere zuerst, Ort bevorzugt
+  let vgl=kp.filter(o=>!(wf>0)||Math.abs(mdbDeriv(o).wf-wf)/wf<=0.35)
+    .map(o=>({o:o,d:mdbDeriv(o),s:(ort&&(o.gemeinde||'').trim().toLowerCase()===ort.toLowerCase()?100:0)-(bj&&mdbNum(o.baujahr)?Math.abs(mdbNum(o.baujahr)-bj)/2:10)+((o.kp_datum||'')>=vor24?20:0)}))
+    .sort((a,b)=>b.s-a.s).slice(0,6);
+  // Angebot → Kaufpreis, Vermarktungsdauer mit/ohne Reduzierung (alle eigenen Fälle)
+  let ab=[]; alle.forEach(o=>{ let k=mdbNum(o.kaufpreis), a=mdbNum(o.preis); if(k>0&&a>0) ab.push((k-a)/a*100); });
+  let verkauft=alle.filter(o=>mdbNum(o.kaufpreis)>0&&o.kp_datum&&o.datum).map(o=>mdbDeriv(o)).filter(d=>d.dauer>0);
+  let mitRed=verkauft.filter(d=>d.reduziert).map(d=>d.dauer), ohneRed=verkauft.filter(d=>!d.reduziert).map(d=>d.dauer);
+  return {n:basis.length,gebiet:gebiet,j1:{n:j1.length,wert:med(j1)},j0:{n:j0.length,wert:med(j0)},proQ:proQ,vgl:vgl,
+    abschlag:{n:ab.length,pct:ab.length?mdbMedian(ab):null},dauer:{mit:{n:mitRed.length,t:mdbMedian(mitRed)},ohne:{n:ohneRed.length,t:mdbMedian(ohneRed)}}};
+}
+function vpSvgBalken(werte,breite,hoehe){
+  let max=Math.max(...werte.map(w=>w.wert||0),1), n=werte.length, bw=breite/n*0.62, s='';
+  werte.forEach((w,i)=>{ let h=w.wert>0?Math.max(4,w.wert/max*(hoehe-44)):0, x=i*breite/n+(breite/n-bw)/2, y=hoehe-24-h;
+    s+=(w.wert>0?'<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="6" fill="#1D5BC4" opacity="'+(i===n-1?1:0.55)+'"/>'
+      +'<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" font-size="12" text-anchor="middle" fill="#0F1E36">'+Math.round(w.wert).toLocaleString('de-DE')+'</text>':'')
+      +'<text x="'+(x+bw/2).toFixed(1)+'" y="'+(hoehe-6)+'" font-size="11" text-anchor="middle" fill="#5E6F88">'+w.q.replace(/^20/,'')+'</text>'; });
+  return '<svg viewBox="0 0 '+breite+' '+hoehe+'" class="vp-chart" role="img" aria-label="Kaufpreise je Quadratmeter nach Quartal">'+s+'</svg>';
+}
+function vpMonate(t){ return t>0?(t/30.44).toLocaleString('de-DE',{maximumFractionDigits:1})+' Monate':'–'; }
+/* Folien als HTML */
+function vpFolien(M){
+  const e=sEsc, R=window._R||{}, K=exKontakt(), aus=vpAus(), ort=exOrt(), w=modus()==='wohnung';
+  let emp=R.empfehlung||0, vh=R.vh||0.05, von=vpRund(emp*(1-vh),1000), bis=vpRund(emp*(1+vh),1000);
+  let angebot=num('vp_angebot')||vpRund(emp*(1+vh),5000);
+  let fotoIds=exFotoIds(), titel=PHOTOS.find(p=>p.id===exTitelbild(fotoIds))||PHOTOS.find(p=>p.cat==='objekt');
+  let T=exV('vp_titel')||(vpObjektwort()+(ort?' in '+ort:'')), f=[];
+  const fuss='<div class="vp-fuss">'+e([K.firma,K.name].filter(Boolean).join(' · '))+'</div>';
+  const add=(k,h)=>{ if(!aus.includes(k)) f.push({k:k,html:'<section class="vp-folie vp-'+k+'">'+h+fuss+'</section>'}); };
+  add('titel',(titel?'<div class="vp-bild" style="background-image:url('+titel.data+')"></div>':'')
+    +'<div class="vp-titeltext"><p class="vp-kicker">Marktwert und Vermarktung</p><h1>'+e(T)+'</h1>'
+    +(exV('vp_fuer')?'<p class="vp-sub">'+e(exV('vp_fuer'))+'</p>':'')+'<p class="vp-sub">'+new Date().toLocaleDateString('de-DE',{month:'long',year:'numeric'})+'</p></div>');
+  let fakten=[['Wohnfläche',num('ek_wohnflaeche')>0?exZahl(exV('ek_wohnflaeche'))+' m²':''],[w?'Etage':'Grundstück',w?exV('ek_etage'):(num('ek_gs_flaeche')>0?exZahl(exV('ek_gs_flaeche'))+' m²':'')],
+    ['Baujahr',num('ek_baujahr')>0?exV('ek_baujahr'):''],['Effizienzklasse',exEnergie().klasse]].filter(x=>x[1]);
+  let verfahren=[[w?'Vergleichswert':'Sachwert',R.substanz],['Ertragswert',R.ertrag]].concat(!w&&R.vwAktiv?[['Vergleichswert',R.vergleichWert]]:[]).filter(v=>v[1]>0);
+  add('wert','<p class="vp-kicker">Was ist '+e(vpObjektwort())+' wert?</p>'
+    +'<div class="vp-gross">'+eur(von)+' – '+eur(bis)+'</div><p class="vp-sub">erwarteter Verkaufspreis · Preisansatz '+eur(vpRund(emp,1000))+'</p>'
+    +(fakten.length?'<div class="vp-chips">'+fakten.map(x=>'<span><small>'+x[0]+'</small>'+e(x[1])+'</span>').join('')+'</div>':'')
+    +(M&&M.n>=MDB_MIN_N&&M.j1.wert>0&&num('ek_wohnflaeche')>0?'<div class="vp-kennzahlen"><div><b>'+Math.round(emp/num('ek_wohnflaeche')).toLocaleString('de-DE')+' €/m²</b><span>Ihr Preisansatz je Quadratmeter Wohnfläche</span></div>'
+      +'<div><b>'+Math.round(M.j1.wert).toLocaleString('de-DE')+' €/m²</b><span>mittlerer Kaufpreis in '+e(M.gebiet)+' in den letzten 12 Monaten ('+M.j1.n+' Verkäufe)</span></div></div>':'')
+    +'<p class="vp-klein">Grundlage: '+e(verfahren.map(v=>v[0]).join(', '))+' nach den Verfahren der ImmoWertV'+(M&&M.n?', abgeglichen mit '+M.n+' eigenen Verkäufen':'')+'. Rechnerische Preisermittlung, kein Verkehrswertgutachten.</p>');
+  if(M){
+    let genug=M.n>=MDB_MIN_N, trend=M.j1.n&&M.j0.n&&M.j0.wert?(M.j1.wert-M.j0.wert)/M.j0.wert*100:null;
+    add('markt','<p class="vp-kicker">Der Markt in '+e(M.gebiet)+'</p>'
+      +(genug?'<div class="vp-kennzahlen"><div><b>'+(M.j1.wert?Math.round(M.j1.wert).toLocaleString('de-DE')+' €/m²':'–')+'</b><span>mittlerer Kaufpreis der letzten 12 Monate ('+M.j1.n+' Verkäufe)</span></div>'
+        +(trend!=null?'<div><b>'+(trend>0?'+':'')+num2(trend)+' %</b><span>gegenüber den 12 Monaten davor ('+M.j0.n+' Verkäufe)</span></div>':'')
+        +'<div><b>'+M.n+'</b><span>ausgewertete eigene Kaufpreise</span></div></div>'+vpSvgBalken(M.proQ,760,230)
+        :'<p class="vp-leer">Für belastbare Marktzahlen braucht es mindestens '+MDB_MIN_N+' eigene Kaufpreise dieser Objektart — bisher '+M.n+'. Die Auswertung füllt sich mit jedem Eintrag im Marktüberblick.</p>'));
+    add('vergleich','<p class="vp-kicker">Vergleichbare Verkäufe</p>'
+      +(M.vgl.length?'<table class="vp-tab"><tr><th>Lage</th><th>Objekt</th><th>Baujahr</th><th>Wohnfläche</th><th>Kaufpreis je m²</th><th>Verkauft</th></tr>'
+        +M.vgl.map(v=>'<tr><td>'+e([v.o.gemeinde,v.o.ortsteil].filter(Boolean).join(', ')||'–')+'</td><td>'+e(v.o.art||'')+'</td><td>'+e(v.o.baujahr||'–')+'</td><td>'+(v.d.wf?Math.round(v.d.wf)+' m²':'–')+'</td>'
+          +'<td><b>'+Math.round(v.d.eurm2).toLocaleString('de-DE')+' €</b></td><td>'+(v.o.kp_datum?new Date(v.o.kp_datum).toLocaleDateString('de-DE',{month:'short',year:'numeric'}):'–')+'</td></tr>').join('')+'</table>'
+        +'<p class="vp-klein">Aus der eigenen Kaufpreissammlung, ohne Hausnummern.</p>'
+        :'<p class="vp-leer">Im Marktüberblick sind noch keine passenden Kaufpreise erfasst.</p>'));
+    let ab=M.abschlag, d=M.dauer;
+    add('strategie','<p class="vp-kicker">Angebot ist nicht Verkauf</p><div class="vp-kennzahlen">'
+      +(ab.n>=MDB_MIN_N?'<div><b>'+(ab.pct>0?'+':'')+num2(ab.pct)+' %</b><span>Kaufpreis gegenüber dem letzten Angebotspreis (Median aus '+ab.n+' eigenen Verkäufen)</span></div>':'')
+      +(d.mit.n>=3&&d.ohne.n>=3?'<div><b>'+vpMonate(d.ohne.t)+'</b><span>Vermarktung ohne Preisreduzierung</span></div><div><b>'+vpMonate(d.mit.t)+'</b><span>mit Preisreduzierung</span></div>':'')
+      +'</div><div class="vp-empf"><span>Unsere Empfehlung</span><b>Angebotspreis '+eur(angebot)+'</b><small>erwarteter Verkaufspreis '+eur(von)+' – '+eur(bis)+'</small></div>'
+      +'<p class="vp-sub">Ein realistischer Startpreis verkauft schneller und am Ende oft besser: Objekte, die zu teuer starten, bleiben liegen und werden später mit Abschlag verkauft.</p>'
+      +(ab.n<MDB_MIN_N?'<p class="vp-klein">Eigene Auswertungen zu Abschlag und Vermarktungsdauer erscheinen ab '+MDB_MIN_N+' erfassten Verkäufen.</p>':''));
+  }
+  let plan=(exV('vp_plan')||VP_PLAN).split('\n').filter(x=>x.trim());
+  add('plan','<p class="vp-kicker">So vermarkten wir '+e(vpObjektwort())+'</p><ol class="vp-plan">'
+    +plan.map(z=>{ let m=z.match(/^([^:]{1,30}):\s*(.*)$/); return '<li>'+(m?'<b>'+e(m[1])+'</b><span>'+e(m[2])+'</span>':'<span>'+e(z)+'</span>')+'</li>'; }).join('')+'</ol>');
+  let vt=(exV('vp_vorteile')||VP_VORTEILE).split('\n').map(x=>x.replace(/^[•\-–]\s*/,'').trim()).filter(Boolean);
+  add('vorteile','<p class="vp-kicker">Ihre Vorteile'+(K.firma?' mit '+e(K.firma):'')+'</p><ul class="vp-liste">'+vt.map(x=>'<li>'+e(x)+'</li>').join('')+'</ul>');
+  let ini=(K.name||'').split(/\s+/).filter(Boolean).map(s=>s[0]).slice(0,2).join('').toUpperCase();
+  add('kontakt','<p class="vp-kicker">Sprechen wir über '+e(vpObjektwort())+'</p>'
+    +'<div class="vp-kontakt">'+(ini?'<div class="ini">'+e(ini)+'</div>':'')+'<div>'+(K.name?'<b>'+e(K.name)+'</b>':'')+(K.funktion?'<div>'+e(K.funktion)+'</div>':'')
+    +(K.firma?'<div>'+e(K.firma)+'</div>':'')+(K.tel?'<div>Telefon '+e(K.tel)+'</div>':'')+(K.mail?'<div>'+e(K.mail)+'</div>':'')+'</div></div>');
+  return f;
+}
+async function vpStarten(){
+  compute(); iaHinweis('Präsentation wird vorbereitet …');
+  let M=null; try{ M=await vpMarkt(); }catch(e){}
+  iaHinweis('');
+  VP_DATEN=vpFolien(M); VP_INDEX=0;
+  if(!VP_DATEN.length){ alert('Alle Folien sind abgewählt.'); return; }
+  $('vp_folien_box').innerHTML=VP_DATEN.map((x,i)=>'<div class="vp-slot'+(i===0?' on':'')+'">'+x.html+'</div>').join('');
+  $('vp_punkte').innerHTML=VP_DATEN.map((x,i)=>'<button aria-label="Folie '+(i+1)+'" onclick="vpGehe('+i+')"'+(i===0?' class="on"':'')+'></button>').join('');
+  $('vp_overlay').classList.add('on'); document.body.style.overflow='hidden'; vpGehe(0);
+  try{ if($('vp_overlay').requestFullscreen) $('vp_overlay').requestFullscreen().catch(()=>{}); }catch(e){}
+}
+function vpGehe(i){
+  if(!VP_DATEN) return; VP_INDEX=Math.max(0,Math.min(VP_DATEN.length-1,i));
+  document.querySelectorAll('#vp_folien_box .vp-slot').forEach((s,j)=>s.classList.toggle('on',j===VP_INDEX));
+  document.querySelectorAll('#vp_punkte button').forEach((b,j)=>b.classList.toggle('on',j===VP_INDEX));
+  setT('vp_zaehler',(VP_INDEX+1)+' / '+VP_DATEN.length);
+}
+function vpSchliessen(){ $('vp_overlay').classList.remove('on'); document.body.style.overflow=''; try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){} }
+/* Querformat-Seiten in #report — für Drucken, PDF und Teilen */
+async function vpAlsDokument(teilen){
+  compute(); let M=null; try{ M=await vpMarkt(); }catch(e){}
+  let F=vpFolien(M), r=$('report'); if(!F.length){ alert('Alle Folien sind abgewählt.'); return; }
+  r.className='praesentation'; r.dataset.pdfname='Präsentation '+((exV('vp_titel')||vpObjektwort()+' '+exOrt()).replace(/[^\wäöüÄÖÜß -]/g,'').trim()); r.dataset.quer='1';
+  r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="document.body.classList.remove(\'report-mode\')">← zurück</button><button onclick="window.print()">Drucken</button>'
+    +'<button onclick="downloadPDF()">PDF herunterladen</button><button onclick="pdfTeilen()">Teilen</button></div>'+F.map(x=>x.html).join('');
+  document.body.classList.add('report-mode'); window.scrollTo(0,0);
+  if(teilen) await pdfTeilen();
+}
+document.addEventListener('keydown',e=>{ let o=$('vp_overlay'); if(!o||!o.classList.contains('on')) return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); vpGehe(VP_INDEX+1); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); vpGehe(VP_INDEX-1); }
+  else if(e.key==='Escape') vpSchliessen(); });
+(function(){ let x0=null; document.addEventListener('touchstart',e=>{ if($('vp_overlay')&&$('vp_overlay').classList.contains('on')) x0=e.touches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',e=>{ if(x0==null) return; let dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>50) vpGehe(VP_INDEX+(dx<0?1:-1)); },{passive:true}); })();
+
+function vpStatus(){
+  if(!$('vp_titel')) return;
+  let R=window._R||{}, ort=exOrt();
+  $('vp_titel').placeholder=vpObjektwort()+(ort?' in '+ort:'');
+  $('vp_angebot').placeholder=R.empfehlung>0?'Vorschlag '+eur(vpRund(R.empfehlung*(1+(R.vh||0.05)),5000)):'';
+  $('vp_plan').placeholder=VP_PLAN; $('vp_vorteile').placeholder=VP_VORTEILE;
+}
+
 const N_WK=14;
 const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
   ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
@@ -5837,6 +6081,7 @@ function compute(){
   try{ pqRender(); }catch(e){}
   try{ sanRechnen(); }catch(e){}
   try{ lageAnzeige(); }catch(e){}
+  try{ vpStatus(); }catch(e){}
   autosave();
 }
 
@@ -6185,7 +6430,7 @@ function html2pdfLaden(){
 function pdfOptionen(){
   return {margin:[12,12,14,12],filename:pdfName(),pagebreak:{mode:['avoid-all','css']},
     html2canvas:{scale:2,useCORS:true,ignoreElements:el=>el.classList&&el.classList.contains('no-print')},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+    jsPDF:{unit:'mm',format:'a4',orientation:$('report').className==='praesentation'?'landscape':'portrait'}};
 }
 function downloadPDF(){
   html2pdfLaden().then(()=>html2pdf().set(pdfOptionen()).from($('report')).save())
@@ -6309,7 +6554,7 @@ function restore(obj){
   if(obj&&obj.fields){GRUNDRISSE=Array.isArray(obj.grundrisse)?obj.grundrisse:[];apply(obj.fields);PHOTOS=Array.isArray(obj.photos)?obj.photos:[];SIGNATURE=obj.signature||null;}
   else{GRUNDRISSE=[];apply(obj);PHOTOS=[];SIGNATURE=null;}   // Altformat (flache Feldliste)
   FOTO_GEAENDERT=!(obj&&obj.fotosInDb);   // Fotos kommen aus Datei/Projekt → in die Datenbank schreiben
-  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();kdAnzeige();autosave();
+  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();kdAnzeige();vpFolienRender();autosave();
 }
 function autosave(){
   if(SILENT)return;
@@ -6366,6 +6611,7 @@ buildWK();
 buildRaumliste();
 buildSanierung();
 buildLageCheck();
+vpFolienRender();
 grListen();
 rpListeRender();
 kdAnzeige();
@@ -7844,7 +8090,7 @@ function voll(){
 /* ---------- Navigation mit Status ---------- */
 var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen','s-fotos']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung']],
-                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign','s-expose']]];
+                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation']]];
 var NAV_TOGGLE={'s-sanierung':'san_aktiv','s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
 var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-belwert':'o_beleihungswert','s-empfehlung':'o_empfehlung'};
 function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-z]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }

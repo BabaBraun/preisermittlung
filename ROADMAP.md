@@ -154,4 +154,9 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   UTM-32-Koordinaten in die Zwischenablage (Umrechnung gegen pyproj geprüft, < 1 mm). Ergebnis, Notiz und
   Prüfdatum je Punkt, Berichtsabschnitt „Lage-Check“. Keine Adresssuche über fremde Dienste (Datenschutz).
   Breiten- und Längengrad sind jetzt auch von Hand eintragbar.
+- **B1 Verkäufer-Präsentation — erledigt.** Abschnitt ⑫: acht Folien (Titel, Wert mit Preisspanne und €/m²-Vergleich zu
+  den Verkäufen im Ort, Markt mit Quartalsverlauf, Vergleichsverkäufe ohne Hausnummer, Angebot gegen Kaufpreis mit
+  eigener Abschlagsquote und Preisstrategie, Vermarktungsplan, Vorteile, Kontakt). Marktzahlen erst ab 5 eigenen
+  Fällen; Vollbild mit Wischen/Tippen/Pfeiltasten, PDF im Querformat, Teilen. Bewusst keine Zwischenwerte (Sachwert)
+  auf den Folien — sie laden im Verkäufergespräch zu falschen Preiserwartungen ein.
 
