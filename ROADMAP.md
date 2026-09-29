@@ -159,4 +159,9 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   eigener Abschlagsquote und Preisstrategie, Vermarktungsplan, Vorteile, Kontakt). Marktzahlen erst ab 5 eigenen
   Fällen; Vollbild mit Wischen/Tippen/Pfeiltasten, PDF im Querformat, Teilen. Bewusst keine Zwischenwerte (Sachwert)
   auf den Folien — sie laden im Verkäufergespräch zu falschen Preiserwartungen ein.
+- **B2 Käuferkartei — erledigt.** Suchprofil in der Kundenakte (Objektarten, Orte, Budget, Wohnfläche, Zimmer,
+  Grundstück, Finanzierungsstand, Wünsche). Abgleich in beide Richtungen: im Exposé-Abschnitt die passenden
+  Interessenten („passt“ bzw. „passt fast“ mit Begründung, geprüfte Finanzierung zuerst) mit „Angebot vermerken“,
+  in der Akte die passenden Objekte aus Projekten und offener Bewertung. Kundenliste mit Filter
+  „Kaufinteressenten“. Präsentationsfolie „Vorgemerkte Käufer“ nur mit Anzahlen.
 

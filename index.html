@@ -1008,6 +1008,20 @@
   #report.praesentation .vp-folie:last-child{page-break-after:auto;break-after:auto;margin-bottom:0}
   @page quer{size:A4 landscape;margin:10mm}
   @media print{ #report.praesentation .vp-folie{margin:0;border:none;height:188mm;aspect-ratio:auto} }
+
+  /* Käuferkartei */
+  .kd-filter{display:flex;gap:6px;margin:0 0 10px}
+  #kd_overlay .kd-filter button{padding:6px 14px;font-size:12.5px}
+  #kd_overlay .kd-filter button.on{background:var(--accent-btn);border-color:var(--accent-btn);color:#fff}
+  .kk-arten{display:flex;flex-wrap:wrap;gap:6px 18px;margin:8px 0 10px}
+  .kk-stufe{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
+  .kk-stufe.passt{background:var(--ok-bg);color:var(--ok)}
+  .kk-stufe.fast{background:var(--warn-bg);color:var(--warn)}
+  .kk-treffer{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:0 0 14px;padding:12px 14px;border-radius:var(--rs);background:var(--tint);font-size:13px}
+  .kk-treffer:empty{display:none}
+  .kk-treffer b{font-size:14px}
+  .kk-treffer span{color:var(--text-2)}
+  .kk-treffer button{margin-left:auto}
 </style>
 </head>
 <body>
@@ -2186,6 +2200,7 @@
       <div class="gr-aktionen no-print"><button class="primary" onclick="exposeAnzeigen()" data-ic="file-text">Exposé ansehen</button>
         <button class="secondary" onclick="exposeAnzeigen(true)" data-ic="download">Als PDF herunterladen</button>
         <button class="secondary" onclick="exposeAnzeigen();pdfTeilen()" data-ic="upload">PDF teilen</button></div>
+      <div class="kk-treffer no-print" id="kk_treffer"></div>
 
       <h3>Titel &amp; Preis</h3>
       <div class="grid">
@@ -3231,7 +3246,7 @@ async function iaSpeicherStart(){
     try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
     if(!document.body.classList.contains('started')) startStep0();
     if($('projekt_overlay')&&$('projekt_overlay').classList.contains('on')) renderProjekte();
-    speicherStatus(); kdAnzeige();
+    speicherStatus(); kdAnzeige(); try{ kkStatus(); }catch(e){}
     return true;
   }catch(e){
     console.warn('Datenbank nicht nutzbar, Rückfall auf localStorage',e);
@@ -4687,7 +4702,7 @@ function rpZurAuswahl(){ document.body.classList.remove('report-mode'); document
 var KD_CACHE=[], KD_AKTIV=null, KD_WAHL=null, KD_SUCHE='';
 const KD_GRUNDLAGEN=[['vertrag','Anbahnung oder Durchführung eines Auftrags (Art. 6 Abs. 1 lit. b DSGVO)'],
   ['einwilligung','Einwilligung des Kunden (Art. 6 Abs. 1 lit. a DSGVO)'],['sonstige','Sonstige Rechtsgrundlage (in der Notiz festhalten)']];
-const KD_KONTAKTARTEN=['Gespräch','Telefonat','E-Mail','Besichtigung','Termin','Sonstiges'];
+const KD_KONTAKTARTEN=['Gespräch','Telefonat','E-Mail','Besichtigung','Angebot','Termin','Sonstiges'];
 function kdName(k){
   if(typeof k==='string') k=KD_CACHE.find(x=>x.id===k);
   if(!k) return '';
@@ -4729,19 +4744,23 @@ function kdListe(){
     +(!KD_WAHL&&!sperre&&KD_CACHE.length?'<div class="kd-tipp">Hier stehen personenbezogene Daten. Tipp: <a href="#" onclick="lockSetupOeffnen();return false;">App-Sperre mit Face ID einschalten</a>, damit niemand am offenen Gerät mitliest.</div>':'')
     +'<div class="kd-leiste"><input type="search" id="kd_q" placeholder="Name, Ort, Telefon, E-Mail …" aria-label="Kunden suchen" value="'+sEsc(KD_SUCHE)+'" oninput="KD_SUCHE=this.value;kdListeZeilen()">'
     +'<button class="primary" onclick="kdNeu()" data-ic="plus">Neuer Kunde</button></div>'
+    +'<div class="kd-filter" role="group" aria-label="Filter"><button class="'+(KD_FILTER==='alle'?'on':'')+'" onclick="KD_FILTER=\'alle\';kdListe()">Alle Kunden</button>'
+    +'<button class="'+(KD_FILTER==='kauf'?'on':'')+'" onclick="KD_FILTER=\'kauf\';kdListe()">Kaufinteressenten</button></div>'
     +'<div class="kd-liste" id="kd_liste"></div>');
   kdListeZeilen();
 }
 function kdListeZeilen(){
   let el=$('kd_liste'); if(!el) return;
   let q=sNorm(KD_SUCHE||'').split(/\s+/).filter(Boolean), heute=aufHeute();
-  let liste=KD_CACHE.filter(k=>{ let hay=sNorm([kdName(k),k.firma,k.plzort,k.strasse,k.telefon,k.email].join(' ')); return q.every(t=>hay.indexOf(t)>=0); })
+  let liste=KD_CACHE.filter(k=>{ if(KD_FILTER==='kauf'&&!(k.suchprofil&&k.suchprofil.aktiv)) return false;
+    let hay=sNorm([kdName(k),k.firma,k.plzort,k.strasse,k.telefon,k.email,k.suchprofil&&k.suchprofil.aktiv?'sucht '+(k.suchprofil.orte||''):''].join(' ')); return q.every(t=>hay.indexOf(t)>=0); })
     .sort((a,b)=>(b.geaendert||0)-(a.geaendert||0));
   if(!liste.length){ el.innerHTML='<div class="kd-leer">'+(KD_CACHE.length?'Kein Kunde passt zur Suche.':'Noch keine Kunden angelegt.')+'</div>'; return; }
   el.innerHTML=liste.map(k=>{
     let nb=kdBewertungen(k.id).length, auf=kdAufgaben(k.id).filter(a=>!a.erledigt), faellig=auf.filter(a=>a.frist&&aufTage(a.frist)<=0).length;
     let loesch=k.loeschpruefung&&k.loeschpruefung<=heute;
-    let marken=[nb?nb+' Bewertung'+(nb===1?'':'en'):'', auf.length?auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+(faellig?' ('+faellig+' fällig)':''):'',
+    let sp=k.suchprofil&&k.suchprofil.aktiv?k.suchprofil:null;
+    let marken=[sp?'sucht'+(sp.orte?' in '+sp.orte.split(/[,;]/)[0].trim():'')+(sp.budget?' bis '+eur(sp.budget):''):'',nb?nb+' Bewertung'+(nb===1?'':'en'):'', auf.length?auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+(faellig?' ('+faellig+' fällig)':''):'',
       (k.kontakte||[]).length?(k.kontakte.length)+' Notiz'+(k.kontakte.length===1?'':'en'):''].filter(Boolean);
     return '<button type="button" class="kd-zeile" onclick="'+(KD_WAHL?'kdGewaehlt(\''+k.id+'\')':'kdAkte(\''+k.id+'\')')+'">'
       +'<span class="kd-ini">'+sEsc(kdInitialen(k))+'</span><span class="kd-txt"><b>'+sEsc(kdName(k))+'</b><span>'+sEsc([k.plzort,k.telefon,k.email].filter(Boolean).join(' · ')||'keine Kontaktdaten')+'</span></span>'
@@ -4778,6 +4797,7 @@ function kdAkte(id,fokus){
     +'<div class="field"><label>Löschung prüfen am</label><input type="date" value="'+sEsc(k.loeschpruefung||'')+'" onchange="kdFeld(\'loeschpruefung\',this.value)" aria-label="Löschung prüfen am"></div></div>'
     +'<p class="hint">Ist das Datum erreicht, markiert die Kundenliste den Kunden. Dann prüfen, ob die Daten noch gebraucht werden.</p>'
 
+    +kkProfilHtml(k)
     +'<h3>Bewertungen</h3>'
     +(bew.length?'<div class="kd-karten">'+bew.map(p=>'<div class="kd-karte"><div><b>'+sEsc(p.name)+'</b><span>'+sEsc([p.datum,p.empf&&p.empf!=='0 €'?p.empf:''].filter(Boolean).join(' · '))+'</span></div>'
       +(p.typ==='projekt'?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+p.id+'\')">Öffnen</button><button class="secondary" onclick="kdProjektLoesen(\''+p.id+'\')">Zuordnung lösen</button></div>'
@@ -5314,7 +5334,7 @@ function lageBericht(esc){
    Vergleichsobjekte ohne Hausnummer (Datenschutz der früheren Verkäufer). Anzeige im Vollbild
    (#vp_overlay) oder als Querformat-Seiten in #report für Drucken, PDF und Teilen. */
 const VP_FOLIEN=[['titel','Titel'],['wert','Was ist Ihr Haus wert?'],['markt','Der Markt vor Ort'],['vergleich','Vergleichbare Verkäufe'],
-  ['strategie','Angebot ist nicht Verkauf'],['plan','Vermarktungsplan'],['vorteile','Ihre Vorteile'],['kontakt','Kontakt']];
+  ['strategie','Angebot ist nicht Verkauf'],['kaeufer','Vorgemerkte Käufer'],['plan','Vermarktungsplan'],['vorteile','Ihre Vorteile'],['kontakt','Kontakt']];
 const VP_PLAN='Woche 1–2: Unterlagen zusammenstellen, Fotos, Grundrisse und Exposé\nWoche 2–3: Vorvermarktung an vorgemerkte Interessenten mit geprüfter Finanzierung\nWoche 3–6: Veröffentlichung, Besichtigungen, wöchentlicher Bericht an Sie\nDanach: Verhandlung, Finanzierungsbestätigung des Käufers, Notartermin, Übergabe';
 const VP_VORTEILE='Käufer mit geprüfter Finanzierung — Beratung und Finanzierung aus einer Hand\nRegionale Kartei vorgemerkter Kaufinteressenten\nPreisermittlung nach den anerkannten Verfahren der ImmoWertV\nWöchentlicher Bericht über Anfragen, Besichtigungen und Rückmeldungen\nBegleitung bis zum Notartermin und zur Übergabe';
 const VP_ART={efh:['Einfamilienhaus','Zweifamilienhaus'],rh:['Doppelhaushälfte','Reihenhaus'],mfh:['Mehrfamilienhaus'],wgh:['Wohn-/Geschäftshaus'],etw:['Eigentumswohnung'],gewerbe:['Gewerbeobjekt']};
@@ -5403,6 +5423,12 @@ function vpFolien(M){
       +'<p class="vp-sub">Ein realistischer Startpreis verkauft schneller und am Ende oft besser: Objekte, die zu teuer starten, bleiben liegen und werden später mit Abschlag verkauft.</p>'
       +(ab.n<MDB_MIN_N?'<p class="vp-klein">Eigene Auswertungen zu Abschlag und Vermarktungsdauer erscheinen ab '+MDB_MIN_N+' erfassten Verkäufen.</p>':''));
   }
+  let kt=(typeof kkTreffer==='function'&&IA_DB_BEREIT)?kkTreffer(kkAktuellesObjekt()):[];
+  if(kt.length){ let fin=kt.filter(x=>['geprueft','bar'].includes(x.k.suchprofil.finanzierung)).length, genau=kt.filter(x=>x.t.stufe==='passt').length;
+    add('kaeufer','<p class="vp-kicker">Vorgemerkte Kaufinteressenten</p><div class="vp-gross">'+kt.length+'</div>'
+      +'<p class="vp-sub">Interessent'+(kt.length===1?'':'en')+' aus unserer Kartei '+(kt.length===1?'sucht':'suchen')+' eine Immobilie wie '+e(vpObjektwort().replace(/^Ihr(e)? /,'Ihr$1 '))+' — '
+      +genau+' '+(genau===1?'passt':'passen')+' in allen Punkten, '+fin+' mit geprüfter Finanzierung oder ohne Finanzierungsbedarf.</p>'
+      +'<p class="vp-klein">Wir können '+e(vpObjektwort())+' diesen Interessenten vor der Veröffentlichung anbieten. Namen nennen wir nur mit deren Einwilligung.</p>'); }
   let plan=(exV('vp_plan')||VP_PLAN).split('\n').filter(x=>x.trim());
   add('plan','<p class="vp-kicker">So vermarkten wir '+e(vpObjektwort())+'</p><ol class="vp-plan">'
     +plan.map(z=>{ let m=z.match(/^([^:]{1,30}):\s*(.*)$/); return '<li>'+(m?'<b>'+e(m[1])+'</b><span>'+e(m[2])+'</span>':'<span>'+e(z)+'</span>')+'</li>'; }).join('')+'</ol>');
@@ -5455,6 +5481,102 @@ function vpStatus(){
   $('vp_titel').placeholder=vpObjektwort()+(ort?' in '+ort:'');
   $('vp_angebot').placeholder=R.empfehlung>0?'Vorschlag '+eur(vpRund(R.empfehlung*(1+(R.vh||0.05)),5000)):'';
   $('vp_plan').placeholder=VP_PLAN; $('vp_vorteile').placeholder=VP_VORTEILE;
+}
+
+/* ---------- Käuferkartei: Suchprofile in der Kundenakte und Abgleich mit Objekten ----------------------
+   Ein Kunde kann ein Suchprofil haben (k.suchprofil). Der Abgleich läuft in beide Richtungen: zum offenen
+   Objekt die passenden Interessenten (Exposé, Präsentation), zum Interessenten die passenden Objekte aus den
+   Projekten. „Passt fast“ zeigt knappe Abweichungen mit Begründung, statt gute Kandidaten zu verstecken.
+   In der Präsentation erscheinen nur Anzahlen, nie Namen. */
+const KK_FINANZ=[['offen','Finanzierung noch offen'],['geprueft','Finanzierung geprüft'],['bar','Kauf ohne Finanzierung']];
+var KD_FILTER='alle';
+function kkObjekt(f,empfText){
+  f=f||{}; let typ=f.ek_typ||'';
+  let kat=(f.ek_modus||'haus')==='wohnung'?'etw':/^EFH/.test(typ)?'efh':/^(Doppel|Reihen)/.test(typ)?'rh':/^Mehrfamilienhaus/.test(typ)?'mfh':/^(Wohn-\/Geschäftshaus|Geschäftshaus mit)/.test(typ)?'wgh':'gewerbe';
+  let adr=(f.ek_anschrift||'').trim(), m=adr.match(/\b\d{5}\s+([^,]+)/), ort=m?m[1].trim():(adr.split(',').map(x=>x.trim()).filter(Boolean).slice(1).pop()||'');
+  let preis=zahlLesen(f.ex_preis,true)||zahlLesen(f.vp_angebot,true)||(empfText?zahlLesen(empfText,true):0);
+  return {kat:kat,ort:ort,preis:preis,wf:zahlLesen(f.ek_wohnflaeche,true),zimmer:zahlLesen(f.au_zimmer,false),gs:(f.ek_modus==='wohnung'?0:zahlLesen(f.ek_gs_flaeche,true)),titel:adr||'Objekt'};
+}
+function kkAktuellesObjekt(){ let R=window._R||{}; return kkObjekt(collect(),R.empfehlung>0?''+Math.round(R.empfehlung):''); }
+function kkPruefen(sp,o){
+  if(!sp||!sp.aktiv||!o) return null;
+  let ab=[];
+  if(sp.arten&&sp.arten.length&&!sp.arten.includes(o.kat)) return null;
+  let orte=(sp.orte||'').split(/[,;\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean), ort=(o.ort||'').toLowerCase();
+  if(orte.length&&ort&&!orte.some(x=>ort.includes(x)||x.includes(ort))) return null;
+  if(sp.budget>0&&o.preis>0){ if(o.preis>sp.budget*1.1) return null; if(o.preis>sp.budget) ab.push('Preis '+Math.round((o.preis/sp.budget-1)*100)+' % über dem Budget'); }
+  if(sp.wf>0&&o.wf>0&&o.wf<sp.wf){ if(o.wf<sp.wf*0.9) return null; ab.push('Wohnfläche knapp unter dem Wunsch'); }
+  if(sp.zimmer>0&&o.zimmer>0&&o.zimmer<sp.zimmer) ab.push(o.zimmer+' statt '+sp.zimmer+' Zimmer');
+  if(sp.gs>0&&o.gs>0&&o.gs<sp.gs*0.8) ab.push('Grundstück kleiner als gewünscht');
+  return {stufe:ab.length?'fast':'passt',ab:ab};
+}
+function kkTreffer(o){
+  const rang=k=>(k.suchprofil.finanzierung==='geprueft'||k.suchprofil.finanzierung==='bar')?0:1;
+  return KD_CACHE.filter(k=>k.suchprofil&&k.suchprofil.aktiv).map(k=>({k:k,t:kkPruefen(k.suchprofil,o)})).filter(x=>x.t)
+    .sort((a,b)=>(a.t.stufe==='passt'?0:1)-(b.t.stufe==='passt'?0:1)||rang(a.k)-rang(b.k));
+}
+function kkFinanzText(sp){ return (KK_FINANZ.find(x=>x[0]===(sp&&sp.finanzierung))||KK_FINANZ[0])[1]; }
+/* Suchprofil in der Akte */
+function kkProfilHtml(k){
+  let sp=k.suchprofil||{}, an=!!sp.aktiv;
+  const f=(feld,label,ph,betrag)=>'<div class="field"><label>'+label+'</label><input value="'+sEsc(sp[feld]!=null&&sp[feld]!==0?(betrag&&sp[feld]>0?(+sp[feld]).toLocaleString('de-DE'):sp[feld]):'')+'" placeholder="'+sEsc(ph||'')+'" onchange="kkFeld(\''+feld+'\',this.value)" aria-label="'+label.replace(/<[^>]+>/g,'')+'"></div>';
+  let h='<h3>Suchprofil</h3><label class="toggle"><input type="checkbox"'+(an?' checked':'')+' onchange="kkFeld(\'aktiv\',this.checked)"> sucht eine Immobilie zum Kauf</label>';
+  if(!an) return h;
+  h+='<div class="kk-arten">'+PQ_KAT.map(x=>'<label class="chk"><input type="checkbox"'+((sp.arten||[]).includes(x[0])?' checked':'')+' onchange="kkArt(\''+x[0]+'\',this.checked)"> '+x[1]+'</label>').join('')+'</div>'
+    +'<div class="grid">'+f('orte','Orte <span class="u">mit Komma getrennt</span>','z. B. Ilsfeld, Beilstein, Abstatt')+f('budget','Budget bis <span class="u">€</span>','z. B. 500.000',true)
+    +f('wf','Wohnfläche ab <span class="u">m²</span>','z. B. 120',true)+f('zimmer','Zimmer ab','z. B. 4')+f('gs','Grundstück ab <span class="u">m²</span>','z. B. 400',true)
+    +'<div class="field"><label>Finanzierung</label><select onchange="kkFeld(\'finanzierung\',this.value)" aria-label="Finanzierung">'
+    +KK_FINANZ.map(x=>'<option value="'+x[0]+'"'+(x[0]===(sp.finanzierung||'offen')?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></div></div>'
+    +'<div class="field" style="margin-top:10px"><label>Wünsche und Ausschlüsse</label><input value="'+sEsc(sp.notiz||'')+'" placeholder="z. B. Garten, keine Hauptstraße" onchange="kkFeld(\'notiz\',this.value)" aria-label="Wünsche und Ausschlüsse"></div>';
+  // passende Objekte: offene Bewertung und Projekte
+  let obj=[], akt=kkAktuellesObjekt();
+  if(akt.titel&&akt.titel!=='Objekt'){ let t=kkPruefen(sp,akt); if(t) obj.push({titel:akt.titel+' (in Bearbeitung)',o:akt,t:t,id:''}); }
+  pjLoad().forEach(p=>{ let o=kkObjekt(p.data&&p.data.fields,p.empf); if(akt.titel&&o.titel===akt.titel) return; let t=kkPruefen(sp,o); if(t) obj.push({titel:p.name,o:o,t:t,id:p.id}); });
+  h+='<h3>Passende Objekte</h3>'+(obj.length?'<div class="kd-karten">'+obj.map(x=>'<div class="kd-karte"><div><b>'+sEsc(x.titel)+' <span class="kk-stufe '+x.t.stufe+'">'+(x.t.stufe==='passt'?'passt':'passt fast')+'</span></b>'
+      +'<span>'+sEsc([pqKatName(x.o.kat),x.o.wf?Math.round(x.o.wf)+' m²':'',x.o.preis?eur(x.o.preis):''].filter(Boolean).join(' · ')+(x.t.ab.length?' — '+x.t.ab.join(', '):''))+'</span></div>'
+      +(x.id?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+x.id+'\')">Öffnen</button></div>':'')+'</div>').join('')+'</div>'
+    :'<p class="hint" style="margin:0">Unter deinen Projekten passt gerade nichts. Neue Bewertungen werden automatisch abgeglichen.</p>');
+  return h;
+}
+async function kkFeld(feld,wert){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k) return;
+  k.suchprofil=k.suchprofil||{aktiv:false,arten:[],finanzierung:'offen',seit:aufHeute()};
+  if(feld==='budget'||feld==='wf'||feld==='gs') wert=zahlLesen(wert,true);
+  else if(feld==='zimmer') wert=zahlLesen(wert,false);
+  else if(feld!=='aktiv') wert=(''+wert).trim();
+  k.suchprofil[feld]=wert;
+  if(await kdSpeichern(k)) kdAkte(k.id);
+}
+async function kkArt(kat,an){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k||!k.suchprofil) return;
+  let a=(k.suchprofil.arten||[]).filter(x=>x!==kat); if(an) a.push(kat); k.suchprofil.arten=a;
+  if(await kdSpeichern(k)) kdAkte(k.id);
+}
+/* Treffer zum offenen Objekt: Hinweis im Exposé-Abschnitt und Liste im Kundendialog */
+function kkStatus(){
+  let el=$('kk_treffer'); if(!el) return;
+  if(!IA_DB_BEREIT){ el.innerHTML=''; return; }
+  let tr=kkTreffer(kkAktuellesObjekt()), passt=tr.filter(x=>x.t.stufe==='passt').length, fin=tr.filter(x=>['geprueft','bar'].includes(x.k.suchprofil.finanzierung)).length;
+  el.innerHTML=tr.length?'<b>'+tr.length+' Interessent'+(tr.length===1?'':'en')+' aus der Käuferkartei</b><span>'+passt+(passt===1?' passt':' passen')+' genau, '+fin+' mit geprüfter Finanzierung oder ohne Finanzierungsbedarf</span>'
+    +'<button class="secondary" onclick="kkTrefferZeigen()">Anzeigen</button>'
+    :'<span>Kein vorgemerkter Interessent passt zu diesem Objekt.'+(KD_CACHE.some(k=>k.suchprofil&&k.suchprofil.aktiv)?'':' Suchprofile legst du in der Kundenakte an.')+'</span>';
+}
+function kkTrefferZeigen(){
+  if(!kdVerfuegbar()) return;
+  let o=kkAktuellesObjekt(), tr=kkTreffer(o);
+  $('kd_overlay').classList.add('on'); document.body.style.overflow='hidden'; KD_AKTIV=null; KD_WAHL=null;
+  kdInhalt('<div class="gr-kopf"><h2 id="kd_titel">Passende Interessenten</h2><button class="gr-x" onclick="kdSchliessen()" aria-label="Schließen">✕</button></div>'
+    +'<p class="hint" style="margin-top:0">Für '+sEsc(o.titel)+' — '+sEsc([pqKatName(o.kat),o.wf?Math.round(o.wf)+' m²':'',o.preis?eur(o.preis):''].filter(Boolean).join(' · '))+'</p>'
+    +(tr.length?'<div class="kd-karten">'+tr.map(x=>'<div class="kd-karte"><div><b>'+sEsc(kdName(x.k))+' <span class="kk-stufe '+x.t.stufe+'">'+(x.t.stufe==='passt'?'passt':'passt fast')+'</span></b>'
+      +'<span>'+sEsc([kkFinanzText(x.k.suchprofil),x.k.telefon,x.k.email].filter(Boolean).join(' · ')+(x.t.ab.length?' — '+x.t.ab.join(', '):''))+'</span></div>'
+      +'<div class="kd-k"><button class="secondary" onclick="kkAngebotVermerken(\''+x.k.id+'\')">Angebot vermerken</button><button class="secondary" onclick="kdAkte(\''+x.k.id+'\')">Akte</button></div></div>').join('')+'</div>'
+      :'<div class="kd-leer">Kein Suchprofil passt.</div>')
+    +'<div class="gr-zeile"><button class="primary" onclick="kdSchliessen();exposeAnzeigen();pdfTeilen()" data-ic="upload">Exposé teilen</button></div>');
+}
+async function kkAngebotVermerken(id){
+  let k=KD_CACHE.find(x=>x.id===id); if(!k) return; let o=kkAktuellesObjekt();
+  k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum:aufHeute(),art:'Angebot',text:'Objekt angeboten: '+o.titel+(o.preis?' ('+eur(o.preis)+')':'')}]);
+  if(await kdSpeichern(k)){ iaHinweis('Bei '+kdName(k)+' vermerkt'); setTimeout(()=>iaHinweis(''),2200); kkTrefferZeigen(); }
 }
 
 const N_WK=14;
@@ -6082,6 +6204,7 @@ function compute(){
   try{ sanRechnen(); }catch(e){}
   try{ lageAnzeige(); }catch(e){}
   try{ vpStatus(); }catch(e){}
+  try{ kkStatus(); }catch(e){}
   autosave();
 }
 
