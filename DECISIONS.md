@@ -148,3 +148,26 @@ mehr. Ohne IndexedDB (manche privaten Fenster) arbeitet die App wie vorher mit d
 übernimmt diesen Bestand beim nächsten Start mit Datenbank. Die Datenbank verschwindet weiterhin, wenn die
 App vom Home-Bildschirm gelöscht wird; dafür gibt es die Gesamtsicherung aller Projekte als Datei mit
 Erinnerung auf der Startseite (nach 14 Tagen bzw. wenn seitdem Projekte geändert wurden).
+
+---
+
+## D8 (2026-09-29) — Kundenakte: personenbezogene Daten nur lokal, mit Auskunft und Löschung
+
+**Entscheidung:** Die Kundenakte speichert Kunden (Stammdaten, Rechtsgrundlage, Löschprüfdatum,
+Gesprächsnotizen, abgelegte Finanzierungsrechnungen) im Speicher `kunden` der IndexedDB
+`ia_bewertungen` (Version 2). Bewertungen verweisen über das versteckte Feld `ek_kunde_id` auf den Kunden,
+Wiedervorlagen über `kundeId`. Kundennamen gelangen nie in den Marktüberblick (D4 bleibt).
+
+**Begründung:** Die App wird im Beratungsalltag für Kunden genutzt; ohne Akte landen dieselben Daten
+verstreut im Auftraggeberfeld, in Aufgabentexten und Notizzetteln — schlechter geschützt und nicht löschbar.
+Eine Akte bündelt sie und macht die DSGVO-Pflichten handhabbar: Rechtsgrundlage je Kunde (Art. 6 Abs. 1
+lit. a oder b), Löschprüfdatum mit Markierung in der Liste (Speicherbegrenzung), Auskunft als lesbare
+Textdatei (Art. 15), vollständige Löschung je Kunde (Art. 17). Hinweis auf die App-Sperre, sobald
+Kunden gespeichert sind.
+
+**Umsetzung und Grenzen:** Beim Löschen eines Kunden bleiben zugeordnete Bewertungen erhalten, nur die
+Zuordnung wird gelöst; seine Wiedervorlagen werden auf Nachfrage gelöscht oder ohne Kundenbezug behalten.
+Die Gesamtsicherung enthält Kunden und Wiedervorlagen (Dateiversion 2). Das Datenbank-Upgrade von
+Version 1 auf 2 wartet, statt abzubrechen, wenn ein älteres Fenster die Datenbank noch offen hält — ein
+Abbruch hätte die App auf den leeren localStorage zurückfallen lassen. Ohne IndexedDB (manche privaten
+Fenster) ist die Kundenakte nicht verfügbar; die App sagt das, statt Kundendaten ungeschützter abzulegen.

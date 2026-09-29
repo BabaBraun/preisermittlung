@@ -36,7 +36,7 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 |---|---|---|---|
 | 16 | [x] Beleihungswert nach BelWertV inkl. Sicherheitsabschläge | Bewertung (C) | Größte fachliche Lücke; eigenes Regelwerk (§§ 4–7, 16 ff. BelWertV), braucht sorgfältige, separate Umsetzung |
 | 17 | [x] Exposé-Generator (Vertriebsdokument, nicht Bewertungsbericht) — 2026-09-29 | Berater-Feature (D) | Eigenständiges Layout, eigene Textbausteine, Fotoauswahl getrennt vom Wertermittlungsbericht |
-| 18 | [ ] Kundenakte (mehrere Objekte/Vorgänge je Kunde, Historie) | Berater-Feature (D) | Geht über die heutige „ein Bewertungsstand = ein Projekt"-Logik hinaus, braucht ein neues Datenmodell |
+| 18 | [x] Kundenakte (mehrere Objekte/Vorgänge je Kunde, Historie) — 2026-09-29, D8 | Berater-Feature (D) | Geht über die heutige „ein Bewertungsstand = ein Projekt"-Logik hinaus, braucht ein neues Datenmodell |
 | 19 | [ ] compute() modularisieren (ein Verfahren = eine Funktion) | Code-Qualität | Kein Nutzerwert direkt sichtbar, aber Voraussetzung, um Phase-3-Verfahren wie BelWertV sauber einzuhängen |
 | 20 | [x] Automatisierte Regressionstests für die Rechenkerne (Selbsttest, 2026-09-29) | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
 
@@ -123,3 +123,17 @@ Berichtsabschnitte, Kundenakte):
   wechseln. Umsetzung als Filter über die fertigen Abschnitte (h2 bis h2), damit der geprüfte Berichtsaufbau
   unverändert bleibt; Inhaltsverzeichnis und Nummerierung folgen der Auswahl. Der frühere Einzelschalter für
   das Diagramm ist in der Auswahl aufgegangen.
+- **5. Kundenakte (D8) — erledigt.** Kunden mit Stammdaten, Rechtsgrundlage und Löschprüfdatum;
+  zugeordnete Bewertungen, Wiedervorlagen, Finanzierungsrechnungen („Beim Kunden ablegen“ im
+  Finanzierungsrechner) und Gesprächsnotizen; Auskunft als Textdatei, Löschen je Kunde. Einstiege über
+  Kopfzeile, Startseite, Handy-Leiste, Eckdaten („Kunde zuordnen“) und die Suche. Datenbank auf Version 2
+  gehoben; Gesamtsicherung enthält Kunden und Wiedervorlagen.
+
+Neu aufgefallen in dieser Runde (für später):
+
+| # | Neuer Punkt | Warum |
+|---|---|---|
+| 33 | [ ] Echte Grundrisse des Nutzers einlesen und die Leseanleitung daran nachschärfen | Die Anleitung ist bisher nur an einem Testplan geprüft |
+| 34 | [ ] App-Sperre, GPS und Speicherumzug auf dem iPhone gegenprüfen | Nur mit simulierten Antworten bzw. in Chrome getestet |
+| 35 | [ ] Neue Bewertung direkt aus der Kundenakte beginnen | Heute: Bewertung anlegen, dann zuordnen — ein Schritt zu viel |
+| 36 | [ ] Dateigröße: index.html ist auf 552 KB gewachsen | Weitere Module (wie der Selbsttest) als eigene, bei Bedarf geladene Dateien auslagern |

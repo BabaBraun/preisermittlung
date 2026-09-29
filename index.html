@@ -207,7 +207,7 @@
   .mbar-cp .cp-pill{padding:4px 10px;font-size:12px}
   .mbar-cp .chev{margin-left:auto;color:var(--text-2);display:flex;transition:transform .2s}
   body.cp-open .mbar-cp .chev{transform:rotate(180deg)}
-  .mbar-tabs{height:60px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px 4px}
+  .mbar-tabs{height:60px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 8px 4px}
   .mbar-tabs button{border:none;background:transparent;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);padding:0;border-radius:var(--rs)}
   .mbar-tabs button .ic-svg{width:22px;height:22px;margin:0}
   .mbar-tabs button.on{color:var(--accent)}
@@ -833,6 +833,46 @@
   .rp-gruppe>b{font-size:11.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
   .rp-gruppe .chk{font-size:13px;line-height:1.35}
   #report select.rp-leiste{height:36px;width:auto;display:inline-block;margin:0 4px;font-size:13px;padding:0 30px 0 12px;border-radius:999px}
+
+  /* Kundenakte */
+  #kd_overlay .modal{max-width:920px}
+  #kd_overlay .modal button{margin-left:0}
+  .kd-tipp{margin:0 0 12px;padding:10px 14px;border-radius:var(--rs);background:var(--tint);font-size:12.5px;color:var(--text-2)}
+  .kd-tipp a{color:var(--accent);font-weight:600}
+  .kd-leiste{display:flex;gap:10px;margin:6px 0 12px;flex-wrap:wrap}
+  .kd-leiste input{flex:1 1 220px}
+  .kd-liste,.kd-karten,.kd-kontakte{display:flex;flex-direction:column;gap:8px}
+  #kd_overlay button.kd-zeile{display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;padding:10px 14px;border:1px solid var(--line-soft);border-radius:var(--rs);background:var(--card);color:var(--text);text-align:left;white-space:normal;font-weight:400}
+  #kd_overlay button.kd-zeile:hover{border-color:var(--tint-b);box-shadow:var(--shadow)}
+  .kd-ini{width:40px;height:40px;border-radius:50%;background:var(--tint);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:0 0 auto}
+  .kd-txt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
+  .kd-txt b{font-size:14px;font-weight:600}
+  .kd-txt span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .kd-marken{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .kd-marken i{font-style:normal;font-size:11px;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--text-2);white-space:nowrap}
+  .kd-marken i.warn{background:var(--warn-bg);color:var(--warn)}
+  .kd-leer{padding:24px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:var(--rs)}
+  #kd_overlay button.kd-zurueck{border:none;background:none;padding:0;color:var(--accent);font-size:12.5px;height:auto}
+  .kd-karte{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border:1px solid var(--line-soft);border-radius:var(--rs);background:var(--surface-2)}
+  .kd-karte>div:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .kd-karte span{font-size:12px;color:var(--muted)}
+  .kd-k{display:flex;gap:6px;flex-wrap:wrap}
+  .kd-neu{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin:8px 0}
+  .kd-neu input:not([type=date]),.kd-neu textarea{flex:1 1 240px}
+  .kd-neu input[type=date],.kd-neu select{flex:0 0 auto;width:auto}
+  .kd-auf{border:1px solid var(--line);border-radius:var(--rs);overflow:hidden}
+  .kd-kontakt{padding:10px 14px;border-radius:var(--rs);background:var(--surface-2);border:1px solid var(--line-soft)}
+  .kd-kontakt .kopf{display:flex;gap:10px;align-items:center;font-size:12.5px}
+  .kd-kontakt .kopf span{color:var(--muted)}
+  #kd_overlay .kd-kontakt .weg{margin-left:auto;border:none;background:none;padding:4px;color:var(--muted);height:auto}
+  .kd-kontakt .t{font-size:13px;white-space:pre-wrap;margin-top:4px;line-height:1.5}
+  .kd-fuss{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-top:22px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  #kd_overlay button.kd-loeschen{color:var(--bad)}
+  .kd-eck{display:flex;align-items:center;gap:8px;min-height:46px;font-size:13px;flex-wrap:wrap}
+  .kd-eck a{color:var(--accent)}
+  .kd-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--tint);color:var(--accent);font-weight:600}
+  .kd-chip svg{width:16px;height:16px}
+  @media(max-width:640px){ .kd-marken{display:none} #kd_overlay .modal{padding:18px 14px} }
 </style>
 </head>
 <body>
@@ -859,6 +899,7 @@
     <div class="start-actions">
       <button class="icon" onclick="oeffneProjekte()" title="Projekte" data-ic="folder"></button>
       <button class="icon hat-badge" id="auf_btn_start" onclick="aufOeffnen()" title="Wiedervorlagen" data-ic="check"></button>
+      <button class="icon" onclick="kdOeffnen()" title="Kunden" data-ic="users"></button>
       <button class="icon" onclick="themeToggle()" title="Dunkelmodus" data-ic="moon"></button>
     </div>
   </div>
@@ -927,6 +968,7 @@
     <button class="icon" onclick="mdbOeffnen()" title="Marktüberblick" data-ic="chart"></button>
     <button class="icon" onclick="finOeffnen()" title="Finanzierung" data-ic="calc"></button>
     <button class="icon hat-badge" id="auf_btn_hdr" onclick="aufOeffnen()" title="Wiedervorlagen" data-ic="check"></button>
+    <button class="icon" onclick="kdOeffnen()" title="Kunden" data-ic="users"></button>
     <button class="icon" onclick="themeToggle()" title="Dunkelmodus" data-ic="moon"></button>
     <button class="icon" id="installBtn" onclick="appInstallieren()" title="Als App installieren" data-ic="download"></button>
     <span class="vsep"></span>
@@ -972,9 +1014,9 @@
     </table>
     <div class="pj-sicherung">
       <p class="hint" id="pj_speicher" style="margin:0">–</p>
-      <div class="pj-sicherung-k"><button class="secondary" onclick="pjAlleSichern()" data-ic="download">Alle Projekte sichern</button>
+      <div class="pj-sicherung-k"><button class="secondary" onclick="pjAlleSichern()" data-ic="download">Alle Projekte und Kunden sichern</button>
         <button class="secondary" onclick="pjSicherungEinspielen()">Sicherung einspielen</button></div>
-      <p class="hint" style="margin:6px 0 0">Die Gesamtsicherung enthält alle Projekte mit Fotos und Grundrissen in einer Datei. Sie ist der Weg zurück,
+      <p class="hint" style="margin:6px 0 0">Die Gesamtsicherung enthält alle Projekte mit Fotos und Grundrissen, die Kundenakten und die Wiedervorlagen in einer Datei. Sie ist der Weg zurück,
         wenn das Gerät verloren geht oder die App vom Home-Bildschirm gelöscht wird.</p>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><button onclick="dsgvoOeffnen()" data-ic="shield" style="border:none;background:none;color:var(--muted);font-size:12.5px;padding:0">Datenschutz — wo liegen diese Daten?</button><button onclick="schliesseProjekte()">Schließen</button></div>
@@ -1137,6 +1179,7 @@
         <div class="field wohnung-only"><label>Wohnungstyp</label>
           <select id="ek_wtyp"><option>Etagenwohnung</option><option>Erdgeschosswohnung</option><option>Dachgeschosswohnung</option><option>Maisonette</option><option>Penthouse</option><option>Apartment</option></select></div>
         <div class="field"><label>Auftraggeber(in)</label><input id="ek_ag"></div>
+        <div class="field"><label>Kunde <span class="u">Kundenakte</span></label><div class="kd-eck" id="ek_kunde_anzeige"></div><input type="hidden" id="ek_kunde_id" value=""></div>
         <div class="field full"><label>Objektanschrift</label><input id="ek_anschrift" placeholder="Straße Nr., PLZ Ort"></div>
         <div class="field"><label>Nutzung / Beschreibung</label><input id="ek_nutzung" placeholder="z.B. EG/UG Gewerbe, OG Wohnen"></div>
         <div class="field"><label>Verwendungszweck</label><input id="ek_zweck" value="evtl. Verkauf"></div>
@@ -2062,6 +2105,7 @@
     <button onclick="mdbOeffnen()" data-ic="chart">Markt</button>
     <button onclick="finOeffnen()" data-ic="calc">Finanz.</button>
     <button onclick="oeffneProjekte()" data-ic="folder">Projekte</button>
+    <button onclick="kdOeffnen()" data-ic="users">Kunden</button>
   </div>
 </div>
 
@@ -2091,6 +2135,12 @@
       „Auftraggeber(in)“). Der Marktüberblick speichert bewusst <b>keine</b> Käufer- oder Verkäufernamen —
       nur Objektdaten, Preise und die Datenquelle. Für Exposés merkt sich die App auf Wunsch deine eigenen
       Kontaktangaben als Ansprechpartner, ebenfalls nur auf diesem Gerät.</p>
+    <h3>Kundenakte</h3>
+    <p style="font-size:13px;line-height:1.6">Die Kundenakte speichert Namen, Kontaktdaten, Gesprächsnotizen und
+      Finanzierungsrechnungen deiner Kunden — personenbezogene Daten, die nur auf diesem Gerät liegen. Je Kunde hältst du
+      die Rechtsgrundlage fest (Auftrag oder Einwilligung) und ein Datum, an dem du die Löschung prüfst. „Daten exportieren“
+      erzeugt die Auskunft über alles Gespeicherte, „Kunde löschen“ entfernt die Akte vollständig. Empfohlen: die
+      App-Sperre mit Face ID einschalten.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -2133,6 +2183,7 @@
       <span class="sub">Annuitätendarlehen · Nebenkosten · Tilgungsplan</span>
       <div class="sp">
         <button class="secondary" onclick="finAusBewertung()" data-ic="arrow-down"><span class="lbl">Aus Bewertung</span></button>
+        <button class="secondary" onclick="kdFinanzierungAblegen()" data-ic="users"><span class="lbl">Beim Kunden ablegen</span></button>
         <button class="secondary" onclick="finDrucken()" data-ic="printer"><span class="lbl">Drucken</span></button>
         <button class="icon" onclick="finSchliessen()" title="Schließen" data-ic="x"></button>
       </div>
@@ -2243,6 +2294,10 @@
 
 <div id="gr_overlay" class="overlay" onclick="if(event.target===this)grSchliessen()">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="gr_titel"><div id="gr_inhalt"></div></div>
+</div>
+
+<div id="kd_overlay" class="overlay" onclick="if(event.target===this)kdSchliessen()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="kd_titel"><div id="kd_inhalt"></div></div>
 </div>
 
 <div id="speicher_warn" class="speicher-warn" role="alert" hidden><span id="speicher_warn_t"></span>
@@ -2432,7 +2487,7 @@ function bwAusBewertung(){
    stattdessen beim Oeffnen der App auf der Startseite und im Zaehler der Kopfzeile. */
 var AUF_KEY='ia_aufgaben', AUF_FILTER='offen';
 function aufLoad(){ try{ return JSON.parse(localStorage.getItem(AUF_KEY))||[]; }catch(e){ return []; } }
-function aufStore(list){ try{ localStorage.setItem(AUF_KEY,JSON.stringify(list)); return true; }catch(e){ alert('Speicher voll — bitte erledigte Wiedervorlagen entfernen.'); return false; } }
+function aufStore(list){ try{ localStorage.setItem(AUF_KEY,JSON.stringify(list)); try{ kdNachAufgaben(); }catch(e){} return true; }catch(e){ alert('Speicher voll — bitte erledigte Wiedervorlagen entfernen.'); return false; } }
 function aufHeute(){ return new Date().toISOString().slice(0,10); }
 function aufTage(frist){ if(!frist) return null; return Math.round((new Date(frist+'T00:00:00')-new Date(aufHeute()+'T00:00:00'))/86400000); }
 function aufFristText(frist){
@@ -2485,7 +2540,7 @@ function aufZeile(a){
     +'<div class="txt"><div class="t">'+sEsc(a.text)+'</div><div class="m">'
     +(a.erledigt?'<span>erledigt</span>':'<span class="frist '+f.cls+'">'+sEsc(f.txt)+'</span>')
     +(a.frist?'<span>'+new Date(a.frist+'T00:00:00').toLocaleDateString('de-DE')+'</span>':'')
-    +(a.objekt?'<span>'+sEsc(a.objekt)+'</span>':'')+'</div></div>'
+    +(a.objekt?'<span>'+sEsc(a.objekt)+'</span>':'')+(a.kundeId&&typeof kdName==='function'&&kdName(a.kundeId)?'<span>'+sEsc(kdName(a.kundeId))+'</span>':'')+'</div></div>'
     +'<button class="weg" aria-label="Wiedervorlage löschen" onclick="aufLoeschen(&quot;'+a.id+'&quot;)">'+iaSvg('trash')+'</button></div>';
 }
 function aufRender(){
@@ -2852,7 +2907,7 @@ function unterlagenStatus(){
    Warten lesen können; die Fotos eines Projekts werden erst beim Öffnen geholt. Ohne IndexedDB (manche
    privaten Fenster) arbeitet die App wie bisher mit dem localStorage, meldet volle Speicher aber sichtbar. */
 const PJ_KEY='vb_projekte';
-const IA_DB_NAME='ia_bewertungen', IA_DB_VER=1;
+const IA_DB_NAME='ia_bewertungen', IA_DB_VER=2;   // 2: Kundenakte
 var IA_DB=null, IA_DB_BEREIT=false, IA_BEREIT_P=Promise.resolve(false);
 var PJ_CACHE=[];                 // {id,name,objekt,datum,empf,voll,geaendert,nFotos,data:{fields,signature,grundrisse}}
 var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der Datenbank
@@ -2866,10 +2921,14 @@ function iaDbOeffnen(){
     rq.onupgradeneeded=()=>{ let db=rq.result;
       if(!db.objectStoreNames.contains('projekte')) db.createObjectStore('projekte',{keyPath:'id'});
       if(!db.objectStoreNames.contains('arbeit')) db.createObjectStore('arbeit');
-      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta'); };
-    rq.onsuccess=()=>ok(rq.result);
+      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+      if(!db.objectStoreNames.contains('kunden')) db.createObjectStore('kunden',{keyPath:'id'}); };
+    rq.onsuccess=()=>{ let db=rq.result; speicherFehler('db','');
+      db.onversionchange=()=>{ db.close(); speicherFehler('db','Die App wurde in einem anderen Fenster aktualisiert. Bitte diese Seite neu laden.'); };
+      ok(db); };
     rq.onerror=()=>fehler(rq.error||new Error('IndexedDB nicht verfügbar'));
-    rq.onblocked=()=>fehler(new Error('IndexedDB blockiert'));
+    // Ein älteres, noch offenes Fenster hält die Datenbank: nicht aufgeben, sondern warten und Bescheid sagen
+    rq.onblocked=()=>speicherFehler('db','Die ImmoApp ist noch in einem anderen Fenster oder Tab geöffnet. Bitte dort schließen, dann geht es hier weiter.');
   });
 }
 /* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist */
@@ -2932,6 +2991,7 @@ async function iaSpeicherStart(){
       if(alt.every(p=>!p||!p.id||jetzt.has(p.id))) localStorage.removeItem(PJ_KEY);   // erst nach geprüfter Übernahme
     }
     PJ_CACHE=(await iaAlle('projekte')).map(pjOhneFotos);
+    KD_CACHE=await iaAlle('kunden');
     if(FOTO_GEAENDERT){ await iaPut('arbeit',PHOTOS,'fotos'); FOTO_GEAENDERT=false; }   // Fotos aus altem Arbeitsstand
     else if(FOTOS_IN_DB){ let f=await iaGet('arbeit','fotos'); if(Array.isArray(f)){ PHOTOS=f; renderPhotos(); } }
     IA_DB_BEREIT=true; FOTOS_IN_DB=true;
@@ -2939,7 +2999,7 @@ async function iaSpeicherStart(){
     try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){}
     if(!document.body.classList.contains('started')) startStep0();
     if($('projekt_overlay')&&$('projekt_overlay').classList.contains('on')) renderProjekte();
-    speicherStatus();
+    speicherStatus(); kdAnzeige();
     return true;
   }catch(e){
     console.warn('Datenbank nicht nutzbar, Rückfall auf localStorage',e);
@@ -2977,7 +3037,7 @@ function renderProjekte(){
   const e=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;');
   list.forEach(p=>{
     tb.insertAdjacentHTML('beforeend',
-      `<tr><td style="text-align:left">${e(p.name||'ohne Namen')}</td>
+      `<tr><td style="text-align:left">${e(p.name||'ohne Namen')}${p.data&&p.data.fields&&p.data.fields.ek_kunde_id&&kdName(p.data.fields.ek_kunde_id)?'<br><span style="color:var(--muted);font-size:11.5px">Kunde: '+e(kdName(p.data.fields.ek_kunde_id))+'</span>':''}</td>
        <td style="text-align:left">${e(p.objekt||'–')}${p.nFotos?'<br><span style="color:var(--muted);font-size:11.5px">'+p.nFotos+' Foto'+(p.nFotos===1?'':'s')+'</span>':''}</td>
        <td>${e(p.datum||'')}</td>
        <td style="white-space:nowrap">
@@ -3038,10 +3098,11 @@ async function projektLoeschen(id){
    verloren geht oder die App vom Home-Bildschirm gelöscht wird */
 async function pjAlleSichern(){
   await IA_BEREIT_P;
-  let liste;
-  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); }catch(e){ alert('Die Projekte konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
-  if(!liste.length){ alert('Es sind noch keine Projekte gesichert.'); return; }
-  let datei={typ:'immoapp-projekte',version:1,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste};
+  let liste, kunden=[];
+  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT) kunden=await iaAlle('kunden'); }
+  catch(e){ alert('Die Daten konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
+  if(!liste.length&&!kunden.length){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
+  let datei={typ:'immoapp-projekte',version:2,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste,kunden:kunden,aufgaben:aufLoad()};
   let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), a=document.createElement('a');
   a.href=URL.createObjectURL(b); a.download='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000);
@@ -3058,8 +3119,9 @@ async function pjSicherungAusText(text){
       let liste=(o&&o.typ==='immoapp-projekte'&&Array.isArray(o.projekte))?o.projekte:(Array.isArray(o)?o:null);
       if(!liste){ alert(o&&o.fields?'Das ist eine einzelne Bewertung. Sie wird über „Datei öffnen“ im Export-Menü geladen.':'Die Datei ist keine Projektsicherung der ImmoApp.'); return; }
       liste=liste.filter(p=>p&&p.id&&p.data);
-      if(!liste.length){ alert('In der Sicherung stehen keine Projekte.'); return; }
-      if(!confirm(liste.length+' Projekte aus der Sicherung übernehmen?\nGibt es ein Projekt schon, bleibt die neuere Fassung erhalten.')) return;
+      let kunden=(o&&Array.isArray(o.kunden)?o.kunden:[]).filter(k=>k&&k.id), aufgaben=(o&&Array.isArray(o.aufgaben)?o.aufgaben:[]).filter(a=>a&&a.id);
+      if(!liste.length&&!kunden.length){ alert('In der Sicherung stehen keine Projekte oder Kunden.'); return; }
+      if(!confirm(liste.length+' Projekte'+(kunden.length?', '+kunden.length+' Kunden':'')+(aufgaben.length?' und '+aufgaben.length+' Wiedervorlagen':'')+' aus der Sicherung übernehmen?\nGibt es einen Eintrag schon, bleibt die neuere Fassung erhalten.')) return;
       await IA_BEREIT_P;
       let bestand=pjLoad(), neu=[], n={neu:0,ersetzt:0,gleich:0};
       liste.forEach(p=>{ let da=bestand.find(x=>x.id===p.id);
@@ -3068,11 +3130,16 @@ async function pjSicherungAusText(text){
         try{ await iaTx('projekte','readwrite',s=>{ neu.forEach(p=>s.put(p)); }); }
         catch(e){ alert('Die Sicherung konnte nicht eingespielt werden: '+iaFehlerText(e)+'.'); return; }
         neu.forEach(pjCacheSetzen);
+        let kdNeu=kunden.filter(k=>{ let da=KD_CACHE.find(x=>x.id===k.id); return !da||(k.geaendert||0)>(da.geaendert||0); });
+        if(kdNeu.length){ try{ await iaTx('kunden','readwrite',s=>{ kdNeu.forEach(k=>s.put(k)); }); KD_CACHE=await iaAlle('kunden'); }catch(e){ alert('Die Kunden konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
+        n.kunden=kdNeu.length;
       } else {
         let l=bestand.filter(x=>!neu.some(p=>p.id===x.id)).concat(neu); if(!pjStore(l)) return;
       }
-      renderProjekte(); speicherStatus();
-      alert('Sicherung eingespielt: '+n.neu+' neu, '+n.ersetzt+' durch neuere Fassung ersetzt, '+n.gleich+' unverändert.');
+      if(aufgaben.length){ let alt=aufLoad(), ids=new Set(alt.map(a=>a.id)); let dazu=aufgaben.filter(a=>!ids.has(a.id)); if(dazu.length&&aufStore(alt.concat(dazu))){ n.aufgaben=dazu.length; aufBadge(); } }
+      renderProjekte(); speicherStatus(); kdAnzeige();
+      alert('Sicherung eingespielt. Projekte: '+n.neu+' neu, '+n.ersetzt+' durch neuere Fassung ersetzt, '+n.gleich+' unverändert.'
+        +(n.kunden!=null?'\nKunden: '+n.kunden+' neu oder aktualisiert.':'')+(n.aufgaben?'\nWiedervorlagen: '+n.aufgaben+' neu.':''));
 }
 /* Erinnerung auf der Startseite, wenn die Projekte länger nicht gesichert wurden */
 async function pjSicherungsHinweis(){
@@ -4086,6 +4153,8 @@ function grAnleitungZeigen(){
 }
 ['input','change'].forEach(ev=>{ let o=$('gr_overlay'); if(o) o.addEventListener(ev,e=>e.stopPropagation()); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('gr_overlay'); if(o&&o.classList.contains('on')) grSchliessen(); } });
+['input','change'].forEach(ev=>{ let o=$('kd_overlay'); if(o) o.addEventListener(ev,e=>e.stopPropagation()); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('kd_overlay'); if(o&&o.classList.contains('on')) kdSchliessen(); } });
 
 /* ---------- Exposé ---------------------------------------------------------------------
    Verkaufsexposé aus den erfassten Daten, bewusst ohne Bewertungszahlen. Jedes Feld in ⑪ überschreibt;
@@ -4371,6 +4440,235 @@ function rpLeiste(){
     +'<button class="no-print" onclick="rpZurAuswahl()">Abschnitte wählen</button>';
 }
 function rpZurAuswahl(){ document.body.classList.remove('report-mode'); document.body.classList.add('started'); let z=$('rp_liste'); if(z) setTimeout(()=>z.scrollIntoView({behavior:'smooth',block:'center'}),50); }
+
+/* ---------- Kundenakte ------------------------------------------------------------------
+   Ein Kunde bündelt Bewertungen (über das versteckte Feld ek_kunde_id der Bewertung), Wiedervorlagen
+   (kundeId an der Aufgabe), abgelegte Finanzierungsrechnungen und Gesprächsnotizen. Gespeichert in der
+   IndexedDB „ia_bewertungen“, Speicher „kunden“ (D8) — nur auf diesem Gerät, mit Auskunft (Export) und
+   Löschung je Kunde. Kundennamen gelangen nie in den Marktüberblick (D4). */
+var KD_CACHE=[], KD_AKTIV=null, KD_WAHL=null, KD_SUCHE='';
+const KD_GRUNDLAGEN=[['vertrag','Anbahnung oder Durchführung eines Auftrags (Art. 6 Abs. 1 lit. b DSGVO)'],
+  ['einwilligung','Einwilligung des Kunden (Art. 6 Abs. 1 lit. a DSGVO)'],['sonstige','Sonstige Rechtsgrundlage (in der Notiz festhalten)']];
+const KD_KONTAKTARTEN=['Gespräch','Telefonat','E-Mail','Besichtigung','Termin','Sonstiges'];
+function kdName(k){
+  if(typeof k==='string') k=KD_CACHE.find(x=>x.id===k);
+  if(!k) return '';
+  let n=[k.vorname,k.nachname].filter(Boolean).join(' ').trim();
+  return n&&k.firma?n+' ('+k.firma+')':(n||k.firma||'Ohne Namen');
+}
+function kdVerfuegbar(){
+  if(IA_DB_BEREIT) return true;
+  alert('Die Kundenakte braucht die Gerätedatenbank, die in diesem Browserfenster nicht zur Verfügung steht (z. B. privates Fenster).');
+  return false;
+}
+async function kdSpeichern(k){
+  k.geaendert=Date.now();
+  try{ await iaPut('kunden',k); }catch(e){ alert('Der Kunde konnte nicht gespeichert werden: '+iaFehlerText(e)+'.'); return false; }
+  let i=KD_CACHE.findIndex(x=>x.id===k.id); if(i>=0) KD_CACHE[i]=k; else KD_CACHE.push(k);
+  return true;
+}
+function kdBewertungen(id){
+  let l=pjLoad().filter(p=>p.data&&p.data.fields&&p.data.fields.ek_kunde_id===id).map(p=>({typ:'projekt',id:p.id,name:p.name,datum:p.datum,empf:p.empf}));
+  if(exV('ek_kunde_id')===id&&!l.some(p=>p.name===($('pj_name').value||'').trim())) l.unshift({typ:'aktuell',name:exV('ek_anschrift')||'Aktuelle Bewertung',datum:'in Bearbeitung',empf:($('o_empfehlung')||{}).textContent||''});
+  return l;
+}
+function kdAufgaben(id){ return aufLoad().filter(a=>a.kundeId===id); }
+
+/* --- Dialog --- */
+function kdOeffnen(id,wahl){
+  if(!kdVerfuegbar()) return;
+  KD_WAHL=wahl||null; KD_AKTIV=null;
+  let o=$('kd_overlay'); o.classList.add('on'); document.body.style.overflow='hidden';
+  if(id) kdAkte(id); else kdListe();
+}
+function kdSchliessen(){ let o=$('kd_overlay'); o.classList.remove('on'); document.body.style.overflow=''; KD_WAHL=null; KD_AKTIV=null; }
+function kdInhalt(html){ $('kd_inhalt').innerHTML=html; $('kd_overlay').scrollTop=0; }
+function kdListe(){
+  KD_AKTIV=null;
+  let sperre=localStorage.getItem('ia_lock_enabled')==='1';
+  kdInhalt('<div class="gr-kopf"><h2 id="kd_titel">'+(KD_WAHL?'Kunde auswählen':'Kunden')+'</h2><button class="gr-x" onclick="kdSchliessen()" aria-label="Schließen">✕</button></div>'
+    +(KD_WAHL?'':'<p class="hint" style="margin-top:0">Kundendaten liegen nur auf diesem Gerät. Speichere nur, was du für die Beratung brauchst, und lösche Kunden, wenn der Vorgang abgeschlossen ist. <a href="#" onclick="dsgvoOeffnen();return false;">Datenschutz</a></p>')
+    +(!KD_WAHL&&!sperre&&KD_CACHE.length?'<div class="kd-tipp">Hier stehen personenbezogene Daten. Tipp: <a href="#" onclick="lockSetupOeffnen();return false;">App-Sperre mit Face ID einschalten</a>, damit niemand am offenen Gerät mitliest.</div>':'')
+    +'<div class="kd-leiste"><input type="search" id="kd_q" placeholder="Name, Ort, Telefon, E-Mail …" aria-label="Kunden suchen" value="'+sEsc(KD_SUCHE)+'" oninput="KD_SUCHE=this.value;kdListeZeilen()">'
+    +'<button class="primary" onclick="kdNeu()" data-ic="plus">Neuer Kunde</button></div>'
+    +'<div class="kd-liste" id="kd_liste"></div>');
+  kdListeZeilen();
+}
+function kdListeZeilen(){
+  let el=$('kd_liste'); if(!el) return;
+  let q=sNorm(KD_SUCHE||'').split(/\s+/).filter(Boolean), heute=aufHeute();
+  let liste=KD_CACHE.filter(k=>{ let hay=sNorm([kdName(k),k.firma,k.plzort,k.strasse,k.telefon,k.email].join(' ')); return q.every(t=>hay.indexOf(t)>=0); })
+    .sort((a,b)=>(b.geaendert||0)-(a.geaendert||0));
+  if(!liste.length){ el.innerHTML='<div class="kd-leer">'+(KD_CACHE.length?'Kein Kunde passt zur Suche.':'Noch keine Kunden angelegt.')+'</div>'; return; }
+  el.innerHTML=liste.map(k=>{
+    let nb=kdBewertungen(k.id).length, auf=kdAufgaben(k.id).filter(a=>!a.erledigt), faellig=auf.filter(a=>a.frist&&aufTage(a.frist)<=0).length;
+    let loesch=k.loeschpruefung&&k.loeschpruefung<=heute;
+    let marken=[nb?nb+' Bewertung'+(nb===1?'':'en'):'', auf.length?auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+(faellig?' ('+faellig+' fällig)':''):'',
+      (k.kontakte||[]).length?(k.kontakte.length)+' Notiz'+(k.kontakte.length===1?'':'en'):''].filter(Boolean);
+    return '<button type="button" class="kd-zeile" onclick="'+(KD_WAHL?'kdGewaehlt(\''+k.id+'\')':'kdAkte(\''+k.id+'\')')+'">'
+      +'<span class="kd-ini">'+sEsc(kdInitialen(k))+'</span><span class="kd-txt"><b>'+sEsc(kdName(k))+'</b><span>'+sEsc([k.plzort,k.telefon,k.email].filter(Boolean).join(' · ')||'keine Kontaktdaten')+'</span></span>'
+      +'<span class="kd-marken">'+marken.map(m=>'<i>'+sEsc(m)+'</i>').join('')+(loesch?'<i class="warn">Löschprüfung fällig</i>':'')+'</span></button>'; }).join('');
+}
+function kdInitialen(k){ let n=[k.vorname,k.nachname].filter(Boolean); if(!n.length&&k.firma) n=k.firma.split(/\s+/); return n.map(s=>s[0]||'').slice(0,2).join('').toUpperCase()||'?'; }
+async function kdNeu(){
+  let k={id:'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),anrede:'',vorname:'',nachname:'',firma:'',telefon:'',email:'',
+    strasse:'',plzort:'',notiz:'',grundlage:'vertrag',einwilligungAm:'',loeschpruefung:'',erstellt:Date.now(),kontakte:[],finanzierungen:[]};
+  if(!(await kdSpeichern(k))) return;
+  if(KD_WAHL){ kdGewaehlt(k.id,true); return; }
+  kdAkte(k.id,true);
+}
+function kdGewaehlt(id,neu){ let cb=KD_WAHL; KD_WAHL=null; if(cb) cb(id); if(neu) kdAkte(id,true); else kdSchliessen(); }
+
+/* --- Akte eines Kunden --- */
+function kdAkte(id,fokus){
+  let k=KD_CACHE.find(x=>x.id===id); if(!k){ kdListe(); return; }
+  KD_AKTIV=id;
+  const f=(feld,label,typ,ph)=>'<div class="field"><label>'+label+'</label><input'+(typ?' type="'+typ+'"':'')+' value="'+sEsc(k[feld]||'')+'"'+(ph?' placeholder="'+sEsc(ph)+'"':'')
+    +' onchange="kdFeld(\''+feld+'\',this.value)" aria-label="'+sEsc(label.replace(/<[^>]+>/g,'').trim())+'"></div>';
+  let bew=kdBewertungen(id), auf=aufSortiert(kdAufgaben(id)), fin=(k.finanzierungen||[]).slice().reverse(), kon=(k.kontakte||[]).slice().sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')||(b.ts||0)-(a.ts||0));
+  let zugeordnet=exV('ek_kunde_id')===id;
+  kdInhalt('<div class="gr-kopf"><div><button class="kd-zurueck" onclick="kdListe()" data-ic="arrow-left">Alle Kunden</button><h2 id="kd_titel" style="margin-top:6px">'+sEsc(kdName(k))+'</h2></div>'
+    +'<button class="gr-x" onclick="kdSchliessen()" aria-label="Schließen">✕</button></div>'
+    +'<h3>Stammdaten</h3><div class="grid">'
+    +'<div class="field"><label>Anrede</label><select onchange="kdFeld(\'anrede\',this.value)" aria-label="Anrede">'+['','Frau','Herr','Divers','Firma'].map(a=>'<option'+(a===(k.anrede||'')?' selected':'')+'>'+a+'</option>').join('')+'</select></div>'
+    +f('firma','Firma <span class="u">optional</span>')+f('vorname','Vorname')+f('nachname','Nachname')+f('telefon','Telefon','tel')+f('email','E-Mail','email')
+    +f('strasse','Straße und Hausnummer')+f('plzort','PLZ und Ort')
+    +'</div><div class="field" style="margin-top:10px"><label>Notiz <span class="u">nur Beratungsrelevantes</span></label><textarea rows="3" onchange="kdFeld(\'notiz\',this.value)" aria-label="Notiz">'+sEsc(k.notiz||'')+'</textarea></div>'
+    +'<div class="grid" style="margin-top:10px"><div class="field"><label>Rechtsgrundlage der Speicherung</label><select onchange="kdFeld(\'grundlage\',this.value);kdAkte(\''+id+'\')" aria-label="Rechtsgrundlage">'
+    +KD_GRUNDLAGEN.map(g=>'<option value="'+g[0]+'"'+(g[0]===k.grundlage?' selected':'')+'>'+g[1]+'</option>').join('')+'</select></div>'
+    +(k.grundlage==='einwilligung'?'<div class="field"><label>Einwilligung erteilt am</label><input type="date" value="'+sEsc(k.einwilligungAm||'')+'" onchange="kdFeld(\'einwilligungAm\',this.value)" aria-label="Einwilligung erteilt am"></div>':'')
+    +'<div class="field"><label>Löschung prüfen am</label><input type="date" value="'+sEsc(k.loeschpruefung||'')+'" onchange="kdFeld(\'loeschpruefung\',this.value)" aria-label="Löschung prüfen am"></div></div>'
+    +'<p class="hint">Ist das Datum erreicht, markiert die Kundenliste den Kunden. Dann prüfen, ob die Daten noch gebraucht werden.</p>'
+
+    +'<h3>Bewertungen</h3>'
+    +(bew.length?'<div class="kd-karten">'+bew.map(p=>'<div class="kd-karte"><div><b>'+sEsc(p.name)+'</b><span>'+sEsc([p.datum,p.empf&&p.empf!=='0 €'?p.empf:''].filter(Boolean).join(' · '))+'</span></div>'
+      +(p.typ==='projekt'?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+p.id+'\')">Öffnen</button><button class="secondary" onclick="kdProjektLoesen(\''+p.id+'\')">Zuordnung lösen</button></div>'
+        :'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();document.body.classList.add(\'started\');window.scrollTo(0,0)">Zur Bewertung</button><button class="secondary" onclick="kdAktuelleZuordnen(\'\')">Zuordnung lösen</button></div>')+'</div>').join('')+'</div>'
+      :'<p class="hint" style="margin:0">Noch keine Bewertung zugeordnet.</p>')
+    +(zugeordnet?'':'<div class="gr-zeile"><button class="secondary" onclick="kdAktuelleZuordnen(\''+id+'\')">Aktuelle Bewertung diesem Kunden zuordnen</button></div>')
+
+    +'<h3>Wiedervorlagen</h3>'
+    +(auf.length?'<div class="kd-auf">'+auf.map(aufZeile).join('')+'</div>':'')
+    +'<div class="kd-neu"><input id="kd_auf_text" placeholder="z. B. Unterlagen nachfragen" aria-label="Neue Wiedervorlage"><input id="kd_auf_frist" type="date" aria-label="Fällig am"><button class="secondary" onclick="kdAufgabeNeu()" data-ic="plus">Hinzufügen</button></div>'
+
+    +'<h3>Finanzierungsrechnungen</h3>'
+    +(fin.length?'<div class="kd-karten">'+fin.map(x=>'<div class="kd-karte"><div><b>'+sEsc(x.titel||'Finanzierung')+'</b><span>'+sEsc([new Date(x.ts).toLocaleDateString('de-DE'),x.rate?'Rate '+eur(x.rate):'',x.bedarf?'Darlehen '+eur(x.bedarf):''].filter(Boolean).join(' · '))+'</span></div>'
+      +'<div class="kd-k"><button class="secondary" onclick="kdFinanzierungOeffnen(\''+x.id+'\')">Öffnen</button><button class="secondary" onclick="kdFinanzierungWeg(\''+x.id+'\')">Löschen</button></div></div>').join('')+'</div>'
+      :'<p class="hint" style="margin:0">Im Finanzierungsrechner über „Beim Kunden ablegen“ speichern.</p>')
+    +'<div class="gr-zeile"><button class="secondary" onclick="kdSchliessen();finOeffnen()" data-ic="calc">Finanzierungsrechner öffnen</button></div>'
+
+    +'<h3>Gesprächsnotizen</h3>'
+    +'<div class="kd-neu"><input id="kd_kon_datum" type="date" value="'+aufHeute()+'" aria-label="Datum"><select id="kd_kon_art" aria-label="Art">'+KD_KONTAKTARTEN.map(a=>'<option>'+a+'</option>').join('')+'</select>'
+    +'<textarea id="kd_kon_text" rows="2" placeholder="Was wurde besprochen, was ist vereinbart?" aria-label="Notiz"></textarea><button class="secondary" onclick="kdKontaktNeu()" data-ic="plus">Notiz speichern</button></div>'
+    +(kon.length?'<div class="kd-kontakte">'+kon.map(c=>'<div class="kd-kontakt"><div class="kopf"><b>'+sEsc(c.art||'Notiz')+'</b><span>'+(c.datum?new Date(c.datum+'T00:00:00').toLocaleDateString('de-DE'):'')+'</span>'
+      +'<button class="weg" aria-label="Notiz löschen" onclick="kdKontaktWeg(\''+c.id+'\')">'+iaSvg('trash')+'</button></div><div class="t">'+sEsc(c.text)+'</div></div>').join('')+'</div>':'')
+
+    +'<div class="kd-fuss"><button class="secondary" onclick="kdExport(\''+id+'\')" data-ic="download">Daten exportieren (Auskunft)</button>'
+    +'<button class="secondary kd-loeschen" onclick="kdLoeschen(\''+id+'\')" data-ic="trash">Kunde löschen</button></div>');
+  if(fokus){ let e=$('kd_inhalt').querySelector('input[aria-label="Vorname"]'); if(e) setTimeout(()=>e.focus(),50); }
+}
+async function kdFeld(feld,wert){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k) return;
+  k[feld]=(''+wert).trim();
+  if(await kdSpeichern(k)){ let t=$('kd_titel'); if(t) t.textContent=kdName(k); kdAnzeige(); }
+}
+function kdAktuelleZuordnen(id){
+  $('ek_kunde_id').value=id;
+  if(id&&!exV('ek_ag')) $('ek_ag').value=kdName(id);
+  autosave(); kdAnzeige(); if(KD_AKTIV) kdAkte(KD_AKTIV);
+}
+async function kdProjektLoesen(pid){
+  if(!confirm('Die Zuordnung dieser Bewertung zum Kunden lösen? Die Bewertung selbst bleibt erhalten.')) return;
+  try{ let r=await iaGet('projekte',pid); if(r&&r.data&&r.data.fields){ r.data.fields.ek_kunde_id=''; await iaPut('projekte',r); pjCacheSetzen(r); } }
+  catch(e){ alert('Die Zuordnung konnte nicht gelöst werden: '+iaFehlerText(e)+'.'); return; }
+  kdAkte(KD_AKTIV);
+}
+function kdAufgabeNeu(){
+  let t=($('kd_auf_text').value||'').trim(); if(!t){ $('kd_auf_text').focus(); return; }
+  let list=aufLoad();
+  list.push({id:'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),text:t,frist:$('kd_auf_frist').value||'',objekt:'',kundeId:KD_AKTIV,erledigt:false,angelegt:Date.now()});
+  if(aufStore(list)){ aufBadge(); try{ aufStartRender(); }catch(e){} kdAkte(KD_AKTIV); }
+}
+async function kdKontaktNeu(){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k) return;
+  let t=($('kd_kon_text').value||'').trim(); if(!t){ $('kd_kon_text').focus(); return; }
+  k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum:$('kd_kon_datum').value||aufHeute(),art:$('kd_kon_art').value,text:t}]);
+  if(await kdSpeichern(k)) kdAkte(k.id);
+}
+async function kdKontaktWeg(cid){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k||!confirm('Diese Notiz löschen?')) return;
+  k.kontakte=(k.kontakte||[]).filter(c=>c.id!==cid); if(await kdSpeichern(k)) kdAkte(k.id);
+}
+/* Finanzierungsrechnung beim Kunden ablegen und wieder öffnen */
+const KD_FIN_FELDER=['fin_kaufpreis','fin_moderni','fin_grest','fin_notar','fin_makler','fin_ek','fin_zins','fin_tilgung','fin_bindung','fin_sonder','fin_kfw','fin_kfw_zins','fin_kfw_tilgung'];
+function kdFinanzierungAblegen(){
+  if(!kdVerfuegbar()) return;
+  const ablegen=async id=>{
+    let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
+    finRechnen();
+    let werte={}; KD_FIN_FELDER.forEach(f=>{ if($(f)) werte[f]=$(f).value; });
+    let titel=(prompt('Bezeichnung der Rechnung:',exV('ek_anschrift')||'Finanzierung')||'').trim(); if(!titel) return;   // Datum steht ohnehin dabei
+    k.finanzierungen=(k.finanzierungen||[]).concat([{id:'f'+Date.now().toString(36),ts:Date.now(),titel:titel,werte:werte,
+      rate:mdbNum(($('fin_rate')||{}).textContent),bedarf:mdbNum(($('fin_o_bedarf')||{}).textContent),rest:mdbNum(($('fin_o_rest')||{}).textContent)}]);
+    if(await kdSpeichern(k)) alert('Die Rechnung liegt jetzt in der Kundenakte von '+kdName(k)+'.');
+  };
+  if(!KD_CACHE.length){ if(confirm('Es gibt noch keinen Kunden. Jetzt einen anlegen?')) kdOeffnen(null,id=>ablegen(id)); return; }
+  kdOeffnen(null,id=>ablegen(id));
+}
+function kdFinanzierungOeffnen(fid){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV), x=k&&(k.finanzierungen||[]).find(f=>f.id===fid); if(!x) return;
+  kdSchliessen(); finOeffnen();
+  Object.keys(x.werte||{}).forEach(f=>{ if($(f)) $(f).value=x.werte[f]; });
+  finRechnen();
+}
+async function kdFinanzierungWeg(fid){
+  let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k||!confirm('Diese Finanzierungsrechnung löschen?')) return;
+  k.finanzierungen=(k.finanzierungen||[]).filter(f=>f.id!==fid); if(await kdSpeichern(k)) kdAkte(k.id);
+}
+/* Auskunft: alles, was zu diesem Kunden gespeichert ist, als lesbare Textdatei */
+function kdExport(id){
+  let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
+  let d=v=>v?new Date(typeof v==='number'?v:v+'T00:00:00').toLocaleDateString('de-DE'):'–';
+  let g=(KD_GRUNDLAGEN.find(x=>x[0]===k.grundlage)||['',''])[1];
+  let z=['Gespeicherte Daten — '+kdName(k),'Stand: '+new Date().toLocaleString('de-DE'),'Gespeichert ausschließlich lokal in der ImmoApp auf dem Gerät des Beraters.','',
+    'STAMMDATEN','Anrede: '+(k.anrede||'–'),'Vorname: '+(k.vorname||'–'),'Nachname: '+(k.nachname||'–'),'Firma: '+(k.firma||'–'),'Telefon: '+(k.telefon||'–'),'E-Mail: '+(k.email||'–'),
+    'Anschrift: '+([k.strasse,k.plzort].filter(Boolean).join(', ')||'–'),'Notiz: '+(k.notiz||'–'),'Rechtsgrundlage: '+g+(k.einwilligungAm?' (Einwilligung vom '+d(k.einwilligungAm)+')':''),
+    'Angelegt: '+d(k.erstellt),'Zuletzt geändert: '+d(k.geaendert),'Löschprüfung: '+d(k.loeschpruefung),'',
+    'BEWERTUNGEN'].concat(kdBewertungen(id).map(p=>'- '+p.name+' ('+p.datum+')'),kdBewertungen(id).length?[]:['- keine'],['','WIEDERVORLAGEN'],
+    kdAufgaben(id).map(a=>'- '+a.text+(a.frist?' (fällig '+d(a.frist)+')':'')+(a.erledigt?' — erledigt':'')),kdAufgaben(id).length?[]:['- keine'],['','FINANZIERUNGSRECHNUNGEN'],
+    (k.finanzierungen||[]).map(x=>'- '+x.titel+' ('+d(x.ts)+')'+(x.rate?', Rate '+eur(x.rate):'')),(k.finanzierungen||[]).length?[]:['- keine'],['','GESPRÄCHSNOTIZEN'],
+    (k.kontakte||[]).map(c=>'- '+d(c.datum)+' '+(c.art||'')+': '+c.text),(k.kontakte||[]).length?[]:['- keine']);
+  let b=new Blob(['﻿'+z.join('\r\n')],{type:'text/plain;charset=utf-8'}), a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download='Kundendaten '+kdName(k).replace(/[^\wäöüÄÖÜß -]/g,'').trim()+'.txt';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+}
+/* Löschen: Kunde, auf Wunsch seine Wiedervorlagen; Bewertungen bleiben, nur die Zuordnung wird gelöst */
+async function kdLoeschen(id){
+  let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
+  let bew=kdBewertungen(id), auf=kdAufgaben(id);
+  if(!confirm('„'+kdName(k)+'“ mit allen Notizen und Finanzierungsrechnungen endgültig löschen?'
+    +(bew.length?'\n\n'+bew.length+' zugeordnete Bewertung'+(bew.length===1?' bleibt':'en bleiben')+' erhalten, die Zuordnung wird gelöst.':''))) return;
+  let aufWeg=auf.length?confirm('Auch die '+auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+' zu diesem Kunden löschen?\n„Abbrechen“ behält sie ohne Kundenbezug.'):false;
+  try{
+    for(const p of bew.filter(p=>p.typ==='projekt')){ let r=await iaGet('projekte',p.id); if(r&&r.data&&r.data.fields){ r.data.fields.ek_kunde_id=''; await iaPut('projekte',r); pjCacheSetzen(r); } }
+    await iaDel('kunden',id);
+  }catch(e){ alert('Der Kunde konnte nicht vollständig gelöscht werden: '+iaFehlerText(e)+'.'); return; }
+  aufStore(aufLoad().filter(a=>!(aufWeg&&a.kundeId===id)).map(a=>{ if(a.kundeId===id){ let c=Object.assign({},a); delete c.kundeId; return c; } return a; }));
+  aufBadge();
+  KD_CACHE=KD_CACHE.filter(x=>x.id!==id);
+  if(exV('ek_kunde_id')===id){ $('ek_kunde_id').value=''; autosave(); }
+  kdAnzeige(); kdListe();
+}
+/* Anzeige in den Eckdaten */
+function kdAnzeige(){
+  let el=$('ek_kunde_anzeige'); if(!el) return;
+  let id=exV('ek_kunde_id'), k=id&&KD_CACHE.find(x=>x.id===id);
+  el.innerHTML=k?'<span class="kd-chip">'+iaSvg('users')+sEsc(kdName(k))+'</span><a href="#" onclick="kdOeffnen(\''+k.id+'\');return false;">Akte</a> · <a href="#" onclick="kdEckWahl();return false;">ändern</a>'
+    :id&&!IA_DB_BEREIT?'<span class="u">Kunde wird geladen …</span>'
+    :'<a href="#" onclick="kdEckWahl();return false;">Kunde zuordnen</a>'+(id?' <span class="u">(zugeordneter Kunde nicht mehr vorhanden)</span>':'');
+}
+function kdEckWahl(){ kdOeffnen(null,id=>kdAktuelleZuordnen(id)); }
+function kdNachAufgaben(){ if(KD_AKTIV&&$('kd_overlay').classList.contains('on')) kdAkte(KD_AKTIV); else if($('kd_liste')) kdListeZeilen(); }
 
 const N_WK=14;
 const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
@@ -5403,14 +5701,14 @@ function renderSignature(){
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
 
 /* ---------- Persistence ---------- */
-function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay')||e.closest('#suche')||e.closest('#gr_overlay'))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
+function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file')return;if(e.closest('#mdb_overlay')||e.closest('#suche')||e.closest('#gr_overlay')||e.closest('#kd_overlay'))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
 function apply(o){Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
 function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE,grundrisse:GRUNDRISSE};}
 function restore(obj){
   if(obj&&obj.fields){GRUNDRISSE=Array.isArray(obj.grundrisse)?obj.grundrisse:[];apply(obj.fields);PHOTOS=Array.isArray(obj.photos)?obj.photos:[];SIGNATURE=obj.signature||null;}
   else{GRUNDRISSE=[];apply(obj);PHOTOS=[];SIGNATURE=null;}   // Altformat (flache Feldliste)
   FOTO_GEAENDERT=!(obj&&obj.fotosInDb);   // Fotos kommen aus Datei/Projekt → in die Datenbank schreiben
-  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();autosave();
+  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();kdAnzeige();autosave();
 }
 function autosave(){
   if(SILENT)return;
@@ -5467,6 +5765,7 @@ buildWK();
 buildRaumliste();
 grListen();
 rpListeRender();
+kdAnzeige();
 buildRefTable();
 buildNav();
 document.addEventListener('input',compute);
@@ -6680,6 +6979,7 @@ var IA_ICONS={
   moon:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
   chart:'<path d="M4 20h16"/><path d="M7 16v-5"/><path d="M12 16V8"/><path d="M17 16v-3"/>',
   folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><path d="M15.5 5.3a3 3 0 0 1 0 5.4M17.5 14.3c1.7.6 2.8 2.2 3.1 4.7"/>',
   'folder-open':'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1H7l-3 9"/><path d="M4 19h14l3-9"/>',
   save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3"/><path d="M8 21v-6h8v6"/>',
   file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
@@ -7139,6 +7439,11 @@ function sucheQuellen(){
       hay:[p.name,p.objekt,f.ek_anschrift,f.ek_ort,f.ek_ag,f.ek_typ,f.ek_wtyp,f.ek_vordruck,f.ek_nutzung,f.ek_baujahr,f.ek_wohnflaeche,f.ek_flst,'bewertung projekt'].join(' '), ts:parseInt((''+p.id).slice(1))||0,
       go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); projektLaden(p.id); }});
   });
+  (typeof KD_CACHE!=='undefined'?KD_CACHE:[]).forEach(k=>{
+    out.push({typ:'kunde',id:k.id,titel:kdName(k),ort:k.plzort||'',meta:[k.telefon,k.email].filter(Boolean),preis:'',sub:'Kunde',
+      hay:[kdName(k),k.firma,k.plzort,k.strasse,k.telefon,k.email,'kunde'].join(' '),ts:k.geaendert||0,
+      go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); kdOeffnen(k.id); }});
+  });
   (SUCHE.markt||[]).forEach(o=>{
     let d=mdbDeriv(o);
     out.push({typ:'markt',id:o.id, titel:(o.strasse||'').trim()||'ohne Straße', ort:[o.plz,o.gemeinde,o.ortsteil].filter(Boolean).join(' '),
@@ -7162,28 +7467,29 @@ function sucheLauf(){
     });
     hits.sort((a,b)=>b.score-a.score||b.ts-a.ts);
   }
-  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
-  SUCHE.hits=bew.concat(markt); SUCHE.aktiv=0;
-  sucheRender(tokens,bew.length,markt.length);
+  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), kd=hits.filter(h=>h.typ==='kunde').slice(0,6), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
+  SUCHE.hits=bew.concat(kd,markt); SUCHE.aktiv=0;
+  sucheRender(tokens,bew.length,markt.length,kd.length);
 }
 function sucheMark(text,tokens){
   let s=sEsc(text); if(!tokens.length)return s;
   tokens.forEach(t=>{ if(t.length<2)return; let re=new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'); s=s.replace(re,'<mark class="hl">$1</mark>'); });
   return s;
 }
-function sucheRender(tokens,nBew,nMarkt){
+function sucheRender(tokens,nBew,nMarkt,nKd){
   let el=$('suche_liste'), hits=SUCHE.hits;
   if(!hits.length){
     el.innerHTML='<div class="suche-leer">'+(SUCHE.q?'Keine Treffer für „'+sEsc(SUCHE.q)+'".<br>Gesucht wird in Adresse, Ort, Auftraggeber, Objektart, Baujahr, Fläche, Preis und Notizen.':'Noch keine Objekte vorhanden. Bewertungen erscheinen hier, sobald sie als Projekt gesichert sind; Marktobjekte, sobald sie erfasst sind.')+'</div>';
     return;
   }
   const row=(h,i)=>'<div class="suche-row'+(i===SUCHE.aktiv?' aktiv':'')+'" data-i="'+i+'">'+
-    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':'file-text')+'</div>'+
+    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':h.typ==='kunde'?'users':'file-text')+'</div>'+
     '<div class="txt"><div class="t">'+sucheMark(h.titel,tokens)+(h.ort?' <span class="o">· '+sucheMark(h.ort,tokens)+'</span>':'')+'</div>'+
     '<div class="m">'+sEsc(h.meta.join(' · '))+'</div></div>'+
     '<div class="r"><b>'+(h.preis&&h.preis!=='0 €'?sEsc(h.preis):'')+'</b><span>'+sEsc(h.sub)+'</span></div></div>';
   let h='', i=0;
   if(nBew){ h+='<div class="suche-grp">Bewertungen<em>'+nBew+'</em></div>'; for(let k=0;k<nBew;k++){ h+=row(hits[i],i); i++; } }
+  if(nKd){ h+='<div class="suche-grp">Kunden<em>'+nKd+'</em></div>'; for(let k=0;k<nKd;k++){ h+=row(hits[i],i); i++; } }
   if(nMarkt){ h+='<div class="suche-grp">Marktüberblick<em>'+nMarkt+'</em></div>'; for(let k=0;k<nMarkt;k++){ h+=row(hits[i],i); i++; } }
   el.innerHTML=h;
   el.querySelectorAll('.suche-row').forEach(r=>{
