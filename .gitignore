@@ -6,3 +6,7 @@ Thumbs.db
 desktop.ini
 *~
 *.tmp
+node_modules/
+test-results/
+playwright-report/
+tests/ausgabe/
