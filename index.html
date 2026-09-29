@@ -892,6 +892,7 @@
         <div class="sep"></div>
         <button onclick="dsgvoOeffnen()" data-ic="shield">Datenschutz</button>
         <button onclick="lockSetupOeffnen()" data-ic="lock">App-Sperre</button>
+        <button onclick="iaSelbsttestOeffnen()" data-ic="check">Selbsttest Rechenkern</button>
       </div>
     </div>
     <button class="primary" onclick="druckbericht()" data-ic="file-text"><span class="lbl">Bericht</span></button>
@@ -2123,8 +2124,35 @@
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
-function num(id){let e=$(id);if(!e)return 0;return parseNum(e.value);}
-function parseNum(s){s=(''+s).trim();if(s==='')return 0;if(s.indexOf(',')>-1){s=s.replace(/\./g,'').replace(',','.');}let v=parseFloat(s);return isNaN(v)?0:v;}
+/* Zahlen lesen — eine Regel für die ganze App (vorher zwei, die „267.901“ unterschiedlich lasen).
+   Komma vorhanden → deutsche Schreibweise, Punkte sind Tausender. Mehrere Punkte → Tausender.
+   Ein einzelner Punkt vor genau drei Ziffern („450.000“, „1.200“) ist mehrdeutig: In Betragsfeldern
+   (€, m², m³, kWh) ist er ein Tausenderpunkt, sonst ein Dezimalpunkt („1.406“ Faktor, „3.5“ %).
+   Leerzeichen („450 000“) und Einheiten („450.000 €“) stören nicht; eine führende 0 („0.082“) bleibt dezimal. */
+function zahlLesen(s,betrag){
+  if(typeof s==='number') return isFinite(s)?s:0;
+  s=(''+(s==null?'':s)).trim().replace(/(\d)\s+(?=\d)/g,'$1').replace(/-\s+(?=[\d.,])/,'-');
+  let m=/^-?[.,]\d/.test(s)?s.match(/-?[.,]\d+/):s.match(/-?\d[\d.,]*/);
+  if(!m) return 0; s=m[0];
+  if(s.indexOf(',')>-1) s=s.replace(/\./g,'').replace(',','.');
+  else if((s.match(/\./g)||[]).length>1) s=s.replace(/\./g,'');
+  else if(betrag&&/^-?[1-9]\d{0,2}\.\d{3}$/.test(s)) s=s.replace('.','');
+  let v=parseFloat(s); return isNaN(v)?0:v;
+}
+/* Betragsfeld? Aus der Einheit im Feld-Label bzw. im Tabellenkopf der Spalte (einmal ermittelt) */
+var BETRAG_IDS=new Map();
+function istBetrag(id){
+  if(BETRAG_IDS.has(id)) return BETRAG_IDS.get(id);
+  let e=$(id); if(!e) return false;
+  let t='', f=e.closest('.field');
+  if(f){ let l=f.querySelector('label'); t=(l?l.textContent:'')+' '+[...f.querySelectorAll('.unit')].map(x=>x.textContent).join(' '); }
+  else{ let td=e.closest('td'), tb=e.closest('table');
+    if(td&&tb&&tb.tHead&&tb.tHead.rows.length){ let k=tb.tHead.rows[tb.tHead.rows.length-1].cells[td.cellIndex]; t=k?k.textContent:''; } }
+  let b=/€|m²|m³|kWh|EUR/.test(t)&&!/%/.test(t);
+  BETRAG_IDS.set(id,b); return b;
+}
+function num(id){let e=$(id);if(!e)return 0;return zahlLesen(e.value,istBetrag(id));}
+function parseNum(s){return zahlLesen(s,false);}
 const eur = n => (Math.round(n||0)).toLocaleString('de-DE')+' €';
 const num2 = n => (n||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const setT=(id,v)=>{let e=$(id);if(e)e.textContent=v;};
@@ -5044,13 +5072,15 @@ if(!istInstalliert()) $('installBtn').style.display='inline-block';
    ========================================================================= */
 
 /* ---------- Zahlen & Datum ---------- */
-function mdbNum(s){
-  if(typeof s==='number')return s||0;
-  s=(''+s).replace(/[^\d.,\-]/g,'').trim(); if(!s)return 0;
-  if(s.indexOf(',')>-1){ s=s.replace(/\./g,'').replace(',','.'); }
-  else if(/^-?\d{1,3}(\.\d{3})+$/.test(s)){ s=s.replace(/\./g,''); }
-  let v=parseFloat(s); return isNaN(v)?0:v;
+/* Selbsttest: liegt in selbsttest.js und wird nur bei Bedarf geladen */
+function iaSelbsttestOeffnen(){
+  const los=()=>{ try{ iaSelbsttestZeigen(); }catch(e){ alert('Der Selbsttest konnte nicht laufen: '+e.message); } };
+  if(window.iaSelbsttestZeigen) return los();
+  let sk=document.createElement('script'); sk.src='selbsttest.js'; sk.onload=los;
+  sk.onerror=()=>alert('Der Selbsttest konnte nicht geladen werden. Bitte einmal mit Internetverbindung öffnen.');
+  document.body.appendChild(sk);
 }
+function mdbNum(s){ return zahlLesen(s,true); }   /* Marktüberblick: Preise und Flächen, Punkt = Tausender */
 const mdbEur = n => (Math.round(n||0)).toLocaleString('de-DE')+' €';
 const mdbPlain = n => String(Math.round(n||0));   /* ohne Tausenderpunkte — der Vordruck liest sie sonst als Dezimaltrenner */
 function mdbDeZahl(n){ n=+n||0; return Number.isInteger(n)? n.toLocaleString('de-DE') : n.toLocaleString('de-DE',{maximumFractionDigits:2}); }

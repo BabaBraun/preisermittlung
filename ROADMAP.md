@@ -38,7 +38,7 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 | 17 | [ ] Exposé-Generator (Vertriebsdokument, nicht Bewertungsbericht) | Berater-Feature (D) | Eigenständiges Layout, eigene Textbausteine, Fotoauswahl getrennt vom Wertermittlungsbericht |
 | 18 | [ ] Kundenakte (mehrere Objekte/Vorgänge je Kunde, Historie) | Berater-Feature (D) | Geht über die heutige „ein Bewertungsstand = ein Projekt"-Logik hinaus, braucht ein neues Datenmodell |
 | 19 | [ ] compute() modularisieren (ein Verfahren = eine Funktion) | Code-Qualität | Kein Nutzerwert direkt sichtbar, aber Voraussetzung, um Phase-3-Verfahren wie BelWertV sauber einzuhängen |
-| 20 | [ ] Automatisierte Regressionstests für die Rechenkerne | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
+| 20 | [x] Automatisierte Regressionstests für die Rechenkerne (Selbsttest, 2026-09-29) | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
 
 ## Später / dokumentiert, aber nicht jetzt (siehe Begründung in DECISIONS.md)
 
@@ -65,8 +65,8 @@ Kritische Neubewertung nach diesem Block — was dabei aufgefallen ist:
 
 | # | Neuer Punkt | Warum |
 |---|---|---|
-| 26 | [ ] Einheitliche Zahlenauswertung statt zweier Parser | `parseNum` (Vordruck) und `mdbNum` (Marktüberblick) behandeln deutsche Tausenderpunkte unterschiedlich. Das hat inzwischen **drei** Fehler verursacht (Übergabe aus dem Marktüberblick, „Aus Bewertung" im Finanzierungsrechner, beinahe auch beim Beleihungswert). Eine gemeinsame Funktion schließt die Falle. **Hohe Priorität** |
-| 27 | [ ] Regressionstests mit den verifizierten Sollwerten | Aus dieser Sitzung liegen exakt gegengerechnete Werte vor (Rate 1.660 €, Restschuld nach Zinsbindung 275.675 €, Beleihungswert 285.773 €, Sachwert nach BelWertV 389.054 €, energetischer Abschlag −10.501 € bzw. −14.729 €). Als Testfälle festgehalten schützen sie jede künftige Änderung. Hebt #20 in der Dringlichkeit |
+| 26 | [x] Einheitliche Zahlenauswertung statt zweier Parser (zahlLesen, 2026-09-29) | `parseNum` (Vordruck) und `mdbNum` (Marktüberblick) behandeln deutsche Tausenderpunkte unterschiedlich. Das hat inzwischen **drei** Fehler verursacht (Übergabe aus dem Marktüberblick, „Aus Bewertung" im Finanzierungsrechner, beinahe auch beim Beleihungswert). Eine gemeinsame Funktion schließt die Falle. **Hohe Priorität** |
+| 27 | [x] Regressionstests mit den verifizierten Sollwerten (selbsttest.js, 46 Prüfungen) | Aus dieser Sitzung liegen exakt gegengerechnete Werte vor (Rate 1.660 €, Restschuld nach Zinsbindung 275.675 €, Beleihungswert 285.773 €, Sachwert nach BelWertV 389.054 €, energetischer Abschlag −10.501 € bzw. −14.729 €). Als Testfälle festgehalten schützen sie jede künftige Änderung. Hebt #20 in der Dringlichkeit |
 | 28 | [ ] Die zwei Plausibilitätsprüfungen zusammenführen | Die neue Eingabeprüfung (#12) und die Ergebnis-Plausibilisierung in Abschnitt 9.1 stehen unverbunden nebeneinander |
 | 29 | [ ] Vergleichswert nach § 19 BelWertV ergänzen | Das Modul deckt Ertrags- und Sachwert ab; der Vergleichswert mit eigenem Sicherheitsabschlag von mindestens 10 % fehlt noch |
 | 30 | [ ] Berichtsabschnitte auswählbar machen | Der Bericht ist durch die neuen Module deutlich länger geworden; nicht jeder Abschnitt gehört in jedes Gutachten |
@@ -100,3 +100,12 @@ Berichtsabschnitte, Kundenakte):
   und Erinnerung. Dabei gefunden und behoben: Die Fotogalerie der App brach seit Phase 1 beim ersten Foto
   ohne Bildunterschrift ab (Bezeichnungstabelle nur lokal im Bericht definiert) — neu aufgenommene Fotos
   waren in der App unsichtbar, im Bericht aber vorhanden.
+- **2. Rechenkern absichern — erledigt.** Eine Zahlenregel `zahlLesen()` für die ganze App statt `parseNum`
+  und `mdbNum`. Neu dabei: In Betragsfeldern (€, m², m³, kWh — erkannt an der Einheit im Label bzw. im
+  Spaltenkopf) gilt „450.000“ als Tausenderschreibweise; vorher wurde ein so eingetippter Kaufpreis oder
+  Bodenrichtwert als 450 gelesen. Faktor- und Prozentfelder („1.406“, „3.5“) bleiben dezimal, „0.082“ ebenso.
+  Selbsttest im Export-Menü (`selbsttest.js`, nur bei Bedarf geladen, offline im Cache): 46 Prüfungen —
+  Zahlenlesen, Finanzierung, Barwertfaktor, Restnutzungsdauer nach Anlage 2, WoFlV-Anrechnung, Grundriss,
+  zwei vollständige Referenzbewertungen (Wohnhaus mit PV, Energie und Beleihungswert; Eigentumswohnung).
+  Alle Sollwerte unabhängig nachgerechnet; ein eingebauter Fehler von 0,1 % im Barwertfaktor schlägt an
+  12 Stellen an. Die offene Bewertung bleibt beim Test unverändert.
