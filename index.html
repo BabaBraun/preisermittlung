@@ -873,6 +873,13 @@
   .kd-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--tint);color:var(--accent);font-weight:600}
   .kd-chip svg{width:16px;height:16px}
   @media(max-width:640px){ .kd-marken{display:none} #kd_overlay .modal{padding:18px 14px} }
+
+  /* Teilen */
+  .ia-hinweis{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 150px);z-index:450;padding:12px 18px;border-radius:999px;
+    background:#0F1E36;color:#fff;font-size:13.5px;font-weight:500;box-shadow:var(--shadow-lg);max-width:calc(100vw - 32px);text-align:center}
+  .ia-hinweis[hidden]{display:none!important}
+  #teilen_overlay{z-index:460}
+  #teilen_overlay .modal button{margin-left:0}
 </style>
 </head>
 <body>
@@ -979,6 +986,7 @@
         <button onclick="loadFile()" data-ic="folder-open">Datei öffnen</button>
         <div class="sep"></div>
         <button onclick="druckbericht();setTimeout(downloadPDF,150)" data-ic="download">PDF herunterladen</button>
+        <button onclick="pdfTeilen()" data-ic="upload">PDF teilen (OneDrive, Mail …)</button>
         <button onclick="exportWord()" data-ic="file-text">Word-Dokument</button>
         <button onclick="exportExcel()" data-ic="chart">Excel-Tabelle</button>
         <button onclick="druckeAufnahmebogen()" data-ic="printer">Aufnahmebogen drucken</button>
@@ -1015,6 +1023,7 @@
     <div class="pj-sicherung">
       <p class="hint" id="pj_speicher" style="margin:0">–</p>
       <div class="pj-sicherung-k"><button class="secondary" onclick="pjAlleSichern()" data-ic="download">Alle Projekte und Kunden sichern</button>
+        <button class="secondary" onclick="pjAlleSichern(true)" data-ic="upload">Sicherung teilen</button>
         <button class="secondary" onclick="pjSicherungEinspielen()">Sicherung einspielen</button></div>
       <p class="hint" style="margin:6px 0 0">Die Gesamtsicherung enthält alle Projekte mit Fotos und Grundrissen, die Kundenakten und die Wiedervorlagen in einer Datei. Sie ist der Weg zurück,
         wenn das Gerät verloren geht oder die App vom Home-Bildschirm gelöscht wird.</p>
@@ -2001,7 +2010,8 @@
       <p class="hint">Verkaufsexposé aus den erfassten Daten — ohne Bewertungszahlen. Leer gelassene Felder füllt die App aus
         der Bewertung (grau vorgeschlagen), alles lässt sich überschreiben.</p>
       <div class="gr-aktionen no-print"><button class="primary" onclick="exposeAnzeigen()" data-ic="file-text">Exposé ansehen</button>
-        <button class="secondary" onclick="exposeAnzeigen(true)" data-ic="download">Als PDF herunterladen</button></div>
+        <button class="secondary" onclick="exposeAnzeigen(true)" data-ic="download">Als PDF herunterladen</button>
+        <button class="secondary" onclick="exposeAnzeigen();pdfTeilen()" data-ic="upload">PDF teilen</button></div>
 
       <h3>Titel &amp; Preis</h3>
       <div class="grid">
@@ -2298,6 +2308,17 @@
 
 <div id="kd_overlay" class="overlay" onclick="if(event.target===this)kdSchliessen()">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="kd_titel"><div id="kd_inhalt"></div></div>
+</div>
+
+<div id="ia_hinweis" class="ia-hinweis" role="status" aria-live="polite" hidden></div>
+<div id="teilen_overlay" class="overlay" onclick="if(event.target===this)teilenSchliessen()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="teilen_titel" style="max-width:440px">
+    <h2 id="teilen_titel" style="margin-top:0">Die Datei ist fertig</h2>
+    <p class="hint" id="teilen_name" style="margin:0 0 14px;word-break:break-word"></p>
+    <p style="font-size:13px;line-height:1.55;margin:0 0 16px">Im Teilen-Menü „In Dateien sichern“ → OneDrive wählen oder direkt die OneDrive-App bzw. Mail.</p>
+    <div class="gr-fuss" style="margin-top:0"><button onclick="teilenSchliessen()">Schließen</button><button class="secondary" onclick="teilenLaden()">Herunterladen</button>
+      <button class="primary" onclick="teilenJetzt()" data-ic="upload">Teilen</button></div>
+  </div>
 </div>
 
 <div id="speicher_warn" class="speicher-warn" role="alert" hidden><span id="speicher_warn_t"></span>
@@ -3096,16 +3117,16 @@ async function projektLoeschen(id){
 }
 /* Gesamtsicherung aller Projekte samt Fotos als eine Datei — der Weg zurück, falls das Gerät
    verloren geht oder die App vom Home-Bildschirm gelöscht wird */
-async function pjAlleSichern(){
+async function pjAlleSichern(teilen){
   await IA_BEREIT_P;
   let liste, kunden=[];
   try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT) kunden=await iaAlle('kunden'); }
   catch(e){ alert('Die Daten konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
   if(!liste.length&&!kunden.length){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
   let datei={typ:'immoapp-projekte',version:2,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste,kunden:kunden,aufgaben:aufLoad()};
-  let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), a=document.createElement('a');
-  a.href=URL.createObjectURL(b); a.download='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),8000);
+  let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), name='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
+  if(teilen){ if(await iaTeilen(b,name,'ImmoApp-Sicherung')==='abgebrochen') return; }
+  else iaHerunterladen(b,name);
   if(IA_DB_BEREIT){ try{ await iaPut('meta',{ts:Date.now(),n:liste.length},'lastBackup'); }catch(e){} }
   speicherStatus(); try{ pjSicherungsHinweis(); }catch(e){}
 }
@@ -4338,7 +4359,7 @@ function exposeAnzeigen(pdf){
     +(K.tel?'<div>Telefon '+esc(K.tel)+'</div>':'')+(K.mail?'<div>'+esc(K.mail)+'</div>':'')+'</div></div>':'';
   let r=$('report'); r.className='expose'; r.dataset.pdfname='Exposé '+(titel.replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Immobilie');
   r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="document.body.classList.remove(\'report-mode\')">← zurück</button>'
-    +'<button onclick="window.print()">Drucken</button><button onclick="downloadPDF()">PDF herunterladen</button></div>'
+    +'<button onclick="window.print()">Drucken</button><button onclick="downloadPDF()">PDF herunterladen</button><button onclick="pdfTeilen()">Teilen</button></div>'
     +(K.firma?'<div class="ex-kopf">'+esc(K.firma)+'</div>':'')
     +'<h1>'+esc(titel)+'</h1>'+(unter?'<p class="ex-sub">'+esc(unter)+'</p>':'')
     +(titelFoto?'<img class="ex-hero" src="'+titelFoto.data+'" alt="'+esc(titelFoto.caption||titel)+'">':'')
@@ -5521,6 +5542,7 @@ function druckbericht(){
    <button class="primary no-print" onclick="document.body.classList.remove('report-mode')">← zurück</button>
    <button class="no-print" onclick="window.print()">🖨 Drucken</button>
    <button class="no-print" onclick="downloadPDF()">⬇ PDF herunterladen</button>
+   <button class="no-print" onclick="pdfTeilen()">Teilen</button>
    ${rpLeiste()}
    ${coverBlock}
    ${mitDeckblatt?'':`<p style="color:var(--muted);margin-top:14px">${esc(kopf)}</p>
@@ -5621,24 +5643,75 @@ function pdfName(){
   let n=($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';
   return 'Preisermittlung '+n+'.pdf';
 }
+/* PDF-Baustein (html2pdf) wird erst bei Bedarf vom CDN geladen, mit Integritätsprüfung (D3) */
+function html2pdfLaden(){
+  if(window.html2pdf) return Promise.resolve();
+  return new Promise((ok,fehler)=>{
+    let s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    s.integrity='sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
+    s.crossOrigin='anonymous'; s.onload=()=>ok(); s.onerror=()=>fehler(new Error('offline'));
+    document.body.appendChild(s);
+  });
+}
+function pdfOptionen(){
+  return {margin:[12,12,14,12],filename:pdfName(),pagebreak:{mode:['avoid-all','css']},
+    html2canvas:{scale:2,useCORS:true,ignoreElements:el=>el.classList&&el.classList.contains('no-print')},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+}
 function downloadPDF(){
-  const run=()=>{
-    html2pdf().set({
-      margin:[12,12,14,12],
-      filename:pdfName(),
-      pagebreak:{mode:['avoid-all','css']},
-      html2canvas:{scale:2,useCORS:true,ignoreElements:el=>el.classList&&el.classList.contains('no-print')},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-    }).from($('report')).save();
-  };
-  if(window.html2pdf){run();return;}
-  let s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-  s.integrity='sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
-  s.crossOrigin='anonymous';
-  s.onload=run;
-  s.onerror=()=>{alert('Kein Internet für den direkten PDF-Download.\nEs öffnet sich der Druckdialog – dort "Als PDF speichern" wählen.');window.print();};
-  document.body.appendChild(s);
+  html2pdfLaden().then(()=>html2pdf().set(pdfOptionen()).from($('report')).save())
+    .catch(()=>{ alert('Kein Internet für den direkten PDF-Download.\nEs öffnet sich der Druckdialog – dort "Als PDF speichern" wählen.'); window.print(); });
+}
+
+/* ---------- Teilen: Datei an das Teilen-Menü des Geräts geben (OneDrive, Dateien, Mail …) ------------
+   Das iPhone öffnet das Menü nur direkt nach einem Tipp. Dauert das Erzeugen länger, verweigert es den
+   Aufruf (NotAllowedError) — dann erscheint ein kleines Fenster, dessen Knopf den Tipp neu liefert.
+   Geräte ohne Teilen von Dateien laden die Datei herunter. */
+var TEILEN_DATEI=null;
+function iaHinweis(text){
+  let el=$('ia_hinweis'); if(!el) return;
+  el.textContent=text||''; el.hidden=!text;
+}
+function iaHerunterladen(blob,name){
+  let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+}
+function iaKannTeilen(datei){ try{ return !!(navigator.share&&navigator.canShare&&navigator.canShare({files:[datei]})); }catch(e){ return false; } }
+async function iaTeilen(blob,name,titel){
+  let datei=new File([blob],name,{type:blob.type||'application/octet-stream'});
+  if(!iaKannTeilen(datei)){ iaHerunterladen(blob,name); return 'geladen'; }
+  try{ await navigator.share({files:[datei],title:titel||name}); return 'geteilt'; }
+  catch(e){
+    if(e&&e.name==='AbortError') return 'abgebrochen';
+    teilenDialog(datei,titel); return 'dialog';
+  }
+}
+function teilenDialog(datei,titel){
+  TEILEN_DATEI=datei;
+  let o=$('teilen_overlay'); if(!o) return;
+  setT('teilen_name',datei.name);
+  o.classList.add('on');
+}
+function teilenSchliessen(){ let o=$('teilen_overlay'); if(o) o.classList.remove('on'); TEILEN_DATEI=null; }
+async function teilenJetzt(){
+  let d=TEILEN_DATEI; if(!d) return;
+  try{ await navigator.share({files:[d],title:d.name}); teilenSchliessen(); }
+  catch(e){ if(e&&e.name==='AbortError') return; iaHerunterladen(d,d.name); teilenSchliessen(); }
+}
+function teilenLaden(){ let d=TEILEN_DATEI; if(d) iaHerunterladen(d,d.name); teilenSchliessen(); }
+/* Bericht bzw. Exposé als PDF teilen — gezeigt wird, was gerade in #report steht */
+async function pdfTeilen(){
+  if(!document.body.classList.contains('report-mode')||!$('report').innerHTML.trim()) druckbericht();
+  let r=$('report'), titel=r.dataset.pdfname||'Preisermittlung';
+  iaHinweis('PDF wird erstellt …');
+  try{ await html2pdfLaden(); }
+  catch(e){ iaHinweis(''); alert('Für das PDF braucht die App einmal eine Internetverbindung.\nOhne Internet: „Drucken“ wählen und dort über Teilen → „In Dateien sichern“.'); return; }
+  let blob;
+  try{ blob=await html2pdf().set(pdfOptionen()).from(r).outputPdf('blob'); }
+  catch(e){ iaHinweis(''); alert('Das PDF konnte nicht erstellt werden.'); return; }
+  iaHinweis('');
+  await iaTeilen(blob,pdfName(),titel);
 }
 
 /* ---------- Persistence ---------- */
