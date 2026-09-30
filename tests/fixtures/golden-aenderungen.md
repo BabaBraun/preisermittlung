@@ -55,3 +55,20 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
   +3.000 gelesen — das Vorzeichen ging still verloren.
 - **Nachher:** −, ‒ und – vor einer Zahl gelten als Minus.
 - **golden.json:** keine Änderung.
+
+## 5. Eingabeprüfung: keine Preisempfehlung aus ungültigen oder fehlenden Angaben (nur Anzeige)
+
+- **Anforderung:** Ungültige Eingaben dürfen nicht unbemerkt als plausible Bewertung erscheinen.
+- **Fehler vorher:** Ein leeres Formular zeigte eine Preisempfehlung von 25.875 € (nur aus Vorgabewerten).
+  Text statt Zahl („abc“) wurde still als 0 gerechnet, negative Bodenrichtwerte und Abschläge über 100 %
+  liefen ohne Hinweis durch.
+- **Nachher:** `ImmoKern.pruefen()` prüft jedes Feld, das die Rechnung liest (gültige Zahl, nicht negativ,
+  Prozent ≤ 100), die NHK-Kostenkennwerte, die Modellgrenze der Anlage 2 und die Mindestangaben
+  (Haus: Bodenwert, BGF bei Sachwertgewicht > 0; Wohnung: Wohnfläche, Vergleichspreis; Miete bei
+  Ertragsgewicht > 0). Bei Status „fehler“ oder „unvollständig“ zeigen Seitenleiste und Abschnitt ⑨ „–“
+  mit Begründung; der Bericht trägt oben einen Entwurfshinweis mit allen Gründen und weist den Wert als
+  „Entwurf“ aus. Die Rechnung selbst (window._R) ist unverändert.
+- **golden.json:** neues Anzeigefeld `o_empf_status` in allen Fällen (leer bei gültigen Bewertungen);
+  Fall `leer`: Empfehlung 25.875 € → „–“ („Bodenwert fehlt · Bruttogrundfläche fehlt · Keine Miete
+  erfasst“); Fall `extremwerte`: 275.596 € → „–“ (3 ungültige Eingaben: Abschlag 120 %, Bodenrichtwert
+  −50 €/m², Restnutzungsdauer jenseits der Modellgrenze).

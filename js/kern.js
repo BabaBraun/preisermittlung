@@ -426,9 +426,69 @@ function bewerte(e,k){
   return {R,D};
 }
 
+/* ---------- Eingabeprüfung ---------------------------------------------------------------------------
+   Ungültige oder unvollständige Eingaben dürfen nicht unbemerkt als plausible Bewertung erscheinen.
+   pruefen() meldet je Feld: keine gültige Zahl, unzulässig negativ, Prozent über 100 — und für das Ergebnis:
+   fehlende Mindestangaben und nicht belastbare Werte. Status: 'ok' | 'unvollstaendig' | 'fehler'.
+   Die Feldliste kommt aus dem Protokoll des Lesers: geprüft wird genau, was die Rechnung gelesen hat. */
+function zahlGueltig(s){
+  if(s==null) return true;
+  if(typeof s==='number') return isFinite(s);
+  s=(''+s).replace(/[−‒–]/g,'-').trim();
+  if(s==='') return true;
+  s=s.replace(/^ca\.?\s*/i,'');
+  for(let i=0;i<2;i++) s=s.replace(/\s*(€\/m²|€|EUR|%|m²|m2|m³|kWh|Jahre|J\.?|p\.\s?a\.|\/Jahr|\/Monat)\s*$/i,'').trim();
+  s=s.replace(/(\d)\s+(?=\d{3}(\D|$))/g,'$1');
+  return /^-?\s?(\d{1,3}(\.\d{3})+(,\d+)?|\d+([.,]\d+)?[.,]?|[.,]\d+)$/.test(s);
+}
+function protokollLeser(e){
+  const gelesen=new Set();
+  return {gelesen, leser:{n:id=>{ gelesen.add(id); return e.n(id); }, v:e.v, an:e.an}};
+}
+const NICHT_NEGATIV=/^(ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche|ek_nutzflaeche|bgf(hg|an)_[lbe]\d|ek_baujahr|an_baujahr|ek_miete_\w+|mr_(fl|pm2|pau)\d+|vw_(preis|garage)|pv_\w+|ni_(alter|leben|zins|miete|rente|grundst|kapwert|nuk)|eb_(restlaufzeit|zins_eur|verzinsung|abschlag)|nhk(hg|an)_(gnd|rnd|s\d)|markt_faktor|bpi|bpi_faktor|nhk_regional|verhandlung|gew_vergleich|er_bw_\w+|er_bewirt|er_gewerbe|er_zins_basis|ek_anz_\w+|bw_\w+|re_\w+|ek_hausgeld\w*|ek_grundsteuer|en_(kennwert|preis_kwh|jahre|zins|pct_stufe)|mod_p\d|vgl_(fl|kp)\d|msp_(min|max|avg)\d)$/;
+const PROZENT_MAX=/^(ek_gs_abschlag|xgs[12]_abschlag|er_bewirt|er_gewerbe|er_bw_mietausfall|pv_bewirt|ni_nuk|eb_abschlag|bw_bewirt|bw_sicher|bw_besichtigung|bw_abschlag|gew_vergleich|verhandlung|re_grest|re_notar|re_makler)$/;
+function pruefen(e,R,D,gelesen){
+  const h=[], fehlend=[];
+  const kurz=s=>{ s=(''+s).trim(); return s.length>24?s.slice(0,22)+'…':s; };
+  (gelesen?[...gelesen]:[]).forEach(id=>{
+    let roh=e.v(id);
+    if(!zahlGueltig(roh)){ h.push({feld:id,stufe:'fehler',art:'zahl',text:'„'+kurz(roh)+'“ ist keine gültige Zahl — gerechnet würde mit '+num2(e.n(id))+'.'}); return; }
+    let x=e.n(id);
+    if(x<0&&NICHT_NEGATIV.test(id)) h.push({feld:id,stufe:'fehler',art:'negativ',text:'darf nicht negativ sein ('+num2(x)+').'});
+    else if(x>100&&PROZENT_MAX.test(id)) h.push({feld:id,stufe:'fehler',art:'prozent',text:'über 100 % ('+num2(x)+' %).'});
+  });
+  let basisTxt=(e.v('nhkhg_base')||'').trim();
+  if(basisTxt&&!D.istWohnung){
+    let b=basisTxt.split(/[,;]+/).map(x=>parseFloat(x.trim().replace(',','.'))).filter(x=>!isNaN(x));
+    if(b.length<5) h.push({feld:'nhkhg_base',stufe:'fehler',art:'nhk',text:'Kostenkennwerte unvollständig (5 Werte für Stufe 1–5 nötig) — es würde mit Rückfallwerten gerechnet.'});
+    else if(b.some(x=>x<100)) h.push({feld:'nhkhg_base',stufe:'fehler',art:'nhk',text:'Kostenkennwert unter 100 €/m² — Tausenderpunkt? Werte ohne Punkt eintragen (z. B. 1005).'});
+  }
+  /* Modellgrenze der Anlage 2: Alter über der Gesamtnutzungsdauer (siehe computeRND) */
+  if(!D.istWohnung&&D.nhkHG&&!D.nhkHG.rndManuell&&D.nhkHG.alter>D.gndHG){
+    let hoch=R.hg.rnd>0.7*D.gndHG;
+    h.push({feld:'nhkhg_rnd',stufe:hoch?'fehler':'warn',art:'rnd',text:'Das Gebäude ist älter ('+D.nhkHG.alter+' J) als die Gesamtnutzungsdauer ('+num2(D.gndHG)+' J). Die Anlage 2 regelt diesen Bereich nicht eindeutig; die Formel ergibt '
+      +num2(R.hg.rnd)+' J'+(hoch?' — mehr als die im Modell vorgesehenen 70 % der GND':'')+'. Restnutzungsdauer sachverständig prüfen und in 2.2 von Hand eintragen.'});
+  }
+  if(R.bodenwert<0) h.push({feld:'ek_brw',stufe:'fehler',art:'ergebnis',text:'Der Bodenwert ist negativ ('+eur(R.bodenwert)+').'});
+  /* Mindestangaben für eine Preisempfehlung */
+  let g=R.g;
+  if(D.istWohnung){
+    if(!(D.wfl>0)) fehlend.push({feld:'ek_wohnflaeche',text:'Wohnfläche fehlt.'});
+    if(g>0&&!(e.n('vw_preis')>0)) fehlend.push({feld:'vw_preis',text:'Vergleichspreis je m² fehlt — der Vergleichswert fließt mit '+Math.round(g*100)+' % ein.'});
+  } else {
+    if(!(R.bodenwert>0)) fehlend.push({feld:'ek_gs_flaeche',text:'Bodenwert fehlt (Grundstücksfläche und Bodenrichtwert).'});
+    if(g>0&&!(R.bgfHG>0)) fehlend.push({feld:'bgfhg_e0',text:'Bruttogrundfläche fehlt — der Sachwert fließt mit '+Math.round(g*100)+' % ein.'});
+  }
+  if(g<1&&!(R.roh>0)) fehlend.push({feld:'ek_miete_wohnen',text:'Keine Miete erfasst — der Ertragswert fließt mit '+Math.round((1-g)*100)+' % ein und bestünde nur aus dem Bodenwert.'});
+  if(!isFinite(R.empfehlung)) h.push({feld:'gewichtung',stufe:'fehler',art:'ergebnis',text:'Die Preisempfehlung ist nicht berechenbar.'});
+  else if(!fehlend.length&&R.empfehlung<=0) h.push({feld:'gewichtung',stufe:'fehler',art:'ergebnis',text:'Die Preisempfehlung ist nicht positiv ('+eur(R.empfehlung)+') — Abzüge und Eingaben prüfen.'});
+  let fehler=h.filter(x=>x.stufe==='fehler').length;
+  return {status:fehler?'fehler':fehlend.length?'unvollstaendig':'ok',hinweise:h,fehlend,fehler};
+}
+
 const ImmoKern={zahlLesen,interp,barwertfaktor,computeRND,restLeben,enKlasseAusKennwert,enIdx,enRefKennwert,
   EN_KLASSEN,NHK_ELEMENTS,MOD_ELEMENTS,RND_COEFF,MSP_QUELLEN,ANZAHL,finTilgungsverlauf,finBudgetRechnen,ivIrr,ivAfaSatz,ivModell,
-  bewerte,bgfRechnen,nhkBasis,nhkRechnen,vergleichRechnen,mietspiegelRechnen,mietrolleRechnen,eur,num2};
+  bewerte,pruefen,zahlGueltig,protokollLeser,bgfRechnen,nhkBasis,nhkRechnen,vergleichRechnen,mietspiegelRechnen,mietrolleRechnen,eur,num2};
 wurzel.ImmoKern=ImmoKern;
 if(typeof module==='object'&&module.exports) module.exports=ImmoKern;
 else ['zahlLesen','interp','barwertfaktor','computeRND','restLeben','enKlasseAusKennwert','enIdx','enRefKennwert',

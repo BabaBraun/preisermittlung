@@ -184,3 +184,32 @@ test('Investitionsrechnung (Sollwerte aus unabhängiger Python-Rechnung)', () =>
   assert.equal(kurz.frei, false, 'Verkauf nach 5 Jahren nicht steuerfrei (§ 23 EStG)');
   assert.ok(kurz.steuerVerk > 0, 'Steuer auf den Veräußerungsgewinn');
 });
+
+test('Eingabeprüfung: gültige und ungültige Zahlen', () => {
+  for (const s of ['450.000', '1.234,56', '1.406', '0,082', '-3.000', '− 2.500 €', '12,5 %', 'ca. 1978', '450 000 €', '', '0'])
+    assert.equal(K.zahlGueltig(s), true, '„' + s + '“ gültig');
+  for (const s of ['abc', '1e5', '12-15', '12.34.56', '2. OG', 'zwölf'])
+    assert.equal(K.zahlGueltig(s), false, '„' + s + '“ ungültig');
+});
+
+test('Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bewertungen', () => {
+  const pruefe = f => { const e = leser(f), p = K.protokollLeser(e), { R, D } = K.bewerte(p.leser, { jahr: 2026 }); return K.pruefen(e, R, D, p.gelesen); };
+  const haus = fall('fall_haus.json');
+  assert.equal(pruefe(haus).status, 'ok', 'Referenzfall Wohnhaus ist gültig');
+  assert.equal(pruefe(fall('fall_etw.json')).status, 'ok', 'Referenzfall Wohnung ist gültig');
+  const text = pruefe(Object.assign({}, haus, { ek_brw: 'abc' }));
+  assert.equal(text.status, 'fehler');
+  assert.ok(text.hinweise.some(h => h.feld === 'ek_brw' && h.art === 'zahl'));
+  const neg = pruefe(Object.assign({}, haus, { ek_wohnflaeche: '-145', ek_gs_abschlag: '120' }));
+  assert.ok(neg.hinweise.some(h => h.feld === 'ek_wohnflaeche' && h.art === 'negativ'));
+  assert.ok(neg.hinweise.some(h => h.feld === 'ek_gs_abschlag' && h.art === 'prozent'));
+  const leer = pruefe({});
+  assert.equal(leer.status, 'unvollstaendig');
+  assert.deepEqual(leer.fehlend.map(f => f.feld), ['ek_gs_flaeche', 'bgfhg_e0', 'ek_miete_wohnen']);
+  const nhk = pruefe(Object.assign({}, haus, { nhkhg_base: '655, 725, 835, 1.005, 1.260' }));
+  assert.ok(nhk.hinweise.some(h => h.art === 'nhk'), 'Tausenderpunkt in den Kostenkennwerten wird erkannt');
+  const alt = pruefe(Object.assign({}, haus, { ek_baujahr: '1850' }));
+  assert.ok(alt.hinweise.some(h => h.art === 'rnd'), 'Alter über GND wird gemeldet');
+  const altManuell = pruefe(Object.assign({}, haus, { ek_baujahr: '1850', nhkhg_rnd: '15' }));
+  assert.ok(!altManuell.hinweise.some(h => h.art === 'rnd'), 'von Hand gesetzte RND: kein Hinweis');
+});

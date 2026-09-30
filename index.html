@@ -1078,6 +1078,14 @@
   #report table.iv-tab td{padding:3px 4px;text-align:right;white-space:nowrap}
   #report table.iv-tab td:first-child{text-align:left}
   @media(max-width:640px){ .iv-kpis{grid-template-columns:1fr 1fr} .iv-kpi b{font-size:17px} }
+
+  /* Eingabeprüfung */
+  .cp-status{margin-top:6px;font-size:12px;line-height:1.4;color:var(--warn);font-weight:600}
+  .cp-status.fehler{color:var(--bad)}
+  .cp-status[hidden],.pruef-status[hidden]{display:none!important}
+  .pruef-status.fehler{background:var(--bad-bg);color:var(--bad)}
+  #report .entwurf{border:2px solid #B42318;background:#FEF3F2;color:#7A271A;padding:10px 14px;margin:0 0 14px;font-size:12.5px;line-height:1.5;break-inside:avoid}
+  #report .entwurf ul{margin:6px 0 0;padding-left:18px}
 </style>
 </head>
 <body>
@@ -2082,6 +2090,7 @@
       <div class="xrow" id="xemp_2"><div class="field"><label>Bezeichnung</label><input id="xemp2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xemp2_val" type="text" value="0"></div></div>
       <button class="plus no-print" onclick="showNext('xemp',2)">＋ weitere Position</button>
       <div class="subtotal" style="font-size:16px;margin-top:14px"><span>Empfohlener Preisansatz</span><span id="o_empfehlung">0 €</span></div>
+      <div class="flag pruef-status" id="o_empf_status" role="status" hidden></div>
       <button class="plus no-print" onclick="mdbAusVordruck()">📊 Objekt in den Marktüberblick aufnehmen</button>
       <div class="row-calc" style="margin-top:6px"><span>Verhandlungsspanne</span><b id="o_spanne">–</b></div>
 
@@ -2401,6 +2410,7 @@
       <div>
         <div class="cp-lbl">Preisempfehlung</div>
         <div class="cp-big" id="r_empfehlung">0 €</div>
+        <div class="cp-status" id="cp_status" role="status" hidden></div>
         <div class="cp-sub" id="cp_spanne">Verhandlungsspanne wird berechnet</div>
       </div>
       <div class="cp-pill" id="cp_plausi"><span class="dot"></span><span id="cp_plausi_t">Plausibilität: Vergleichspreis in ⑨ eintragen</span></div>
@@ -3110,7 +3120,11 @@ var PLAUSI_REGELN=[
      return 'Kaufpreisfaktor von '+num2(R.empfehlung/m)+' Jahresmieten — außerhalb der üblichen Bandbreite.';}}
 ];
 function plausiPruefen(){
-  let hinweise=[];
+  let hinweise=[], P=window._PRUEF;
+  if(P){
+    P.hinweise.forEach(x=>hinweise.push({feld:x.feld, stufe:x.stufe, text:(['zahl','negativ','prozent'].includes(x.art)?feldName(x.feld)+': ':'')+x.text}));
+    P.fehlend.forEach(x=>hinweise.push({feld:x.feld, stufe:'warn', text:x.text}));
+  }
   PLAUSI_REGELN.forEach(r=>{ try{ if(r.t()) hinweise.push({feld:r.f, stufe:r.s, text:r.m()}); }catch(e){} });
   return hinweise;
 }
@@ -6149,9 +6163,12 @@ function bewertungsJahr(){
 }
 function compute(){
   raumlisteSync();   /* zuerst: füllt ggf. die Wohnfläche, die alles Weitere liest */
-  const {R,D}=ImmoKern.bewerte(eingabeLeser(),{jahr:bewertungsJahr(),szen:SZEN,enManuell:!!$('en_klasse').dataset.manuell});
+  const e=eingabeLeser(), pl=ImmoKern.protokollLeser(e);
+  const {R,D}=ImmoKern.bewerte(pl.leser,{jahr:bewertungsJahr(),szen:SZEN,enManuell:!!$('en_klasse').dataset.manuell});
+  const P=ImmoKern.pruefen(e,R,D,pl.gelesen);
   anzeigen(R,D);
-  window._R=R;
+  pruefStatusAnzeigen(P);
+  window._R=R; window._PRUEF=P;
   try{ exStatus(); }catch(e){}
   try{ pqRender(); }catch(e){}
   try{ sanRechnen(); }catch(e){}
@@ -6349,6 +6366,33 @@ function anzeigen(R,D){
   // Seitenleiste
   setT('r_empfehlung',eur(R.empfehlung));setT('r_sub',eur(R.substanz));setT('r_er',eur(R.ertrag));
   setT('r_mittel',eur(R.mittel));setT('r_niess',eur(R.niessWert));setT('r_boden',eur(R.bodenwert));
+}
+/* Ergebnis der Eingabeprüfung: ohne gültige und vollständige Eingaben keine Preisempfehlung anzeigen */
+function pruefStatusAnzeigen(P){
+  let ok=P.status==='ok';
+  if(!ok){ setT('o_empfehlung','–'); setT('r_empfehlung','–'); setT('o_spanne','–'); }
+  let t=ok?'':pruefStatusText(P);
+  ['cp_status','o_empf_status'].forEach(id=>{ let el=$(id); if(!el) return; el.textContent=t; el.hidden=ok; el.classList.toggle('fehler',P.status==='fehler'); });
+}
+function pruefStatusText(P){
+  if(P.status==='fehler') return 'Keine belastbare Preisempfehlung: '+P.fehler+' ungültige Eingabe'+(P.fehler>1?'n':'')+' — siehe Prüfhinweise.';
+  if(P.status==='unvollstaendig') return 'Noch keine Preisempfehlung: '+P.fehlend.map(f=>f.text.split(' — ')[0].replace(/\.$/,'')).join(' · ')+'.';
+  return '';
+}
+/* Feldbezeichnung für Hinweise: Label ohne Einheit, in Tabellen Zeile · Spalte */
+function feldName(id){
+  let e=$(id); if(!e) return id;
+  let f=e.closest('.field');
+  if(f){ let l=f.querySelector('label'); if(l){ let c=l.cloneNode(true); c.querySelectorAll('.u,.unit').forEach(x=>x.remove()); let t=c.textContent.replace(/\s+/g,' ').trim(); if(t) return t; } }
+  let td=e.closest('td'), tr=e.closest('tr'), tb=e.closest('table');
+  if(td&&tr&&tb){
+    let zeile=tr.cells[0]&&tr.cells[0]!==td?tr.cells[0].textContent.replace(/\s+/g,' ').trim():'';
+    let kopf=tb.tHead&&tb.tHead.rows.length?tb.tHead.rows[tb.tHead.rows.length-1].cells[td.cellIndex]:null;
+    let t=[zeile,kopf?kopf.textContent.replace(/\s+/g,' ').trim():''].filter(Boolean).join(' · ');
+    if(t) return t;
+  }
+  let l=document.querySelector('label[for="'+id+'"]'); if(l) return l.textContent.replace(/\s+/g,' ').trim();
+  return id;
 }
 function nhkAnzeigen(prefix,d,erg){
   d.k.forEach((w,i)=>setT(prefix+'_k'+i,num2(w)));
@@ -6572,7 +6616,7 @@ function druckbericht(){
      </table>
      <div class="ergebnis">
        <div class="lbl">Empfohlener Preisansatz</div>
-       <div class="val">${eur(R.empfehlung)}</div>
+       <div class="val">${(window._PRUEF&&window._PRUEF.status!=='ok')?'Entwurf':eur(R.empfehlung)}</div>
        <div style="font-size:12px;color:#555;margin-top:4px">Verhandlungsspanne ${eur(R.empfehlung*(1-R.vh))} – ${eur(R.empfehlung*(1+R.vh))}</div>
      </div>
    </div>
@@ -6582,12 +6626,18 @@ function druckbericht(){
    <div class="pagebreak"></div>` : '';
 
   $('report').className=''; delete $('report').dataset.pdfname;
+  const P=window._PRUEF||{status:'ok',hinweise:[],fehlend:[]}, istEntwurf=P.status!=='ok';
+  const entwurfBlock=istEntwurf?`<div class="entwurf"><b>Entwurf — keine belastbare Preisempfehlung.</b> ${esc(pruefStatusText(P))}<ul>${
+      P.hinweise.filter(x=>x.stufe==='fehler').map(x=>'<li>'+esc((['zahl','negativ','prozent'].includes(x.art)?feldName(x.feld)+': ':'')+x.text)+'</li>').join('')
+      +P.fehlend.map(x=>'<li>'+esc(x.text)+'</li>').join('')}</ul></div>`:'';
+  const empfText=v=>istEntwurf?'Entwurf: '+eur(v):eur(v);
   $('report').innerHTML=`
    <button class="primary no-print" onclick="document.body.classList.remove('report-mode')">← zurück</button>
    <button class="no-print" onclick="window.print()">🖨 Drucken</button>
    <button class="no-print" onclick="downloadPDF()">⬇ PDF herunterladen</button>
    <button class="no-print" onclick="pdfTeilen()">Teilen</button>
    ${rpLeiste()}
+   ${entwurfBlock}
    ${coverBlock}
    ${mitDeckblatt?'':`<p style="color:var(--muted);margin-top:14px">${esc(kopf)}</p>
    <h1>Rechnerische Preisermittlung</h1>`}
@@ -6656,7 +6706,7 @@ function druckbericht(){
     ${R.ebAktiv?L('− Korrektur Erbbaurecht',eur(R.erbbauAbzug)):''}
     ${R.wkSumme?L('− Wertkorrekturen § 8 Abs. 3',eur(R.wkSumme)):''}
     ${XL('xemp',2)}
-    <tr class="total"><td>Empfohlener Preisansatz</td><td>${eur(R.empfehlung)}</td></tr>
+    <tr class="total"><td>Empfohlener Preisansatz</td><td>${empfText(R.empfehlung)}</td></tr>
     ${L('Verhandlungsspanne',eur(R.empfehlung*(1-R.vh))+' – '+eur(R.empfehlung*(1+R.vh)))}
    </table>
    ${szBlock}
