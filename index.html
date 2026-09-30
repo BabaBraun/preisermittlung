@@ -2725,6 +2725,7 @@
 <div id="report"></div>
 
 <script src="js/kern.js"></script>
+<script src="js/office.js"></script>
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -3528,52 +3529,59 @@ function dlBlob(content,mime,filename){
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
 function basisName(){return ($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';}
+/* Word-Export: der Bericht als echte .docx-Datei (js/office.js), offline und ohne Server */
 async function exportWord(){
   druckbericht();
   let inhalt=$('report').cloneNode(true);
-  inhalt.querySelectorAll('.no-print').forEach(e=>e.remove());
-  await grSvgAlsBild(inhalt);   // Word zeigt kein SVG
-  let html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
-    +'<head><meta charset="utf-8"><title>Rechnerische Preisermittlung</title><style>'
-    +'body{font-family:Arial,sans-serif;font-size:11pt}h1{font-family:Georgia,serif;font-size:18pt;color:#1b4b7a}'
-    +'h2{font-family:Georgia,serif;font-size:13pt;color:#1b4b7a;border-bottom:1px solid #999}h3{font-size:11pt;color:#1b4b7a}'
-    +'table{width:100%;border-collapse:collapse;font-size:10pt}td{padding:3pt 5pt;border-bottom:0.5pt solid #ccc}'
-    +'td:last-child{text-align:right}.total td{font-weight:bold;border-top:1pt solid #1b4b7a}'
-    +'.beschr{white-space:pre-wrap}img{max-width:280pt}img.gr{max-width:none;width:450pt}</style></head><body>'+inhalt.innerHTML+'</body></html>';
+  inhalt.querySelectorAll('.no-print,.runhead').forEach(e=>e.remove());
+  await grSvgAlsBild(inhalt);   // Grundrisse als PNG, Word zeigt kein SVG
   document.body.classList.remove('report-mode');
-  dlBlob(html,'application/msword','Preisermittlung '+basisName()+'.doc');
+  try{
+    let bytes=ImmoOffice.docx(ImmoOffice.bloeckeAusHtml(inhalt),{titel:'Rechnerische Preisermittlung '+basisName(),autor:(($('ek_ersteller')||{}).value||'').trim()||'ImmoApp'});
+    dateiSpeichern(bytes,'application/vnd.openxmlformats-officedocument.wordprocessingml.document','Preisermittlung '+basisName()+'.docx');
+  }catch(e){ alert('Das Word-Dokument konnte nicht erstellt werden: '+(e&&e.message||e)); }
 }
+/* Excel-Export: Kennzahlen als Zahlen mit Format, alle Eingaben und Prüfhinweise — echte .xlsx-Datei */
 function exportExcel(){
-  compute(); const R=window._R;
-  const z=(a,b)=>`<tr><td>${a}</td><td>${typeof b==='number'?b.toFixed(2).replace('.',','):b}</td></tr>`;
-  let rows=[
-    ['Objekt',$('ek_anschrift').value||''],['Vordruck',$('ek_vordruck').value||''],
-    ['Gebäudetyp',modus()==='wohnung'?$('ek_wtyp').value:$('ek_typ').value],
-    ['Stichtag',$('ek_stichtag').value||''],['Baujahr',$('ek_baujahr').value||''],
-    ['Wohnfläche m²',num('ek_wohnflaeche')],['Nutzfläche m²',num('ek_nutzflaeche')],
-    ['Grundstücksfläche m²',num('ek_gs_flaeche')],['Bodenrichtwert €/m²',num('ek_brw')],
-    ['Bodenwert €',R.bodenwert],['BGF Hauptgebäude m²',R.bgfHG],['Gebäudepreis €/m²',R.hg.preis],
-    ['Restnutzungsdauer Jahre',R.erRND],['Modernisierungspunkte',R.modPunkte],
-    ['Liegenschaftszins %',R.effLZ],['Vervielfältiger',R.vf],
-    ['Jahresrohertrag €',R.roh],['Bewirtschaftungskosten €',R.bewirt],
-    ['Gebäudereinertrag €',R.gebRein],
-    ['Preis nach Substanz/Vergleich €',R.substanz],['Preis nach Ertrag €',R.ertrag],
-    ['Vergleichswert €',R.vergleichWert],['Gewichteter Mittelwert €',R.mittel],
-    ['Belastung Nießbrauch/Wohnrecht €',R.niessWert],['Korrektur Erbbaurecht €',R.erbbauAbzug],
-    ['Wertkorrekturen § 8 Abs. 3 €',R.wkSumme],['Barwert PV €',R.pvWert],
-    ['EMPFOHLENER PREISANSATZ €',R.empfehlung],
-    ['Preis je m² Wohn-/Nutzfläche',R.eigenM2],
-    ['Bruttomietrendite %',R.reBrutto],['Nettomietrendite %',R.reNetto],['Kaufpreisfaktor',R.reFaktor]
-  ].map(r=>z(r[0],r[1])).join('');
-  let html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">'
-    +'<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
-    +'<x:Name>Preisermittlung</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>'
-    +'</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->'
-    +'<style>td{mso-number-format:"\\@"}</style></head><body><table border="1">'
-    +'<tr><th colspan="2">Rechnerische Preisermittlung</th></tr>'+rows+'</table></body></html>';
-  dlBlob(html,'application/vnd.ms-excel','Preisermittlung '+basisName()+'.xls');
+  compute(); const R=window._R, P=window._PRUEF||{status:'ok',hinweise:[],fehlend:[]};
+  const eur=v=>({v:Math.round((v||0)*100)/100,s:'eur'}), dez=v=>({v:Math.round((v||0)*10000)/10000,s:'dez'}), pct=v=>({v:Math.round((v||0)*100)/100,s:'pct'});
+  const t=v=>String(v==null?'':v);
+  let kopf=[
+    [{v:'Rechnerische Preisermittlung',s:'titel'}],
+    ['Objekt',t($('ek_anschrift').value)],['Vordruck',t($('ek_vordruck').value)],
+    ['Gebäudetyp',t(modus()==='wohnung'?$('ek_wtyp').value:$('ek_typ').value)],
+    ['Wertermittlungsstichtag',t($('ek_stichtag').value)],['Baujahr',num('ek_baujahr')||''],
+    ['Status',P.status==='ok'?'gültig':'Entwurf — '+pruefStatusText(P)],[]
+  ];
+  let werte=[
+    ['Wohnfläche m²',dez(num('ek_wohnflaeche'))],['Nutzfläche m²',dez(num('ek_nutzflaeche'))],
+    ['Grundstücksfläche m²',dez(num('ek_gs_flaeche'))],['Bodenrichtwert €/m²',eur(num('ek_brw'))],
+    ['Bodenwert',eur(R.bodenwert)],['BGF Hauptgebäude m²',dez(R.bgfHG)],['Gebäudepreis €/m²',eur(R.hg.preis)],
+    ['Restnutzungsdauer Jahre',dez(R.erRND)],['Modernisierungspunkte',dez(R.modPunkte)],
+    ['Liegenschaftszins',pct(R.effLZ)],['Vervielfältiger',dez(R.vf)],
+    ['Jahresrohertrag',eur(R.roh)],['Bewirtschaftungskosten',eur(R.bewirt)],['Gebäudereinertrag',eur(R.gebRein)],
+    [modus()==='wohnung'?'Preis nach Vergleichswert':'Preis nach Gebäudesubstanz',eur(R.substanz)],['Preis nach Gebäudeertrag',eur(R.ertrag)],
+    ['Vergleichswert',eur(R.vergleichWert)],['Gewichteter Mittelwert',eur(R.mittel)],
+    ['Belastung Nießbrauch/Wohnrecht/Leibrente',eur(R.niessWert)],['Korrektur Erbbaurecht',eur(R.erbbauAbzug)],
+    ['Wertkorrekturen § 8 Abs. 3',eur(R.wkSumme)],['Barwert PV',eur(R.pvWert)],['Energetische Qualität',eur(R.energieWert)],
+    [{v:'Empfohlener Preisansatz',s:'fett'},P.status==='ok'?{v:Math.round(R.empfehlung*100)/100,s:'fetteur'}:{v:'Entwurf: '+eur(R.empfehlung).v.toLocaleString('de-DE')+' €',s:'fett'}],
+    ['Verhandlungsspanne von',eur(R.empfehlung*(1-R.vh))],['Verhandlungsspanne bis',eur(R.empfehlung*(1+R.vh))],
+    ['Preis je m² Wohn-/Nutzfläche',eur(R.eigenM2)],
+    ['Bruttomietrendite',pct(R.reBrutto)],['Nettomietrendite',pct(R.reNetto)],['Kaufpreisfaktor',dez(R.reFaktor)],
+    ['Beleihungswert',eur(R.beleihungswert)]
+  ];
+  let felder=collect(), eingaben=[[{v:'Feld',s:'fett'},{v:'Kennung',s:'fett'},{v:'Wert',s:'fett'}]];
+  Object.keys(felder).forEach(id=>{ let v=felder[id]; if(v===''||v===false||v==='0') return;
+    eingaben.push([feldName(id),id,typeof v==='boolean'?'ja':{v:String(v).slice(0,32000),s:'text'}]); });
+  let blaetter=[{name:'Ergebnis',spalten:[44,22],zeilen:kopf.concat(werte)},{name:'Eingaben',spalten:[44,22,60],zeilen:eingaben}];
+  let hin=(P.hinweise||[]).map(h=>[h.stufe==='fehler'?'kritisch':'Hinweis',feldName(h.feld),h.text]).concat((P.fehlend||[]).map(f=>['fehlt',feldName(f.feld),f.text]));
+  if(hin.length) blaetter.push({name:'Prüfhinweise',spalten:[12,34,90],zeilen:[[{v:'Stufe',s:'fett'},{v:'Feld',s:'fett'},{v:'Hinweis',s:'fett'}]].concat(hin)});
+  try{
+    let bytes=ImmoOffice.xlsx(blaetter,{titel:'Rechnerische Preisermittlung '+basisName()});
+    dateiSpeichern(bytes,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','Preisermittlung '+basisName()+'.xlsx');
+  }catch(e){ alert('Die Excel-Datei konnte nicht erstellt werden: '+(e&&e.message||e)); }
 }
-
+function dateiSpeichern(bytes,mime,name){ iaHerunterladen(new Blob([bytes],{type:mime}),name); }
 /* ---------- Vergleichsobjekte ---------- */
 const N_VGL=8;
 function buildVergleich(){
