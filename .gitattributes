@@ -1,0 +1,4 @@
+# Mitgelieferte Bibliotheken byteweise unverändert lassen (Integritäts-Hash)
+vendor/** -text
+# Testdaten mit festen Zeilenenden
+*.json text eol=lf
