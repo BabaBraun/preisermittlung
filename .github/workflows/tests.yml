@@ -10,6 +10,13 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Offizielles Playwright-Image: Chromium, WebKit und ihre Systembibliotheken sind schon enthalten.
+    # Das ersetzt „npx playwright install --with-deps“ (meist ~1 Minute, bei langsamen Paketquellen bis 15).
+    # Die Version muss zu @playwright/test in package.json passen: beim Aktualisieren beide ändern —
+    # sonst bricht Playwright mit einem Hinweis auf das passende Image ab.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +35,7 @@ jobs:
         run: |
           npm ci
           pip install -r tests/requirements.txt
+          npx playwright --version
 
       - name: Sollwerte der Vergleichsrechnung sind aktuell
         run: |
@@ -41,9 +49,6 @@ jobs:
       - name: Fehler der Node-Tests als Anmerkung
         if: failure()
         run: grep -E "^✖|not ok|AssertionError|Error:" node-tests.log | head -20 | sed 's/^/::error title=Node-Test::/' || true
-
-      - name: Browser installieren
-        run: npx playwright install --with-deps chromium webkit
 
       - name: Browsertests (Desktop und iPhone)
         run: npx playwright test

@@ -81,7 +81,9 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
 - **Python-Prüfskripte** (`tests/referenz/pruefe_*.py`) öffnen die erzeugten Dateien mit unabhängigen
   Bibliotheken. Auf ihre Standardausgabe geht nur das JSON-Ergebnis; Meldungen der Bibliotheken landen auf
   stderr. Jede andere Ausgabe lässt den Test mit vollständiger stdout-/stderr-Ausgabe scheitern.
-- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`).
+- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`), im offiziellen
+  Playwright-Image mit fertig installierten Browsern. Dessen Version muss zu `@playwright/test` in
+  `package.json` passen — beim Aktualisieren beide ändern; `npm test` prüft das.
 - Alle Testdaten sind synthetisch.
 
 ## Datensicherung
