@@ -27,17 +27,17 @@ jobs:
           node-version: 24
           cache: npm
 
-      # ab v6: ohne lsb_release (fehlt im Image) über /etc/os-release
+      # ab v6: ohne lsb_release (fehlt im Image) über /etc/os-release. Der Werkzeug-Cache des Runners liegt im
+      # Container unter /__t, die Startzeile von „pip“ zeigt aber auf den Pfad des Runners — deshalb kein
+      # „cache: pip“ (ruft pip auf) und unten „python -m pip“.
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-          cache: pip
-          cache-dependency-path: tests/requirements.txt
 
       - name: Abhängigkeiten
         run: |
           npm ci
-          pip install -r tests/requirements.txt
+          python -m pip install -r tests/requirements.txt
           npx playwright --version
 
       - name: Sollwerte der Vergleichsrechnung sind aktuell
