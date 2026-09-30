@@ -160,28 +160,27 @@ function sollstellung(v,bisIso){
 }
 function sonderPosten(s){ return {id:'X'+s.id,art:s.art||'sonstig',monat:monatVon(s.datum),faellig:s.datum,teile:null,ust:0,betrag:r2(+s.betrag||0),text:s.text||''}; }
 
-/* Offene Posten eines Vertrags zum Stichtag. Zahlungen werden zuerst auf den bestimmten Monat angerechnet
+/* Kontoführung für Mietkonto und Hausgeldkonto: Forderungen (posten, negative = Gutschrift) und Zahlungen
+   (negative = Rücklastschrift) zum Stichtag. Zahlungen werden zuerst auf den bestimmten Monat angerechnet
    (Tilgungsbestimmung, § 366 Abs. 1 BGB), sonst auf die älteste fällige Schuld (§ 366 Abs. 2 BGB) und danach
-   auf die nächste noch nicht fällige. Rücklastschriften (negative Zahlungen) werden wie neue Forderungen am
-   Buchungstag behandelt, Gutschriften (negative Sonderposten) wie Zahlungen. Kautionszahlungen zählen nicht. */
-function offenePosten(v,zahlungen,stichtag,opt){
+   auf die nächste noch nicht fällige. Rücklastschriften gelten als neue Forderung am Buchungstag, Gutschriften
+   wie Zahlungen. Verzugszinsen je Posten ab dem Tag nach Fälligkeit (§ 288 BGB). */
+function kontoFuehren(roh,zahlungen,stichtag,opt){
   opt=opt||{};
   const aufschlag=opt.aufschlag!=null?opt.aufschlag:5, tab=opt.basiszins||BASISZINS;
-  const bis=opt.bis||stichtag;
-  let posten=sollstellung(v,bis).map(p=>Object.assign({},p,{bezahlt:0,zuordnungen:[]}));
-  const eigene=(zahlungen||[]).filter(z=>z.vertragId===v.id&&z.art!=='kaution'&&datumGueltig(z.datum)&&isFinite(z.betrag)&&z.datum<=bis);
+  let posten=roh.map(p=>Object.assign({},p,{bezahlt:0,zuordnungen:[]}));
   const gutschriften=posten.filter(p=>p.betrag<0);
   posten=posten.filter(p=>p.betrag>=0);
-  eigene.filter(z=>z.betrag<0).forEach(z=>posten.push({id:'R'+z.id,art:'ruecklast',monat:monatVon(z.datum),faellig:z.datum,teile:null,ust:0,betrag:r2(-z.betrag),text:'Rücklastschrift / Rückbuchung',bezahlt:0,zuordnungen:[]}));
+  zahlungen.filter(z=>z.betrag<0).forEach(z=>posten.push({id:'R'+z.id,art:'ruecklast',monat:monatVon(z.datum),faellig:z.datum,teile:null,ust:0,betrag:r2(-z.betrag),text:'Rücklastschrift / Rückbuchung',bezahlt:0,zuordnungen:[]}));
   posten.sort((a,b)=>a.faellig<b.faellig?-1:a.faellig>b.faellig?1:(a.id<b.id?-1:1));
-  const eingaenge=eigene.filter(z=>z.betrag>0).map(z=>({id:z.id,datum:z.datum,betrag:z.betrag,monat:z.monat||''}))
+  const eingaenge=zahlungen.filter(z=>z.betrag>0).map(z=>({id:z.id,datum:z.datum,betrag:z.betrag,monat:z.monat||''}))
     .concat(gutschriften.map(g=>({id:g.id,datum:g.faellig,betrag:-g.betrag,monat:'',gutschrift:true})))
     .sort((a,b)=>a.datum<b.datum?-1:a.datum>b.datum?1:(a.id<b.id?-1:1));
   let guthaben=0;
   const anrechnen=(p,z,rest)=>{ const o=r2(p.betrag-p.bezahlt); if(o<=0) return rest; const b=Math.min(o,rest); p.bezahlt=r2(p.bezahlt+b); p.zuordnungen.push({id:z.id,datum:z.datum,betrag:r2(b)}); return r2(rest-b); };
   eingaenge.forEach(z=>{
     let rest=r2(z.betrag);
-    if(z.monat){ const p=posten.find(x=>x.id==='M'+z.monat); if(p) rest=anrechnen(p,z,rest); }
+    if(z.monat){ const p=posten.find(x=>x.monat===z.monat&&(x.art==='miete'||x.art==='hausgeld')); if(p) rest=anrechnen(p,z,rest); }
     for(const p of posten){ if(rest<=0) break; rest=anrechnen(p,z,rest); }
     guthaben=r2(guthaben+rest);
   });
@@ -199,6 +198,13 @@ function offenePosten(v,zahlungen,stichtag,opt){
   return {posten,guthaben,summe:{soll:r2(summe(faellige,p=>p.betrag)),bezahlt:r2(summe(posten,p=>p.bezahlt)),
     rueckstand:r2(summe(faellige,p=>p.offen)),vorausOffen:r2(summe(posten.filter(p=>!p.faelligJa),p=>p.offen)),
     guthaben:r2(guthaben),zinsen:r2(zinsen),saldo:r2(summe(faellige,p=>p.offen)-guthaben)}};
+}
+/* Offene Posten eines Mietvertrags: Sollstellung und Zahlungen des Vertrags (ohne Kaution) */
+function offenePosten(v,zahlungen,stichtag,opt){
+  opt=opt||{};
+  const bis=opt.bis||stichtag;
+  const eigene=(zahlungen||[]).filter(z=>z.vertragId===v.id&&z.art!=='kaution'&&datumGueltig(z.datum)&&isFinite(z.betrag)&&z.datum<=bis);
+  return kontoFuehren(sollstellung(v,bis),eigene,stichtag,opt);
 }
 
 /* Hinweis auf die Voraussetzungen einer fristlosen Kündigung wegen Zahlungsverzugs (§ 543 Abs. 2 Satz 1 Nr. 3
@@ -401,7 +407,7 @@ function sicherungPruefen(o){
 
 const ImmoVerwaltung={ID,r2,neueId,zahlEingabe,eur,datumGueltig,tagNr,isoTag,monatVon,tageImMonat,monatsErster,monatsLetzter,plusMonate,
   monatsliste,ueberlappung,datumDE,ostersonntag,feiertageBW,istZahlungsWerktag,dritterWerktag,BASISZINS,basiszinsTabelle,basiszinsAm,
-  verzugszinsen,TEILE,TEIL_NAMEN,mieteAm,vertragAktiv,istWohnraum,sollstellung,offenePosten,kuendigungsschwelle,MAHNSTUFEN,mahnvorschlag,
+  verzugszinsen,TEILE,TEIL_NAMEN,mieteAm,vertragAktiv,istWohnraum,sollstellung,kontoFuehren,offenePosten,kuendigungsschwelle,MAHNSTUFEN,mahnvorschlag,
   kaution,aktiverVertrag,vertraegeDerEinheit,leerstand,kennzahlen,fristen,bereinigen,erweiterungRegistrieren,sicherungPruefen,ibanGueltig,ibanLesbar,einstellungenBereinigen,
   ARTEN_L,ARTEN_E,EIGENTUEMER,MIETARTEN,ZAHLARTEN,KAUTIONSARTEN};
 wurzel.ImmoVerwaltung=ImmoVerwaltung;

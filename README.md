@@ -40,6 +40,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Rechnung (automatisch in den Kosten), Auftrag an den Handwerker als Word; Wartungs- und Prüfpflichten aus
   einem Katalog mit Rechtsgrundlage (Rauchwarnmelder, Legionellen, Aufzug, Schornsteinfeger u. a.) mit
   Fälligkeiten in den Fristen.
+  WEG-Verwaltung: Eigentümer mit Miteigentum und Eigentümerwechsel, Wirtschaftsplan mit Einzelwirtschaftsplänen
+  und Fortgeltung, Hausgeldkonten, Sonderumlagen, Jahresabrechnung mit Abrechnungsspitze und
+  Vermögensbericht, Versammlungen mit Einladungsfrist, Abstimmung (Kopf-, Wert-, Objektprinzip; § 21 WEG),
+  Einladung und Niederschrift als Word, Beschluss-Sammlung mit Vermerken (Excel).
 
 ## Aufbau
 
@@ -59,6 +63,8 @@ Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository li
 | `js/verwaltung-nk-ui.js` | Oberfläche „Nebenkosten“ (Kosten, Abrechnung, Word/Excel, Buchung) |
 | `js/verwaltung-ih.js` | Instandhaltung und Prüfpflichten: Katalog, Fälligkeiten, Fristen, Übernahme in die Kosten |
 | `js/verwaltung-ih-ui.js` | Oberfläche „Instandhaltung“ (Vorgänge mit Fotos, Pflichten) und „Dienstleister“ |
+| `js/verwaltung-weg.js` | WEG: Einzelwirtschaftspläne, Hausgeld, Jahresabrechnung, Abstimmung, Fristen |
+| `js/verwaltung-weg-ui.js` | Oberfläche „WEG“ (Eigentümer, Hausgeld, Jahresabrechnung, Versammlungen, Beschluss-Sammlung) |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |

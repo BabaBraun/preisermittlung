@@ -258,7 +258,7 @@ function bereinigen(roh,l,zaehler,hilfen){
     const o={id:k.id,kategorie:k.kategorie,betrag:k.betrag,datum:datumGueltig(k.datum)?k.datum:null,von:datumGueltig(k.von)?k.von:null,bis:datumGueltig(k.bis)?k.bis:null,
       text:text(k.text,300),beleg:text(k.beleg,80),schluessel:SCHLUESSEL[k.schluessel]?k.schluessel:null,kreis:KREISE[k.kreis]?k.kreis:'alle',
       einheitIds:(Array.isArray(k.einheitIds)?k.einheitIds:[]).filter(x=>eids.has(x)),direktEinheitId:eids.has(k.direktEinheitId)?k.direktEinheitId:null,
-      lohn35a:zahl(k.lohn35a),art35a:['haushaltsnah','handwerker'].includes(k.art35a)?k.art35a:null,umlagefaehig:k.umlagefaehig===false?false:undefined,vorgangId:typeof k.vorgangId==='string'&&ID.test(k.vorgangId)?k.vorgangId:null};
+      lohn35a:zahl(k.lohn35a),art35a:['haushaltsnah','handwerker'].includes(k.art35a)?k.art35a:null,umlagefaehig:k.umlagefaehig===false?false:undefined,ausRuecklage:k.ausRuecklage===true,vorgangId:typeof k.vorgangId==='string'&&ID.test(k.vorgangId)?k.vorgangId:null};
     if(!o.datum&&!(o.von&&o.bis)) return null;
     return o;
   });

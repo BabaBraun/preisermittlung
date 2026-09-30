@@ -15,6 +15,7 @@ BGH VIII ZR 129/09), § 366 BGB (Anrechnung), § 288 Abs. 1/2 BGB (5 bzw. 9 Proz
 """
 import json, os
 from verwaltung_nk_ref import nebenkosten
+from verwaltung_weg_ref import wegrechnung
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from fractions import Fraction as F
@@ -245,6 +246,7 @@ def main():
             'posten': [{k: p[k] for k in ('id', 'bezahlt', 'offen', 'zinsen', 'status')} for p in op['posten']],
             'summe': op['summe'], 'schwelle': schwelle(op, v, st), 'kaution': kaution(v, z, st)}
     erg['nebenkosten'] = nebenkosten(faelle['nebenkosten'])
+    erg['weg'] = wegrechnung(faelle['weg'])
     ls = faelle['leerstand']
     erg['leerstand'] = leerstand(ls['liegenschaft'], tag(ls['von']), tag(ls['bis']))
     with open(os.path.join(HIER, 'verwaltung_sollwerte.json'), 'w', encoding='utf-8', newline='\n') as f:

@@ -677,5 +677,656 @@
         }
       ]
     }
+  },
+  "weg": {
+    "cfg": {
+      "jahr": 2025,
+      "von": "2025-01-01",
+      "bis": "2025-12-31",
+      "ruecklageAnfang": 25000,
+      "kontoEnde": 18000,
+      "verbindlichkeiten": 1200,
+      "heiz": {
+        "w1": 3900,
+        "w2": 3300,
+        "w3": 2600,
+        "w4": 2100,
+        "w5": 900
+      }
+    },
+    "liegenschaft": {
+      "id": "LW",
+      "name": "WEG Lindenhof",
+      "art": "weg",
+      "einheiten": [
+        {
+          "id": "w1",
+          "nr": "W1",
+          "art": "wohnung",
+          "mea": 300,
+          "flaeche": 80
+        },
+        {
+          "id": "w2",
+          "nr": "W2",
+          "art": "wohnung",
+          "mea": 250,
+          "flaeche": 70
+        },
+        {
+          "id": "w3",
+          "nr": "W3",
+          "art": "wohnung",
+          "mea": 200,
+          "flaeche": 55
+        },
+        {
+          "id": "w4",
+          "nr": "G1",
+          "art": "gewerbe",
+          "mea": 150,
+          "flaeche": 60
+        },
+        {
+          "id": "w5",
+          "nr": "W4",
+          "art": "wohnung",
+          "mea": 100,
+          "flaeche": 30
+        }
+      ],
+      "vertraege": [],
+      "kosten": [
+        {
+          "id": "wk1",
+          "kategorie": "verwaltung",
+          "betrag": 3600,
+          "datum": "2025-12-31",
+          "schluessel": "einheiten"
+        },
+        {
+          "id": "wk2",
+          "kategorie": "versicherung",
+          "betrag": 2520,
+          "datum": "2025-03-01"
+        },
+        {
+          "id": "wk3",
+          "kategorie": "beleuchtung",
+          "betrag": 860,
+          "datum": "2025-12-31",
+          "schluessel": "flaeche"
+        },
+        {
+          "id": "wk4",
+          "kategorie": "gartenpflege",
+          "betrag": 380,
+          "datum": "2025-09-15",
+          "schluessel": "direkt",
+          "direktEinheitId": "w1",
+          "lohn35a": 300,
+          "art35a": "haushaltsnah"
+        },
+        {
+          "id": "wk5",
+          "kategorie": "heizung_ww",
+          "betrag": 12800,
+          "datum": "2025-12-31"
+        },
+        {
+          "id": "wk6",
+          "kategorie": "hauswart",
+          "betrag": 2300,
+          "datum": "2025-12-31",
+          "lohn35a": 2300,
+          "art35a": "haushaltsnah"
+        },
+        {
+          "id": "wk7",
+          "kategorie": "instandhaltung",
+          "betrag": 8000,
+          "datum": "2025-06-10",
+          "ausRuecklage": true,
+          "text": "Dachreparatur"
+        },
+        {
+          "id": "wk8",
+          "kategorie": "versicherung",
+          "betrag": 2400,
+          "datum": "2024-03-01"
+        }
+      ],
+      "weg": {
+        "stimmprinzip": "kopf",
+        "eigentuemer": [
+          {
+            "id": "o1",
+            "einheitId": "w1",
+            "name": "Max Muster",
+            "seit": "2010-01-01"
+          },
+          {
+            "id": "o2",
+            "einheitId": "w2",
+            "name": "Max Muster",
+            "seit": "2015-05-01"
+          },
+          {
+            "id": "o3",
+            "einheitId": "w3",
+            "name": "Erika Beispiel",
+            "seit": "2012-01-01"
+          },
+          {
+            "id": "o4",
+            "einheitId": "w3",
+            "name": "Hans Beispiel",
+            "seit": "2012-01-01"
+          },
+          {
+            "id": "o5",
+            "einheitId": "w4",
+            "name": "Firma X GmbH",
+            "seit": "2018-01-01"
+          },
+          {
+            "id": "o6",
+            "einheitId": "w5",
+            "name": "Laura Alt",
+            "seit": "2016-01-01"
+          },
+          {
+            "id": "o7",
+            "einheitId": "w5",
+            "name": "Nina Neu",
+            "seit": "2025-07-01"
+          }
+        ],
+        "wirtschaftsplaene": [
+          {
+            "id": "wp25",
+            "jahr": 2025,
+            "ruecklage": 6000,
+            "beschlossenAm": "2024-11-20",
+            "fortgeltung": true,
+            "positionen": [
+              {
+                "id": "p1",
+                "text": "Verwaltervergütung",
+                "kategorie": "verwaltung",
+                "betrag": 3600,
+                "schluessel": "einheiten"
+              },
+              {
+                "id": "p2",
+                "text": "Gebäudeversicherung",
+                "kategorie": "versicherung",
+                "betrag": 2400,
+                "schluessel": "mea"
+              },
+              {
+                "id": "p3",
+                "text": "Allgemeinstrom",
+                "kategorie": "beleuchtung",
+                "betrag": 900,
+                "schluessel": "flaeche"
+              },
+              {
+                "id": "p4",
+                "text": "Sondernutzung Garten",
+                "kategorie": "gartenpflege",
+                "betrag": 400,
+                "schluessel": "direkt",
+                "einheitId": "w1"
+              },
+              {
+                "id": "p5",
+                "text": "Heizung und Warmwasser",
+                "kategorie": "heizung_ww",
+                "betrag": 12000,
+                "schluessel": "mea"
+              },
+              {
+                "id": "p6",
+                "text": "Hauswart",
+                "kategorie": "hauswart",
+                "betrag": 2200,
+                "schluessel": "mea"
+              }
+            ]
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "zw1_01",
+            "einheitId": "w1",
+            "datum": "2025-01-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_02",
+            "einheitId": "w1",
+            "datum": "2025-02-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_03",
+            "einheitId": "w1",
+            "datum": "2025-03-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_04",
+            "einheitId": "w1",
+            "datum": "2025-04-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_05",
+            "einheitId": "w1",
+            "datum": "2025-05-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_06",
+            "einheitId": "w1",
+            "datum": "2025-06-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_07",
+            "einheitId": "w1",
+            "datum": "2025-07-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_08",
+            "einheitId": "w1",
+            "datum": "2025-08-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_09",
+            "einheitId": "w1",
+            "datum": "2025-09-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_10",
+            "einheitId": "w1",
+            "datum": "2025-10-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_11",
+            "einheitId": "w1",
+            "datum": "2025-11-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw1_12",
+            "einheitId": "w1",
+            "datum": "2025-12-02",
+            "betrag": 1100,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_01",
+            "einheitId": "w2",
+            "datum": "2025-01-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_02",
+            "einheitId": "w2",
+            "datum": "2025-02-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_03",
+            "einheitId": "w2",
+            "datum": "2025-03-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_04",
+            "einheitId": "w2",
+            "datum": "2025-04-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_05",
+            "einheitId": "w2",
+            "datum": "2025-05-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_06",
+            "einheitId": "w2",
+            "datum": "2025-06-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_07",
+            "einheitId": "w2",
+            "datum": "2025-07-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_08",
+            "einheitId": "w2",
+            "datum": "2025-08-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_09",
+            "einheitId": "w2",
+            "datum": "2025-09-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw2_10",
+            "einheitId": "w2",
+            "datum": "2025-10-02",
+            "betrag": 900,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_01",
+            "einheitId": "w3",
+            "datum": "2025-01-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_02",
+            "einheitId": "w3",
+            "datum": "2025-02-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_03",
+            "einheitId": "w3",
+            "datum": "2025-03-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_04",
+            "einheitId": "w3",
+            "datum": "2025-04-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_05",
+            "einheitId": "w3",
+            "datum": "2025-05-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_06",
+            "einheitId": "w3",
+            "datum": "2025-06-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_07",
+            "einheitId": "w3",
+            "datum": "2025-07-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_08",
+            "einheitId": "w3",
+            "datum": "2025-08-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_09",
+            "einheitId": "w3",
+            "datum": "2025-09-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_10",
+            "einheitId": "w3",
+            "datum": "2025-10-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_11",
+            "einheitId": "w3",
+            "datum": "2025-11-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw3_12",
+            "einheitId": "w3",
+            "datum": "2025-12-02",
+            "betrag": 700,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_01",
+            "einheitId": "w4",
+            "datum": "2025-01-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_02",
+            "einheitId": "w4",
+            "datum": "2025-02-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_03",
+            "einheitId": "w4",
+            "datum": "2025-03-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_04",
+            "einheitId": "w4",
+            "datum": "2025-04-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_05",
+            "einheitId": "w4",
+            "datum": "2025-05-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_06",
+            "einheitId": "w4",
+            "datum": "2025-06-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_07",
+            "einheitId": "w4",
+            "datum": "2025-07-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_08",
+            "einheitId": "w4",
+            "datum": "2025-08-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_09",
+            "einheitId": "w4",
+            "datum": "2025-09-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_10",
+            "einheitId": "w4",
+            "datum": "2025-10-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_11",
+            "einheitId": "w4",
+            "datum": "2025-11-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw4_12",
+            "einheitId": "w4",
+            "datum": "2025-12-02",
+            "betrag": 520,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_01",
+            "einheitId": "w5",
+            "datum": "2025-01-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_02",
+            "einheitId": "w5",
+            "datum": "2025-02-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_03",
+            "einheitId": "w5",
+            "datum": "2025-03-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_04",
+            "einheitId": "w5",
+            "datum": "2025-04-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_05",
+            "einheitId": "w5",
+            "datum": "2025-05-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          },
+          {
+            "id": "zw5_06",
+            "einheitId": "w5",
+            "datum": "2025-06-02",
+            "betrag": 300,
+            "art": "hausgeld"
+          }
+        ],
+        "sonderumlagen": [],
+        "abrechnungen": [],
+        "versammlungen": [],
+        "beschluesse": []
+      }
+    },
+    "abstimmungen": [
+      {
+        "datum": "2026-05-20",
+        "prinzip": "kopf",
+        "mehrheit": "einfach",
+        "stimmen": {
+          "w1": "ja",
+          "w2": "ja",
+          "w3": "nein",
+          "w4": "enthaltung",
+          "w5": "ja"
+        }
+      },
+      {
+        "datum": "2026-05-20",
+        "prinzip": "kopf",
+        "mehrheit": "baulich21",
+        "stimmen": {
+          "w1": "ja",
+          "w2": "ja",
+          "w3": "ja",
+          "w4": "nein",
+          "w5": "nein"
+        }
+      },
+      {
+        "datum": "2026-05-20",
+        "prinzip": "kopf",
+        "mehrheit": "einfach",
+        "stimmen": {
+          "w1": "ja",
+          "w2": "nein",
+          "w3": "ja",
+          "w4": "ja",
+          "w5": "nein"
+        }
+      },
+      {
+        "datum": "2026-05-20",
+        "prinzip": "mea",
+        "mehrheit": "baulich21",
+        "stimmen": {
+          "w1": "ja",
+          "w2": "ja",
+          "w3": "ja",
+          "w4": "nein",
+          "w5": "enthaltung"
+        }
+      },
+      {
+        "datum": "2025-03-01",
+        "prinzip": "kopf",
+        "mehrheit": "einfach",
+        "stimmen": {
+          "w1": "nein",
+          "w3": "ja",
+          "w5": "ja"
+        }
+      }
+    ]
   }
 }

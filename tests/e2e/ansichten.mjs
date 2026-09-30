@@ -73,6 +73,13 @@ export async function alleAnsichten(page, geraet) {
   await pruefe('16k_verwaltung_vorgang', () => { LV.form = { typ: 'vorgang', id: 'G1' }; lvRender(); });
   await pruefe('16l_verwaltung_pflichten', () => { LV.form = null; LV.ihAnsicht = 'pflichten'; lvRender(); });
   await pruefe('16m_verwaltung_dienstleister', () => lvAnsicht('dienstleister'));
+  const weg = JSON.parse(readFileSync('tests/referenz/verwaltung_faelle.json', 'utf8')).weg;
+  await page.evaluate(async ({ l, cfg }) => { l.weg.abrechnungen = [Object.assign({ id: 'JA1', jahr: 2025, ruecklageAnfang: cfg.ruecklageAnfang, kontoEnde: cfg.kontoEnde, verbindlichkeiten: cfg.verbindlichkeiten, heiz: cfg.heiz })];
+    l.weg.versammlungen = [{ id: 'VS1', datum: '2026-10-20', einladungAm: '2026-09-25', ort: 'Gemeindesaal', tops: [{ id: 'T1', titel: 'Anstrich Treppenhaus', antrag: 'Das Treppenhaus wird gestrichen.', typ: 'beschluss', mehrheit: 'einfach', stimmen: { w1: 'ja', w3: 'nein' } }] }];
+    await lvSpeichern(l); }, { l: weg.liegenschaft, cfg: weg.cfg });
+  for (const [n, seg] of [['16n_weg_eigentuemer', 'eigentuemer'], ['16o_weg_hausgeld', 'hausgeld'], ['16p_weg_abrechnung', 'abrechnung'], ['16r_weg_beschluesse', 'beschluesse']])
+    await pruefe(n, s => { lvLiegenschaftOeffnen('LW', 'weg'); LV.wegAnsicht = s; LV.wegJahr = 2025; LV.wegAbJahr = 2025; lvRender(); }, seg);
+  await pruefe('16q_weg_versammlung', () => { LV.wegAnsicht = 'versammlungen'; LV.wegVersammlung = 'VS1'; lvRender(); });
   await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');

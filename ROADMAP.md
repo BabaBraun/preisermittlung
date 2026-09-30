@@ -209,5 +209,5 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 41 | [ ] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen | Prozessrisiko (siehe AUDIT, Abschnitt 7) |
 | 42 | [x] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) — erledigt 2026-09-30 (D16) | Auftrag „alles“ |
 | 43 | [x] Liegenschaftsverwaltung Stufe 3: Instandhaltung, Dienstleister, Wartungs- und Prüfpflichten — erledigt 2026-09-30 (D17) | Auftrag „alles“ |
-| 44 | [ ] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) | Auftrag „alles“ |
+| 44 | [x] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) — erledigt 2026-09-30 (D18) | Auftrag „alles“ |
 | 45 | [ ] Liegenschaftsverwaltung Stufe 5: Mieterhöhung (§§ 557a–559 BGB), Eigentümerbericht, Anlage V, Dokumente, Kontoauszug-Import | Auftrag „alles“ |

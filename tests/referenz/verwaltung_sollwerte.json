@@ -1079,6 +1079,162 @@
    "co2": 429.43
   }
  },
+ "weg": {
+  "einzelplaene": {
+   "w1": {
+    "kosten": 6344.07,
+    "ruecklage": 1800.0,
+    "monat": 678.67,
+    "jahr": 8144.04
+   },
+   "w2": {
+    "kosten": 5083.56,
+    "ruecklage": 1500.0,
+    "monat": 548.63,
+    "jahr": 6583.56
+   },
+   "w3": {
+    "kosten": 4207.8,
+    "ruecklage": 1200.0,
+    "monat": 450.65,
+    "jahr": 5407.8
+   },
+   "w4": {
+    "kosten": 3393.05,
+    "ruecklage": 900.0,
+    "monat": 357.75,
+    "jahr": 4293.0
+   },
+   "w5": {
+    "kosten": 2471.53,
+    "ruecklage": 600.0,
+    "monat": 255.96,
+    "jahr": 3071.52
+   }
+  },
+  "einzel": {
+   "w1": {
+    "kosten": 6679.22,
+    "umlagefaehig": 5959.22,
+    "p35a": 990.0,
+    "zufuehrung": 1800.0,
+    "summe": 8479.22,
+    "vorschussSoll": 8144.04,
+    "spitze": 335.18,
+    "gezahlt": 13200.0,
+    "rueckstand": 0.0,
+    "eigentuemer": [
+     "Max Muster"
+    ]
+   },
+   "w2": {
+    "kosten": 5429.07,
+    "umlagefaehig": 4709.07,
+    "p35a": 575.0,
+    "zufuehrung": 1500.0,
+    "summe": 6929.07,
+    "vorschussSoll": 6583.56,
+    "spitze": 345.51,
+    "gezahlt": 9000.0,
+    "rueckstand": 0.0,
+    "eigentuemer": [
+     "Max Muster"
+    ]
+   },
+   "w3": {
+    "kosten": 4444.34,
+    "umlagefaehig": 3724.34,
+    "p35a": 460.0,
+    "zufuehrung": 1200.0,
+    "summe": 5644.34,
+    "vorschussSoll": 5407.8,
+    "spitze": 236.54,
+    "gezahlt": 8400.0,
+    "rueckstand": 0.0,
+    "eigentuemer": [
+     "Erika Beispiel",
+     "Hans Beispiel"
+    ]
+   },
+   "w4": {
+    "kosten": 3717.92,
+    "umlagefaehig": 2997.92,
+    "p35a": 345.0,
+    "zufuehrung": 900.0,
+    "summe": 4617.92,
+    "vorschussSoll": 4293.0,
+    "spitze": 324.92,
+    "gezahlt": 6240.0,
+    "rueckstand": 0.0,
+    "eigentuemer": [
+     "Firma X GmbH"
+    ]
+   },
+   "w5": {
+    "kosten": 2189.46,
+    "umlagefaehig": 1469.46,
+    "p35a": 230.0,
+    "zufuehrung": 600.0,
+    "summe": 2789.46,
+    "vorschussSoll": 3071.52,
+    "spitze": -282.06,
+    "gezahlt": 1800.0,
+    "rueckstand": 1271.52,
+    "eigentuemer": [
+     "Nina Neu"
+    ]
+   }
+  },
+  "ruecklage": {
+   "anfang": 25000.0,
+   "zufuehrung": 6000.0,
+   "entnahmen": 8000.0,
+   "ende": 23000.0
+  },
+  "forderungen": 1271.52,
+  "abstimmungen": [
+   {
+    "ja": 2.0,
+    "nein": 1.0,
+    "enthaltung": 1.0,
+    "ungueltig": 0,
+    "meaJa": 650.0,
+    "angenommen": true
+   },
+   {
+    "ja": 2.0,
+    "nein": 2.0,
+    "enthaltung": 0.0,
+    "ungueltig": 0,
+    "meaJa": 750.0,
+    "angenommen": false
+   },
+   {
+    "ja": 2.0,
+    "nein": 1.0,
+    "enthaltung": 0.0,
+    "ungueltig": 1,
+    "meaJa": 350.0,
+    "angenommen": true
+   },
+   {
+    "ja": 750.0,
+    "nein": 150.0,
+    "enthaltung": 100.0,
+    "ungueltig": 0,
+    "meaJa": 750.0,
+    "angenommen": true
+   },
+   {
+    "ja": 2.0,
+    "nein": 1.0,
+    "enthaltung": 0.0,
+    "ungueltig": 0,
+    "meaJa": 300.0,
+    "angenommen": true
+   }
+  ]
+ },
  "leerstand": [
   {
    "einheitId": "e1",

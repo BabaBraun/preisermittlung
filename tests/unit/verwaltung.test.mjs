@@ -221,3 +221,46 @@ test('Bereinigung behält Vorgänge und Pflichten; Dienstleister werden geprüft
   assert.equal(l.pflichten.length, 1); assert.equal(l.pflichten[0].letzte, '2025-10-15');
   assert.deepEqual(IH.dienstleisterBereinigen([{ id: 'd1', name: 'Sanitär Muster', telefon: '0000' }, { id: 'd 2' }, 5]).map(d => d.name), ['Sanitär Muster']);
 });
+
+/* ---------- WEG (js/verwaltung-weg.js) ---------- */
+const WEG = require('../../js/verwaltung-weg.js');
+
+test('Vergleichsrechnung WEG: Einzelwirtschaftspläne, Jahresabrechnung mit Rücklage, Hausgeldrückstände, Abstimmungen', () => {
+  const fall = FAELLE.weg, s = SOLL.weg;
+  const l = V.bereinigen(JSON.parse(JSON.stringify(fall.liegenschaft)));
+  assert.equal(l.weg.eigentuemer.length, 7); assert.equal(l.weg.zahlungen.length, fall.liegenschaft.weg.zahlungen.length);
+  assert.equal(l.kosten.find(k => k.id === 'wk7').ausRuecklage, true);
+  const plan = l.weg.wirtschaftsplaene[0];
+  for (const e of WEG.einzelplaene(l, plan)) assert.deepEqual({ kosten: e.kosten, ruecklage: e.ruecklage, monat: e.monat, jahr: e.jahr }, s.einzelplaene[e.einheitId], 'Einzelplan ' + e.einheitId);
+  const ja = WEG.jahresabrechnung(l, 2025, fall.cfg);
+  for (const e of ja.einzel) {
+    const soll = s.einzel[e.einheitId];
+    assert.deepEqual({ kosten: e.kosten, umlagefaehig: e.umlagefaehig, p35a: e.p35a, zufuehrung: e.zufuehrung, summe: e.summe, vorschussSoll: e.vorschussSoll, spitze: e.spitze, gezahlt: e.gezahlt, eigentuemer: e.eigentuemer },
+      { kosten: soll.kosten, umlagefaehig: soll.umlagefaehig, p35a: soll.p35a, zufuehrung: soll.zufuehrung, summe: soll.summe, vorschussSoll: soll.vorschussSoll, spitze: soll.spitze, gezahlt: soll.gezahlt, eigentuemer: soll.eigentuemer }, 'Einzelabrechnung ' + e.einheitId);
+    assert.equal(WEG.hausgeldKonto(l, e.einheitId, '2025-12-31').summe.rueckstand, soll.rueckstand, 'Hausgeldrückstand ' + e.einheitId);
+  }
+  assert.deepEqual(ja.ruecklage, s.ruecklage);
+  assert.equal(ja.vermoegen.forderungen, s.forderungen);
+  assert.equal(ja.gesamt.entnahmenRuecklage, 8000);
+  fall.abstimmungen.forEach((t, i) => {
+    const r = WEG.abstimmung(l, { stimmen: t.stimmen, mehrheit: t.mehrheit }, t.datum, t.prinzip);
+    assert.deepEqual({ ja: r.ja, nein: r.nein, enthaltung: r.enthaltung, ungueltig: r.ungueltig, meaJa: r.meaJa, angenommen: r.angenommen }, s.abstimmungen[i], 'Abstimmung ' + (i + 1));
+  });
+});
+
+test('WEG: Fortgeltung des Wirtschaftsplans, Einladungsfrist drei Wochen, Beschlussnummern, Fristen', () => {
+  const l = V.bereinigen(JSON.parse(JSON.stringify(FAELLE.weg.liegenschaft)));
+  assert.deepEqual(WEG.planFuerJahr(l, 2026), { plan: l.weg.wirtschaftsplaene[0], fortgeltend: true });
+  l.weg.wirtschaftsplaene[0].fortgeltung = false;
+  assert.equal(WEG.planFuerJahr(l, 2026), null);
+  assert.equal(WEG.hausgeldPosten(l, 'w1', '2026-03-31').filter(p => p.monat.startsWith('2026')).length, 0, 'ohne Fortgeltung kein Hausgeld 2026');
+  assert.deepEqual(WEG.einladungsfrist('2026-04-29', '2026-05-20'), { tage: 21, ok: true });
+  assert.deepEqual(WEG.einladungsfrist('2026-05-01', '2026-05-20'), { tage: 19, ok: false });
+  l.weg.beschluesse = [{ nr: 7 }, { nr: 12 }];
+  assert.equal(WEG.naechsteBeschlussNr(l), 13);
+  const f = WEG.fristen(Object.assign(l, { weg: Object.assign(l.weg, { versammlungen: [{ id: 'v', datum: '2026-10-20' }] }) }), '2026-09-29', 60);
+  const t = f.map(x => x.titel);
+  assert.ok(t.includes('Einladung zur Versammlung am 20.10.2026 versenden'));
+  assert.ok(t.includes('Jahresabrechnung 2025 erstellen und beschließen lassen'));
+  assert.ok(t.some(x => /^Hausgeldrückstand/.test(x)));
+});

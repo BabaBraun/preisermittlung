@@ -336,3 +336,25 @@ Großanlagen, Heizöltank nach Größe und Schutzgebiet); ein automatisch angele
 erzeugen. Die Verknüpfung Vorgang → Kosten vermeidet doppelte Erfassung und hält die Nebenkostenabrechnung
 und die Eigentümerauswertung konsistent.
 
+---
+
+## D18 (2026-09-30) — WEG-Verwaltung: Hausgeld über dieselbe Kontoführung, Stimmrecht nach Gesetz
+
+**Entscheidung:** `js/verwaltung-weg.js` (`ImmoWeg`) mit Reiter „WEG“ (nur bei Liegenschaften der Art WEG):
+- Eigentümer je Einheit mit „seit“-Datum; Miteigentümer tragen dasselbe Datum, ein späterer Eintrag ist ein
+  Eigentümerwechsel. Einzelwirtschaftsplan und Abstimmung nehmen den Eigentümer zum jeweiligen Tag.
+- Hausgeld aus dem beschlossenen Wirtschaftsplan (Fortgeltung nur mit Beschluss), fällig am 3. Werktag,
+  Sonderumlagen und gebuchte Abrechnungsspitzen — alles über dieselbe Kontoführung wie das Mietkonto
+  (`ImmoVerwaltung.kontoFuehren`: § 366 BGB, Verzugszinsen).
+- Jahresabrechnung: Kostenanteil nach MEA oder abweichendem Schlüssel, Heizkosten je Einheit laut Messdienst,
+  Kosten aus der Erhaltungsrücklage nicht umgelegt; Abrechnungsspitze = Kostenanteil + Soll-Zuführung −
+  Soll-Vorschüsse (§ 28 Abs. 2 WEG); Vermögensbericht (§ 28 Abs. 4 WEG).
+- Abstimmung: Kopfprinzip als gesetzliche Regel (§ 25 Abs. 2 WEG), Wert- oder Objektprinzip wählbar;
+  Enthaltungen zählen nicht; widersprüchliche Stimmen desselben Eigentümers werden nicht gewertet;
+  bauliche Veränderung nach § 21 Abs. 2 Nr. 1 WEG. Einladungsfrist drei Wochen (§ 24 Abs. 4 WEG).
+- Beschluss-Sammlung fortlaufend nummeriert mit Vermerken (§ 24 Abs. 7 WEG).
+
+**Begründung:** Eine gemeinsame Kontoführung vermeidet zwei unterschiedliche Zuordnungsregeln für Miete und
+Hausgeld. Der Kern ist gegen eine unabhängige Python-Rechnung geprüft (Einzelpläne, Jahresabrechnung,
+Rücklage, Rückstände, fünf Abstimmungen einschließlich Kopfprinzip mit mehreren Einheiten und Widerspruch).
+

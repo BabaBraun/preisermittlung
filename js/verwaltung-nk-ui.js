@@ -54,7 +54,8 @@ function lvKostenFelder(l,k){
     {id:'k_direkt',label:'Einheit bei „direkt zugeordnet“',typ:'wahl',wert:k.direktEinheitId||'',optionen:[['','–']].concat(E)},
     {id:'k_lohn',label:'davon Arbeitskosten nach § 35a EStG (€)',typ:'betrag',wert:k.lohn35a,min:0},
     {id:'k_art35a',label:'Art nach § 35a EStG',typ:'wahl',wert:k.art35a||'',optionen:[['','–'],['haushaltsnah','haushaltsnahe Dienstleistung (Abs. 2)'],['handwerker','Handwerkerleistung (Abs. 3)']]},
-    {id:'k_einheitIds',label:'Einheiten bei Umlagekreis „Auswahl“',typ:'mehrfach',wert:k.einheitIds||[],optionen:E,breit:true}];
+    {id:'k_einheitIds',label:'Einheiten bei Umlagekreis „Auswahl“',typ:'mehrfach',wert:k.einheitIds||[],optionen:E,breit:true}]
+    .concat(l.art==='weg'?[{id:'k_ruecklage',label:'aus der Erhaltungsrücklage bezahlt (wird nicht umgelegt, mindert die Rücklage)',typ:'check',wert:k.ausRuecklage,breit:true}]:[]);
 }
 function lvNkKostenHtml(l){
   const z=lvNkZeitraum(l);
@@ -68,7 +69,7 @@ function lvNkKostenHtml(l){
     const kat=LVN.KAT[k.kategorie]||{}, u=kat.umlage!==false; if(u) umlage+=betrag; else nicht+=betrag;
     const schl=kat.heiz?'HeizkostenV':(LVN.SCHLUESSEL[k.schluessel||kat.schluessel]||'')+(k.kreis&&k.kreis!=='alle'?' · '+LVN.KREISE[k.kreis]:'');
     return '<tr><td>'+lvH(k.von&&k.bis?lvNkZeitText(k.von,k.bis):LVK.datumDE(k.datum))+'</td><td class="strong">'+lvH((kat.nr?kat.nr+'. ':'')+kat.name)+(u?'':' '+lvBadge('nicht umlagefähig','warn'))+'<br><span class="lv-klein">'+lvH([k.text,k.beleg].filter(Boolean).join(' · '))+'</span></td>'
-      +'<td>'+lvH(schl)+'</td><td class="r">'+lvEur(betrag)+(k.von&&k.bis&&Math.abs(betrag-k.betrag)>0.004?'<br><span class="lv-klein">von '+lvEur(k.betrag)+'</span>':'')+'</td>'
+      +'<td>'+lvH(k.ausRuecklage?'aus der Erhaltungsrücklage':schl)+'</td><td class="r">'+lvEur(betrag)+(k.von&&k.bis&&Math.abs(betrag-k.betrag)>0.004?'<br><span class="lv-klein">von '+lvEur(k.betrag)+'</span>':'')+'</td>'
       +'<td class="r">'+(k.lohn35a?lvEur(k.lohn35a):'–')+'</td>'
       +'<td class="lv-aktionen"><button class="secondary" onclick="LV.form={typ:\'kosten\',id:\''+lvQ(k.id)+'\'};lvRender()">Bearbeiten</button><button class="secondary" onclick="lvKostenLoeschen(\''+lvQ(k.id)+'\')" aria-label="Kosten löschen" data-ic="trash"></button></td></tr>';
   });
@@ -94,7 +95,7 @@ async function lvKostenSpeichern(id){
     if(!k){ k={id:LVK.neueId('K')}; l.kosten.push(k); }
     Object.assign(k,{kategorie:w.k_kategorie,betrag:LVK.r2(w.k_betrag),datum:w.k_datum||null,von:w.k_von||null,bis:w.k_bis||null,text:w.k_text,beleg:w.k_beleg,
       schluessel:w.k_schluessel||null,kreis:w.k_kreis,einheitIds:w.k_kreis==='auswahl'?w.k_einheitIds:[],direktEinheitId:w.k_schluessel==='direkt'?w.k_direkt:null,
-      lohn35a:w.k_lohn||null,art35a:w.k_lohn>0?(w.k_art35a||'haushaltsnah'):null});
+      lohn35a:w.k_lohn||null,art35a:w.k_lohn>0?(w.k_art35a||'haushaltsnah'):null,ausRuecklage:!!w.k_ruecklage});
   },neu?'Kosten erfasst.':'Kosten gespeichert.');
   if(neu){ LV.form={typ:'kosten',id:null}; lvRender(); }
 }

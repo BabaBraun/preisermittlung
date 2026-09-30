@@ -178,7 +178,7 @@ function lvZurueck(){ LV.aktivId=null; LV.ansicht='uebersicht'; LV.form=null; lv
 const LV_REITER=[['ueberblick','Überblick'],['einheiten','Einheiten'],['vertraege','Mieter & Verträge'],['mietkonto','Mietkonto']];
 const LV_REITER_HTML={ueberblick:l=>lvUeberblickHtml(l),einheiten:l=>lvEinheitenHtml(l),vertraege:l=>lvVertraegeHtml(l),mietkonto:l=>lvMietkontoHtml(l)};
 /* Weitere Teile (Nebenkosten, Instandhaltung, WEG) hängen sich hier ein: Reiter, Fristenquellen, Sprungziele */
-function lvReiterRegistrieren(key,titel,fn){ if(!LV_REITER.some(r=>r[0]===key)) LV_REITER.push([key,titel]); LV_REITER_HTML[key]=fn; }
+function lvReiterRegistrieren(key,titel,fn,sichtbar){ if(!LV_REITER.some(r=>r[0]===key)) LV_REITER.push([key,titel,sichtbar]); LV_REITER_HTML[key]=fn; }
 const LV_ANSICHTEN=[['uebersicht','Übersicht'],['fristen','Fristen'],['einstellungen','Absender'],['sicherung','Datensicherung']];
 const LV_ANSICHT_HTML={uebersicht:()=>lvUebersichtHtml(),fristen:()=>lvFristenHtml(),einstellungen:()=>lvEinstellungenHtml(),sicherung:()=>lvSicherungHtml(),neu:()=>lvNeuHtml()};
 function lvAnsichtRegistrieren(key,titel,fn,vor){ if(!LV_ANSICHTEN.some(a=>a[0]===key)){ const i=vor?LV_ANSICHTEN.findIndex(a=>a[0]===vor):-1; if(i>=0) LV_ANSICHTEN.splice(i,0,[key,titel]); else LV_ANSICHTEN.push([key,titel]); } LV_ANSICHT_HTML[key]=fn; }
@@ -193,7 +193,7 @@ function lvRender(){
   document.getElementById('lv_titel_t').textContent=l?l.name:'Liegenschaftsverwaltung';
   document.getElementById('lv_headinfo').textContent=l?lvAdresse(l):(LV.liste.length+' Liegenschaft'+(LV.liste.length===1?'':'en')+(LV.rueckfall?' · ohne Datenbank':''));
   document.getElementById('lv_tabs').innerHTML=l
-    ?'<button class="lv-zurueck" onclick="lvZurueck()">← Alle</button>'+LV_REITER.map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.reiter===k?'on':'')+'" onclick="lvReiter(\''+k+'\')">'+t+'</button>').join('')
+    ?'<button class="lv-zurueck" onclick="lvZurueck()">← Alle</button>'+LV_REITER.filter(r=>!r[2]||r[2](l)).map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.reiter===k?'on':'')+'" onclick="lvReiter(\''+k+'\')">'+t+'</button>').join('')
     :LV_ANSICHTEN.map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.ansicht===k?'on':'')+'" onclick="lvAnsicht(\''+k+'\')">'+t+'</button>').join('');
   let html='';
   try{

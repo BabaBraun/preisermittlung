@@ -453,6 +453,9 @@
   #lv_overlay .lv-datei{display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;font-size:13px;background:var(--card)}
   #lv_overlay .lv-datei input{display:none}
   #lv_overlay .lv-verlauf{margin:6px 0 10px;padding-left:18px;font-size:13px;line-height:1.6}
+  #lv_overlay .lv-stimmen{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 12px;margin:10px 0}
+  #lv_overlay .lv-stimmen .field{gap:3px}
+  #lv_overlay .lv-antrag{font-size:13px;line-height:1.5;white-space:pre-wrap;margin:6px 0 4px}
   @media(max-width:640px){ #lv_overlay .lv-dl{grid-template-columns:1fr} #lv_overlay .lv-aktionen{white-space:normal} }
   .mdbwrap{background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
   .mdb-head{background:var(--card);color:var(--text);min-height:56px;padding:0 16px 0 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:22;flex-wrap:wrap}
@@ -1219,7 +1222,7 @@
         <div class="tile q" onclick="lvOeffnen('uebersicht')">
           <span class="qi" data-ic="building"></span>
           <div class="t">Liegenschaftsverwaltung</div>
-          <div class="d">Mieter, Mieten, Nebenkostenabrechnung, Instandhaltung und Prüfpflichten — für Kunden, eigene und Bankobjekte.</div>
+          <div class="d">Miet- und WEG-Verwaltung: Mieten, Nebenkosten, Hausgeld, Versammlungen, Instandhaltung — für Kunden, eigene und Bankobjekte.</div>
         </div>
       </div>
       <div id="start_auf_block" style="display:none">
@@ -2840,9 +2843,11 @@
 <script src="js/verwaltung.js"></script>
 <script src="js/verwaltung-nk.js"></script>
 <script src="js/verwaltung-ih.js"></script>
+<script src="js/verwaltung-weg.js"></script>
 <script src="js/verwaltung-ui.js"></script>
 <script src="js/verwaltung-nk-ui.js"></script>
 <script src="js/verwaltung-ih-ui.js"></script>
+<script src="js/verwaltung-weg-ui.js"></script>
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
