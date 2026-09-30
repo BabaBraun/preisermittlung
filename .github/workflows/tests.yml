@@ -19,6 +19,10 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       options: --user 1001
+    # im Container wäre sonst „sh“ (dash) die Standard-Shell — ohne „set -o pipefail“
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
 
