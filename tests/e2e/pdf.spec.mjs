@@ -38,7 +38,7 @@ async function vorbereiten(page) {
 }
 
 test('PDF-Download funktioniert ohne Internet und enthält alle Seiten', async ({ page }) => {
-  test.skip(!PY, 'PyMuPDF fehlt');
+  test.skip(!PY && !process.env.CI, 'PyMuPDF fehlt');   // in GitHub Actions Pflicht
   test.setTimeout(120_000);
   await vorbereiten(page);
   await page.evaluate(() => druckbericht());
@@ -57,7 +57,7 @@ test('PDF-Download funktioniert ohne Internet und enthält alle Seiten', async (
 });
 
 test('Druckansicht: A4, Bedienelemente ausgeblendet, langer Text vollständig', async ({ page }) => {
-  test.skip(!PY, 'PyMuPDF fehlt');
+  test.skip(!PY && !process.env.CI, 'PyMuPDF fehlt');   // in GitHub Actions Pflicht
   test.setTimeout(120_000);
   await vorbereiten(page);
   await page.evaluate(() => druckbericht());
@@ -91,7 +91,7 @@ test('Druckansicht: A4, Bedienelemente ausgeblendet, langer Text vollständig', 
 });
 
 test('Exposé (Hochformat) und Präsentation (Querformat) als PDF', async ({ page }) => {
-  test.skip(!PY, 'PyMuPDF fehlt');
+  test.skip(!PY && !process.env.CI, 'PyMuPDF fehlt');   // in GitHub Actions Pflicht
   test.setTimeout(180_000);
   await vorbereiten(page);
   const erzeugen = async (vorher, name) => {
@@ -115,7 +115,7 @@ test('Exposé (Hochformat) und Präsentation (Querformat) als PDF', async ({ pag
 });
 
 test('Druckansicht: bei verschiedenem Textumfang nie eine Überschrift allein am Seitenende', async ({ page }) => {
-  test.skip(!PY, 'PyMuPDF fehlt');
+  test.skip(!PY && !process.env.CI, 'PyMuPDF fehlt');   // in GitHub Actions Pflicht
   test.setTimeout(180_000);
   await vorbereiten(page);
   // Gegenprobe (einmalig am 2026-09-30): ohne die Umbruchregeln fand dieselbe Prüfung bei jedem Versatz 1–3 verwaiste Überschriften

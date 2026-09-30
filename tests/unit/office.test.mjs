@@ -41,13 +41,13 @@ test('XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen', () => {
   assert.equal(O.xmlText('a<b>&"c"\u0001'), 'a&lt;b&gt;&amp;&quot;c&quot;');
 });
 
-test('ZIP-Container ist gültig', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('ZIP-Container ist gültig', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const z = O.zip([{ name: 'a.txt', daten: 'Grüße' }, { name: 'ordner/b.bin', daten: new Uint8Array([0, 1, 2, 255]) }]);
   const r = pruefe(schreibe('test.zip', z));
   assert.deepEqual(r.zip.dateien, ['a.txt', 'ordner/b.bin']);
 });
 
-test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const x = O.xlsx([
     { name: 'Ergebnis', spalten: [40, 18], zeilen: [
       [{ v: 'Rechnerische Preisermittlung', s: 'titel' }],
@@ -73,7 +73,7 @@ test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 
   assert.equal(z.B7.wert, -1234.5);
 });
 
-test('DOCX: Überschriften, Tabellen, Bild und Seitenumbruch', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('DOCX: Überschriften, Tabellen, Bild und Seitenumbruch', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const bild = Object.assign(O.dataUrlZuBild(FOTO_JPEG), { typ: 'bild', alt: 'Ansicht', breiteCm: 8 });
   const d = O.docx([
     { typ: 'h1', text: 'Rechnerische Preisermittlung' },

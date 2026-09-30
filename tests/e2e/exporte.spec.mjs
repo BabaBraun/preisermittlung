@@ -30,7 +30,7 @@ async function vorbereiten(page) {
 }
 
 test('Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Grundriss', async ({ page }) => {
-  test.skip(!PY, 'Python mit python-docx/openpyxl fehlt');
+  test.skip(!PY && !process.env.CI, 'Python mit python-docx/openpyxl fehlt');   // in GitHub Actions Pflicht
   await vorbereiten(page);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => exportWord())]);
   expect(dl.suggestedFilename()).toBe('Preisermittlung Musterweg 7 74360 Ilsfeld.docx');
@@ -49,7 +49,7 @@ test('Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Gr
 });
 
 test('Excel-Export ist eine echte .xlsx-Datei mit Zahlenwerten und allen Eingaben', async ({ page }) => {
-  test.skip(!PY, 'Python mit python-docx/openpyxl fehlt');
+  test.skip(!PY && !process.env.CI, 'Python mit python-docx/openpyxl fehlt');   // in GitHub Actions Pflicht
   await vorbereiten(page);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => exportExcel())]);
   expect(dl.suggestedFilename()).toBe('Preisermittlung Musterweg 7 74360 Ilsfeld.xlsx');
