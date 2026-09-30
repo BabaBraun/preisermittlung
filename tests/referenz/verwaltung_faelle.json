@@ -1328,5 +1328,1356 @@
         }
       }
     ]
-  }
+  },
+  "mieterhoehung": [
+    {
+      "name": "hn_558",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Heilbronn",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "vergleichQm": 12.5
+      }
+    },
+    {
+      "name": "ilsfeld_558_verlangt",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "vergleichQm": 12.5,
+        "verlangt": 990
+      }
+    },
+    {
+      "name": "zu_frueh",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2025-05-10",
+        "vergleichQm": 12.5
+      }
+    },
+    {
+      "name": "sperre15",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 60,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2023-01-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 600,
+          "nk": 120,
+          "hk": 60
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2025-03-15",
+            "kalt": 650,
+            "grund": "558"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-03-20",
+        "vergleichQm": 12
+      }
+    },
+    {
+      "name": "drittmittel",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 70,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2020-01-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 700,
+          "nk": 140,
+          "hk": 70
+        },
+        "aenderungen": []
+      },
+      "opt": {
+        "zugang": "2026-02-10",
+        "vergleichQm": 11,
+        "drittmittelJahr": 600
+      }
+    },
+    {
+      "name": "kappvo_ende",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Heilbronn",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-11-15",
+        "vergleichQm": 12.5
+      }
+    },
+    {
+      "name": "eigene_kappung",
+      "art": "558",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": true
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "vergleichQm": 12.5
+      }
+    },
+    {
+      "name": "index_1",
+      "art": "index",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 60,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2023-01-01",
+        "mietart": "index",
+        "miete": {
+          "kalt": 700,
+          "nk": 120,
+          "hk": 60
+        },
+        "index": {
+          "basisMonat": "2022-10",
+          "basisWert": 122.2
+        },
+        "aenderungen": [
+          {
+            "id": "i1",
+            "ab": "2024-03-01",
+            "kalt": 720,
+            "grund": "index",
+            "indexMonat": "2023-12",
+            "indexWert": 117.4
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-08-15",
+        "vpiNeu": 123.1,
+        "monatNeu": "2026-07"
+      }
+    },
+    {
+      "name": "index_mit_559",
+      "art": "index",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 60,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2023-01-01",
+        "mietart": "index",
+        "miete": {
+          "kalt": 700,
+          "nk": 120,
+          "hk": 60
+        },
+        "index": {
+          "basisMonat": "2022-10",
+          "basisWert": 122.2
+        },
+        "aenderungen": [
+          {
+            "id": "i1",
+            "ab": "2024-03-01",
+            "kalt": 720,
+            "grund": "index",
+            "indexMonat": "2023-12",
+            "indexWert": 117.4
+          },
+          {
+            "id": "m1",
+            "ab": "2025-01-01",
+            "kalt": 760,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-08-15",
+        "vpiNeu": 123.1,
+        "monatNeu": "2026-07"
+      }
+    },
+    {
+      "name": "index_ohne_anpassung",
+      "art": "index",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 60,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2025-11-01",
+        "mietart": "index",
+        "miete": {
+          "kalt": 700,
+          "nk": 120,
+          "hk": 60
+        },
+        "index": {
+          "basisMonat": "2025-08",
+          "basisWert": 121.9
+        },
+        "aenderungen": []
+      },
+      "opt": {
+        "zugang": "2026-08-20",
+        "vpiNeu": 123.4,
+        "monatNeu": "2026-07"
+      }
+    },
+    {
+      "name": "mod_regel",
+      "art": "559",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "verfahren": "regel",
+        "kosten": 30000,
+        "erhaltung": 6000,
+        "zuschuss": 2000,
+        "angekuendigt": true
+      }
+    },
+    {
+      "name": "mod_vereinfacht",
+      "art": "559",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "verfahren": "vereinfacht",
+        "kosten": 9000,
+        "fruehereKosten5J": 2000,
+        "angekuendigt": true
+      }
+    },
+    {
+      "name": "mod_559e",
+      "art": "559",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 80,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2022-04-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 800,
+          "nk": 150,
+          "hk": 90
+        },
+        "aenderungen": [
+          {
+            "id": "a1",
+            "ab": "2024-06-01",
+            "kalt": 880,
+            "grund": "558"
+          },
+          {
+            "id": "a2",
+            "ab": "2025-02-01",
+            "kalt": 920,
+            "grund": "559"
+          }
+        ]
+      },
+      "opt": {
+        "zugang": "2026-07-10",
+        "verfahren": "559e",
+        "kosten": 20000,
+        "zuschuss": 6000,
+        "angekuendigt": false
+      }
+    },
+    {
+      "name": "mod_niedrig_heizung",
+      "art": "559",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 50,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2019-01-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 300,
+          "nk": 100,
+          "hk": 60
+        },
+        "aenderungen": []
+      },
+      "opt": {
+        "zugang": "2026-01-20",
+        "verfahren": "regel",
+        "kosten": 40000,
+        "erhaltung": 10000,
+        "heizung": true,
+        "angekuendigt": true,
+        "angekuendigtMonat": 150
+      }
+    },
+    {
+      "name": "mod_zinsvorteil",
+      "art": "559",
+      "liegenschaft": {
+        "ort": "Ilsfeld",
+        "flaeche": 90,
+        "kappung15": false
+      },
+      "vertrag": {
+        "id": "v1",
+        "einheitId": "e1",
+        "beginn": "2018-06-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 900,
+          "nk": 180,
+          "hk": 90
+        },
+        "aenderungen": []
+      },
+      "opt": {
+        "zugang": "2026-04-05",
+        "verfahren": "regel",
+        "kosten": 20000,
+        "erhaltung": 0,
+        "zinsvorteilJahr": 300,
+        "angekuendigt": true
+      }
+    }
+  ],
+  "jahresbericht": [
+    {
+      "name": "zehn_tage",
+      "jahr": 2025,
+      "liegenschaft": {
+        "einheiten": [
+          {
+            "id": "e1",
+            "nr": "W1",
+            "art": "wohnung",
+            "flaeche": 70
+          }
+        ],
+        "vertraege": [
+          {
+            "id": "v1",
+            "einheitId": "e1",
+            "beginn": "2025-01-01",
+            "miete": {
+              "kalt": 800,
+              "nk": 150,
+              "hk": 50
+            }
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "p0",
+            "vertragId": "v1",
+            "datum": "2024-12-28",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p2",
+            "vertragId": "v1",
+            "datum": "2025-02-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p3",
+            "vertragId": "v1",
+            "datum": "2025-03-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p4",
+            "vertragId": "v1",
+            "datum": "2025-04-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p5",
+            "vertragId": "v1",
+            "datum": "2025-05-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p6",
+            "vertragId": "v1",
+            "datum": "2025-06-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p7",
+            "vertragId": "v1",
+            "datum": "2025-07-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p8",
+            "vertragId": "v1",
+            "datum": "2025-08-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p9",
+            "vertragId": "v1",
+            "datum": "2025-09-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p10",
+            "vertragId": "v1",
+            "datum": "2025-10-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p11",
+            "vertragId": "v1",
+            "datum": "2025-11-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p12",
+            "vertragId": "v1",
+            "datum": "2025-12-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p13",
+            "vertragId": "v1",
+            "datum": "2025-12-29",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p14",
+            "vertragId": "v1",
+            "datum": "2026-01-05",
+            "betrag": -1000,
+            "art": "miete"
+          }
+        ],
+        "kosten": [
+          {
+            "id": "k1",
+            "kategorie": "grundsteuer",
+            "betrag": 600,
+            "datum": "2025-02-15"
+          },
+          {
+            "id": "k2",
+            "kategorie": "instandhaltung",
+            "betrag": 1200,
+            "datum": "2025-07-01",
+            "lohn35a": 500
+          },
+          {
+            "id": "k3",
+            "kategorie": "versicherung",
+            "betrag": 900,
+            "von": "2025-01-01",
+            "bis": "2025-12-31"
+          },
+          {
+            "id": "k4",
+            "kategorie": "verwaltung",
+            "betrag": 360,
+            "datum": "2025-12-20"
+          },
+          {
+            "id": "k5",
+            "kategorie": "wasser",
+            "betrag": 480,
+            "datum": "2024-12-30"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zehn_tage_2026",
+      "jahr": 2026,
+      "liegenschaft": {
+        "einheiten": [
+          {
+            "id": "e1",
+            "nr": "W1",
+            "art": "wohnung",
+            "flaeche": 70
+          }
+        ],
+        "vertraege": [
+          {
+            "id": "v1",
+            "einheitId": "e1",
+            "beginn": "2025-01-01",
+            "miete": {
+              "kalt": 800,
+              "nk": 150,
+              "hk": 50
+            }
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "p0",
+            "vertragId": "v1",
+            "datum": "2024-12-28",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p2",
+            "vertragId": "v1",
+            "datum": "2025-02-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p3",
+            "vertragId": "v1",
+            "datum": "2025-03-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p4",
+            "vertragId": "v1",
+            "datum": "2025-04-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p5",
+            "vertragId": "v1",
+            "datum": "2025-05-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p6",
+            "vertragId": "v1",
+            "datum": "2025-06-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p7",
+            "vertragId": "v1",
+            "datum": "2025-07-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p8",
+            "vertragId": "v1",
+            "datum": "2025-08-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p9",
+            "vertragId": "v1",
+            "datum": "2025-09-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p10",
+            "vertragId": "v1",
+            "datum": "2025-10-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p11",
+            "vertragId": "v1",
+            "datum": "2025-11-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p12",
+            "vertragId": "v1",
+            "datum": "2025-12-01",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p13",
+            "vertragId": "v1",
+            "datum": "2025-12-29",
+            "betrag": 1000,
+            "art": "miete"
+          },
+          {
+            "id": "p14",
+            "vertragId": "v1",
+            "datum": "2026-01-05",
+            "betrag": -1000,
+            "art": "miete"
+          }
+        ],
+        "kosten": [
+          {
+            "id": "k1",
+            "kategorie": "grundsteuer",
+            "betrag": 600,
+            "datum": "2025-02-15"
+          },
+          {
+            "id": "k2",
+            "kategorie": "instandhaltung",
+            "betrag": 1200,
+            "datum": "2025-07-01",
+            "lohn35a": 500
+          },
+          {
+            "id": "k3",
+            "kategorie": "versicherung",
+            "betrag": 900,
+            "von": "2025-01-01",
+            "bis": "2025-12-31"
+          },
+          {
+            "id": "k4",
+            "kategorie": "verwaltung",
+            "betrag": 360,
+            "datum": "2025-12-20"
+          },
+          {
+            "id": "k5",
+            "kategorie": "wasser",
+            "betrag": 480,
+            "datum": "2024-12-30"
+          }
+        ]
+      }
+    },
+    {
+      "name": "gewerbe_ust",
+      "jahr": 2025,
+      "liegenschaft": {
+        "einheiten": [
+          {
+            "id": "e2",
+            "nr": "G1",
+            "art": "gewerbe",
+            "flaeche": 100
+          }
+        ],
+        "vertraege": [
+          {
+            "id": "v2",
+            "einheitId": "e2",
+            "beginn": "2025-06-01",
+            "miete": {
+              "kalt": 1000,
+              "nk": 200,
+              "ust": 19
+            },
+            "sonderposten": [
+              {
+                "id": "s1",
+                "datum": "2025-09-30",
+                "betrag": 240,
+                "text": "NK-Nachzahlung 2024",
+                "art": "nk_nachzahlung"
+              },
+              {
+                "id": "s2",
+                "datum": "2025-10-15",
+                "betrag": 150,
+                "text": "Schadensersatz Tür",
+                "art": "sonstig"
+              }
+            ]
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "g6",
+            "vertragId": "v2",
+            "datum": "2025-06-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g7",
+            "vertragId": "v2",
+            "datum": "2025-07-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g8",
+            "vertragId": "v2",
+            "datum": "2025-08-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g9",
+            "vertragId": "v2",
+            "datum": "2025-09-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g10",
+            "vertragId": "v2",
+            "datum": "2025-10-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g11",
+            "vertragId": "v2",
+            "datum": "2025-11-03",
+            "betrag": 1428,
+            "art": "miete"
+          },
+          {
+            "id": "g12",
+            "vertragId": "v2",
+            "datum": "2025-12-15",
+            "betrag": 500,
+            "art": "miete"
+          },
+          {
+            "id": "g13",
+            "vertragId": "v2",
+            "datum": "2025-10-20",
+            "betrag": 390,
+            "art": "miete"
+          }
+        ],
+        "kosten": []
+      }
+    },
+    {
+      "name": "ueberzahlung",
+      "jahr": 2025,
+      "liegenschaft": {
+        "einheiten": [
+          {
+            "id": "e3",
+            "nr": "W3",
+            "art": "wohnung",
+            "flaeche": 50
+          }
+        ],
+        "vertraege": [
+          {
+            "id": "v3",
+            "einheitId": "e3",
+            "beginn": "2024-01-01",
+            "miete": {
+              "kalt": 500,
+              "nk": 100
+            }
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "u1",
+            "vertragId": "v3",
+            "datum": "2024-01-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u2",
+            "vertragId": "v3",
+            "datum": "2024-02-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u3",
+            "vertragId": "v3",
+            "datum": "2024-03-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u4",
+            "vertragId": "v3",
+            "datum": "2024-04-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u5",
+            "vertragId": "v3",
+            "datum": "2024-05-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u6",
+            "vertragId": "v3",
+            "datum": "2024-06-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u7",
+            "vertragId": "v3",
+            "datum": "2024-07-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u8",
+            "vertragId": "v3",
+            "datum": "2024-08-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u9",
+            "vertragId": "v3",
+            "datum": "2024-09-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u10",
+            "vertragId": "v3",
+            "datum": "2024-10-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u11",
+            "vertragId": "v3",
+            "datum": "2024-11-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "u12",
+            "vertragId": "v3",
+            "datum": "2024-12-30",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w2",
+            "vertragId": "v3",
+            "datum": "2025-02-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w3",
+            "vertragId": "v3",
+            "datum": "2025-03-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w4",
+            "vertragId": "v3",
+            "datum": "2025-04-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w5",
+            "vertragId": "v3",
+            "datum": "2025-05-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w6",
+            "vertragId": "v3",
+            "datum": "2025-06-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w7",
+            "vertragId": "v3",
+            "datum": "2025-07-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w8",
+            "vertragId": "v3",
+            "datum": "2025-08-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w9",
+            "vertragId": "v3",
+            "datum": "2025-09-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w10",
+            "vertragId": "v3",
+            "datum": "2025-10-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w11",
+            "vertragId": "v3",
+            "datum": "2025-11-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w12",
+            "vertragId": "v3",
+            "datum": "2025-12-02",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "w13",
+            "vertragId": "v3",
+            "datum": "2025-03-15",
+            "betrag": 750,
+            "art": "miete"
+          }
+        ],
+        "kosten": []
+      }
+    },
+    {
+      "name": "nach_vertragsende",
+      "jahr": 2025,
+      "liegenschaft": {
+        "einheiten": [
+          {
+            "id": "e4",
+            "nr": "W4",
+            "art": "wohnung",
+            "flaeche": 40
+          }
+        ],
+        "vertraege": [
+          {
+            "id": "v4",
+            "einheitId": "e4",
+            "beginn": "2023-01-01",
+            "ende": "2024-10-31",
+            "miete": {
+              "kalt": 450,
+              "nk": 90,
+              "hk": 60
+            }
+          }
+        ],
+        "zahlungen": [
+          {
+            "id": "r0",
+            "vertragId": "v4",
+            "datum": "2023-01-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r1",
+            "vertragId": "v4",
+            "datum": "2023-02-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r2",
+            "vertragId": "v4",
+            "datum": "2023-03-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r3",
+            "vertragId": "v4",
+            "datum": "2023-04-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r4",
+            "vertragId": "v4",
+            "datum": "2023-05-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r5",
+            "vertragId": "v4",
+            "datum": "2023-06-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r6",
+            "vertragId": "v4",
+            "datum": "2023-07-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r7",
+            "vertragId": "v4",
+            "datum": "2023-08-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r8",
+            "vertragId": "v4",
+            "datum": "2023-09-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r9",
+            "vertragId": "v4",
+            "datum": "2023-10-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r10",
+            "vertragId": "v4",
+            "datum": "2023-11-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "r11",
+            "vertragId": "v4",
+            "datum": "2023-12-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s1",
+            "vertragId": "v4",
+            "datum": "2024-01-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s2",
+            "vertragId": "v4",
+            "datum": "2024-02-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s3",
+            "vertragId": "v4",
+            "datum": "2024-03-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s4",
+            "vertragId": "v4",
+            "datum": "2024-04-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s5",
+            "vertragId": "v4",
+            "datum": "2024-05-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s6",
+            "vertragId": "v4",
+            "datum": "2024-06-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s7",
+            "vertragId": "v4",
+            "datum": "2024-07-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "s8",
+            "vertragId": "v4",
+            "datum": "2024-08-03",
+            "betrag": 600,
+            "art": "miete"
+          },
+          {
+            "id": "t1",
+            "vertragId": "v4",
+            "datum": "2025-02-01",
+            "betrag": 900,
+            "art": "miete"
+          },
+          {
+            "id": "t2",
+            "vertragId": "v4",
+            "datum": "2025-03-01",
+            "betrag": 300,
+            "art": "miete"
+          }
+        ],
+        "kosten": []
+      }
+    }
+  ]
 }

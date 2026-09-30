@@ -142,6 +142,14 @@ window.iaSelbsttest=function(){
     const I=window.ImmoInstandhaltung;
     pruef('Instandhaltung','Nächste Prüfung: 31.01.2024 + 1 Monat (Schaltjahr)',I.naechste({letzte:'2024-01-31',monate:1}),'2024-02-29');
     pruef('Instandhaltung','Abgerechnete Reparatur: nicht umlagefähig',I.kostenAusVorgang({id:'x',titel:'Rohrbruch',rechnung:1200,erledigtAm:'2026-05-05'}).kategorie,'instandhaltung');
+    const MH=window.ImmoMieterhoehung, BI=window.ImmoBankimport, JB=window.ImmoBericht;
+    pruef('Mieterhöhung','Kappungsgrenze Heilbronn 2026 (KappVO BW): 15 %',MH.kappung({ort:'Heilbronn',einstellungen:{}},'2026-06-01').prozent,15);
+    pruef('Mieterhöhung','Kappungsgrenze Ilsfeld: 20 %',MH.kappung({ort:'Ilsfeld',einstellungen:{}},'2026-06-01').prozent,20);
+    const mhl={id:'L',ort:'Ilsfeld',einstellungen:{},einheiten:[{id:'e1',art:'wohnung',flaeche:60}]}, mhv={id:'v1',einheitId:'e1',beginn:'2023-01-01',mietart:'index',miete:{kalt:700},index:{basisMonat:'2022-10',basisWert:122.2},
+      aenderungen:[{id:'i1',ab:'2024-03-01',kalt:720,grund:'index',indexMonat:'2023-12',indexWert:117.4}]};
+    pruef('Mieterhöhung','Indexmiete: 720 € × 123,1 / 117,4',MH.indexAnpassung(mhl,mhv,{zugang:'2026-08-15',vpiNeu:123.1,monatNeu:'2026-07'}).neu,754.96,0.001);
+    pruef('Kontoauszug','CSV: Betrag „1.090,00“ und Datum „02.03.2026“',BI.lesen('Buchungstag;Betrag;Verwendungszweck\n02.03.2026;1.090,00;Miete\n').umsaetze[0].betrag,1090);
+    pruef('Jahresbericht','Zehn-Tage-Regel: Januarmiete am 29.12. gehört ins Folgejahr',JB.steuerjahr('2025-12-29',{art:'miete',faellig:'2026-01-07'}),2026);
   });
 
   sicher('Bausteine','Aufruf',()=>{

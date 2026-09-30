@@ -53,4 +53,13 @@
 #lv_overlay .lv-stimmen{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 12px;margin:10px 0}
 #lv_overlay .lv-stimmen .field{gap:3px}
 #lv_overlay .lv-antrag{font-size:13px;line-height:1.5;white-space:pre-wrap;margin:6px 0 4px}
+#lv_overlay tr.lv-summe td{border-top:2px solid var(--line-2);background:var(--surface-2)}
+#lv_overlay .lv-mh-tbl{max-width:640px}
+#lv_overlay .lv-mh-tbl td:first-child{color:var(--text-2)}
+#lv_overlay .lv-mh-tbl tr.strong td{font-weight:600;color:var(--text)}
+#lv_overlay .lv-hinweise{margin:8px 0;padding-left:18px;font-size:13px;line-height:1.55;color:var(--text-2)}
+#lv_overlay .lv-import td{vertical-align:top}
+#lv_overlay .lv-import select{min-width:180px;max-width:260px}
+#lv_overlay .lv-import tr.lv-doppelt td{opacity:.55}
+#lv_overlay .lv-zweck{font-size:12px;color:var(--text-2);max-width:340px;overflow-wrap:anywhere}
 @media(max-width:640px){ #lv_overlay .lv-dl{grid-template-columns:1fr} #lv_overlay .lv-aktionen{white-space:normal} }

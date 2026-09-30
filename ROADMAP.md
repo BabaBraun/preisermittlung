@@ -210,4 +210,7 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 42 | [x] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) — erledigt 2026-09-30 (D16) | Auftrag „alles“ |
 | 43 | [x] Liegenschaftsverwaltung Stufe 3: Instandhaltung, Dienstleister, Wartungs- und Prüfpflichten — erledigt 2026-09-30 (D17) | Auftrag „alles“ |
 | 44 | [x] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) — erledigt 2026-09-30 (D18) | Auftrag „alles“ |
-| 45 | [ ] Liegenschaftsverwaltung Stufe 5: Mieterhöhung (§§ 557a–559 BGB), Eigentümerbericht, Anlage V, Dokumente, Kontoauszug-Import | Auftrag „alles“ |
+| 45 | [x] Liegenschaftsverwaltung Stufe 5: Mieterhöhung (§§ 557a–559 BGB), Eigentümerbericht, Anlage V, Dokumente, Kontoauszug-Import — erledigt 2026-09-30 (D21), dazu Miete in Überblick/Einheiten | Auftrag „alles“ |
+| 46 | [ ] Kappungsgrenzenverordnung BW nach dem 31.12.2026: Nachfolgeverordnung einpflegen | Liste gilt nur bis Jahresende 2026 |
+| 47 | [ ] Kontoauszug: Ausgaben (Lastschriften, Überweisungen) als Kosten übernehmen | heute nur Zahlungseingänge |
+| 48 | [ ] Sicherung mit vielen Dokumenten: Dateien getrennt sichern (ZIP) statt Base64 im JSON | große Sicherungen auf dem Handy |

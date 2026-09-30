@@ -16,6 +16,7 @@ BGH VIII ZR 129/09), § 366 BGB (Anrechnung), § 288 Abs. 1/2 BGB (5 bzw. 9 Proz
 import json, os
 from verwaltung_nk_ref import nebenkosten
 from verwaltung_weg_ref import wegrechnung
+from verwaltung_mh_ref import mieterhoehung
 from datetime import date, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from fractions import Fraction as F
@@ -107,7 +108,7 @@ def sollstellung(v, bis):
             gerundet = {k: cent(x) for k, x in teile.items()}
             betrag = cent(sum(F(str(x)) for x in gerundet.values()) + F(str(cent(ust))))
             faellig = max(dritter_werktag(j, m), erster_aktiv)
-            posten.append({'id': 'M%04d-%02d' % (j, m), 'art': 'miete', 'faellig': faellig, 'betrag': betrag})
+            posten.append({'id': 'M%04d-%02d' % (j, m), 'art': 'miete', 'faellig': faellig, 'betrag': betrag, 'teile': gerundet, 'ust': cent(ust)})
         j, m = (j + 1, 1) if m == 12 else (j, m + 1)
     for s in v.get('sonderposten', []):
         posten.append({'id': 'X' + s['id'], 'art': s.get('art', 'sonstig'), 'faellig': tag(s['datum']), 'betrag': float(s['betrag'])})
@@ -147,11 +148,12 @@ def offene_posten(v, zahlungen, stichtag, aufschlag):
         reihenfolge = [p for p in posten if z['monat'] and p['id'] == 'M' + z['monat']] + posten
         for p in reihenfolge:
             offen = F(str(p['betrag'])) - p['bezahlt']
-            if rest <= 0 or offen <= 0:
+            if rest <= 0 or offen <= 0 or (p['art'] == 'ruecklast' and p['faellig'] > z['datum']):
                 continue
             b = min(offen, rest)
             p['bezahlt'] += b
             p['zu'].append((z['datum'], b))
+            p.setdefault('zi', []).append((z['id'], z['datum'], b))
             rest -= b
         guthaben += rest
     aus, rueckstand, zins_summe, soll = [], F(0), F(0), F(0)
@@ -171,7 +173,7 @@ def offene_posten(v, zahlungen, stichtag, aufschlag):
             soll += F(str(p['betrag']))
         aus.append({'id': p['id'], 'art': p['art'], 'faellig': p['faellig'].isoformat(), 'betrag': p['betrag'], 'bezahlt': cent(p['bezahlt']),
                     'offen': cent(offen), 'zinsen': cent(z), 'status': status, 'faelligJa': faellig_ja})
-    return {'posten': aus, 'summe': {'soll': cent(soll), 'rueckstand': cent(rueckstand), 'guthaben': cent(guthaben), 'zinsen': cent(zins_summe)}}
+    return {'posten': aus, 'roh': posten, 'summe': {'soll': cent(soll), 'rueckstand': cent(rueckstand), 'guthaben': cent(guthaben), 'zinsen': cent(zins_summe)}}
 
 
 def schwelle(op, v, stichtag):
@@ -247,6 +249,9 @@ def main():
             'summe': op['summe'], 'schwelle': schwelle(op, v, st), 'kaution': kaution(v, z, st)}
     erg['nebenkosten'] = nebenkosten(faelle['nebenkosten'])
     erg['weg'] = wegrechnung(faelle['weg'])
+    erg['mieterhoehung'] = mieterhoehung(faelle['mieterhoehung'])
+    from verwaltung_bericht_ref import jahresbericht
+    erg['jahresbericht'] = {f['name']: jahresbericht(f, offene_posten, sollstellung, miete_am) for f in faelle['jahresbericht']}
     ls = faelle['leerstand']
     erg['leerstand'] = leerstand(ls['liegenschaft'], tag(ls['von']), tag(ls['bis']))
     with open(os.path.join(HIER, 'verwaltung_sollwerte.json'), 'w', encoding='utf-8', newline='\n') as f:

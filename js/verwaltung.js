@@ -8,10 +8,10 @@
       einstellungen:{kappung15, basiszins:[[ab, satz], …]},
       einheiten:[{id, nr, lage, art, flaeche, zimmer, mea, sollmiete, notiz}],
       vertraege:[{id, einheitId, mieter:[{name, telefon, email}], personen, beginn, ende, mietart,
-                  miete:{kalt, nk, hk, zuschlag, ust}, aenderungen:[{id, ab, kalt?, nk?, hk?, zuschlag?, grund, notiz}],
+                  miete:{kalt, nk, hk, zuschlag, ust}, aenderungen:[{id, ab, kalt?, nk?, hk?, zuschlag?, grund, notiz, zugang?, indexMonat?, indexWert?}],
                   index:{basisMonat, basisWert}, kaution:{soll, art, raten}, sonderposten:[{id, datum, betrag, text, art}],
                   notiz}],
-      zahlungen:[{id, datum, betrag, vertragId, art, monat, text}],
+      zahlungen:[{id, datum, betrag, vertragId, art, monat, text, iban?, quelle? (Kennung aus dem Kontoauszug-Import)}],
       mahnungen:[{id, vertragId, datum, stufe, betrag}],
       angelegt, geaendert} */
 (function(wurzel){
@@ -163,7 +163,8 @@ function sonderPosten(s){ return {id:'X'+s.id,art:s.art||'sonstig',monat:monatVo
 /* Kontoführung für Mietkonto und Hausgeldkonto: Forderungen (posten, negative = Gutschrift) und Zahlungen
    (negative = Rücklastschrift) zum Stichtag. Zahlungen werden zuerst auf den bestimmten Monat angerechnet
    (Tilgungsbestimmung, § 366 Abs. 1 BGB), sonst auf die älteste fällige Schuld (§ 366 Abs. 2 BGB) und danach
-   auf die nächste noch nicht fällige. Rücklastschriften gelten als neue Forderung am Buchungstag, Gutschriften
+   auf die nächste noch nicht fällige. Rücklastschriften gelten als neue Forderung ab ihrem Buchungstag (frühere Zahlungen
+   werden nicht darauf angerechnet), Gutschriften
    wie Zahlungen. Verzugszinsen je Posten ab dem Tag nach Fälligkeit (§ 288 BGB). */
 function kontoFuehren(roh,zahlungen,stichtag,opt){
   opt=opt||{};
@@ -181,7 +182,7 @@ function kontoFuehren(roh,zahlungen,stichtag,opt){
   eingaenge.forEach(z=>{
     let rest=r2(z.betrag);
     if(z.monat){ const p=posten.find(x=>x.monat===z.monat&&(x.art==='miete'||x.art==='hausgeld')); if(p) rest=anrechnen(p,z,rest); }
-    for(const p of posten){ if(rest<=0) break; rest=anrechnen(p,z,rest); }
+    for(const p of posten){ if(rest<=0) break; if(p.art==='ruecklast'&&p.faellig>z.datum) continue; rest=anrechnen(p,z,rest); }   // eine Rücklastschrift entsteht erst an ihrem Buchungstag
     guthaben=r2(guthaben+rest);
   });
   let zinsen=0;
@@ -361,6 +362,9 @@ function bereinigen(roh,zaehler){
       personen:zahl(v.personen),
       miete:{kalt:zahl(m.kalt)||0,nk:zahl(m.nk)||0,hk:zahl(m.hk)||0,zuschlag:zahl(m.zuschlag)||0,ust:zahl(m.ust)||0},
       aenderungen:liste(v.aenderungen,a=>{ if(!datumGueltig(a.ab)) return null; const o={id:a.id,ab:a.ab,grund:text(a.grund,40),notiz:text(a.notiz,500)};
+        if(typeof a.indexMonat==='string'&&/^\d{4}-\d{2}$/.test(a.indexMonat)) o.indexMonat=a.indexMonat;
+        if(typeof a.indexWert==='number'&&a.indexWert>0) o.indexWert=a.indexWert;
+        if(datumGueltig(a.zugang)) o.zugang=a.zugang;
         TEILE.concat(['ust']).forEach(t=>{ if(typeof a[t]==='number'&&isFinite(a[t])) o[t]=a[t]; }); return o; }),
       index:{basisMonat:typeof ix.basisMonat==='string'&&/^\d{4}-\d{2}$/.test(ix.basisMonat)?ix.basisMonat:null,basisWert:zahl(ix.basisWert)},
       kaution:{soll:zahl(k.soll)||0,art:wahl(k.art,KAUTIONSARTEN,'bar'),raten:k.raten===true},
@@ -369,7 +373,8 @@ function bereinigen(roh,zaehler){
   });
   const vids=new Set(l.vertraege.map(v=>v.id));
   l.zahlungen=liste(roh.zahlungen,z=>datumGueltig(z.datum)&&typeof z.betrag==='number'&&isFinite(z.betrag)&&(z.vertragId==null||vids.has(z.vertragId))
-    ?{id:z.id,datum:z.datum,betrag:z.betrag,vertragId:z.vertragId||null,art:wahl(z.art,ZAHLARTEN,'miete'),monat:typeof z.monat==='string'&&/^\d{4}-\d{2}$/.test(z.monat)?z.monat:'',text:text(z.text,300)}:null);
+    ?Object.assign({id:z.id,datum:z.datum,betrag:z.betrag,vertragId:z.vertragId||null,art:wahl(z.art,ZAHLARTEN,'miete'),monat:typeof z.monat==='string'&&/^\d{4}-\d{2}$/.test(z.monat)?z.monat:'',text:text(z.text,300)},
+      typeof z.iban==='string'&&/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(z.iban)?{iban:z.iban}:{},typeof z.quelle==='string'&&/^[\w:-]{1,80}$/.test(z.quelle)?{quelle:z.quelle}:{}):null);
   l.mahnungen=liste(roh.mahnungen,m=>vids.has(m.vertragId)&&datumGueltig(m.datum)?{id:m.id,vertragId:m.vertragId,datum:m.datum,stufe:Math.max(1,Math.min(3,+m.stufe||1)),betrag:zahl(m.betrag)||0}:null);
   ERWEITERUNGEN.forEach(f=>f(roh,l,zaehler,{text,zahl,liste,ID,datum}));
   return l;

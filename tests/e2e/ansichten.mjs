@@ -80,6 +80,12 @@ export async function alleAnsichten(page, geraet) {
   for (const [n, seg] of [['16n_weg_eigentuemer', 'eigentuemer'], ['16o_weg_hausgeld', 'hausgeld'], ['16p_weg_abrechnung', 'abrechnung'], ['16r_weg_beschluesse', 'beschluesse']])
     await pruefe(n, s => { lvLiegenschaftOeffnen('LW', 'weg'); LV.wegAnsicht = s; LV.wegJahr = 2025; LV.wegAbJahr = 2025; lvRender(); }, seg);
   await pruefe('16q_weg_versammlung', () => { LV.wegAnsicht = 'versammlungen'; LV.wegVersammlung = 'VS1'; lvRender(); });
+  await pruefe('16s_verwaltung_neu_mit_miete', () => lvNeueLiegenschaft());
+  await pruefe('16t_verwaltung_mieterhoehung', async () => { lvLiegenschaftOeffnen('LN', 'mieterhoehung'); lvMhWahl('v1'); document.getElementById('lvf_mh_vqm').value = '12,40'; await lvMhBerechnen(); });
+  await pruefe('16u_verwaltung_modernisierung', async () => { LV.mhArt = '559'; lvRender(); document.getElementById('lvf_mh_kosten').value = '18.000'; await lvMhBerechnen(); });
+  await pruefe('16v_verwaltung_kontoauszug', async () => { lvLiegenschaftOeffnen('LN', 'mietkonto'); lvBankAuswerten('camt053_beispiel.xml', await (await fetch('/tests/fixtures/camt053_beispiel.xml')).text()); });
+  await pruefe('16w_verwaltung_jahresbericht', () => { LV.bankImport = null; LV.berichtJahr = 2025; lvReiter('jahresbericht'); });
+  await pruefe('16x_verwaltung_dokumente', async () => { await lvAendern(l => { l.dokumente = [{ id: 'DK1', anhangId: 'A1', titel: 'Energieausweis mit einem sehr langen Dateinamen für die Liegenschaft', kategorie: 'energieausweis', datum: '2016-10-01', gueltigBis: '2026-09-30', name: 'Energieausweis_Gartenstrasse_3_Verbrauchsausweis_2016.pdf', typ: 'application/pdf', size: 823456 }]; }, '', 'LN'); lvReiter('dokumente'); });
   await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');

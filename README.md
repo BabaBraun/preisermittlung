@@ -44,6 +44,16 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   und Fortgeltung, Hausgeldkonten, Sonderumlagen, Jahresabrechnung mit Abrechnungsspitze und
   Vermögensbericht, Versammlungen mit Einladungsfrist, Abstimmung (Kopf-, Wert-, Objektprinzip; § 21 WEG),
   Einladung und Niederschrift als Word, Beschluss-Sammlung mit Vermerken (Excel).
+  Mieten auf einen Blick: Mietaufstellung je Einheit im Überblick (Kalt, Vorauszahlungen, Gesamt, €/m², Jahressumme,
+  nächste Änderungen), Miete in der Einheitenliste, Mieter und Miete schon beim Anlegen einer Liegenschaft.
+  Mieterhöhung: Vergleichsmiete (§ 558 BGB) mit Sperrfristen, Kappungsgrenze (KappVO BW automatisch am Ort) und
+  Drittmitteln, Indexmiete (§ 557b), Modernisierung (§ 559, vereinfachtes Verfahren § 559c, Heizung § 559e) mit
+  Kappung je m²; Schreiben als Word; nach Zustimmung als Mietänderung eintragen.
+  Kontoauszug-Import (CAMT.053/052/054 und CSV des Online-Bankings): Zuordnung zu Mietverträgen und Hausgeld per
+  IBAN, Name, Einheit und Betrag als Vorschlag, Monat aus dem Verwendungszweck, Doppelbuchungen erkannt.
+  Jahresbericht: Einnahmen nach Zufluss (§ 11 EStG mit Zehn-Tage-Regel), Ausgaben nach Gruppen, Überschuss,
+  Eigentümerbericht (Word) und Zusammenstellung für die Anlage V (Excel). Dokumente je Liegenschaft mit Zuordnung
+  zu Einheit oder Vertrag und Ablauffristen (Energieausweis zehn Jahre).
 
 ## Aufbau
 
@@ -71,6 +81,10 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/verwaltung-ih-ui.js` | Oberfläche „Instandhaltung“ (Vorgänge mit Fotos, Pflichten) und „Dienstleister“ |
 | `js/verwaltung-weg.js` | WEG: Einzelwirtschaftspläne, Hausgeld, Jahresabrechnung, Abstimmung, Fristen |
 | `js/verwaltung-weg-ui.js` | Oberfläche „WEG“ (Eigentümer, Hausgeld, Jahresabrechnung, Versammlungen, Beschluss-Sammlung) |
+| `js/verwaltung-mh.js`, `js/verwaltung-mh-ui.js` | Mieterhöhung §§ 557a–559e BGB, Kappungsgrenzenverordnung BW, Schreiben |
+| `js/verwaltung-bank.js`, `js/verwaltung-bank-ui.js` | Kontoauszug-Import (CAMT, CSV), Zuordnungsvorschläge, Doppelte |
+| `js/verwaltung-bericht.js`, `js/verwaltung-bericht-ui.js` | Jahresbericht, Eigentümerbericht (Word), Anlage V (Excel) |
+| `js/verwaltung-dok.js`, `js/verwaltung-dok-ui.js` | Dokumente je Liegenschaft mit Fristen |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb — erzeugt von `npm run build` (`scripts/build.mjs`), nicht von Hand ändern |
@@ -156,6 +170,10 @@ Geräteverschlüsselung des Betriebssystems.
 - Liegenschaftsverwaltung: Hinweise zu Kündigung, Kaution und Mahnung sind Arbeitshilfen, keine Rechtsberatung;
   Mahnschreiben vor dem Versand prüfen. Kappungsgrenzen-Gemeinden sind nicht hinterlegt (Häkchen je Liegenschaft).
   Der Pflichtenkatalog nennt übliche Turnusse als Richtwert; maßgeblich sind Bescheide, Herstellerangaben und die Anlage.
+  Mieterhöhung: Mietspiegel und Wohnwertmerkmale ermittelt der Nutzer; die Gemeindeliste der KappVO BW gilt bis
+  31.12.2026 (danach Nachfolgeregelung prüfen, Häkchen in den Stammdaten). Jahresbericht/Anlage V: Aufteilung der
+  Zahlungen in Miete und Umlagen vereinfachend im Verhältnis der Sollmiete; keine Steuerberatung. Kontoauszug:
+  Ausgaben werden nicht automatisch als Kosten übernommen. Dokumente vergrößern die Sicherungsdatei (Base64).
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim
   Fotografieren, GPS im Aufnahmebogen, Teilen-Menü und „In Dateien sichern“ auf dem iPhone, Öffnen von
   `.ics`-Kalendereinträgen, Installation als Home-Bildschirm-App.

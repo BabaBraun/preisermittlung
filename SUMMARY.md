@@ -1,3 +1,11 @@
+# Zusammenfassung — Liegenschaftsverwaltung Stufe 5 (2026-09-30)
+
+Miete jetzt sichtbar: Mietaufstellung im Überblick, Miete in den Einheiten, Mieter und Miete schon beim Anlegen.
+Neu: Mieterhöhung (§ 558 mit KappVO BW, § 557b, § 559/559c/559e) mit Schreiben, Kontoauszug-Import (CAMT/CSV) mit
+Zuordnungsvorschlägen, Jahresbericht mit Eigentümerbericht (Word) und Anlage V (Excel), Dokumente mit Fristen.
+Behoben: Zahlung wurde auf eine spätere Rücklastschrift angerechnet; „Vermieten“/„Mietvertrag anlegen“ öffneten
+das Formular nicht; beim Löschen einer Liegenschaft blieben Fotos zurück. Tests: 111 Node-, 62 Browsertests grün.
+
 # Zusammenfassung — Übernahme aus dem Fork und amtliche Sterbetafel (2026-09-30)
 
 Aus dem Fork maxschlecht2000-code/preisermittlung (Henry) übernommen: BelWertV-Beleihungswert, zwei

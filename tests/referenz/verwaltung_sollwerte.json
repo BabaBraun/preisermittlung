@@ -1235,6 +1235,414 @@
    }
   ]
  },
+ "mieterhoehung": {
+  "kappvo": [
+   "Achern",
+   "Aitrach",
+   "Altbach",
+   "Asperg",
+   "Backnang",
+   "Bad Bellingen",
+   "Bad Krozingen",
+   "Bad Schussenried",
+   "Baienfurt",
+   "Bodman-Ludwigshafen",
+   "Böblingen",
+   "Bötzingen",
+   "Deggenhausertal",
+   "Denkendorf",
+   "Dettingen an der Erms",
+   "Dielheim",
+   "Dietenheim",
+   "Edingen-Neckarhausen",
+   "Ehrenkirchen",
+   "Eisenbach (Hochschwarzwald)",
+   "Eislingen/Fils",
+   "Ellhofen",
+   "Emmendingen",
+   "Eningen u. Achalm",
+   "Esslingen am Neckar",
+   "Fellbach",
+   "Filderstadt",
+   "Freiamt",
+   "Freiburg i. Br.",
+   "Frickingen",
+   "Friedrichshafen",
+   "Friesenheim",
+   "Gottenheim",
+   "Graben-Neudorf",
+   "Gundelfingen",
+   "Göppingen",
+   "Güglingen",
+   "Heddesheim",
+   "Heidelberg",
+   "Heilbronn",
+   "Heiligenberg",
+   "Heitersheim",
+   "Holzgerlingen",
+   "Hoßkirch",
+   "Häg-Ehrsberg",
+   "Hülben",
+   "Ittlingen",
+   "Jagsthausen",
+   "Kappel-Grafenhausen",
+   "Karlsruhe",
+   "Kenzingen",
+   "Kernen im Remstal",
+   "Kippenheim",
+   "Kirchardt",
+   "Kirchheim unter Teck",
+   "Kirchzarten",
+   "Kißlegg",
+   "Korb",
+   "Korntal-Münchingen",
+   "Kornwestheim",
+   "Lahr/Schwarzwald",
+   "Leonberg",
+   "Lichtenstein",
+   "Ludwigsburg",
+   "Lörrach",
+   "Mahlberg",
+   "Mahlstetten",
+   "Malsburg-Marzell",
+   "Malterdingen",
+   "March",
+   "Maselheim",
+   "Massenbachhausen",
+   "Meckenbeuren",
+   "Meißenheim",
+   "Merklingen",
+   "Merzhausen",
+   "Metzingen",
+   "Möglingen",
+   "Mühlacker",
+   "Mühlhausen-Ehingen",
+   "Mühlingen",
+   "Neuhausen auf den Fildern",
+   "Neulußheim",
+   "Nürtingen",
+   "Oberhausen-Rheinhausen",
+   "Offenburg",
+   "Ostfildern",
+   "Pfaffenhofen",
+   "Pfaffenweiler",
+   "Pfedelbach",
+   "Pforzheim",
+   "Philippsburg",
+   "Reichenau",
+   "Reilingen",
+   "Reutlingen",
+   "Rheinhausen",
+   "Riederich",
+   "Riegel am Kaiserstuhl",
+   "Salach",
+   "Sasbach",
+   "Sasbach am Kaiserstuhl",
+   "Schallstadt",
+   "Schutterwald",
+   "Schwaikheim",
+   "Schwarzach",
+   "Sindelfingen",
+   "St. Leon-Rot",
+   "Stegen",
+   "Steinenbronn",
+   "Stockach",
+   "Stuttgart",
+   "Teningen",
+   "Tübingen",
+   "Ulm",
+   "Umkirch",
+   "Untermarchtal",
+   "Utzenfeld",
+   "Vogt",
+   "Vogtsburg im Kaiserstuhl",
+   "Waldkirch",
+   "Weil am Rhein",
+   "Weingarten",
+   "Wembach",
+   "Wernau (Neckar)",
+   "Widdern",
+   "Wiesloch",
+   "Wittnau",
+   "Wolfegg",
+   "Wutach",
+   "Zwiefalten"
+  ],
+  "faelle": {
+   "hn_558": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2025-06-01",
+    "wirksam": "2026-10-01",
+    "zustimmungBis": "2026-09-30",
+    "klageBis": "2026-12-31",
+    "aktuell": 920.0,
+    "ausgang": 800.0,
+    "kappungProzent": 15,
+    "kappungGrenze": 960.0,
+    "vergleich": 1000.0,
+    "hoechst": 960.0,
+    "neu": 960.0,
+    "erhoehung": 40.0
+   },
+   "ilsfeld_558_verlangt": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2025-06-01",
+    "wirksam": "2026-10-01",
+    "zustimmungBis": "2026-09-30",
+    "klageBis": "2026-12-31",
+    "aktuell": 920.0,
+    "ausgang": 800.0,
+    "kappungProzent": 20,
+    "kappungGrenze": 1000.0,
+    "vergleich": 1000.0,
+    "hoechst": 1000.0,
+    "neu": 990.0,
+    "erhoehung": 70.0
+   },
+   "zu_frueh": {
+    "zuFrueh": true,
+    "fruehesterZugang": "2025-06-01",
+    "wirksam": "2025-09-01",
+    "zustimmungBis": "2025-07-31",
+    "klageBis": "2025-10-31",
+    "aktuell": 920.0,
+    "ausgang": 800.0,
+    "kappungProzent": 20,
+    "kappungGrenze": 1000.0,
+    "vergleich": 1000.0,
+    "hoechst": 1000.0,
+    "neu": 1000.0,
+    "erhoehung": 80.0
+   },
+   "sperre15": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2026-03-15",
+    "wirksam": "2026-06-15",
+    "zustimmungBis": "2026-05-31",
+    "klageBis": "2026-08-31",
+    "aktuell": 650.0,
+    "ausgang": 600.0,
+    "kappungProzent": 20,
+    "kappungGrenze": 720.0,
+    "vergleich": 720.0,
+    "hoechst": 720.0,
+    "neu": 720.0,
+    "erhoehung": 70.0
+   },
+   "drittmittel": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2021-01-01",
+    "wirksam": "2026-05-01",
+    "zustimmungBis": "2026-04-30",
+    "klageBis": "2026-07-31",
+    "aktuell": 700.0,
+    "ausgang": 700.0,
+    "kappungProzent": 20,
+    "kappungGrenze": 840.0,
+    "vergleich": 770.0,
+    "hoechst": 720.0,
+    "neu": 720.0,
+    "erhoehung": 20.0
+   },
+   "kappvo_ende": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2025-06-01",
+    "wirksam": "2027-02-01",
+    "zustimmungBis": "2027-01-31",
+    "klageBis": "2027-04-30",
+    "aktuell": 920.0,
+    "ausgang": 800.0,
+    "kappungProzent": 20,
+    "kappungGrenze": 1000.0,
+    "vergleich": 1000.0,
+    "hoechst": 1000.0,
+    "neu": 1000.0,
+    "erhoehung": 80.0
+   },
+   "eigene_kappung": {
+    "zuFrueh": false,
+    "fruehesterZugang": "2025-06-01",
+    "wirksam": "2026-10-01",
+    "zustimmungBis": "2026-09-30",
+    "klageBis": "2026-12-31",
+    "aktuell": 920.0,
+    "ausgang": 800.0,
+    "kappungProzent": 15,
+    "kappungGrenze": 960.0,
+    "vergleich": 1000.0,
+    "hoechst": 960.0,
+    "neu": 960.0,
+    "erhoehung": 40.0
+   },
+   "index_1": {
+    "wirksam": "2026-10-01",
+    "sperre": false,
+    "aktuell": 720.0,
+    "neu": 754.96,
+    "aenderungProzent": 4.86
+   },
+   "index_mit_559": {
+    "wirksam": "2026-10-01",
+    "sperre": false,
+    "aktuell": 760.0,
+    "neu": 794.96,
+    "aenderungProzent": 4.86
+   },
+   "index_ohne_anpassung": {
+    "wirksam": "2026-10-01",
+    "sperre": true,
+    "aktuell": 700.0,
+    "neu": 708.61,
+    "aenderungProzent": 1.23
+   },
+   "mod_regel": {
+    "wirksam": "2026-10-01",
+    "anrechenbar": 22000.0,
+    "jahr": 1760.0,
+    "monatRoh": 146.67,
+    "kappungRest": 200.0,
+    "monat": 146.67,
+    "neu": 1066.67
+   },
+   "mod_vereinfacht": {
+    "wirksam": "2026-10-01",
+    "anrechenbar": 5600.0,
+    "jahr": 448.0,
+    "monatRoh": 37.33,
+    "kappungRest": 200.0,
+    "monat": 37.33,
+    "neu": 957.33
+   },
+   "mod_559e": {
+    "wirksam": "2027-04-01",
+    "anrechenbar": 11000.0,
+    "jahr": 1100.0,
+    "monatRoh": 91.67,
+    "kappungRest": 40.0,
+    "monat": 40.0,
+    "neu": 960.0
+   },
+   "mod_niedrig_heizung": {
+    "wirksam": "2026-10-01",
+    "anrechenbar": 30000.0,
+    "jahr": 2400.0,
+    "monatRoh": 200.0,
+    "kappungRest": 25.0,
+    "monat": 25.0,
+    "neu": 325.0
+   },
+   "mod_zinsvorteil": {
+    "wirksam": "2026-07-01",
+    "anrechenbar": 20000.0,
+    "jahr": 1300.0,
+    "monatRoh": 108.33,
+    "kappungRest": 270.0,
+    "monat": 108.33,
+    "neu": 1008.33
+   }
+  }
+ },
+ "jahresbericht": {
+  "zehn_tage": {
+   "vertraege": {
+    "v1": {
+     "ist": 12000.0,
+     "kalt": 9600.0,
+     "umlagen": 2400.0,
+     "ust": 0.0,
+     "sonstige": 0.0,
+     "soll": 12000.0
+    }
+   },
+   "einnahmen": {
+    "kalt": 9600.0,
+    "umlagen": 2400.0,
+    "ust": 0.0,
+    "sonstige": 0.0
+   },
+   "ausgaben": {
+    "umlagefaehig": 1500.0,
+    "erhaltung": 1200.0,
+    "verwaltung": 360.0
+   }
+  },
+  "zehn_tage_2026": {
+   "vertraege": {
+    "v1": {
+     "ist": 0.0,
+     "kalt": 0.0,
+     "umlagen": 0.0,
+     "ust": 0.0,
+     "sonstige": 0.0,
+     "soll": 12000.0
+    }
+   },
+   "einnahmen": {
+    "kalt": 0.0,
+    "umlagen": 0.0,
+    "ust": 0.0,
+    "sonstige": 0.0
+   },
+   "ausgaben": {}
+  },
+  "gewerbe_ust": {
+   "vertraege": {
+    "v2": {
+     "ist": 9458.0,
+     "kalt": 6374.54,
+     "umlagen": 1493.46,
+     "ust": 1453.4,
+     "sonstige": 136.6,
+     "soll": 10386.0
+    }
+   },
+   "einnahmen": {
+    "kalt": 6374.54,
+    "umlagen": 1493.46,
+    "ust": 1453.4,
+    "sonstige": 136.6
+   },
+   "ausgaben": {}
+  },
+  "ueberzahlung": {
+   "vertraege": {
+    "v3": {
+     "ist": 7350.0,
+     "kalt": 6125.0,
+     "umlagen": 1225.0,
+     "ust": 0.0,
+     "sonstige": 0.0,
+     "soll": 7200.0
+    }
+   },
+   "einnahmen": {
+    "kalt": 6125.0,
+    "umlagen": 1225.0,
+    "ust": 0.0,
+    "sonstige": 0.0
+   },
+   "ausgaben": {}
+  },
+  "nach_vertragsende": {
+   "vertraege": {
+    "v4": {
+     "ist": 1200.0,
+     "kalt": 900.0,
+     "umlagen": 300.0,
+     "ust": 0.0,
+     "sonstige": 0.0,
+     "soll": 0.0
+    }
+   },
+   "einnahmen": {
+    "kalt": 900.0,
+    "umlagen": 300.0,
+    "ust": 0.0,
+    "sonstige": 0.0
+   },
+   "ausgaben": {}
+  }
+ },
  "leerstand": [
   {
    "einheitId": "e1",

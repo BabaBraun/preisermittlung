@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-11662bd7350d';
+const CACHE = 'immoapp-e08b49776956';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -24,8 +24,16 @@ const ASSETS = [
   './js/pdf.js',
   './js/speicher.js',
   './js/sterbetafel.js',
+  './js/verwaltung-bank-ui.js',
+  './js/verwaltung-bank.js',
+  './js/verwaltung-bericht-ui.js',
+  './js/verwaltung-bericht.js',
+  './js/verwaltung-dok-ui.js',
+  './js/verwaltung-dok.js',
   './js/verwaltung-ih-ui.js',
   './js/verwaltung-ih.js',
+  './js/verwaltung-mh-ui.js',
+  './js/verwaltung-mh.js',
   './js/verwaltung-nk-ui.js',
   './js/verwaltung-nk.js',
   './js/verwaltung-ui.js',

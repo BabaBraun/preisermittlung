@@ -420,3 +420,39 @@ eigene, belegte Eingabe (i. d. R. der Liegenschaftszins). Der Kern ist gegen ein
 Kommutationszahlen in Python geprüft (64 Fälle, Abweichung < 1e-9). Die Sollwerte der Tests werden aus der
 jeweils geladenen Tafel berechnet, damit eine neue Ausgabe die Tests nicht bricht.
 
+---
+
+## D21 (2026-09-30) — Liegenschaftsverwaltung Stufe 5: Miete sichtbar, Mieterhöhung, Kontoauszug, Jahresbericht, Dokumente
+
+**Miete sichtbar (Rückmeldung des Auftraggebers):** Die Miete stand bisher nur im Vertrag. Jetzt: Mietaufstellung im
+Überblick jeder Liegenschaft, Miete und €/m² in der Einheitenliste, „Vermieten“ für leere Einheiten und beim Anlegen
+einer Liegenschaft optional gleich Einheit, Mieter und Miete (nur vollständig: Mieter, Beginn, Kaltmiete).
+
+**Mieterhöhung (`js/verwaltung-mh.js`):** Wortlaut §§ 557a, 557b, 558, 558a, 558b, 559, 559a, 559b, 559c, 559e BGB
+geprüft (gesetze-im-internet.de, 30.09.2026). Auslegungen: Jahressperrfrist auch ab Mietbeginn; bei zu frühem
+Wirksamwerden (15 Monate) verschiebt sich der Termin; Ausgangsmiete der Kappungsgrenze ist die Miete drei Jahre vor
+dem Wirksamwerden, Modernisierungserhöhungen in diesem Zeitraum kommen hinzu; Indexanpassung auf die Miete der
+letzten Anpassung, spätere Modernisierungserhöhungen bleiben als fester Betrag. Kappungsgrenze 15 % für die 130
+Gemeinden der KappVO BW vom 16.12.2025 (GBl. 2025 Nr. 145, gültig 01.01.–31.12.2026; im Gesetzblatt geprüft,
+Heilbronn ja, Ilsfeld/Beilstein/Abstatt nein); außerhalb BW oder nach Ablauf über das Häkchen in den Stammdaten.
+Eintragen erst nach Zustimmung (§ 558) bzw. Zugang (§§ 557b, 559).
+
+**Kontoauszug (`js/verwaltung-bank.js`):** CAMT (ISO 20022, eigener kleiner XML-Leser, damit er auch in Node testbar
+ist) und CSV mit Spaltenerkennung. Nur gebuchte Umsätze; Sammelbuchungen einzeln. Vorschläge nur, wenn eindeutig
+(Punkte aus IBAN früherer Buchungen, Name, Einheit, Betrag); gebucht wird nur, was bestätigt ist. Kennung gegen
+Doppelbuchungen; die IBAN des Zahlers wird an der Zahlung gespeichert, um sie wiederzuerkennen.
+
+**Kontoführung korrigiert:** Eine Zahlung wird nicht mehr auf eine Rücklastschrift angerechnet, die erst nach ihr
+entsteht (Randfall Rückbuchung nach Vorauszahlung). Vergleichsrechnung angepasst; bisherige Sollwerte unverändert.
+
+**Jahresbericht (`js/verwaltung-bericht.js`):** Zuflussprinzip mit Zehn-Tage-Regel (§ 11 Abs. 1 Satz 2 EStG; Fälligkeit
+im Zeitraum nach BFH X R 44/16), Zuordnung über die Kontoführung; Aufteilung im Verhältnis der Sollmiete; Ausgaben
+nach Datum. Anlage V ohne Zeilennummern (ändern sich jährlich); AfA und Zinsen ergänzt der Eigentümer.
+
+**Dokumente (`js/verwaltung-dok.js`):** Dateien als Anhang in der Verwaltungsdatenbank (nur lokal, in der Sicherung,
+unverschlüsselt), bis 25 MB je Datei, Speicherprüfung vorher. Löschen einer Liegenschaft löscht jetzt auch ihre
+Anhänge (vorher blieben Fotos der Instandhaltung zurück — Datenschutz).
+
+**Begründung:** Alles offline und ohne Dienst Dritter; Kern jeweils gegen eine unabhängige Python-Rechnung geprüft
+(15 Mieterhöhungsfälle, 5 Jahresberichte) bzw. gegen Beispieldateien (CAMT, drei CSV-Formate).
+

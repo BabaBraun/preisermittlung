@@ -1447,9 +1447,12 @@
     <h3>Liegenschaftsverwaltung</h3>
     <p style="font-size:13px;line-height:1.6">Die Verwaltung speichert Einheiten, Mietverträge mit Namen und Kontaktdaten der
       Mieter, Sollmieten, Zahlungseingänge, Mahnungen, Eigentümer von Wohnungseigentum, Vorgänge mit Fotos und
-      Dienstleister in einer eigenen lokalen Datenbank auf diesem Gerät. Erfasse nur, was für die Verwaltung nötig
-      ist (keine Ausweis- oder Gesundheitsdaten). Ihre Sicherungsdatei ist wie alle Sicherungen <b>nicht
-      verschlüsselt</b>. Löschen: Vertrag, Einheit oder ganze Liegenschaft direkt in der Verwaltung.</p>
+      Dienstleister, abgelegte Dokumente (z. B. Mietverträge, Protokolle) und aus Kontoauszügen übernommene Zahlungen
+      (mit der IBAN des Zahlers, damit spätere Zahlungen wiedererkannt werden) in einer eigenen lokalen Datenbank auf
+      diesem Gerät. Kontoauszüge werden nur im Browser gelesen — nichts wird übertragen, gespeichert werden nur die
+      bestätigten Buchungen. Erfasse nur, was für die Verwaltung nötig ist (keine Ausweis- oder Gesundheitsdaten).
+      Ihre Sicherungsdatei ist wie alle Sicherungen <b>nicht verschlüsselt</b>. Löschen: Dokument, Vertrag, Einheit oder
+      ganze Liegenschaft direkt in der Verwaltung — mit der Liegenschaft werden auch ihre Dokumente und Fotos gelöscht.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -1704,6 +1707,10 @@
 <script src="js/verwaltung-nk.js"></script>
 <script src="js/verwaltung-ih.js"></script>
 <script src="js/verwaltung-weg.js"></script>
+<script src="js/verwaltung-mh.js"></script>
+<script src="js/verwaltung-bank.js"></script>
+<script src="js/verwaltung-bericht.js"></script>
+<script src="js/verwaltung-dok.js"></script>
 <script src="src/base.js"></script>
 <script src="src/pwa.js"></script>
 <script src="src/projects.js"></script>
@@ -1737,6 +1744,10 @@
 <script src="js/verwaltung-nk-ui.js"></script>
 <script src="js/verwaltung-ih-ui.js"></script>
 <script src="js/verwaltung-weg-ui.js"></script>
+<script src="js/verwaltung-mh-ui.js"></script>
+<script src="js/verwaltung-bank-ui.js"></script>
+<script src="js/verwaltung-bericht-ui.js"></script>
+<script src="js/verwaltung-dok-ui.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>
