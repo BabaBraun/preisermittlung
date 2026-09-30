@@ -2494,7 +2494,8 @@
       Finanzierungsrechnungen deiner Kunden — personenbezogene Daten, die nur auf diesem Gerät liegen. Je Kunde hältst du
       die Rechtsgrundlage fest (Auftrag oder Einwilligung) und ein Datum, an dem du die Löschung prüfst. „Daten exportieren“
       erzeugt die Auskunft über alles Gespeicherte, „Kunde löschen“ entfernt die Akte vollständig. Empfohlen: die
-      App-Sperre mit Face ID einschalten.</p>
+      App-Sperre mit Face ID einschalten — sie ist ein Sichtschutz; verschlüsselt werden die Daten dadurch nicht. Das leisten
+      Gerätesperre und Geräteverschlüsselung des Betriebssystems.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -2514,11 +2515,17 @@
     <h2 style="margin-top:0">App-Sperre</h2>
     <p class="hint" style="margin-top:-6px">Face ID, Touch ID oder der Gerätecode entsperren die App — ohne eigenes
       Passwort, ohne Server. Nützlich, wenn unterwegs Kundendaten auf dem Bildschirm stehen.</p>
+    <p class="hint"><b>Wichtig: Die App-Sperre ist ein Sichtschutz, keine Verschlüsselung.</b> Sie verdeckt die App, bis du
+      dich ausweist. Die gespeicherten Bewertungen, Kundenakten und Marktdaten liegen weiterhin unverschlüsselt im Speicher des
+      Browsers; wer Zugriff auf das entsperrte Gerät und seine Browserdaten hat (z. B. über Entwicklerwerkzeuge am Computer oder
+      eine Gerätesicherung), kann sie lesen. Geschützt werden die Daten durch die Gerätesperre und die Geräteverschlüsselung
+      des Betriebssystems — beides unbedingt eingeschaltet lassen. Auch exportierte Dateien (JSON, PDF, Word, Excel) sind
+      nicht verschlüsselt.</p>
     <div id="lock_setup_status" style="font-size:13px;line-height:1.6;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rs);padding:12px 14px;margin:10px 0"></div>
     <div id="lock_setup_warn" class="flag" style="display:none;margin-top:0">
-      Wichtig: Funktioniert Face ID/Touch ID auf diesem Gerät später nicht mehr (z. B. neues Gerät, Zurücksetzen),
-      ist der einzige Weg zurück in die App das Löschen der Website-Daten dieses Geräts — dabei gehen alle lokal
-      gespeicherten Bewertungen und der Marktüberblick verloren, sofern keine Sicherung vorhanden ist.
+      Wichtig: Funktioniert Face ID/Touch ID auf diesem Gerät später nicht mehr (z. B. neues Gerät, Zurücksetzen),
+      lässt sich die Sperre in der App nicht mehr aufheben. Dann bleibt nur, die Website-Daten dieses Geräts zu löschen —
+      dabei gehen alle lokal gespeicherten Bewertungen und der Marktüberblick verloren, sofern keine Sicherung vorhanden ist.
       <b>Bitte vorher eine Sicherung anlegen</b> (Projekte → Alle Projekte sichern, Export-Menü → Als Datei sichern, sowie im
       Marktüberblick unter Datensicherung).
     </div>
@@ -2735,6 +2742,7 @@
 <script src="js/kern.js"></script>
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
+<script src="js/daten.js"></script>
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -3281,7 +3289,9 @@ function iaTx(store,modus,arbeit){
   return new Promise((ok,fehler)=>{
     if(!IA_DB){ fehler(new Error('Keine Datenbank')); return; }
     let tx, rq;
-    try{ tx=IA_DB.transaction(store,modus); rq=arbeit(tx.objectStore(store)); }catch(e){ fehler(e); return; }
+    /* Fehler während der Arbeit: Transaktion abbrechen, sonst würden die bis dahin geschriebenen Einträge
+       gespeichert (halber Import) */
+    try{ tx=IA_DB.transaction(store,modus); rq=arbeit(tx.objectStore(store)); }catch(e){ try{ if(tx) tx.abort(); }catch(x){} fehler(e); return; }
     tx.oncomplete=()=>ok(rq&&typeof rq==='object'&&'readyState' in rq?rq.result:undefined);
     tx.onerror=()=>fehler(tx.error||new Error('Speichern fehlgeschlagen'));
     tx.onabort=()=>fehler(tx.error||new Error('Speichern abgebrochen'));
@@ -3460,20 +3470,17 @@ function pjSicherungEinspielen(){
   i.click();
 }
 async function pjSicherungAusText(text){
-      let o; try{ o=JSON.parse(text); }catch(e){ alert('Die Datei ist keine gültige Sicherung.'); return; }
-      let liste=(o&&o.typ==='immoapp-projekte'&&Array.isArray(o.projekte))?o.projekte:(Array.isArray(o)?o:null);
-      if(!liste){ alert(o&&o.fields?'Das ist eine einzelne Bewertung. Sie wird über „Datei öffnen“ im Export-Menü geladen.':'Die Datei ist keine Projektsicherung der ImmoApp.'); return; }
-      liste=liste.filter(p=>p&&p.id&&p.data);
-      let kunden=(o&&Array.isArray(o.kunden)?o.kunden:[]).filter(k=>k&&k.id), aufgaben=(o&&Array.isArray(o.aufgaben)?o.aufgaben:[]).filter(a=>a&&a.id);
-      if(!liste.length&&!kunden.length){ alert('In der Sicherung stehen keine Projekte oder Kunden.'); return; }
-      if(!confirm(liste.length+' Projekte'+(kunden.length?', '+kunden.length+' Kunden':'')+(aufgaben.length?' und '+aufgaben.length+' Wiedervorlagen':'')+' aus der Sicherung übernehmen?\nGibt es einen Eintrag schon, bleibt die neuere Fassung erhalten.')) return;
+      let jl=ImmoDaten.jsonLesen(text); if(!jl.ok){ alert(jl.fehler+'\nEs wurde nichts verändert.'); return; }
+      let sp=ImmoDaten.projektSicherungPruefen(jl.wert); if(!sp.ok){ alert(sp.fehler+'\nEs wurde nichts verändert.'); return; }
+      let o={parameter:sp.parameter}, liste=sp.projekte, kunden=sp.kunden, aufgaben=sp.aufgaben;
+      if(!confirm(liste.length+' Projekte'+(kunden.length?', '+kunden.length+' Kunden':'')+(aufgaben.length?' und '+aufgaben.length+' Wiedervorlagen':'')+' aus der Sicherung übernehmen?\nGibt es einen Eintrag schon, bleibt die neuere Fassung erhalten.'+(sp.verworfen?'\n'+sp.verworfen+' unlesbare Einträge werden übersprungen.':''))) return;
       await IA_BEREIT_P;
       let bestand=pjLoad(), neu=[], n={neu:0,ersetzt:0,gleich:0};
       liste.forEach(p=>{ let da=bestand.find(x=>x.id===p.id);
         if(!da){ n.neu++; neu.push(p); } else if((p.geaendert||0)>(da.geaendert||0)){ n.ersetzt++; neu.push(p); } else n.gleich++; });
       if(IA_DB_BEREIT){
         try{ await iaTx('projekte','readwrite',s=>{ neu.forEach(p=>s.put(p)); }); }
-        catch(e){ alert('Die Sicherung konnte nicht eingespielt werden: '+iaFehlerText(e)+'.'); return; }
+        catch(e){ alert('Die Sicherung konnte nicht eingespielt werden: '+iaFehlerText(e)+'. Es wurde nichts verändert.'); return; }
         neu.forEach(pjCacheSetzen);
         let kdNeu=kunden.filter(k=>{ let da=KD_CACHE.find(x=>x.id===k.id); return !da||(k.geaendert||0)>(da.geaendert||0); });
         if(kdNeu.length){ try{ await iaTx('kunden','readwrite',s=>{ kdNeu.forEach(k=>s.put(k)); }); KD_CACHE=await iaAlle('kunden'); }catch(e){ alert('Die Kunden konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
@@ -6953,7 +6960,26 @@ function autosave(){
   }
 }
 function save(){let name=($('ek_anschrift').value||'Wertermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Wertermittlung';let b=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name+'.json';a.click();}
-function loadFile(){let i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=()=>{let f=i.files[0];let r=new FileReader();r.onload=()=>{try{restore(JSON.parse(r.result));}catch(e){alert('Datei konnte nicht gelesen werden.');}};r.readAsText(f);};i.click();}
+function loadFile(){
+  let i=document.createElement('input'); i.type='file'; i.accept='.json,application/json';
+  i.onchange=()=>{ let f=i.files[0]; if(!f) return; let r=new FileReader();
+    r.onerror=()=>alert('Die Datei konnte nicht gelesen werden. Die offene Bewertung bleibt unverändert.');
+    r.onload=()=>projektDateiEinlesen(r.result,f.name); r.readAsText(f); };
+  i.click();
+}
+/* Datei vollständig prüfen (js/daten.js), bevor die offene Bewertung ersetzt wird */
+function projektDateiEinlesen(text,name){
+  let j=ImmoDaten.jsonLesen(text); if(!j.ok){ alert(j.fehler+'\nDie offene Bewertung bleibt unverändert.'); return false; }
+  let p=ImmoDaten.projektDateiPruefen(j.wert); if(!p.ok){ alert(p.fehler+'\nDie offene Bewertung bleibt unverändert.'); return false; }
+  if(!confirm('Bewertung aus „'+(name||'Datei')+'“ öffnen? Der aktuelle Stand wird ersetzt.')) return false;
+  let vorher=snapshot();
+  try{ restore(p.altformat?p.daten.fields:p.daten); }
+  catch(e){ try{ restore(vorher); }catch(x){} alert('Die Bewertung konnte nicht geladen werden ('+(e&&e.message||e)+'). Der vorherige Stand wurde wiederhergestellt.'); return false; }
+  let v=p.verworfen, n=v.felder+v.fotos+v.grundrisse+v.unterschrift;
+  if(n) alert('Geladen. '+n+' unlesbare Einträge wurden übersprungen (z. B. beschädigte Fotos).');
+  document.body.classList.add('started');
+  return true;
+}
 async function neu(){
   if(!confirm('Neue leere Wertermittlung? Ungespeicherte Daten gehen verloren.'))return;
   SILENT=true; localStorage.removeItem('vb_wert2');
@@ -8064,32 +8090,46 @@ async function mdbBackupCheck(){
   }else el.innerHTML='';
 }
 function mdbImport(){
-  let i=document.createElement('input'); i.type='file'; i.accept='.json';
+  let i=document.createElement('input'); i.type='file'; i.accept='.json,application/json';
   i.onchange=()=>{
     let f=i.files[0]; if(!f)return;
     let r=new FileReader();
+    r.onerror=()=>alert('Die Datei konnte nicht gelesen werden. Der Bestand bleibt unverändert.');
     r.onload=async()=>{
+      let j=ImmoDaten.jsonLesen(r.result); if(!j.ok){ alert(j.fehler+'\nDer Bestand bleibt unverändert.'); return; }
+      let sp=ImmoDaten.marktSicherungPruefen(j.wert); if(!sp.ok){ alert(sp.fehler+'\nDer Bestand bleibt unverändert.'); return; }
+      let n=sp.verworfen.objekte+sp.verworfen.anhaenge;
+      if(!confirm(sp.objekte.length+' Objekte'+(sp.anhaenge.length?' und '+sp.anhaenge.length+' PDF-Anhänge':'')+' einlesen?\n\nVorhandene Datensätze mit gleicher Kennung werden nur durch eine neuere Fassung ersetzt, alle anderen bleiben erhalten.'
+        +(n?'\n'+n+' unlesbare Einträge werden übersprungen.':''))) return;
       try{
-        let p=JSON.parse(r.result);
-        let objekte = p.objekte || (Array.isArray(p)?p:(p.data||null));
-        if(!objekte||!objekte.length) throw new Error('Die Datei enthält keine Objektdaten.');
-        if(!confirm(objekte.length+' Objekte einlesen?\n\nVorhandene Datensätze mit gleicher Kennung werden durch die neuere Fassung ersetzt, alle anderen bleiben erhalten.')) return;
-        let vorhanden={}; MDBALL.forEach(o=>vorhanden[o.id]=o);
-        let neu=0, ers=0;
-        for(let o of objekte){
-          if(!o.id) o.id='o'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-          let alt=vorhanden[o.id];
-          if(alt && (alt.ts||0)>=(o.ts||0)) continue;
-          await mdbPut(o); alt?ers++:neu++;
-        }
-        if(p.anhaenge) for(let a of p.anhaenge){ await mdbAPut({id:a.id,objId:a.objId,name:a.name,size:a.size,blob:mdbB642Blob(a.data)}); }
+        let erg=await mdbImportSchreiben(sp.objekte,sp.anhaenge);
         await mdbLaden(); mdbMirrorWrite(); mdbRender(); mdbSpeicherStatus();
-        $('mdb_backupinfo').innerHTML='<div class="mdb-ok">Eingelesen: '+neu+' neu, '+ers+' aktualisiert. Bestand jetzt '+MDBALL.length+' Objekte.</div>';
-      }catch(e){ alert('Die Datei konnte nicht gelesen werden: '+(e.message||e)); }
+        $('mdb_backupinfo').innerHTML='<div class="mdb-ok">Eingelesen: '+erg.neu+' neu, '+erg.ers+' aktualisiert'+(erg.anh?', '+erg.anh+' PDF-Anhänge':'')+'. Bestand jetzt '+MDBALL.length+' Objekte.</div>';
+      }catch(e){ alert('Die Sicherung konnte nicht eingelesen werden: '+iaFehlerText(e)+'. Der Bestand bleibt unverändert.'); }
     };
     r.readAsText(f);
   };
   i.click();
+}
+/* Alles in einer Transaktion: scheitert ein Teil (z. B. voller Speicher), wird nichts geschrieben */
+async function mdbImportSchreiben(objekte,anhaenge){
+  await mdbOpen();
+  let vorhanden={}; MDBALL.forEach(o=>vorhanden[o.id]=o);
+  let erg={neu:0,ers:0,anh:0}, jetzt=Date.now();
+  let blobs=anhaenge.map(a=>({id:a.id,objId:a.objId,name:a.name,size:a.size,blob:mdbB642Blob(a.data)}));
+  await new Promise((ok,fehler)=>{
+    let tx=mdbDB.transaction(['objekte','anhaenge'],'readwrite'), so=tx.objectStore('objekte'), sa=tx.objectStore('anhaenge');
+    tx.oncomplete=()=>ok(); tx.onerror=()=>fehler(tx.error); tx.onabort=()=>fehler(tx.error||new Error('abgebrochen'));
+    try{
+      objekte.forEach(o=>{
+        if(!o.id) o.id='o'+jetzt.toString(36)+Math.random().toString(36).slice(2,6);
+        let alt=vorhanden[o.id]; if(alt&&(alt.ts||0)>=(o.ts||0)) return;
+        if(!o.ts) o.ts=jetzt; so.put(o); alt?erg.ers++:erg.neu++;
+      });
+      blobs.forEach(a=>{ sa.put(a); erg.anh++; });
+    }catch(e){ try{ tx.abort(); }catch(x){} fehler(e); }
+  });
+  return erg;
 }
 function mdbCsv(){
   let sp=';';
