@@ -1,0 +1,56 @@
+/* ImmoApp — Liegenschaftsverwaltung: Darstellung (nutzt die Bausteine des Marktüberblicks: .mdbwrap, .mdb-head, .mdb-tabs, .mdb-box, .kpi …) */
+#lv_overlay{padding:0;background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}
+#lv_overlay .lv-form{margin:10px 0 4px}
+#lv_overlay .lv-hinweis{font-size:11.5px;color:var(--muted);line-height:1.35}
+#lv_overlay .lv-check{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:13px;align-self:end;min-height:40px}
+#lv_overlay .lv-check.full{grid-column:1/-1}
+#lv_overlay .lv-check .lv-hinweis{flex-basis:100%;margin-left:26px}
+#lv_overlay .lv-fehler{border-color:var(--bad)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--bad) 25%,transparent)}
+#lv_overlay .lv-warn{border:1px solid var(--bad);border-left-width:4px;border-radius:var(--rs);background:var(--card);padding:10px 14px;margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--text)}
+#lv_overlay .lv-warn button{margin-left:8px}
+#lv_overlay .lv-ok{border:1px solid var(--ok);border-left-width:4px;border-radius:var(--rs);background:var(--card);padding:10px 14px;margin:0 0 14px;font-size:13px;color:var(--text)}
+#lv_overlay .lv-leer{text-align:center;color:var(--muted);padding:18px;font-size:13px}
+#lv_overlay .lv-klein{font-size:11.5px;color:var(--muted)}
+#lv_overlay .lv-klick{cursor:pointer}
+#lv_overlay .lv-klick:hover td{background:var(--surface-2)}
+#lv_overlay tr.lv-faellig td:first-child{border-left:3px solid var(--warn)}
+#lv_overlay .lv-tbl td{white-space:normal;vertical-align:top}
+#lv_overlay .lv-tbl td.r,#lv_overlay .lv-tbl th.r{text-align:right;white-space:nowrap}
+#lv_overlay .lv-aktionen{white-space:nowrap;text-align:right}
+#lv_overlay .lv-aktionen button{padding:4px 10px;height:auto;margin-left:4px}
+#lv_overlay .lv-neg{color:var(--bad)}
+#lv_overlay .badge{white-space:nowrap}
+#lv_overlay .badge.lv-b-ok{border-color:var(--ok);color:var(--ok)}
+#lv_overlay .badge.lv-b-warn{border-color:var(--warn);color:var(--warn)}
+#lv_overlay .badge.lv-b-bad{border-color:var(--bad);color:var(--bad)}
+#lv_overlay .lv-kpi{cursor:default}
+#lv_overlay .lv-kpi-bad .v{color:var(--bad)}
+#lv_overlay .lv-kpi-warn .v{color:var(--warn)}
+#lv_overlay .lv-dl{display:grid;grid-template-columns:minmax(120px,max-content) 1fr;gap:6px 16px;margin:8px 0;font-size:13px}
+#lv_overlay .lv-dl dt{color:var(--muted)}
+#lv_overlay .lv-dl dd{margin:0;overflow-wrap:anywhere}
+#lv_overlay .lv-details{margin-top:14px;font-size:13px}
+#lv_overlay .lv-details summary{cursor:pointer;color:var(--accent)}
+#lv_overlay .lv-vertragwahl{max-width:640px;margin-bottom:14px}
+#lv_overlay .mdb-tabs .lv-zurueck{color:var(--accent)}
+#lv_overlay textarea{width:100%}
+#lv_overlay .lv-nk-kopf{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;margin-bottom:14px}
+#lv_overlay .lv-nk-kopf .field{min-width:110px}
+#lv_overlay .lv-segment{display:flex;flex-wrap:wrap;gap:6px}
+#lv_overlay .lv-segment button{border-radius:999px;padding:6px 14px;height:auto}
+#lv_overlay .lv-segment button.on{background:var(--accent-btn);border-color:var(--accent-btn);color:#fff}
+#lv_overlay .lv-hinweisbox{border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:var(--rs);background:var(--card);padding:10px 14px;margin:0 0 14px;font-size:13px;line-height:1.5}
+#lv_overlay .lv-mehrfach{border:1px solid var(--line);border-radius:var(--rs);padding:8px 12px;margin:0;display:flex;flex-wrap:wrap;gap:4px 16px}
+#lv_overlay .lv-mehrfach legend{font-size:12px;color:var(--text-2);padding:0 4px}
+#lv_overlay .lv-mehrfach .lv-check{min-height:0}
+#lv_overlay .lv-fotos{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+#lv_overlay .lv-fotos figure{margin:0;position:relative;width:120px}
+#lv_overlay .lv-fotos img{width:120px;height:90px;object-fit:cover;border-radius:var(--rs);border:1px solid var(--line);display:block;background:var(--surface-2)}
+#lv_overlay .lv-fotos figure button{position:absolute;top:4px;right:4px;padding:2px 6px;height:auto}
+#lv_overlay .lv-datei{display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--line-2);border-radius:999px;padding:7px 14px;font-size:13px;background:var(--card)}
+#lv_overlay .lv-datei input{display:none}
+#lv_overlay .lv-verlauf{margin:6px 0 10px;padding-left:18px;font-size:13px;line-height:1.6}
+#lv_overlay .lv-stimmen{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 12px;margin:10px 0}
+#lv_overlay .lv-stimmen .field{gap:3px}
+#lv_overlay .lv-antrag{font-size:13px;line-height:1.5;white-space:pre-wrap;margin:6px 0 4px}
+@media(max-width:640px){ #lv_overlay .lv-dl{grid-template-columns:1fr} #lv_overlay .lv-aktionen{white-space:normal} }

@@ -2,14 +2,20 @@
   "name": "immoapp",
   "private": true,
   "version": "1.0.0",
-  "description": "ImmoApp – rechnerische Preisermittlung als statische PWA (ohne Build-Schritt)",
+  "description": "ImmoApp – rechnerische Preisermittlung und Liegenschaftsverwaltung als statische PWA (Build nur für den Service Worker)",
   "scripts": {
-    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test": "npm run test:unit && npm run test:browser",
     "test:e2e": "playwright test",
     "test:alle": "node --test \"tests/unit/*.test.mjs\" && playwright test",
-    "serve": "node tests/server.mjs"
+    "serve": "node tests/server.mjs",
+    "build": "node scripts/build.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

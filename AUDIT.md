@@ -205,6 +205,6 @@ Einzelheiten und Belege: `SUMMARY.md` (Abschnitt 2026-09-30) und `tests/fixtures
 ## Weiterhin offen
 
 - Echte Geräteprüfungen (siehe Tabelle).
-- Restlebenserwartung als Näherung statt Sterbetafel; Modellgrenze der Anlage 2 bei Alter über der
-  Gesamtnutzungsdauer (nur Hinweis, D14).
-- Große Teile der Oberfläche (Grundrisse, Marktüberblick, Kundenakte) stehen weiterhin in `index.html`.
+- Modellgrenze der Anlage 2 bei Alter über der Gesamtnutzungsdauer (nur Hinweis, D14).
+- Erledigt seit dieser Nachprüfung: amtliche Sterbetafel statt Näherung (D20), Oberfläche in Modulen `src/`
+  und Service-Worker-Version aus dem Inhalt (D19).

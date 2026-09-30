@@ -15,7 +15,8 @@ test('Text statt Zahl: Feld markiert, keine Empfehlung, Bericht als Entwurf', as
   await page.locator('#ek_brw').fill('abc');
   await expect(page.locator('#r_empfehlung')).toHaveText('–');
   await expect(page.locator('#cp_status')).toContainText('ungültige Eingabe');
-  await expect(page.locator('#o_empf_status')).toBeVisible();
+  await expect(page.locator('#app_validation')).toBeVisible();
+  await expect(page.locator('#app_validation')).toContainText('„abc“ ist keine gültige Zahl');
   await expect(page.locator('#ek_brw')).toHaveClass(/pruef-fehler/);
   await expect(page.locator('#cp_pruef')).toContainText('„abc“ ist keine gültige Zahl');
 

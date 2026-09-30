@@ -1,3 +1,13 @@
+# Zusammenfassung — Übernahme aus dem Fork und amtliche Sterbetafel (2026-09-30)
+
+Aus dem Fork maxschlecht2000-code/preisermittlung (Henry) übernommen: BelWertV-Beleihungswert, zwei
+Rechenkorrekturen (Barwertfaktor, Restschuld zu Planbeginn), keine Doppelzählung von PV/Energetik,
+Quellenpflicht, Umbau der Oberfläche in Module und Service Worker aus dem Inhalt. Nicht übernommen: die
+native iOS-App (D19). Nießbrauch, Wohnungsrecht und Leibrente rechnen wahlweise mit der amtlichen Sterbetafel
+2023/2025 (Leibrentenbarwertfaktor, monatliche Aktualisierung) oder einer eigenen Laufzeit (D20). Die
+Liegenschaftsverwaltung ist in die neue Navigation eingehängt. Alle Zahlen der Referenzbewertungen außer den in
+`tests/fixtures/golden-aenderungen.md` belegten bleiben unverändert.
+
 # Zusammenfassung — Wartbarkeit, Exporte, Datensicherung und Tests (2026-09-30)
 
 Auftrag: bestehende App verbessern, ohne Backend und ohne kostenpflichtige Dienste; Rechenkern, Speicherung,
@@ -68,10 +78,9 @@ versioniert.
   Home-Bildschirm-App. In den Tests nur simuliert (WebKit-Engine mit iPhone-Profil, nicht iOS).
 - Keine vollständige fachliche Validierung: Formeln sind gegen Verordnungstexte, ein reales Gutachten und eine
   unabhängige Vergleichsrechnung geprüft, nicht durch eine Sachverständige oder einen Gutachterausschuss.
-- Restlebenserwartung ist eine Näherung (überschreibbar); Sterbetafel des Statistischen Bundesamts wäre genauer.
+- ~~Restlebenserwartung als Näherung~~ — erledigt: amtliche Sterbetafel mit monatlicher Aktualisierung (D20).
 - Der PDF-Download bleibt ein Bild-PDF; für Bewertungsdokumente die Druckansicht verwenden.
-- Weitere Teile der Oberfläche (Grundrisse, Marktüberblick, Kundenakte) könnten schrittweise in eigene
-  Dateien wandern.
+- ~~Weitere Teile der Oberfläche in eigene Dateien~~ — erledigt mit dem Umbau in `src/` (D19).
 
 ---
 

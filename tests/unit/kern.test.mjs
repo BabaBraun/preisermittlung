@@ -4,7 +4,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+
+const require_ = createRequire(import.meta.url);
 import { K, leser, nahe } from './hilfen.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
+
+const PY = pythonMit('json');
 
 const fall = n => JSON.parse(readFileSync(new URL('../fixtures/' + n, import.meta.url), 'utf8'));
 
@@ -76,12 +82,28 @@ test('Effizienzklassen nach Kennwert', () => {
   assert.equal(K.enKlasseAusKennwert(251), 'H');
 });
 
-test('Restlebenserwartung: dokumentierte Näherung (keine amtliche Sterbetafel)', () => {
-  // 83,5 − 74 + (74 − 40) × 0,18 = 15,62 → 15,6 | 78,5 − 81 + 41 × 0,18 = 4,88 → 4,9 | Untergrenze 2 Jahre
-  assert.equal(K.restLeben(74, 'w'), 15.6);
-  assert.equal(K.restLeben(81, 'm'), 4.9);
-  assert.equal(K.restLeben(110, 'm'), 2);
-  assert.equal(K.restLeben(0, 'w'), 0);
+test('Restlebenserwartung aus der amtlichen Sterbetafel, ohne Alter keine', () => {
+  const T = require_('../../js/sterbetafel.js');
+  assert.match(T.zeitraum, /^\d{4}\/\d{4}$/);
+  assert.equal(K.restLeben(74, 'w'), T.tafel.w.ex[74]);
+  assert.equal(K.restLeben(74.9, 'm'), T.tafel.m.ex[74], 'vollendetes Alter');
+  assert.equal(K.restLeben(110, 'w'), T.tafel.w.ex[100], 'ab 100 der letzte Tafelwert');
+  assert.equal(K.restLeben(0, 'w'), 0, 'ohne Alter keine Lebenserwartung');
+  assert.equal(K.leibrentenfaktor(0, 'w', 3), 0);
+  assert.ok(K.restLeben(74, 'w') > K.restLeben(74, 'm'));
+});
+
+test('Leibrentenbarwertfaktor = unabhängige Rechnung mit Kommutationszahlen (Python)', { skip: !PY && !process.env.CI && 'Python fehlt' }, () => {
+  const soll = pythonJson(PY || 'python', ['tests/referenz/leibrente.py']);
+  assert.equal(soll.length, 64);
+  for (const f of soll) {
+    nahe(assert, K.leibrentenfaktor(f.alter, f.geschlecht, f.zins), f.faktor, 1e-9, f.alter + ' J ' + f.geschlecht + ' ' + f.zins + ' %');
+    assert.equal(K.restLeben(f.alter, f.geschlecht), f.ex);
+  }
+  // Plausibilität: ohne Zins ≈ Lebenserwartung (+ halber Monat für die Vorschüssigkeit), mit Zins kleiner
+  const x = K.leibrentenfaktor(74, 'w', 0) - K.restLeben(74, 'w');
+  assert.ok(x > 0 && x < 0.1, 'Zins 0: Faktor − ex = ' + x);
+  assert.ok(K.leibrentenfaktor(74, 'w', 3) < K.barwertfaktor(3, K.restLeben(74, 'w')) + 1, 'Leibrente nicht größer als Zeitrente');
 });
 
 test('Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)', () => {
@@ -95,9 +117,9 @@ test('Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nach
   nahe(assert, R.pvWert, 21185.76, 0.5, 'PV-Barwert');
   nahe(assert, R.energieWert, -36631.19, 1, 'Energie Klasse G gegen D');
   nahe(assert, R.empfehlung, 472970.43, 1, 'Preisempfehlung');
-  nahe(assert, R.bwErtrag, 285773.30, 1, 'BelWertV Ertragswert');
+  nahe(assert, R.bwErtrag, 263323.44, 1, 'BelWertV Ertragswert');
   nahe(assert, R.bwSachwert, 389054.10, 1, 'BelWertV Sachwert');
-  nahe(assert, R.beleihungswert, 285773.30, 1, 'Beleihungswert');
+  nahe(assert, R.beleihungswert, 263323.44, 1, 'Beleihungswert');
 });
 
 test('Referenzbewertung Eigentumswohnung', () => {
@@ -205,7 +227,7 @@ test('Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bew
   assert.ok(neg.hinweise.some(h => h.feld === 'ek_gs_abschlag' && h.art === 'prozent'));
   const leer = pruefe({});
   assert.equal(leer.status, 'unvollstaendig');
-  assert.deepEqual(leer.fehlend.map(f => f.feld), ['ek_gs_flaeche', 'bgfhg_e0', 'ek_miete_wohnen']);
+  assert.deepEqual(leer.fehlend.map(f=>f.feld),['ek_gs_flaeche','bgfhg_e0','ek_miete_wohnen','gewichtung_begruendung','pq_sf_quelle','pq_bpi_quelle','bpi','pq_brw_quelle','pq_lz_quelle','pq_miete_quelle','pq_bw_quelle','pq_modell_geprueft','ek_stichtag']);
   const nhk = pruefe(Object.assign({}, haus, { nhkhg_base: '655, 725, 835, 1.005, 1.260' }));
   assert.ok(nhk.hinweise.some(h => h.art === 'nhk'), 'Tausenderpunkt in den Kostenkennwerten wird erkannt');
   const alt = pruefe(Object.assign({}, haus, { ek_baujahr: '1850' }));

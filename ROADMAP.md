@@ -203,10 +203,10 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | # | Was | Warum |
 |---|---|---|
 | 37 | [ ] Geräteprüfung auf dem iPhone: Face ID, Kamera, GPS, Teilen-Menü/„In Dateien sichern“, `.ics`, Home-Bildschirm-Installation offline | nur simuliert (WebKit-Profil, nicht iOS) |
-| 38 | [ ] Restlebenserwartung aus der amtlichen Sterbetafel statt Näherung | genauer Kapitalwert bei Nießbrauch/Wohnrecht |
-| 39 | [ ] Grundrisse, Marktüberblick und Kundenakte schrittweise aus `index.html` in eigene Dateien | Wartbarkeit der Oberfläche |
+| 38 | [x] Restlebenserwartung aus der amtlichen Sterbetafel statt Näherung — erledigt 2026-09-30 (D20), monatliche Aktualisierung | genauer Kapitalwert bei Nießbrauch/Wohnrecht |
+| 39 | [x] Grundrisse, Marktüberblick und Kundenakte schrittweise aus `index.html` in eigene Dateien — erledigt 2026-09-30 mit dem Umbau in `src/` (D19) | Wartbarkeit der Oberfläche |
 | 40 | [ ] Fachliche Durchsicht der Modelle durch eine Sachverständige/einen Gutachterausschuss | bisher nur gegen Verordnung, ein Gutachten und eigene Vergleichsrechnung geprüft |
-| 41 | [ ] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen | Prozessrisiko (siehe AUDIT, Abschnitt 7) |
+| 41 | [x] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen — erledigt 2026-09-30 (D19, `npm run build`) | Prozessrisiko (siehe AUDIT, Abschnitt 7) |
 | 42 | [x] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) — erledigt 2026-09-30 (D16) | Auftrag „alles“ |
 | 43 | [x] Liegenschaftsverwaltung Stufe 3: Instandhaltung, Dienstleister, Wartungs- und Prüfpflichten — erledigt 2026-09-30 (D17) | Auftrag „alles“ |
 | 44 | [x] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) — erledigt 2026-09-30 (D18) | Auftrag „alles“ |

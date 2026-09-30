@@ -1,0 +1,18 @@
+import {test,expect}from'@playwright/test';
+import {readFileSync}from'node:fs';
+import {appOeffnen,fallAnwenden,keineSkriptfehler}from'./helfer.mjs';
+const base=JSON.parse(readFileSync(new URL('../fixtures/fall_haus.json',import.meta.url),'utf8'));
+test('Frisches Formular enthält keine unbelegten Garagen und Außenanlagen',async({page})=>{await appOeffnen(page);expect(await page.locator('#hg_garage').inputValue()).toBe('0');expect(await page.locator('#hg_aussen').inputValue()).toBe('0');await keineSkriptfehler(page);});
+test('Fehlende Beleihungsgrundlagen ändern ausschließlich den eigenen Prüfstatus',async({page})=>{await appOeffnen(page);await fallAnwenden(page,{felder:{...base,bw_grundlage:'',bw_nachweise_geprueft:false}});const status=await page.evaluate(()=>({preis:window._PRUEF.status,bw:window._BW.status,text:document.getElementById('o_beleihungswert').textContent}));expect(status.preis).toBe('ok');expect(status.bw).toBe('entwurf');expect(status.text).toContain('Entwurf');await keineSkriptfehler(page);});
+test('Nutzungsarten bleiben bei Bedienung konsistent',async({page})=>{await appOeffnen(page);await page.evaluate(()=>{document.getElementById('bw_nutzart').value='produktion';document.getElementById('bw_nutzart').dispatchEvent(new Event('change',{bubbles:true}));});expect(await page.locator('#bw_nutzung').inputValue()).toBe('gewerbe');await page.evaluate(()=>{document.getElementById('bw_nutzung').value='wohnen';document.getElementById('bw_nutzung').dispatchEvent(new Event('change',{bubbles:true}));});expect(await page.locator('#bw_nutzart').inputValue()).toBe('wohnen');await keineSkriptfehler(page);});
+test('Bereits enthaltene PV verändert den Grundwert nicht',async({page})=>{await appOeffnen(page);await fallAnwenden(page,{felder:{...base,pv_basis:'enthalten',en_aktiv:false}});const r=await page.evaluate(()=>({pv:window._R.pvWert,preis:window._R.empfehlung,grund:window._R.mittel,szenario:window._MODELL_DETAIL.pvPotential}));expect(r.pv).toBe(0);expect(r.preis).toBe(r.grund);expect(r.szenario).toBeGreaterThan(0);await keineSkriptfehler(page);});
+test('Nießbrauch: Auswahl Sterbetafel oder eigene Laufzeit, ältere Daten bleiben bei eigener Laufzeit',async({page})=>{await appOeffnen(page);
+  const recht={...base,niess_aktiv:true,ni_umfang:'gesamt',ni_alter:'74',ni_geschlecht:'w',ni_zins:'3',ni_miete:'9000',ni_leben:'0',ni_kapwert:'0'};
+  await fallAnwenden(page,{felder:{...recht,ni_laufzeit:'sterbetafel'}});
+  let r=await page.evaluate(()=>({kw:window._R.kw,soll:leibrentenfaktor(74,'w',3),info:document.getElementById('o_ni_kwinfo').textContent,wert:window._R.niessWert}));
+  expect(r.kw).toBe(r.soll);expect(r.info).toContain('Leibrente, Sterbetafel '+await page.evaluate(()=>ImmoSterbetafel.zeitraum));expect(r.wert).toBeGreaterThan(0);
+  await fallAnwenden(page,{felder:{...recht,ni_laufzeit:'eigen',ni_leben:'10'}});
+  r=await page.evaluate(()=>({kw:window._R.kw,soll:barwertfaktor(3,10),info:document.getElementById('o_ni_kwinfo').textContent}));
+  expect(r.kw).toBe(r.soll);expect(r.info).toBe('(Zeitrente über 10,00 J)');
+  const {ni_laufzeit,...alt}={...recht,ni_leben:'12'};await fallAnwenden(page,{felder:alt});
+  expect(await page.locator('#ni_laufzeit').inputValue()).toBe('eigen');await keineSkriptfehler(page);});

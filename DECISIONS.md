@@ -358,3 +358,65 @@ und die Eigentümerauswertung konsistent.
 Hausgeld. Der Kern ist gegen eine unabhängige Python-Rechnung geprüft (Einzelpläne, Jahresabrechnung,
 Rücklage, Rückstände, fünf Abstimmungen einschließlich Kopfprinzip mit mehreren Einheiten und Widerspruch).
 
+---
+
+## D19 (2026-09-30) — Übernahme aus dem Fork maxschlecht2000-code/preisermittlung (ohne iOS-App)
+
+**Entscheidung:** Aus dem Fork von Henry (github.com/maxschlecht2000-code/preisermittlung) übernommen, nach
+Durchsicht des Codes (keine fremden Netzwerkziele, nur synthetische Testdaten) und Prüfung der Rechtsgrundlagen:
+- **Beleihungswert nach BelWertV** (`js/modell.js`): Ertragswert als regulärer Ausgangswert, Sachwert als
+  Kontrolle (§ 4); mindestens 15 % Bewirtschaftungskosten mit den Einzelansätzen der Anlage 1 (§ 11);
+  Mindest-Kapitalisierungszins je Nutzungsart mit Aufschlägen der Anlage 3 (§ 12); Sicherheitsabschlag
+  mindestens 10 %, Außenanlagen und Baunebenkosten begrenzt (§ 16). Fehlende Grundlagen bleiben „Entwurf“.
+- **Rechenfehler:** Barwertfaktor mit `expm1`/`log1p` (stabil bei Zinsen nahe 0); `restNach(0)` ist die
+  Darlehenssumme zu Beginn statt der Restschuld am Planende.
+- **PV und energetischer Zustand nicht doppelt:** Ist der Vorteil/Nachteil bereits im Grundwert enthalten,
+  wird er nicht nochmals addiert/abgezogen; Energiekosten-Barwerte nur als getrenntes Szenario.
+- **Quellenpflicht:** Gewichtung, Sachwertfaktor, Liegenschaftszins, Miete, Bewirtschaftung, PV, Energetik
+  und Rechte brauchen eine dokumentierte Quelle; fehlende Angaben ändern den sichtbaren Prüfstatus.
+- **Umbau in Module:** Oberfläche aus `index.html` in `src/*.js` (28 Module, `src/init.js` zuletzt), Styles in
+  `assets/`, Schriften IBM Plex lokal (OFL), App-Navigation Übersicht/Objekte/Markt/Mehr.
+- **Service Worker aus dem Inhalt:** `npm run build` erzeugt `sw.js` mit Inhalts-Hash als Version und
+  vollständiger Dateiliste; GitHub Actions prüft, dass `sw.js` zum Inhalt passt (ROADMAP #41).
+
+**Nicht übernommen:** die native iOS-App (Capacitor, Xcode-Projekt, native Brücke, iOS-Workflow) — Wunsch des
+Auftraggebers; die App bleibt eine reine PWA ohne App-Store und ohne Backend. Ebenfalls nicht übernommen:
+Überarbeitungen von README, AUDIT, SUMMARY, DECISIONS und ANLEITUNG, die iOS-Inhalte an die Stelle der
+bisherigen Dokumentation gesetzt hätten. Die Regel „keine Lebenserwartung aus dem Alter“ des Forks ist durch
+D20 ersetzt.
+
+**Anpassungen bei der Übernahme:** Liegenschaftsverwaltung (D15–D18) in die neue Navigation eingehängt (Kachel,
+„Mehr“-Menü, Fristen-Hinweis); Build-Hash mit einheitlichen Zeilenenden (Windows und Linux ergeben dieselbe
+Version); der Service Worker lädt beim Installieren am HTTP-Cache vorbei (`cache: 'reload'`), sonst konnte
+GitHub Pages bis zu zehn Minuten alte Dateien in eine neue Version mischen.
+
+---
+
+## D20 (2026-09-30) — Nießbrauch, Wohnungsrecht, Leibrente: amtliche Sterbetafel oder eigene Laufzeit
+
+**Entscheidung:** Auswahl „Laufzeit des Rechts“:
+- **Amtliche Sterbetafel (lebenslang)** — Standard. Fernere Lebenserwartung und Leibrentenbarwertfaktor aus der
+  Periodensterbetafel für Deutschland des Statistischen Bundesamts (derzeit 2023/2025, `js/sterbetafel.js`),
+  nach Alter (vollendete Jahre) und Geschlecht. Faktor monatlich vorschüssig:
+  ä(12)x ≈ ax + 13/24 mit ax = Σ v^t · l(x+t)/l(x) (Woolhouse); über 100 Jahre mit der
+  Überlebenswahrscheinlichkeit des Alters 100 fortgesetzt.
+- **Eigene Laufzeit in Jahren** — für befristete Rechte oder eine belegte abweichende Laufzeit; Zeitrente
+  (Barwertfaktor). Dann ist eine Quelle Pflicht.
+- Ein eingetragener Kapitalisierungsfaktor hat immer Vorrang (Quelle Pflicht).
+- Ältere Bewertungen mit eingetragener Laufzeit werden beim Laden auf „Eigene Laufzeit“ gestellt und rechnen
+  unverändert.
+
+**Aktualisierung:** `scripts/sterbetafel.py` sucht auf destatis.de die neueste Ausgabe des Statistischen
+Berichts „Sterbetafeln“, prüft sie (lx fallend ab 100.000, ex plausibel, Frauen > Männer) und ersetzt die
+Tafel nur bei neuerem Zeitraum. Die GitHub-Action „Sterbetafel“ läuft monatlich, baut den Service Worker neu,
+führt alle Tests aus und übernimmt die neue Tafel nur bei grünen Tests. Datenlizenz Deutschland –
+Namensnennung – Version 2.0; die Quelle steht im Bericht.
+
+**Begründung:** Die Periodensterbetafel ist die übliche amtliche Grundlage für Leibrenten- und
+Nießbrauchsbarwerte in der Verkehrswertermittlung; eine selbst geschätzte Lebenserwartung (wie in der früheren
+Näherung) ist nicht belegbar, eine Pflicht zur freien Eingabe (wie im Fork) für lebenslange Rechte unnötig
+aufwendig. Die Sterbetafel des Statistischen Bundesamts ist kein Kapitalisierungszins: der Zins bleibt eine
+eigene, belegte Eingabe (i. d. R. der Liegenschaftszins). Der Kern ist gegen eine unabhängige Rechnung mit
+Kommutationszahlen in Python geprüft (64 Fälle, Abweichung < 1e-9). Die Sollwerte der Tests werden aus der
+jeweils geladenen Tafel berechnet, damit eine neue Ausgabe die Tests nicht bricht.
+

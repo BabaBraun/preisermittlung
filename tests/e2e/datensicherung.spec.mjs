@@ -26,8 +26,16 @@ async function bewertungMitMedien(page, adresse) {
 }
 const zustand = page => page.evaluate(() => JSON.stringify({ s: snapshot(), R: window._R }));
 async function dateiWaehlen(page, aufruf, pfad) {
-  const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.evaluate(aufruf)]);
-  await fc.setFiles(pfad);
+  // Die Datei wird über einen echten Klick gewählt (auch nach mehreren Importen gültige Benutzeraktivierung).
+  const name=aufruf.toString();let button;
+  if(name.includes('loadFile')){
+    await page.getByRole('button',{name:'Export',exact:true}).click();button=page.getByRole('button',{name:'Datei öffnen',exact:true});
+  }else if(name.includes('pjSicherungEinspielen')){
+    await page.getByRole('navigation',{name:'Hauptbereiche'}).getByRole('button',{name:'Objekte',exact:true}).click();button=page.locator('button[onclick="pjSicherungEinspielen()"]');
+  }else if(name.includes('mdbImport')){
+    await page.getByRole('navigation',{name:'Hauptbereiche'}).getByRole('button',{name:'Markt',exact:true}).click();await page.locator('#mdbt_sich').click();button=page.locator('button[onclick="mdbImport()"]');
+  }else throw new Error('Unbekannter Importablauf im Test.');
+  const [fc]=await Promise.all([page.waitForEvent('filechooser'),button.click()]);await fc.setFiles(pfad);
 }
 
 test('vom neuen Projekt bis zum wieder geöffneten Bericht: Werte stimmen überall überein', async ({ page }) => {

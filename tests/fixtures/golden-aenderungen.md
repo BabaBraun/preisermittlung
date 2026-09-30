@@ -72,3 +72,36 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
   Fall `leer`: Empfehlung 25.875 € → „–“ („Bodenwert fehlt · Bruttogrundfläche fehlt · Keine Miete
   erfasst“); Fall `extremwerte`: 275.596 € → „–“ (3 ungültige Eingaben: Abschlag 120 %, Bodenrichtwert
   −50 €/m², Restnutzungsdauer jenseits der Modellgrenze).
+
+## 6. Numerische Stabilität bei kleinen positiven Zinsen (2026-09-30)
+
+- Der mathematisch gleiche Barwertfaktor nutzt `expm1` und `log1p`, um Auslöschung bei Zinsen nahe null zu vermeiden.
+- Vorher: bei 0,000000001 % und 20 Jahren 20,0000016548. Nachher: nahe 20 innerhalb 0,000001.
+- Keine Änderung fachlicher Parameter oder Referenzbewertungen; Test `tests/unit/grenzfaelle.test.mjs`.
+
+## 7. Restschuld zum Beginn des Tilgungsplans (2026-09-30)
+
+- `restNach(0)` lieferte vorher die Restschuld am Ende des gesamten Plans. Jetzt ist es die ursprüngliche Darlehenssumme.
+- Beispiel: 100.000 € Darlehen mit 0 % Zins und 10 % Tilgung: vorher praktisch 0 €, jetzt 100.000 € zum Beginn.
+- Test `tests/unit/grenzfaelle.test.mjs`; keine Änderung der laufenden Bewertungs-Sollwerte.
+
+## 8. Belegbare Modellansätze und getrennte Szenarien (2026-09-30)
+
+- Quellen: BelWertV §§ 4, 11–14, 16 und Anlagen 1–3; ImmoWertV §§ 6, 8, 10, 46–47.
+- Beleihung: mindestens 15 % Kernkosten, höhere Einzel-/Gesamtkosten und zusätzliche Kosten; mindestens 10 % Sicherheitsabschlag. Ertragswert als regulärer Ausgangswert. Nutzungsaufschläge und Sonderfälle für kurze Restnutzung bzw. nichtpositiven Gebäudeertrag werden berücksichtigt. Fehlende Grundlagen bleiben als Entwurf sichtbar.
+- Wohnhaus-Referenz: bisher 285.773,30 €, jetzt 263.323,44 € Beleihungsszenario, wegen des ausdrücklich dokumentierten synthetischen Mindestzinses 5,5 % statt 5 %. Diese Quelle ist eine Testangabe, keine reale amtliche Veröffentlichung.
+- Neue Formulare enthalten keine unbelegten Garagen-/Außenanlagenwerte. Beispiel- und Vergleichsfälle deklarieren ihre synthetischen Annahmen ausdrücklich.
+- PV/Energetik: bereits im Grundwert enthaltene Vorteile werden nicht erneut gerechnet. Energiekosten-Barwerte werden separat ausgewiesen; der Energiekosten-Referenzfall verwendet ausdrücklich −12.000 € Marktansatz.
+- Rechte: keine erfundene Lebenserwartung aus dem Alter. Vergleichsfälle geben bisherige Laufzeiten ausdrücklich als synthetische Annahmen an. Teilrechte verwenden keine automatische Gesamtmiete; steuerliche Szenarien werden nicht als Marktbelastung übernommen.
+- Gewichtung, Quellen und Modellübereinstimmung werden separat dokumentiert; fehlende Angaben ändern den sichtbaren Prüfstatus.
+- Frühere Vergleichsdaten sind unter `historisch/` archiviert. Neue Sollwerte wurden nach gezielten Regressionstests und unabhängigen Python-Vergleichsrechnungen aufgenommen.
+
+## 9. Nießbrauch: Sterbetafel oder eigene Laufzeit — nur Anzeigetext (2026-09-30)
+
+- Quelle: Statistisches Bundesamt, Sterbetafel 2023/2025 (D20). Keine Zahl der Vergleichsfälle ändert sich:
+  alle Fälle mit Recht haben eine eigene Laufzeit und werden als „Eigene Laufzeit“ geladen.
+- `o_ni_kwinfo`: vorher „(Restleben ≈ 0,00 J)“ auch ohne aktives Recht, bei eigener Laufzeit leer. Jetzt ohne
+  aktives Recht leer, bei eigener Laufzeit „(Zeitrente über … J)“, bei Sterbetafel „(Leibrente, Sterbetafel …)“.
+- Tests: `tests/unit/kern.test.mjs` (64 Fälle gegen `tests/referenz/leibrente.py`),
+  `tests/unit/modellkorrekturen.test.mjs`, `tests/e2e/modellkorrekturen.spec.mjs`.
+

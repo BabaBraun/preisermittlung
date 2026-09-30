@@ -140,6 +140,10 @@ def bewerte(f, jahr):
     pv = 0.0
     if an('pv_aktiv'):
         pv = max(z('pv_ertrag_kwh') * z('pv_erloes') * (1 - z('pv_bewirt') / 100) * rentenbarwertfaktor(z('pv_zins'), z('pv_rnd')), 0)
+    if f.get('pv_basis') == 'enthalten':
+        pv = 0.0
+    elif f.get('pv_basis') == 'teilweise':
+        pv = z('pv_markt_ansatz')
     r['pvWert'] = pv
 
     # Energetische Qualität
@@ -151,18 +155,22 @@ def bewerte(f, jahr):
         if f.get('en_modus') == 'kosten':
             ref_kennwert = dict(KLASSEN)[ref] if ref != 'H' else 300
             mehr = (z('en_kennwert') - ref_kennwert) * z('ek_wohnflaeche') if z('en_kennwert') > 0 else 0
-            energie = -mehr * z('en_preis_kwh') * rentenbarwertfaktor(z('en_zins'), z('en_jahre'))
+            energie = z('en_markt_ansatz')  # Marktansatz separat eingegeben; Kostenbarwert ist nur ein Szenario.
         else:
             stufen = namen.index(kl) - namen.index(ref)
             energie = mittel * (-stufen * z('en_pct_stufe')) / 100
+    if f.get('en_basis') == 'enthalten':
+        energie = 0.0
+    elif f.get('en_basis') == 'teilweise':
+        energie = z('en_markt_ansatz')
     r['energieWert'] = energie
 
     # Belastungen: Nießbrauch / Wohnungsrecht / Leibrente — Jahreswert × Kapitalwert der Leibrente
     belastung = 0.0
     if an('niess_aktiv'):
         art = f.get('ni_art', 'niessbrauch')
-        miete = z('ni_miete') if z('ni_miete') > 0 else z('ek_miete_wohnen') + z('ek_miete_gewerbe')
-        grundsteuer = z('ni_grundst') if z('ni_grundst') > 0 else z('ek_grundsteuer')
+        miete = z('ni_miete') if z('ni_miete') > 0 else (z('ek_miete_wohnen') + z('ek_miete_gewerbe') if f.get('ni_umfang') == 'gesamt' else 0)
+        grundsteuer = z('ni_grundst') if z('ni_grundst') > 0 else (z('ek_grundsteuer') if f.get('ni_umfang') == 'gesamt' else 0)
         if art == 'leibrente':
             jahreswert = z('ni_rente') * 12
         elif art == 'wohnrecht':          # Grundsteuer trägt der Eigentümer

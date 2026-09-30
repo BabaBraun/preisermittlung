@@ -17,7 +17,7 @@ export async function appOeffnen(page, { pfad = '/index.html', uhr = true } = {}
 }
 
 export async function arbeitsflaeche(page) {
-  await page.evaluate(() => { document.body.classList.add('started'); });
+  await page.evaluate(() => { document.body.classList.add('started'); if(window.appShowSection)appShowSection('s-eck',{record:false}); });
 }
 
 /* Alle Eingaben auf die Vorgabewerte des Formulars zurücksetzen (wie der Selbsttest), dann Fall anwenden. */

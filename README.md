@@ -47,12 +47,18 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
 
 ## Aufbau
 
-Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository liegen.
+Die Dateien werden so ausgeliefert, wie sie im Repository liegen. Einziger Build-Schritt: `npm run build`
+erzeugt `sw.js` aus `sw.template.js` — Version aus dem Inhalts-Hash, vollständige Liste der Offline-Dateien.
+Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub Actions prüft das.
 
 | Datei | Zweck |
 |---|---|
-| `index.html` | Oberfläche und Abläufe der App (Formulare, Anzeige, Dokumente, Kundenakte, Marktüberblick) |
+| `index.html` | Formulare und Grundgerüst der Oberfläche; lädt die Module in fester Reihenfolge |
+| `src/*.js` | Oberfläche in Modulen (Navigation `app-shell.js`, Bewertung, Bericht, Exporte, Kunden, Markt, Grundrisse, Fotos u. a.); `src/init.js` startet zuletzt |
+| `assets/` | Stylesheets (`app.css`, `app-shell.css`, `verwaltung.css`) und lokale Schriften IBM Plex (SIL OFL) |
 | `js/kern.js` | Rechenkern ohne Bildschirmzugriff: alle Bewertungsverfahren, Eingabeprüfung, Finanzierung, Investition |
+| `js/modell.js` | Beleihungswert nach BelWertV, Modell- und Quellenprüfung der Preisempfehlung |
+| `js/sterbetafel.js` | amtliche Sterbetafel (Statistisches Bundesamt) für Nießbrauch, Wohnungsrecht, Leibrente — automatisch erzeugt |
 | `js/speicher.js` | Speicherschicht (IndexedDB öffnen, Transaktionen, die bei Fehlern vollständig abbrechen) |
 | `js/daten.js` | Prüfung von Projekt-, Gesamt- und Marktdaten-Sicherungen vor dem Einlesen |
 | `js/office.js` | Word- und Excel-Dateien (Office Open XML) ohne fremde Bibliothek |
@@ -67,7 +73,8 @@ Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository li
 | `js/verwaltung-weg-ui.js` | Oberfläche „WEG“ (Eigentümer, Hausgeld, Jahresabrechnung, Versammlungen, Beschluss-Sammlung) |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
-| `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |
+| `sw.js` | Service Worker für den Offline-Betrieb — erzeugt von `npm run build` (`scripts/build.mjs`), nicht von Hand ändern |
+| `scripts/sterbetafel.py` | holt die neueste Sterbetafel von destatis.de (monatlich per GitHub-Action „Sterbetafel“) |
 | `manifest.webmanifest`, `icons/` | App-Name, Farben, Symbole |
 | `tests/` | automatisierte Tests (siehe unten) |
 
@@ -140,7 +147,8 @@ Geräteverschlüsselung des Betriebssystems.
 
 ## Bekannte Einschränkungen
 
-- Restlebenserwartung für Nießbrauch/Wohnrecht ist eine Näherung, keine amtliche Sterbetafel (überschreibbar).
+- Nießbrauch/Wohnrecht/Leibrente: Sterbetafel ist eine Periodentafel (keine Generationentafel); individuelle
+  Gesundheit bleibt unberücksichtigt — dafür „Eigene Laufzeit“ oder einen eigenen Faktor mit Quelle verwenden.
 - Marktdaten des Gutachterausschusses (Sachwertfaktoren, Liegenschaftszinsen) sind nicht vorbelegt (D9).
 - Der PDF-Download ist ein Bild-PDF (Text nicht durchsuchbar); für das Bewertungsdokument ist die
   Druckansicht („Als PDF sichern“) mit echtem Text vorzuziehen.

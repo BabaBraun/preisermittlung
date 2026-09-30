@@ -8,6 +8,8 @@
    mit Quelle und Vorher/Nachher festhalten. */
 (function(wurzel){
 'use strict';
+const Modell=typeof module==='object'&&module.exports?require('./modell.js'):wurzel.ImmoModell;
+const Tafel=typeof module==='object'&&module.exports?require('./sterbetafel.js'):wurzel.ImmoSterbetafel;
 
 /* ---------- Zahlen ---------- */
 function zahlLesen(s,betrag){
@@ -68,14 +70,26 @@ function computeRND(alter,gnd,points){
   let rnd=(relAlter<=co[3]/100)?(gnd-alter):(co[0]*alter*alter/gnd - co[1]*alter + co[2]*gnd);
   return Math.min(Math.max(rnd,0),gnd);
 }
-function barwertfaktor(p,n){p=p/100;if(p<=0)return n;if(n<=0)return 0;return (1-Math.pow(1+p,-n))/p;}
+function barwertfaktor(p,n){p=p/100;if(p<=0)return n;if(n<=0)return 0;return -Math.expm1(-n*Math.log1p(p))/p;}
+/* Nießbrauch, Wohnungsrecht, Leibrente: amtliche Sterbetafel (js/sterbetafel.js, Statistisches Bundesamt).
+   restLeben: fernere Lebenserwartung ex im vollendeten Alter (ab 100: Wert für 100); ohne Alter 0.
+   leibrentenfaktor: Barwert einer monatlich vorschüssigen Zahlung von 1 je Jahr auf Lebenszeit,
+   ä(12)x ≈ ax + 13/24 mit ax = Σ v^t · l(x+t)/l(x) (Woolhouse); über 100 Jahre mit der Überlebens-
+   wahrscheinlichkeit des Alters 100 fortgesetzt. */
+function tafelFuer(g){ return Tafel&&Tafel.tafel?Tafel.tafel[g==='m'?'m':'w']:null; }
 function restLeben(alter,g){
-  if(alter<=0)return 0;
-  let base = g==='m' ? 78.5 : 83.5;
-  let rest = base - alter;
-  rest += Math.max(0,(alter-40))*0.18;
-  return Math.max(Math.round(rest*10)/10, 2);
+  const t=tafelFuer(g); if(!t||!(alter>0)) return 0;
+  return t.ex[Math.min(Math.floor(alter),t.ex.length-1)];
 }
+function leibrentenfaktor(alter,g,zinsPct){
+  const t=tafelFuer(g); if(!t||!(alter>0)) return 0;
+  const x=Math.min(Math.floor(alter),t.lx.length-1), max=t.lx.length-1, p100=1-t.qx[max], v=1/(1+Math.max(zinsPct,0)/100);
+  const l=a=>a<=max?t.lx[a]:t.lx[max]*Math.pow(p100,a-max);
+  let a=0, vt=1;
+  for(let k=1;k<=200;k++){ vt*=v; const term=vt*l(x+k)/l(x); a+=term; if(term<1e-12) break; }
+  return a+13/24;
+}
+
 
 
 /* ---------- Finanzierung und Investition ---------- */
@@ -101,7 +115,7 @@ function finTilgungsverlauf(betrag, zinsPct, tilgPct, sonderJahr, maxJahre){
     if(!tilgt) break;   /* ohne Tilgung bringen weitere Jahre keine Erkenntnis */
   }
   return {rate:rate, jahre:jahre, monate:monate, zinsSumme:zinsSumme, tilgt:tilgt,
-    restNach:j=>{ let e=jahre.find(x=>x.jahr===j); return e?e.ende:(jahre.length?jahre[jahre.length-1].ende:betrag); },
+    restNach:j=>{ if(j<=0)return betrag; let e=jahre.find(x=>x.jahr===j); return e?e.ende:(jahre.length?jahre[jahre.length-1].ende:betrag); },
     zinsBis:j=>{ let bis=jahre.filter(x=>x.jahr<=j); let s=bis.reduce((a,x)=>a+x.zins,0);
       /* laeuft das Darlehen ohne Tilgung, gelten die Zinsen des letzten Jahres fort */
       if(!tilgt&&jahre.length&&j>jahre.length) s+=jahre[jahre.length-1].zins*(j-jahre.length);
@@ -261,7 +275,9 @@ function bewerte(e,k){
   let pvBew=pvRoh*e.n('pv_bewirt')/100;
   let pvRein=pvRoh-pvBew;
   let pvVf=barwertfaktor(e.n('pv_zins'),e.n('pv_rnd'));
-  let pvWert=pvAktiv?Math.max(pvRein*pvVf,0):0;
+  let pvPotential=Math.max(pvRein*pvVf,0);
+  let pvWert=pvAktiv?(e.v('pv_basis')==='enthalten'?0:e.v('pv_basis')==='teilweise'?e.n('pv_markt_ansatz'):pvPotential):0;
+  D.pvPotential=pvPotential;
   D.pvAktiv=pvAktiv; D.pvRoh=pvRoh; D.pvBew=pvBew;
   // 6 Ertrag (Bodenwert unangepasst = BRW; kein Sachwertfaktor im Ertragswertverfahren)
   let bodenMA=bodenwert*mf;
@@ -303,17 +319,23 @@ function bewerte(e,k){
   let niessAktiv=e.an('niess_aktiv');
   let niArt=e.v('ni_art');
   let istRente=niArt==='leibrente', istWohnrecht=niArt==='wohnrecht';
-  let niMiete=e.n('ni_miete')>0?e.n('ni_miete'):(mieteW+mieteG);
-  let niGr=e.n('ni_grundst')>0?e.n('ni_grundst'):e.n('ek_grundsteuer');
+  let niMiete=e.n('ni_miete')>0?e.n('ni_miete'):(e.v('ni_umfang')==='gesamt'?(mieteW+mieteG):0);
+  let niGr=e.n('ni_grundst')>0?e.n('ni_grundst'):(e.v('ni_umfang')==='gesamt'?e.n('ek_grundsteuer'):0);
   let niNuk=niMiete*e.n('ni_nuk')/100;
   let niRein;
   if(istRente)          niRein=e.n('ni_rente')*12;
   else if(istWohnrecht) niRein=niMiete-niNuk;
   else                  niRein=niMiete-niGr-niNuk;
-  let leben=e.n('ni_leben')>0?e.n('ni_leben'):restLeben(e.n('ni_alter'),e.v('ni_geschlecht'));
-  let kw=e.n('ni_kapwert');
-  if(kw<=0) kw=barwertfaktor(e.n('ni_zins'),leben);
-  let niessWert=niessAktiv?Math.max(niRein*kw,0)+extras(e,'xni',2):0;
+  /* Laufzeit: amtliche Sterbetafel (Leibrentenbarwertfaktor) oder eigene Laufzeit (Zeitrente); ein eingetragener
+     Kapitalisierungsfaktor hat Vorrang. Ohne Auswahl (ältere Daten): eigene Laufzeit, sofern eingetragen. */
+  let niQuelle=e.v('ni_laufzeit')==='eigen'||e.v('ni_laufzeit')==='sterbetafel'?e.v('ni_laufzeit'):(e.n('ni_leben')>0?'eigen':'sterbetafel');
+  let leben=niQuelle==='eigen'?e.n('ni_leben'):restLeben(e.n('ni_alter'),e.v('ni_geschlecht'));
+  let kw=e.n('ni_kapwert'), kwArt='eingetragen';
+  if(kw<=0){ if(niQuelle==='eigen'){ kw=barwertfaktor(e.n('ni_zins'),leben); kwArt='zeitrente'; }
+    else { kw=leibrentenfaktor(e.n('ni_alter'),e.v('ni_geschlecht'),e.n('ni_zins')); kwArt='leibrente'; } }
+  D.niQuelle=niQuelle; D.niKwArt=kwArt; D.sterbetafel=Tafel?Tafel.zeitraum:'';
+  let niSzenarioWert=niessAktiv?Math.max(niRein*kw,0)+extras(e,'xni',2):0;
+  let niessWert=e.v('ni_wertart')==='steuer'?0:niSzenarioWert;D.niSzenarioWert=niSzenarioWert;
   Object.assign(D,{niessAktiv,istRente,istWohnrecht,niMiete,niGr,niNuk,leben});
   // 7c Erbbaurecht
   let ebAktiv=!istWohnung&&e.an('eb_aktiv');
@@ -346,50 +368,21 @@ function bewerte(e,k){
     enMehrKwh=(enKennwert>0?enKennwert-enRefKw:0)*e.n('ek_wohnflaeche');
     enMehrJahr=enMehrKwh*e.n('en_preis_kwh');
     enVf=barwertfaktor(e.n('en_zins'),e.n('en_jahre'));
-    energieWert=enAktiv?-enMehrJahr*enVf:0;
+    D.enKostenBarwert=-enMehrJahr*enVf;
+    energieWert=enAktiv?e.n('en_markt_ansatz'):0;
   } else {
     enPct=-enStufen*e.n('en_pct_stufe');
     energieWert=enAktiv?mittel*enPct/100:0;
   }
+  if(e.v('en_basis')==='enthalten')energieWert=0;
+  if(enAktiv&&e.v('en_basis')==='teilweise')energieWert=e.n('en_markt_ansatz');
   D.enKlasse=enKlasse; D.enRefKlasse=enRefKlasse;
   let empfehlung=mittel+pvWert+energieWert-niessWert-erbbauAbzug-wkSumme+extras(e,'xemp',2);
   let vh=e.n('verhandlung')/100;
   // Beleihungswert nach BelWertV
-  let bwAktiv=e.an('bw_aktiv');
-  let bwWohnen=e.v('bw_nutzung')==='wohnen';
-  let bwZinsMin=e.n('bw_bund')+(bwWohnen?3:4);
-  let bwSpanneMin=bwWohnen?3.5:4.5, bwSpanneMax=bwWohnen?5.5:6.5;
-  bwZinsMin=Math.min(Math.max(bwZinsMin,bwSpanneMin),bwSpanneMax);
-  let bwZins=e.n('bw_zins');
-  let bwZinsOk=bwZins>=bwZinsMin-0.001;
-  let bwRndMax=zahlLesen(e.v('bw_objektart'))||80;   /* Höchst-RND nach Anlage 2 BelWertV aus der Auswahl */
-  let bwRnd=Math.min(e.n('bw_rnd'),bwRndMax);
-  let bwRoh=e.n('bw_roh');
-  let bwBewirtP=Math.max(e.n('bw_bewirt'),0);
-  let bwBewirt=bwRoh*bwBewirtP/100;
-  let bwRein=bwRoh-bwBewirt;
-  let bwBoden=e.n('bw_bodenwert');
-  let bwBodenZins=bwBoden*bwZins/100;
-  let bwGebRein=bwRein-bwBodenZins;
-  let bwVf=barwertfaktor(bwZins,bwRnd);
-  let bwErtrag=bwRnd>0&&bwRoh>0?Math.max(bwGebRein,0)*bwVf+bwBoden:0;
-  let bwHerstell=e.n('bw_herstell')+e.n('bw_aussen');
-  let bwSicherP=Math.max(e.n('bw_sicher'),0);
-  let bwSicherBetrag=bwHerstell*bwSicherP/100;
-  let bwSachwert=bwHerstell>0?bwHerstell-bwSicherBetrag+bwBoden:0;
-  let bwAnsatz=e.v('bw_ansatz');
-  let bwAusgang=0, bwAnsatzTxt='';
-  if(bwAnsatz==='sach'){ bwAusgang=bwSachwert; bwAnsatzTxt='(Sachwert, § 4 Abs. 2)'; }
-  else if(bwAnsatz==='ertrag'){ bwAusgang=bwErtrag; bwAnsatzTxt='(Ertragswert)'; }
-  else {
-    let kandidaten=[bwErtrag,bwSachwert].filter(x=>x>0);
-    bwAusgang=kandidaten.length?Math.min.apply(null,kandidaten):0;
-    bwAnsatzTxt=kandidaten.length>1?(bwErtrag<=bwSachwert?'(Ertragswert — der niedrigere)':'(Sachwert — der niedrigere)'):'(einziger ermittelter Wert)';
-  }
-  let bwAbschlagP=e.n('bw_besichtigung')+e.n('bw_abschlag');
-  let bwAbschlagBetrag=bwAusgang*bwAbschlagP/100;
-  let beleihungswert=bwAktiv?Math.max(bwAusgang-bwAbschlagBetrag,0):0;
-  Object.assign(D,{bwWohnen,bwSpanneMin,bwSpanneMax,bwZinsOk,bwRndMax,bwBewirtP,bwBoden,bwBodenZins,bwAnsatzTxt});
+  const bw=Modell.beleihung(e);
+  const {bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,beleihungswert}=bw.R;
+  Object.assign(D,bw.D);
   // Plausibilisierung (Ergebnis €/m² gegen Marktbericht)
   let wf=e.n('ek_wohnflaeche');
   let flaecheGes=wf+e.n('ek_nutzflaeche');
@@ -449,8 +442,9 @@ const NICHT_NEGATIV=/^(ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche
 const PROZENT_MAX=/^(ek_gs_abschlag|xgs[12]_abschlag|er_bewirt|er_gewerbe|er_bw_mietausfall|pv_bewirt|ni_nuk|eb_abschlag|bw_bewirt|bw_sicher|bw_besichtigung|bw_abschlag|gew_vergleich|verhandlung|re_grest|re_notar|re_makler)$/;
 function pruefen(e,R,D,gelesen){
   const h=[], fehlend=[];
+  const sachAnteil=D.istWohnung?0:R.g*(1-R.gv),ertragsAnteil=(1-R.g)*(1-R.gv),vergleichAnteil=D.istWohnung?R.g:R.gv;
   const kurz=s=>{ s=(''+s).trim(); return s.length>24?s.slice(0,22)+'…':s; };
-  (gelesen?[...gelesen]:[]).forEach(id=>{
+  (gelesen?[...gelesen]:[]).filter(id=>!(sachAnteil===0&&/^(bgf|nhk(?:hg|an)_(?:base|s\d)|hg_(?:aussen|garage)|markt_faktor|bpi)/.test(id))&&!id.startsWith('bw_')&&!((id.startsWith('ni_')&&!e.an('niess_aktiv'))||(id.startsWith('pv_')&&!e.an('pv_aktiv'))||(id.startsWith('en_')&&!e.an('en_aktiv'))||(id.startsWith('eb_')&&!e.an('eb_aktiv')))).forEach(id=>{
     let roh=e.v(id);
     if(!zahlGueltig(roh)){ h.push({feld:id,stufe:'fehler',art:'zahl',text:'„'+kurz(roh)+'“ ist keine gültige Zahl — gerechnet würde mit '+num2(e.n(id))+'.'}); return; }
     let x=e.n(id);
@@ -458,13 +452,13 @@ function pruefen(e,R,D,gelesen){
     else if(x>100&&PROZENT_MAX.test(id)) h.push({feld:id,stufe:'fehler',art:'prozent',text:'über 100 % ('+num2(x)+' %).'});
   });
   let basisTxt=(e.v('nhkhg_base')||'').trim();
-  if(basisTxt&&!D.istWohnung){
+  if(basisTxt&&!D.istWohnung&&sachAnteil>0){
     let b=basisTxt.split(/[,;]+/).map(x=>parseFloat(x.trim().replace(',','.'))).filter(x=>!isNaN(x));
     if(b.length<5) h.push({feld:'nhkhg_base',stufe:'fehler',art:'nhk',text:'Kostenkennwerte unvollständig (5 Werte für Stufe 1–5 nötig) — es würde mit Rückfallwerten gerechnet.'});
     else if(b.some(x=>x<100)) h.push({feld:'nhkhg_base',stufe:'fehler',art:'nhk',text:'Kostenkennwert unter 100 €/m² — Tausenderpunkt? Werte ohne Punkt eintragen (z. B. 1005).'});
   }
   /* Modellgrenze der Anlage 2: Alter über der Gesamtnutzungsdauer (siehe computeRND) */
-  if(!D.istWohnung&&D.nhkHG&&!D.nhkHG.rndManuell&&D.nhkHG.alter>D.gndHG){
+  if(!D.istWohnung&&(sachAnteil>0||ertragsAnteil>0)&&D.nhkHG&&!D.nhkHG.rndManuell&&D.nhkHG.alter>D.gndHG){
     let hoch=R.hg.rnd>0.7*D.gndHG;
     h.push({feld:'nhkhg_rnd',stufe:hoch?'fehler':'warn',art:'rnd',text:'Das Gebäude ist älter ('+D.nhkHG.alter+' J) als die Gesamtnutzungsdauer ('+num2(D.gndHG)+' J). Die Anlage 2 regelt diesen Bereich nicht eindeutig; die Formel ergibt '
       +num2(R.hg.rnd)+' J'+(hoch?' — mehr als die im Modell vorgesehenen 70 % der GND':'')+'. Restnutzungsdauer sachverständig prüfen und in 2.2 von Hand eintragen.'});
@@ -476,22 +470,23 @@ function pruefen(e,R,D,gelesen){
     if(!(D.wfl>0)) fehlend.push({feld:'ek_wohnflaeche',text:'Wohnfläche fehlt.'});
     if(g>0&&!(e.n('vw_preis')>0)) fehlend.push({feld:'vw_preis',text:'Vergleichspreis je m² fehlt — der Vergleichswert fließt mit '+Math.round(g*100)+' % ein.'});
   } else {
-    if(!(R.bodenwert>0)) fehlend.push({feld:'ek_gs_flaeche',text:'Bodenwert fehlt (Grundstücksfläche und Bodenrichtwert).'});
-    if(g>0&&!(R.bgfHG>0)) fehlend.push({feld:'bgfhg_e0',text:'Bruttogrundfläche fehlt — der Sachwert fließt mit '+Math.round(g*100)+' % ein.'});
+    if((sachAnteil>0||ertragsAnteil>0||e.an('eb_aktiv'))&&!(R.bodenwert>0)) fehlend.push({feld:'ek_gs_flaeche',text:'Bodenwert fehlt (Grundstücksfläche und Bodenrichtwert).'});
+    if(sachAnteil>0&&!(R.bgfHG>0)) fehlend.push({feld:'bgfhg_e0',text:'Bruttogrundfläche fehlt — der Sachwert fließt mit '+Math.round(g*100)+' % ein.'});
   }
-  if(g<1&&!(R.roh>0)) fehlend.push({feld:'ek_miete_wohnen',text:'Keine Miete erfasst — der Ertragswert fließt mit '+Math.round((1-g)*100)+' % ein und bestünde nur aus dem Bodenwert.'});
+  if(ertragsAnteil>0&&!(R.roh>0)) fehlend.push({feld:'ek_miete_wohnen',text:'Keine Miete erfasst — der Ertragswert fließt mit '+Math.round((1-g)*100)+' % ein und bestünde nur aus dem Bodenwert.'});
   if(!isFinite(R.empfehlung)) h.push({feld:'gewichtung',stufe:'fehler',art:'ergebnis',text:'Die Preisempfehlung ist nicht berechenbar.'});
   else if(!fehlend.length&&R.empfehlung<=0) h.push({feld:'gewichtung',stufe:'fehler',art:'ergebnis',text:'Die Preisempfehlung ist nicht positiv ('+eur(R.empfehlung)+') — Abzüge und Eingaben prüfen.'});
+  const modell=Modell.pruefePreis(e,R,D);h.push(...modell.hinweise);fehlend.push(...modell.fehlend);
   let fehler=h.filter(x=>x.stufe==='fehler').length;
   return {status:fehler?'fehler':fehlend.length?'unvollstaendig':'ok',hinweise:h,fehlend,fehler};
 }
 
-const ImmoKern={zahlLesen,interp,barwertfaktor,computeRND,restLeben,enKlasseAusKennwert,enIdx,enRefKennwert,
+const ImmoKern={zahlLesen,interp,barwertfaktor,computeRND,restLeben,leibrentenfaktor,enKlasseAusKennwert,enIdx,enRefKennwert,
   EN_KLASSEN,NHK_ELEMENTS,MOD_ELEMENTS,RND_COEFF,MSP_QUELLEN,ANZAHL,finTilgungsverlauf,finBudgetRechnen,ivIrr,ivAfaSatz,ivModell,
-  bewerte,pruefen,zahlGueltig,protokollLeser,bgfRechnen,nhkBasis,nhkRechnen,vergleichRechnen,mietspiegelRechnen,mietrolleRechnen,eur,num2};
+  bewerte,pruefen,pruefeBeleihung:Modell.pruefeBeleihung,zahlGueltig,protokollLeser,bgfRechnen,nhkBasis,nhkRechnen,vergleichRechnen,mietspiegelRechnen,mietrolleRechnen,eur,num2};
 wurzel.ImmoKern=ImmoKern;
 if(typeof module==='object'&&module.exports) module.exports=ImmoKern;
-else ['zahlLesen','interp','barwertfaktor','computeRND','restLeben','enKlasseAusKennwert','enIdx','enRefKennwert',
+else ['zahlLesen','interp','barwertfaktor','computeRND','restLeben','leibrentenfaktor','enKlasseAusKennwert','enIdx','enRefKennwert',
   'EN_KLASSEN','NHK_ELEMENTS','MOD_ELEMENTS','RND_COEFF','finTilgungsverlauf','finBudgetRechnen','ivIrr','ivAfaSatz','ivModell']
   .forEach(n=>{ wurzel[n]=ImmoKern[n]; });
 })(typeof globalThis!=='undefined'?globalThis:this);
