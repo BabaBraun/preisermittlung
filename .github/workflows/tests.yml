@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Abhängigkeiten
+        run: |
+          npm ci
+          pip install python-docx openpyxl
+
+      - name: Sollwerte der Vergleichsrechnung sind aktuell
+        run: |
+          python tests/referenz/sollwerte.py
+          git diff --exit-code tests/referenz/sollwerte.json
+
+      - name: Rechenkern (Node)
+        run: npm test
+
+      - name: Browser installieren
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Browsertests (Desktop und iPhone)
+        run: npx playwright test
+
+      - name: Testbericht sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

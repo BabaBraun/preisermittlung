@@ -6141,7 +6141,12 @@ function buildRefTable(){
    Lesen der Felder, die Anzeige und das Speichern. */
 /* als Funktion: compute() läuft beim Start, bevor spätere const-Zeilen ausgeführt sind */
 function eingabeLeser(){ return {n:num, v:id=>{ let el=$(id); return el?el.value:''; }, an:id=>{ let el=$(id); return !!(el&&el.checked); }}; }
-function bewertungsJahr(){ return new Date().getFullYear(); }
+/* Alter nach § 4 Abs. 1 ImmoWertV: Kalenderjahr des Wertermittlungsstichtags minus Baujahr.
+   Ohne Stichtag gilt das laufende Jahr (wie bisher). */
+function bewertungsJahr(){
+  let s=(($('ek_stichtag')||{}).value||'').trim(), j=parseInt(s.slice(0,4),10);
+  return (j>1800&&j<2200)?j:new Date().getFullYear();
+}
 function compute(){
   raumlisteSync();   /* zuerst: füllt ggf. die Wohnfläche, die alles Weitere liest */
   const {R,D}=ImmoKern.bewerte(eingabeLeser(),{jahr:bewertungsJahr(),szen:SZEN,enManuell:!!$('en_klasse').dataset.manuell});

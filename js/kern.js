@@ -12,7 +12,7 @@
 /* ---------- Zahlen ---------- */
 function zahlLesen(s,betrag){
   if(typeof s==='number') return isFinite(s)?s:0;
-  s=(''+(s==null?'':s)).trim().replace(/(\d)\s+(?=\d)/g,'$1').replace(/-\s+(?=[\d.,])/,'-');
+  s=(''+(s==null?'':s)).replace(/[−‒–]/g,'-').trim().replace(/(\d)\s+(?=\d)/g,'$1').replace(/-\s+(?=[\d.,])/,'-');
   let m=/^-?[.,]\d/.test(s)?s.match(/-?[.,]\d+/):s.match(/-?\d[\d.,]*/);
   if(!m) return 0; s=m[0];
   if(s.indexOf(',')>-1) s=s.replace(/\./g,'').replace(',','.');
@@ -59,6 +59,9 @@ function enRefKennwert(kl){ let i=enIdx(kl); return i>=EN_KLASSEN.length-1?300:E
 function computeRND(alter,gnd,points){
   if(gnd<=0)return 0;
   if(alter<=0)return gnd;
+  /* Hinweis: Jenseits des Scheitels (Alter > b·GND/2a, bei 0 Punkten 1,05 × GND) steigt die Formel wieder an.
+     Die Anlage 2 regelt diesen Bereich nicht ausdrücklich; die Formel bleibt unverändert (auch Gutachten wenden
+     sie dort an). ImmoKern.pruefen() weist auf den Fall hin, damit die RND sachverständig geprüft wird. */
   let p=Math.min(Math.max(Math.round(points),0),20);
   let co=RND_COEFF[p];
   let relAlter=alter/gnd;
@@ -327,7 +330,7 @@ function bewerte(e,k){
   // 7d Wertkorrekturen § 8 Abs. 3
   let wkSumme=0; for(let i=0;i<ANZAHL.wk;i++) wkSumme+=e.n('wk_val'+i);
   // 8 Empfehlung
-  let g=parseFloat(e.v('gewichtung'));
+  let g=parseFloat(e.v('gewichtung')); if(!(g>=0&&g<=1)) g=0.5;   /* fehlt die Auswahl: Standard 50 : 50 */
   let mittelBasis=g*substanz+(1-g)*ertrag;
   let gv=vwAktiv?Math.min(Math.max(e.n('gew_vergleich'),0),100)/100:0;
   let mittel=vwAktiv?((1-gv)*mittelBasis+gv*vergleichWert):mittelBasis;
@@ -359,7 +362,7 @@ function bewerte(e,k){
   bwZinsMin=Math.min(Math.max(bwZinsMin,bwSpanneMin),bwSpanneMax);
   let bwZins=e.n('bw_zins');
   let bwZinsOk=bwZins>=bwZinsMin-0.001;
-  let bwRndMax=e.n(e.v('bw_objektart'))||80;
+  let bwRndMax=zahlLesen(e.v('bw_objektart'))||80;   /* Höchst-RND nach Anlage 2 BelWertV aus der Auswahl */
   let bwRnd=Math.min(e.n('bw_rnd'),bwRndMax);
   let bwRoh=e.n('bw_roh');
   let bwBewirtP=Math.max(e.n('bw_bewirt'),0);

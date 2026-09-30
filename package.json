@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "description": "ImmoApp – rechnerische Preisermittlung als statische PWA (ohne Build-Schritt)",
   "scripts": {
-    "test": "node --test tests/unit/",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
     "test:e2e": "playwright test",
-    "test:alle": "node --test tests/unit/ && playwright test",
+    "test:alle": "node --test \"tests/unit/*.test.mjs\" && playwright test",
     "serve": "node tests/server.mjs"
   },
   "devDependencies": {
