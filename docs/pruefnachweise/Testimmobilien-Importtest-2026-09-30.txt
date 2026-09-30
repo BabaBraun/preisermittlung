@@ -1,0 +1,4 @@
+Regressionstest: testTestPropertiesAreAddedOnceWithoutChangingExistingProject bestanden.
+Prüft: 6 Testobjekte ergänzt, vorhandene Werte/Anhänge unverändert, zweiter Import 0 neue Objekte, Neustart erhält alle Daten.
+Result Bundle: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/result-bundles/test_sim_2026-09-30T16-50-32-155Z_pid75919_b21682dd.xcresult
+Gerätebuild erfolgreich. Direkter Import auf iPhone bestätigt: added=6. Es wurden keine privaten Bestandsbewertungen auf den Mac exportiert.

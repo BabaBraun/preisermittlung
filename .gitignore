@@ -10,4 +10,19 @@ node_modules/
 test-results/
 playwright-report/
 tests/ausgabe/
+
+dist/
+node_modules/
+ios/App/App/public/
+ios/App/DerivedData/
+
+# Lokale Xcode-Artefakte
+**/xcuserdata/
+**/DerivedData/
+*.xcresult/
+*.xctestproducts/
+
+# Ergänzende Ausschlüsse aus dem aktuellen Hauptbranch
 __pycache__/
+
+.DS_Store

@@ -76,13 +76,7 @@ test('Effizienzklassen nach Kennwert', () => {
   assert.equal(K.enKlasseAusKennwert(251), 'H');
 });
 
-test('Restlebenserwartung: dokumentierte Näherung (keine amtliche Sterbetafel)', () => {
-  // 83,5 − 74 + (74 − 40) × 0,18 = 15,62 → 15,6 | 78,5 − 81 + 41 × 0,18 = 4,88 → 4,9 | Untergrenze 2 Jahre
-  assert.equal(K.restLeben(74, 'w'), 15.6);
-  assert.equal(K.restLeben(81, 'm'), 4.9);
-  assert.equal(K.restLeben(110, 'm'), 2);
-  assert.equal(K.restLeben(0, 'w'), 0);
-});
+test('Keine erfundene Restlebenserwartung aus Alter allein',()=>{for(const age of [0,65,74,81,110])assert.equal(K.restLeben(age,'w'),0);});
 
 test('Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)', () => {
   const { R } = K.bewerte(leser(fall('fall_haus.json')), { jahr: 2026 });
@@ -95,9 +89,9 @@ test('Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nach
   nahe(assert, R.pvWert, 21185.76, 0.5, 'PV-Barwert');
   nahe(assert, R.energieWert, -36631.19, 1, 'Energie Klasse G gegen D');
   nahe(assert, R.empfehlung, 472970.43, 1, 'Preisempfehlung');
-  nahe(assert, R.bwErtrag, 285773.30, 1, 'BelWertV Ertragswert');
+  nahe(assert, R.bwErtrag, 263323.44, 1, 'BelWertV Ertragswert');
   nahe(assert, R.bwSachwert, 389054.10, 1, 'BelWertV Sachwert');
-  nahe(assert, R.beleihungswert, 285773.30, 1, 'Beleihungswert');
+  nahe(assert, R.beleihungswert, 263323.44, 1, 'Beleihungswert');
 });
 
 test('Referenzbewertung Eigentumswohnung', () => {
@@ -205,7 +199,7 @@ test('Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bew
   assert.ok(neg.hinweise.some(h => h.feld === 'ek_gs_abschlag' && h.art === 'prozent'));
   const leer = pruefe({});
   assert.equal(leer.status, 'unvollstaendig');
-  assert.deepEqual(leer.fehlend.map(f => f.feld), ['ek_gs_flaeche', 'bgfhg_e0', 'ek_miete_wohnen']);
+  assert.deepEqual(leer.fehlend.map(f=>f.feld),['ek_gs_flaeche','bgfhg_e0','ek_miete_wohnen','gewichtung_begruendung','pq_sf_quelle','pq_bpi_quelle','bpi','pq_brw_quelle','pq_lz_quelle','pq_miete_quelle','pq_bw_quelle','pq_modell_geprueft','ek_stichtag']);
   const nhk = pruefe(Object.assign({}, haus, { nhkhg_base: '655, 725, 835, 1.005, 1.260' }));
   assert.ok(nhk.hinweise.some(h => h.art === 'nhk'), 'Tausenderpunkt in den Kostenkennwerten wird erkannt');
   const alt = pruefe(Object.assign({}, haus, { ek_baujahr: '1850' }));

@@ -1,120 +1,75 @@
 # ImmoApp
 
-Web-App für Immobilienberater: rechnerische Preisermittlung nach ImmoWertV (Sachwert, Ertragswert,
-Vergleichswert), Beleihungswert nach BelWertV, Aufnahmebogen, Fotos und Grundrisse, Bericht, Exposé,
-Präsentation, Vermarktung, Kundenakte, Finanzierung und Investitionsrechnung — als installierbare
-Web-App (PWA), die auch offline funktioniert.
+Native iOS-App mit SwiftUI für Immobilienerfassung und rechnerische Bewertung. Hauptprojekt: `ios/ImmoAppNative.xcodeproj`, Scheme `ImmoApp`, ab iOS 17. [Umfang, Tests und noch offene Übertragungen](docs/Native-iOS-App.md).
 
-Die App läuft vollständig im Browser. **Alle Daten bleiben auf dem Gerät**; es gibt keinen Server und keine
-Übertragung an Dritte. Die Ergebnisse sind eine rechnerische Preiseinschätzung und **kein
-Verkehrswertgutachten**.
+Die bisherige offlinefähige PWA bleibt als separate Quellfassung erhalten. Das iOS-Hauptprojekt verwendet keine WebView oder Capacitor.
 
-Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem Handy siehe
-[ANLEITUNG-App-aufs-Handy.md](ANLEITUNG-App-aufs-Handy.md).
+## Aktuelle Modellprüfung
 
-## Funktionsumfang
+Fehlende Quellen und Begründungen bleiben als Entwurf sichtbar. Beleihung wird getrennt geprüft; PV-/Energieszenarien und steuerliche Rechtswerte werden vom Marktansatz unterschieden. [Umgesetzte Korrekturen und fachliche Grenzen](docs/Berechnungsprüfung.md).
 
-- **Bewertung:** 9 Vordrucke (Wohnung, Wohnhaus, Gewerbe); Sachwert über NHK 2010 mit Standardstufen,
-  Baupreisindex und Regionalfaktor; Restnutzungsdauer nach Modernisierungspunkten (Anlage 2 ImmoWertV,
-  Alter bezogen auf das Stichtagsjahr); Ertragswert mit Mietrolle und Bewirtschaftungskosten; Vergleichswert;
-  Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht; Wertkorrekturen § 8 Abs. 3; PV-Anlage; energetische
-  Qualität; Sanierungsweg mit Förderung; Beleihungswert nach BelWertV; Datengrundlagen und
-  Modellkonformität (§ 10 ImmoWertV); Lage-Check.
-- **Eingabeprüfung:** ungültige Zahlen, unzulässig negative Werte, Prozentwerte über 100 und fehlende
-  Mindestangaben werden gemeldet; dann zeigt die App keine Preisempfehlung, der Bericht ist als Entwurf
-  gekennzeichnet.
-- **Dokumente:** Bericht (Abschnitte wählbar), Exposé, Präsentation für das Akquisegespräch,
-  Eigentümer-Bericht zur Vermarktung, Unterlagenliste, Investitionsrechnung — als Druckansicht, PDF, Word
-  (`.docx`) und Excel (`.xlsx`), alles offline.
-- **Beratung:** Kundenakte mit Suchprofil und Käuferabgleich, Wiedervorlagen, Finanzierungsrechner mit
-  Budget-Check, Marktüberblick (eigene Angebots- und Kaufpreise mit Auswertung).
+## Funktionen der bisherigen Gesamtanwendung
 
-## Aufbau
+- Sachwert, Ertragswert und Vergleichswert mit NHK, Modernisierung und Restnutzungsdauer.
+- Belastungen, Erbbaurecht, PV, energetische Qualität, Beleihungswert und Rendite.
+- Aufnahmebogen, Fotos, Grundrisse, Bewertungsbericht und Verkaufsexposé.
+- Marktdatenbank, Datengrundlagen und Modellkonformität, Kundenakten und Wiedervorlagen.
+- Finanzierung, Budget, Investitionsrechnung, Verkäufer-Präsentation, Käuferprofile und Vermarktungsübersicht.
+- Echte DOCX- und XLSX-Dateien, PDF und Sicherungsdateien.
 
-Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository liegen.
+Die Anwendung verwendet keinen eigenen Server für Kundendaten. Bewertungen, Kunden und Marktdaten liegen in localStorage/IndexedDB auf dem jeweiligen Gerät. Dateien werden nur auf Nutzeraktion exportiert oder geteilt. Betriebssystem-Sicherungen und externe Links unterliegen den Einstellungen des jeweiligen Geräts. Die optionale Gerätesperre verschlüsselt die Daten nicht.
 
-| Datei | Zweck |
-|---|---|
-| `index.html` | Oberfläche und Abläufe der App (Formulare, Anzeige, Dokumente, Kundenakte, Marktüberblick) |
-| `js/kern.js` | Rechenkern ohne Bildschirmzugriff: alle Bewertungsverfahren, Eingabeprüfung, Finanzierung, Investition |
-| `js/speicher.js` | Speicherschicht (IndexedDB öffnen, Transaktionen, die bei Fehlern vollständig abbrechen) |
-| `js/daten.js` | Prüfung von Projekt-, Gesamt- und Marktdaten-Sicherungen vor dem Einlesen |
-| `js/office.js` | Word- und Excel-Dateien (Office Open XML) ohne fremde Bibliothek |
-| `js/pdf.js` | Seitenaufteilung für den PDF-Download |
-| `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
-| `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
-| `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |
-| `manifest.webmanifest`, `icons/` | App-Name, Farben, Symbole |
-| `tests/` | automatisierte Tests (siehe unten) |
+## Bedienung
 
-Entscheidungen mit Begründung stehen in [DECISIONS.md](DECISIONS.md), der Arbeitsstand in
-[ROADMAP.md](ROADMAP.md), die letzte Zusammenfassung in [SUMMARY.md](SUMMARY.md).
+Vier Hauptbereiche: **Übersicht, Objekte, Markt und Mehr**. Eine Bewertung hat eine eigene Objektübersicht mit Preis, Fortschritt und nächster fehlender Angabe. Die Arbeitsschritte **Objekt, Besichtigung, Bewertung und Ergebnis** öffnen gezielt einen Formularbereich. Längere Inhalte sind aufklappbar; Prüfhinweise und Suchtreffer führen direkt zum richtigen Feld bzw. Objekt.
 
-## Tests
+Auf dem iPhone steht die Hauptnavigation unten, am Desktop links. Hell-/Dunkelmodus, Tastaturbedienung und Sicherheitsabstände bleiben unterstützt. Screenshots und Details: [App-Bedienung](docs/App-Bedienung.md).
 
-Voraussetzungen: Node.js 24, Python 3 mit den Bibliotheken aus `tests/requirements.txt` (PyMuPDF,
-python-docx, openpyxl in festen Versionen) für die Prüfung der erzeugten Dateien. Fehlt Python, werden diese
-Prüfungen lokal übersprungen; in GitHub Actions sind sie Pflicht.
+## Start und Tests
 
-```bash
-npm install
-npx playwright install chromium webkit
-pip install -r tests/requirements.txt
-npm test                     # Rechenkern, Office-Dateien, Sicherungsprüfung (Node, ohne Browser)
-npm run test:e2e             # Browsertests: Desktop (Chromium) und iPhone 13 (WebKit)
-npm run test:alle            # beides
-python tests/referenz/sollwerte.py   # Sollwerte der unabhängigen Vergleichsrechnung neu erzeugen
-PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersatzschrift gegenprüfen
+Node.js 22 oder neuer:
+
+```sh
+npm ci
+npm run build
+npm run serve
 ```
 
-- **Node** (`tests/unit/`): Zahlenformate, Barwertfaktor, Restnutzungsdauer, Grenzfälle (Zins 0 %, Laufzeit 0,
-  sehr alte Gebäude, leere, negative und extreme Werte), Finanzierung, Budget, Investition, die beiden
-  Referenzbewertungen des Selbsttests und sieben Fälle gegen eine unabhängige Python-Vergleichsrechnung
-  (`tests/referenz/`); Office-Dateien (mit python-docx/openpyxl geöffnet); Prüfung von Sicherungsdateien
-  einschließlich älterer Formate.
-- **Browser** (`tests/e2e/`): Vergleich aller Rechenergebnisse mit dem festgehaltenen Stand
-  (`tests/fixtures/golden.json`, Änderungen nur mit Beleg in `golden-aenderungen.md`), Selbsttest samt
-  Erhalt der offenen Bewertung, Eingabeprüfung, Maskierung von Eingaben, Word/Excel/PDF/Druck,
-  Datensicherung (vollständiger Ablauf, Datei-Import/-Export, Gesamtsicherung, PDF-Anhänge, beschädigte
-  Dateien, voller Speicher, fehlende Datenbank), Übereinstimmung der Werte über alle Vordrucke,
-  Offline-Start und Service-Worker-Update, alle Ansichten auf Desktop und iPhone.
-- **Python-Prüfskripte** (`tests/referenz/pruefe_*.py`) öffnen die erzeugten Dateien mit unabhängigen
-  Bibliotheken. Auf ihre Standardausgabe geht nur das JSON-Ergebnis; Meldungen der Bibliotheken landen auf
-  stderr. Jede andere Ausgabe lässt den Test mit vollständiger stdout-/stderr-Ausgabe scheitern.
-- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`), im offiziellen
-  Playwright-Image mit fertig installierten Browsern. Dessen Version muss zu `@playwright/test` in
-  `package.json` passen — beim Aktualisieren beide ändern; `npm test` prüft das.
-- Alle Testdaten sind synthetisch.
+Dann `http://127.0.0.1:8790/index.html` öffnen. Zum Bereitstellen den vollständigen Inhalt von `dist/` verwenden. Einzeldatei-Uploads von `index.html` sind nach der Modularisierung nicht mehr ausreichend. Die im Repository enthaltenen Laufzeitdateien können auch direkt statisch bereitgestellt werden.
 
-## Datensicherung
+```sh
+npx playwright install chromium webkit
+python3 -m pip install python-docx openpyxl pymupdf
+npm test
+```
 
-Die Daten liegen im Browser des jeweiligen Geräts (IndexedDB, dazu der Arbeitsstand im localStorage) und
-werden **nicht** zwischen Geräten abgeglichen. Löscht man die App vom Home-Bildschirm oder die Website-Daten,
-sind sie weg. Deshalb regelmäßig sichern und die Dateien außerhalb des Geräts ablegen (z. B. OneDrive der Bank):
+Die Python-Bibliotheken öffnen exportierte Office-/PDF-Dateien unabhängig von der Anwendung. Ohne diese Bibliotheken werden die betreffenden Prüfungen als übersprungen angezeigt. `npm run test:unit` prüft den Rechenkern; `npm run test:browser` prüft die vollständigen Browserabläufe. GitHub Actions installiert alle Prüfbibliotheken und baut vor den Tests.
 
-| Was | Wo in der App | Datei |
-|---|---|---|
-| alle Projekte mit Fotos, Kunden, Wiedervorlagen, Marktberichte | Projekte → „Alle Projekte sichern“ | `ImmoApp Projekte JJJJ-MM-TT.json` |
-| die offene Bewertung | Export-Menü → „Als Datei sichern“ | `<Adresse>.json` |
-| Marktüberblick (schlank oder mit PDF-Anhängen) | Marktüberblick → Datensicherung | `Marktdaten_….json` |
+## iOS
 
-Einspielen: „Sicherung einspielen“ bzw. „Datei öffnen“ bzw. im Marktüberblick „Sicherung einlesen“. Jede
-Datei wird vollständig geprüft, bevor etwas überschrieben wird; beschädigte oder fremde Dateien werden mit
-einer Meldung abgelehnt, unlesbare Einträge übersprungen. Bei vorhandenen Einträgen gewinnt die neuere
-Fassung. Ältere Dateiformate bleiben lesbar. **Die Dateien sind nicht verschlüsselt** — so sensibel
-behandeln wie Kundenakten auf Papier.
+```sh
+npm run ios:sync
+npm run ios:open
+```
 
-**App-Sperre:** Face ID/Touch ID/Gerätecode verdecken die App, bis man sich ausweist. Das ist ein Sichtschutz,
-**keine Verschlüsselung** der gespeicherten Daten. Geschützt werden die Daten durch Gerätesperre und
-Geräteverschlüsselung des Betriebssystems.
+Das Xcode-Projekt liegt in `ios/App/App.xcodeproj`. Die Hülle verwendet die bestehende Web-Oberfläche und den gleichen Rechenkern; Dateien werden über das native Teilen-Menü ausgegeben. Das lokale Projekt wurde im iPhone-Simulator gebaut und gestartet. Es ist noch keine signierte, auf einem physischen iPhone oder in TestFlight geprüfte Veröffentlichung.
 
-## Bekannte Einschränkungen
+Vorhandene PWA-Daten müssen als Sicherungsdateien exportiert und in der nativen App importiert werden; beide haben getrennte Speicherbereiche. Aufwand und offene Geräteprüfungen: [Verbesserungen und iOS](docs/Verbesserungen-und-iOS.md).
 
-- Restlebenserwartung für Nießbrauch/Wohnrecht ist eine Näherung, keine amtliche Sterbetafel (überschreibbar).
-- Marktdaten des Gutachterausschusses (Sachwertfaktoren, Liegenschaftszinsen) sind nicht vorbelegt (D9).
-- Der PDF-Download ist ein Bild-PDF (Text nicht durchsuchbar); für das Bewertungsdokument ist die
-  Druckansicht („Als PDF sichern“) mit echtem Text vorzuziehen.
-- Keine Synchronisation zwischen Geräten, kein Server (D2).
-- Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim
-  Fotografieren, GPS im Aufnahmebogen, Teilen-Menü und „In Dateien sichern“ auf dem iPhone, Öffnen von
-  `.ics`-Kalendereinträgen, Installation als Home-Bildschirm-App.
+## Struktur
+
+| Pfad | Aufgabe |
+|---|---|
+| `index.html`, `assets/` | Formular, Layout, lokale Schriftarten |
+| `js/kern.js` | DOM-unabhängige Bewertungs- und Finanzierungsfunktionen |
+| `js/daten.js`, `js/speicher.js` | Dateiprüfung und atomare Speichermechanik |
+| `js/office.js`, `js/pdf.js` | Office-Formate und PDF-Seitenaufteilung |
+| `src/` | Fachliche Browsermodule, App-Navigation und native Brücke |
+| `src/init.js` | Initialisierung nach dem Laden aller Module |
+| `sw.template.js`, `scripts/build.mjs` | vollständig gecachter Build mit Versions-Hash |
+| `tests/` | Referenzwerte, Unit- und Browserprüfungen |
+| `ios/` | Capacitor-/Swift-Projekt |
+
+## Grenzen
+
+Die Ergebnisse sind rechnerische Preiseinschätzungen und kein Verkehrswertgutachten. Marktparameter und Modellkonformität müssen je Bewertung fachlich geprüft werden. Regelmäßig vollständige Sicherungen außerhalb des Browsers ablegen; beim Löschen von Website- oder App-Daten kann der lokale Bestand verloren gehen.

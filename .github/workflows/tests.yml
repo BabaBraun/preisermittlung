@@ -44,6 +44,9 @@ jobs:
           python -m pip install -r tests/requirements.txt
           npx playwright --version
 
+      - name: Statische Ausgabe bauen
+        run: npm run build
+
       - name: Sollwerte der Vergleichsrechnung sind aktuell
         run: |
           python tests/referenz/sollwerte.py
@@ -52,7 +55,7 @@ jobs:
       - name: Rechenkern (Node)
         run: |
           set -o pipefail
-          npm test 2>&1 | tee node-tests.log
+          npm run test:unit 2>&1 | tee node-tests.log
       - name: Fehler der Node-Tests als Anmerkung
         if: failure()
         run: grep -E "^✖|not ok|AssertionError|Error:" node-tests.log | head -20 | sed 's/^/::error title=Node-Test::/' || true

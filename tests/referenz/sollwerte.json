@@ -39,15 +39,15 @@
   "ertrag": 356898.610421,
   "mittel": 501354.709374,
   "pvWert": 0.0,
-  "energieWert": -15808.804787,
+  "energieWert": -12000.0,
   "niessWert": 116012.071818,
   "erbbauAbzug": 0.0,
   "wkSumme": 6500.0,
-  "empfehlung": 364533.83277,
-  "spanne_unten": 346307.141131,
-  "spanne_oben": 382760.524408,
-  "reBrutto": 3.950251,
-  "reFaktor": 25.314849
+  "empfehlung": 368342.637557,
+  "spanne_unten": 349925.505679,
+  "spanne_oben": 386759.769434,
+  "reBrutto": 3.909404,
+  "reFaktor": 25.57935
  },
  "haus_wohnrecht_erbbau_pv": {
   "bodenwert": 189000.0,

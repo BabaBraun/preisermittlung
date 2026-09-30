@@ -1,0 +1,95 @@
+{
+  "reports" : [
+    {
+      "canonicalDisplay" : "472.970,43 €",
+      "storedIncomePositive" : true,
+      "storedSubstancePositive" : true,
+      "name" : "TEST – Einfamilienhaus mit PV",
+      "canonicalPrice" : 472970.43212533841,
+      "found" : true,
+      "storedGroundPositive" : true,
+      "storedPriceStatus" : "ok",
+      "storedResultHasNumericPrice" : true,
+      "storedPricePositive" : true,
+      "differentFieldNames" : [
+
+      ]
+    },
+    {
+      "storedResultHasNumericPrice" : true,
+      "canonicalDisplay" : "238.799,01 €",
+      "canonicalPrice" : 238799.01279801485,
+      "found" : true,
+      "storedIncomePositive" : true,
+      "storedSubstancePositive" : true,
+      "differentFieldNames" : [
+
+      ],
+      "name" : "TEST – Vermietete Eigentumswohnung",
+      "storedPriceStatus" : "ok",
+      "storedGroundPositive" : false,
+      "storedPricePositive" : true
+    },
+    {
+      "canonicalPrice" : 887783.15469632507,
+      "storedPriceStatus" : "ok",
+      "canonicalDisplay" : "887.783,15 €",
+      "storedResultHasNumericPrice" : true,
+      "storedPricePositive" : true,
+      "storedGroundPositive" : true,
+      "storedSubstancePositive" : true,
+      "differentFieldNames" : [
+
+      ],
+      "found" : true,
+      "storedIncomePositive" : true,
+      "name" : "TEST – Mehrfamilienhaus mit sechs Wohnungen"
+    },
+    {
+      "storedPricePositive" : true,
+      "found" : true,
+      "differentFieldNames" : [
+
+      ],
+      "canonicalPrice" : 387855.29781696911,
+      "storedPriceStatus" : "ok",
+      "name" : "TEST – Sanierungsbedürftiges Altbauhaus",
+      "storedGroundPositive" : true,
+      "canonicalDisplay" : "387.855,30 €",
+      "storedSubstancePositive" : true,
+      "storedResultHasNumericPrice" : true,
+      "storedIncomePositive" : true
+    },
+    {
+      "storedSubstancePositive" : true,
+      "storedIncomePositive" : true,
+      "name" : "TEST – Wohnrecht und kurze Restnutzung",
+      "canonicalPrice" : 455320.75583168812,
+      "storedPricePositive" : true,
+      "storedPriceStatus" : "ok",
+      "found" : true,
+      "storedResultHasNumericPrice" : true,
+      "storedGroundPositive" : true,
+      "differentFieldNames" : [
+
+      ],
+      "canonicalDisplay" : "455.320,76 €"
+    },
+    {
+      "storedPricePositive" : false,
+      "name" : "TEST – Unvollständige Erstaufnahme",
+      "storedGroundPositive" : false,
+      "storedSubstancePositive" : false,
+      "canonicalPrice" : 0,
+      "storedPriceStatus" : "unvollstaendig",
+      "differentFieldNames" : [
+
+      ],
+      "found" : true,
+      "canonicalDisplay" : "0,00 €",
+      "storedIncomePositive" : false,
+      "storedResultHasNumericPrice" : true
+    }
+  ],
+  "version" : 1
+}

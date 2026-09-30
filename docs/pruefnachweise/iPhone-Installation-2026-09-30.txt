@@ -1,0 +1,6 @@
+Native ImmoApp auf iPhone 15 Pro installiert und gestartet, 30. September 2026.
+Gerätebuild: BUILD SUCCEEDED, Debug, vorhandenes Apple-Development-Zertifikat.
+Installation: devicectl bestätigt bundleID de.immoapp.preisermittlung.
+Start: devicectl bestätigt gestartete Anwendung.
+Keine bestehende App mit dieser Bundle-ID vor der Installation gefunden.
+Keine vollständige fachliche oder geräteübergreifende Funktionsprüfung behauptet.

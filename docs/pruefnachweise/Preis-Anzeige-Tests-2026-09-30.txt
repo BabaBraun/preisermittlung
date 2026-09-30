@@ -1,0 +1,5 @@
+16 native Tests bestanden, 0 Fehler, 0 übersprungen, keine Warnungen.
+Result Bundle: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/result-bundles/test_sim_2026-09-30T17-11-04-106Z_pid75919_879b6b1d.xcresult
+Prüft insbesondere: gespeicherte Testpreise nach Neustart; sichtbarer EFH-Preis am Objekt und im Ergebnis; kein 0-Euro-Preis bei unvollständigen Bewertungen.
+Anschließend nur die Überschrift der Gewichtsparameter auf „Gewichtung und Preisspanne“ vereinheitlicht; Gerätebuild erneut ausgeführt.
+Build 3 auf iPhone 15 Pro installiert und geöffnet. devicectl bestätigt ImmoApp 1.0.0, Bundle-Version 3.

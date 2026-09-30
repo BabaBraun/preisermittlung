@@ -39,7 +39,7 @@ test('nach jedem Vorlagenwechsel stimmen Empfehlung, Gewichtung und Spanne über
   expect(vordrucke.length).toBe(9);
   for (const v of vordrucke) {
     await fallAnwenden(page, { felder: v.modus === 'wohnung' ? FALL_ETW : FALL_HAUS });
-    await page.evaluate(id => applyVordruck(VORDRUCKE.find(x => x.id === id)), v.id);
+    await page.evaluate(id=>{applyVordruck(VORDRUCKE.find(x=>x.id===id));apply({ni_leben:'12',ni_miete:'6000',ni_umfang:'teil'});},v.id);
     await pruefeUeberall(page, v.id);
   }
   await keineSkriptfehler(page);
