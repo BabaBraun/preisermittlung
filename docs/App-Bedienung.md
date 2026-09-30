@@ -9,13 +9,18 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaftsverwaltung, Darstellung, Datensicherung, Datenschutz und App-Sperre.
 
-## Innerhalb einer Bewertung
+## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
 
-Die Objektübersicht zeigt die rechnerische Preisempfehlung bzw. den Hinweis auf unvollständige/ungültige Angaben, die Zahl der Pflichtangaben und einen direkten Einstieg zur nächsten fehlenden Angabe.
+Alle Abschnitte stehen untereinander in der bekannten Reihenfolge mit Nummer: ① Eckdaten, ①b Aufnahmebogen,
+② Hauptgebäude, ③ Anbau, ④ Objektdaten & Beschreibung … ⑨ Preisempfehlung … ⑬ Vermarktung. Jeder Abschnitt lässt
+sich über den Pfeil rechts (oder einen Klick auf die Überschrift) auf- und zuklappen, jeder Block darin (z. B.
+„4.4 Lage“, „2.2 Restnutzungsdauer“) ebenso. „Alle aufklappen“ / „Alle zuklappen“ stehen über der Liste. Die App
+merkt sich auf dem Gerät, was zugeklappt ist.
 
-Die Arbeit ist in **Objekt, Besichtigung, Bewertung und Ergebnis** gegliedert. Ein Abschnitt wird jeweils gezielt geöffnet. Die sichtbaren Formulare verwenden dieselben Eingaben wie bisher; es entstehen keine separaten Kopien je Ansicht. Längere Abschnitte sind aufklappbar. Tabellen lassen sich innerhalb ihres Bereichs seitlich verschieben, ohne dass die gesamte Seite zu breit wird.
-
-Prüfhinweise öffnen Abschnitt und geschlossene Details direkt. Suchtreffer zeigen geladene Projekte auch dann, wenn die Suche aus einem anderen Hauptbereich aufgerufen wurde. Browser-Zurück erhält den Navigationskontext und löscht keine Eingaben.
+Links steht die Abschnittsliste mit Status (Erfassung, Verfahren, Abschluss) zum Springen, rechts das Ergebnis mit
+Preisempfehlung, Gewichtung, Vollständigkeit und Prüfhinweisen. Am Handy ist die Abschnittsliste eine Leiste unter
+der Kopfzeile, das Ergebnis steht als Karte über der Liste. Ein Sprung oder Prüfhinweis öffnet zugeklappte Abschnitte
+und Blöcke automatisch. Beim Drucken wird alles aufgeklappt. Die Eingaben und Rechnungen sind unverändert.
 
 ## Prüfung
 

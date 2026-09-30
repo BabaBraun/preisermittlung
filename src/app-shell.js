@@ -1,4 +1,6 @@
-/* App-Navigation: gespeicherte Formulare bleiben im DOM, sichtbar ist jeweils ein Arbeitsschritt. */
+/* App-Navigation. In einer Bewertung stehen alle Abschnitte wie früher untereinander (① Eckdaten … ⑬ Vermarktung);
+   jeder Abschnitt und jeder Block darin lässt sich auf- und zuklappen (Zustand je Gerät gemerkt). Links die
+   Abschnittsliste mit Status (am Handy als Leiste oben), rechts das Ergebnis. Die Formularfelder bleiben unverändert. */
 const APP_GROUPS=[
  {id:'objekt',label:'Objekt',icon:'home',hint:'Grundlagen und Beschreibung',sections:['s-eck','s-technik']},
  {id:'besichtigung',label:'Besichtigung',icon:'camera',hint:'Aufnahme, Flächen und Fotos',sections:['s-aufnahme','s-hg','s-anbau','s-fotos']},
@@ -58,33 +60,63 @@ function appOpenObject(section='overview',{record=true}={}){
  if(!APP_STATE.ready)return;
  APP_STATE.ignore=true;appCloseRootPanels();document.body.classList.add('started');document.body.classList.remove('report-mode','cp-open');APP_STATE.ignore=false;
  APP_STATE.tab='object';document.body.dataset.appTab='object';$('app_more').hidden=true;
- if(section.startsWith('group:')){APP_STATE.group=section.slice(6);}
- else if(section!=='overview'){
-  const el=$(section);if(!el||!navSichtbar(el))section='s-eck';
-  APP_STATE.group=(APP_GROUPS.find(g=>g.sections.includes(section))||APP_GROUPS[0]).id;
- }
+ if(section.startsWith('group:')){ const g=APP_GROUPS.find(x=>x.id===section.slice(6)); section=g&&appSections(g)[0]?appSections(g)[0].id:'overview'; }
+ let el=section!=='overview'?$(section):null;
+ if(section!=='overview'&&(!el||!navSichtbar(el))){ section='overview'; el=null; }
  APP_STATE.section=section;
- document.querySelectorAll('main>section.card').forEach(el=>el.classList.toggle('app-current-section',el.id===section));
- $('app_object_overview').hidden=section!=='overview'&&!section.startsWith('group:');
- const el=$(section);setT('app_section_title',el?APP_LABELS[section]||navLabel(el):'Objektübersicht');
- $('app_section_toolbar').hidden=!el;
- const select=$('app_section_select');select.replaceChildren();
- const group=APP_GROUPS.find(g=>g.id===APP_STATE.group)||APP_GROUPS[0];
- for(const s of appSections(group)){const option=document.createElement('option');option.value=s.id;option.textContent=APP_LABELS[s.id]||navLabel(s);select.append(option);}
- select.value=section;
- appRenderObjectMenu();appRenderTabs();appRenderSideNav();appRefresh();
- if(record)appRouteSave({tab:'object',section});window.scrollTo({top:0,behavior:'instant'});
+ if(el) APP_STATE.group=(APP_GROUPS.find(g=>g.sections.includes(section))||APP_GROUPS[0]).id;
+ $('app_object_overview').hidden=false;
+ appRenderTabs();appRenderSideNav();appRefresh();
+ if(record)appRouteSave({tab:'object',section});
+ if(el){ appAbschnittOeffnen(el,true); requestAnimationFrame(()=>el.scrollIntoView({block:'start'})); }
+ else window.scrollTo({top:0,behavior:'instant'});
 }
 function appShowSection(id,options){appOpenObject(id,options);}
 function appShowGroup(id){appOpenObject('group:'+id);}
 function appRenderSideNav(){
  const nav=$('nav');if(!nav)return;nav.replaceChildren();
- const heading=document.createElement('p');heading.className='app-side-caption';heading.textContent='Diese Bewertung';nav.append(heading);
- const back=document.createElement('button');back.textContent='Objektübersicht';back.onclick=()=>appOpenObject();back.className='app-side-home';nav.append(back);
- for(const g of APP_GROUPS){const btn=document.createElement('button');btn.innerHTML=iaSvg(g.icon)+'<span>'+g.label+'</span>';btn.className='app-side-group';btn.onclick=()=>appShowGroup(g.id);btn.setAttribute('aria-expanded',String(APP_STATE.group===g.id));nav.append(btn);
-  if(APP_STATE.group===g.id)for(const section of appSections(g)){const a=document.createElement('a');a.href='#'+section.id;a.dataset.sec=section.id;a.innerHTML='<i class="st"></i><span>'+sEsc(APP_LABELS[section.id]||navLabel(section))+'</span><em></em>';a.onclick=e=>{e.preventDefault();appShowSection(section.id);};a.setAttribute('aria-current',APP_STATE.section===section.id?'page':'false');nav.append(a);}
- }
- navStatus();
+ const gesetzt={};
+ NAV_GROUPS.forEach(([titel,ids])=>{
+  const items=ids.map(id=>$(id)).filter(x=>x&&navSichtbar(x));if(!items.length)return;
+  const h=document.createElement('div');h.className='nav-group';h.textContent=titel;nav.append(h);
+  items.forEach(x=>{nav.append(navLink(x));gesetzt[x.id]=1;});
+ });
+ document.querySelectorAll('main>section.card[data-nav]').forEach(x=>{if(!gesetzt[x.id]&&navSichtbar(x))nav.append(navLink(x));});
+ navStatus();appNavAktuell();
+}
+/* Abschnitt, der gerade oben im Bild ist, in der Liste markieren */
+function appNavAktuell(){
+ if(APP_STATE.tab!=='object')return;
+ const oben=(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-header-height'))||72)+80;
+ let akt=null;document.querySelectorAll('main>section.card').forEach(x=>{if(x.offsetParent&&x.getBoundingClientRect().top<=oben)akt=x.id;});
+ if(!akt){const erste=[...document.querySelectorAll('main>section.card')].find(x=>x.offsetParent);akt=erste&&erste.id;}
+ document.querySelectorAll('nav.side a[data-sec]').forEach(a=>{const on=a.dataset.sec===akt;if(on)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');
+  if(on&&window.innerWidth<1100){const n=a.parentElement;if(n.scrollWidth>n.clientWidth){const l=a.offsetLeft-n.clientWidth/2+a.offsetWidth/2;if(Math.abs(n.scrollLeft-l)>40)n.scrollLeft=l;}}});
+}
+/* ---------- Auf- und Zuklappen ---------- */
+const APP_ZU_KEY='ia_zugeklappt';
+function appZuLesen(){ try{ const a=JSON.parse(localStorage.getItem(APP_ZU_KEY)||'[]'); return new Set(Array.isArray(a)?a:[]); }catch(e){ return new Set(); } }
+function appZuMerken(key,zu){ const m=appZuLesen(); if(zu)m.add(key);else m.delete(key); try{ localStorage.setItem(APP_ZU_KEY,JSON.stringify([...m])); }catch(e){} }
+function appAbschnittOeffnen(sec,offen){
+ if(!sec)return; sec.classList.toggle('app-zu',!offen);
+ const b=sec.querySelector(':scope>h2 .app-sec-toggle');if(b){b.setAttribute('aria-expanded',String(!!offen));b.setAttribute('aria-label',(offen?'Abschnitt zuklappen: ':'Abschnitt aufklappen: ')+navLabel(sec));}
+ appZuMerken('s:'+sec.id,!offen);
+}
+function appAbschnittUmschalten(sec){ appAbschnittOeffnen(sec,sec.classList.contains('app-zu')); }
+function appAlleKlappen(offen){
+ document.querySelectorAll('main>section.card').forEach(sec=>appAbschnittOeffnen(sec,offen));
+ document.querySelectorAll('main>section.card details.app-disclosure').forEach(d=>{d.open=offen;});
+}
+function appAbschnitteKlappbar(){
+ const zu=appZuLesen();
+ document.querySelectorAll('main>section.card').forEach(sec=>{
+  const h=sec.querySelector(':scope>h2');if(!h||h.querySelector('.app-sec-toggle'))return;
+  const b=document.createElement('button');b.type='button';b.className='app-sec-toggle no-print';b.innerHTML=iaSvg('chevron-down');b.setAttribute('aria-controls',sec.id);
+  b.addEventListener('click',e=>{e.stopPropagation();appAbschnittUmschalten(sec);});
+  h.classList.add('app-sec-kopf');h.append(b);
+  h.addEventListener('click',e=>{if(e.target.closest('a,input,select,textarea,label'))return;appAbschnittUmschalten(sec);});
+  appAbschnittOeffnen(sec,!zu.has('s:'+sec.id));
+ });
 }
 function appRefresh(){
  if(!APP_STATE.ready)return;
@@ -101,15 +133,15 @@ function appRefresh(){
 }
 function appReveal(el){
  if(!el||!APP_STATE.ready)return;
- const section=el.closest('main>section.card');if(section)appShowSection(section.id);
+ const section=el.closest('main>section.card');
+ if(APP_STATE.tab!=='object')appOpenObject(section?section.id:'overview');
+ if(section&&section.classList.contains('app-zu'))appAbschnittOeffnen(section,true);
  let parent=el.parentElement;while(parent){if(parent.tagName==='DETAILS')parent.open=true;parent=parent.parentElement;}
 }
 function appScrollIntoView(el,options){appReveal(el);el?.scrollIntoView(options);}
 function appBack(){
  if(APP_STATE.tab==='object'){
-  if(APP_STATE.section==='overview')appSetTab('objects');
-  else if(APP_STATE.section.startsWith('group:'))appOpenObject();
-  else appShowGroup(APP_STATE.group);
+  appSetTab('objects');
  }else if(APP_STATE.tab==='home'&&$('start-step2').style.display!=='none'){startBack();appRenderTabs();}
  else if(APP_STATE.tab==='home'&&$('start-step1').style.display!=='none'){startStep0();appRenderTabs();}
  else appSetTab('home');
@@ -125,7 +157,7 @@ function appShellInit(){
  const legacy=$('mbar');legacy.id='legacy_mbar';legacy.hidden=true;
  const nav=document.createElement('nav');nav.id='mbar';nav.setAttribute('aria-label','Hauptbereiche');nav.innerHTML=[['home','Übersicht','home'],['objects','Objekte','folder'],['market','Markt','chart'],['more','Mehr','more']].map(([id,label,icon])=>`<button type="button" data-app-tab="${id}" onclick="appSetTab('${id}')" aria-label="${label}">${iaSvg(icon)}<span>${label}</span></button>`).join('');document.body.append(nav);
  const main=document.querySelector('main');
- const work=document.createElement('div');work.id='app_work_header';work.innerHTML=`<nav id="app_steps" aria-label="Bewertungsschritte">${APP_GROUPS.map(g=>`<button type="button" data-app-group="${g.id}" aria-label="${g.label}" onclick="appShowGroup('${g.id}')">${g.label}</button>`).join('')}</nav><div id="app_validation" class="app-validation" hidden><div><strong id="app_validation_text"></strong><span id="app_validation_detail"></span></div><button id="app_validation_go" type="button">Zu den Angaben</button></div><div id="app_section_toolbar" hidden><label for="app_section_select">Bereich</label><select id="app_section_select" onchange="appShowSection(this.value)"></select><button type="button" class="icon" onclick="appOpenObject()" aria-label="Objektübersicht">${iaSvg('home')}</button><span id="app_section_title" hidden></span></div>`;
+ const work=document.createElement('div');work.id='app_work_header';work.innerHTML=`<nav id="app_steps" aria-label="Bewertungsschritte">${APP_GROUPS.map(g=>`<button type="button" data-app-group="${g.id}" aria-label="${g.label}" onclick="appShowGroup('${g.id}')">${g.label}</button>`).join('')}</nav><div id="app_validation" class="app-validation" hidden><div><strong id="app_validation_text"></strong><span id="app_validation_detail"></span></div><button id="app_validation_go" type="button">Zu den Angaben</button></div><div id="app_section_toolbar" hidden><label for="app_section_select">Bereich</label><select id="app_section_select" onchange="appShowSection(this.value)"></select><button type="button" class="icon" onclick="appOpenObject()" aria-label="Objektübersicht">${iaSvg('home')}</button><span id="app_section_title" hidden></span></div><div id="app_liste_werkzeuge" class="no-print"><button type="button" class="secondary" onclick="appAlleKlappen(true)">${iaSvg('chevron-down')}<span>Alle aufklappen</span></button><button type="button" class="secondary" onclick="appAlleKlappen(false)">${iaSvg('chevron-up')}<span>Alle zuklappen</span></button></div>`;
  main.prepend(work);
  const overview=document.createElement('div');overview.id='app_object_overview';overview.innerHTML=`<div class="app-page-heading"><h1 id="app_object_heading">Dein Objekt</h1><p id="app_object_hint"></p></div><div id="app_object_summary" class="app-object-summary"><span class="app-eyebrow" id="app_object_type"></span><strong id="app_object_value">Noch nicht vollständig</strong><p id="app_object_status"></p><div class="app-progress"><span id="app_object_progress"></span><div><i id="app_object_progressbar"></i></div></div><button type="button" id="app_object_next" class="primary"></button></div><div id="app_object_actions" class="app-actions-list"></div>`;work.after(overview);
  const more=document.createElement('main');more.id='app_more';more.hidden=true;more.innerHTML=`<div class="app-page-heading"><span class="app-eyebrow">Dein Arbeitsplatz</span><h1>Werkzeuge & Einstellungen</h1><p>Alles Weitere, wenn du es brauchst.</p></div><h2>Beratung & Organisation</h2><div class="app-actions-list">${appButton('Finanzierung','calc','finOeffnen()','Rate, Budget und Tilgungsplan')}${appButton('Kunden','users','kdOeffnen()','Kundenakten und Gesprächsnotizen')}${appButton('Wiedervorlagen','calendar','aufOeffnen()','Offene Aufgaben und Termine')}${appButton('Liegenschaftsverwaltung','building',"lvOeffnen('uebersicht')",'Mieten, Nebenkosten, Hausgeld, Instandhaltung')}</div><h2>Daten & App</h2><div class="app-actions-list">${appButton('Datensicherung','download',"appSetTab('objects')",'Projekte exportieren und wiederherstellen')}${appButton('Darstellung','moon','themeToggle()','Hell- und Dunkelmodus wechseln')}${appButton('App-Sperre','lock','lockSetupOeffnen()','Face ID, Touch ID oder Gerätecode')}${appButton('Datenschutz','shield','dsgvoOeffnen()','Wo deine Daten gespeichert werden')}${appButton('Selbsttest','check','iaSelbsttestOeffnen()','Rechenkern überprüfen')}</div>`;document.querySelector('.wrap').after(more);
@@ -142,7 +174,11 @@ function appShellInit(){
  document.querySelectorAll('.tile[onclick]').forEach(tile=>{if(tile.tagName==='BUTTON')return;tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});
  document.addEventListener('keydown',event=>{const tile=event.target.closest('.tile[role="button"]');if(tile&&(event.key==='Enter'||event.key===' ')){event.preventDefault();tile.click();}});
  const tileObserver=new MutationObserver(()=>{document.querySelectorAll('.tile[onclick]:not([role]):not(button)').forEach(tile=>{tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});});tileObserver.observe($('start-tiles'),{childList:true});
- appFormDisclosure();
+ appFormDisclosure();appAbschnitteKlappbar();
+ let navRaf=0;window.addEventListener('scroll',()=>{if(navRaf)return;navRaf=requestAnimationFrame(()=>{navRaf=0;appNavAktuell();});},{passive:true});
+ // Drucken (Aufnahmebogen, Druckansicht): zugeklappte Blöcke vorher öffnen, danach wiederherstellen
+ let druckZu=[];window.addEventListener('beforeprint',()=>{druckZu=[...document.querySelectorAll('main details.app-disclosure:not([open])')];druckZu.forEach(d=>d.open=true);});
+ window.addEventListener('afterprint',()=>{druckZu.forEach(d=>d.open=false);druckZu=[];});
  document.querySelectorAll('#start-step0 .quick .tile').forEach(tile=>tile.classList.toggle('app-hero-action',tile.querySelector('.t')?.textContent==='Neue Bewertung'));
  const count=document.createElement('div');count.className='app-home-stats';count.innerHTML='<span><strong id="app_home_objects">0</strong> gespeicherte Objekte</span><span><strong id="app_home_tasks">0</strong> fällige Aufgaben</span>';$('start-step0').querySelector('.greet').after(count);
  APP_STATE.ready=true;
@@ -154,19 +190,21 @@ function appShellInit(){
 }
 let APP_MARKET_PROMISE=Promise.resolve();
 
-// Überschaubare Unterabschnitte: optionale Details werden erst bei Bedarf geöffnet.
+// Blöcke innerhalb der Abschnitte (Unterüberschriften wie „4.4 Lage“) lassen sich auf- und zuklappen.
 function appFormDisclosure(){
- for(const id of ['s-aufnahme','s-hg','s-technik','s-fotos','s-empfehlung','s-sign','s-expose','bw_body']){
-  const section=$(id);if(!section)continue;
-  const headings=[...section.children].filter(el=>el.tagName==='H3');
-  headings.forEach((heading,i)=>{
-   const details=document.createElement('details');details.className='app-disclosure';details.open=i===0;
-   const summary=document.createElement('summary');summary.textContent=heading.textContent.replace(/^\d+(?:[a-z])?(?:\.\d+)?\s*[·.]?\s*/,'').trim();
+ const zu=appZuLesen();
+ document.querySelectorAll('main>section.card').forEach(section=>{
+  section.querySelectorAll('h3').forEach(heading=>{
+   if(heading.closest('details.app-disclosure>summary'))return;
+   const titel=heading.textContent.replace(/\s+/g,' ').trim(), key='b:'+section.id+':'+titel.slice(0,60);
+   const details=document.createElement('details');details.className='app-disclosure';details.open=!zu.has(key);
+   const summary=document.createElement('summary');summary.textContent=titel;
    details.append(summary);let next=heading.nextSibling;const nodes=[];
    while(next&&!(next.nodeType===1&&next.tagName==='H3')){nodes.push(next);next=next.nextSibling;}
    heading.before(details);heading.remove();const content=document.createElement('div');content.className='app-disclosure-body';nodes.forEach(n=>content.append(n));details.append(content);
+   details.addEventListener('toggle',()=>appZuMerken(key,!details.open));
   });
- }
+ });
  document.querySelectorAll('main section table').forEach(table=>{
   if(table.parentElement.classList.contains('app-table-scroll'))return;
   const wrap=document.createElement('div');wrap.className='app-table-scroll';wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label','Tabelle: '+(table.closest('details')?.querySelector('summary')?.textContent||table.closest('section')?.querySelector('h2')?.textContent||'Objektdaten'));table.before(wrap);wrap.append(table);

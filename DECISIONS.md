@@ -456,3 +456,17 @@ Anhänge (vorher blieben Fotos der Instandhaltung zurück — Datenschutz).
 **Begründung:** Alles offline und ohne Dienst Dritter; Kern jeweils gegen eine unabhängige Python-Rechnung geprüft
 (15 Mieterhöhungsfälle, 5 Jahresberichte) bzw. gegen Beispieldateien (CAMT, drei CSV-Formate).
 
+---
+
+## D22 (2026-09-30) — Bewertung wieder als durchgehende Liste, auf- und zuklappbar
+
+**Rückmeldung des Auftraggebers:** Die Aufteilung aus dem Fork (Objektübersicht, vier Schritte, jeweils nur ein
+Abschnitt sichtbar) gefiel weniger als die frühere Darstellung, in der alle Abschnitte untereinander standen.
+
+**Entscheidung:** In einer Bewertung stehen wieder alle Abschnitte untereinander mit Nummer (① … ⑬), links die
+Abschnittsliste mit Status, rechts das Ergebnis (am Handy: Leiste oben, Ergebniskarte über der Liste). Neu: jeder
+Abschnitt und jeder Block (Unterüberschrift, z. B. „4.4 Lage“) ist auf- und zuklappbar; der Zustand wird je Gerät im
+Browserspeicher gemerkt (nur eine Anzeigeeinstellung, keine Daten). Die Hauptnavigation des Forks (Übersicht,
+Objekte, Markt, Mehr) bleibt. Formularfelder, Rechenkern und Berichte sind unverändert — der Abgleich aller
+Referenzbewertungen (golden.json) ist unverändert grün.
+

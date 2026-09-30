@@ -1,3 +1,8 @@
+# Zusammenfassung — Darstellung der Bewertung wie früher (2026-09-30)
+
+Alle Abschnitte der Preisermittlung stehen wieder untereinander (① … ⑬), jeder Abschnitt und jeder Block ist auf- und
+zuklappbar; links die Abschnittsliste, rechts das Ergebnis (D22). Rechnungen unverändert.
+
 # Zusammenfassung — Liegenschaftsverwaltung Stufe 5 (2026-09-30)
 
 Miete jetzt sichtbar: Mietaufstellung im Überblick, Miete in den Einheiten, Mieter und Miete schon beim Anlegen.
