@@ -1094,6 +1094,21 @@
   #report img.gr{max-width:100%;height:auto;display:block;margin:0 auto}
   #report .beschr{orphans:3;widows:3}
   @media print{ #report{padding-bottom:0!important;margin-bottom:0!important} }
+
+  /* Schmale Bildschirme: Rasterspalten dürfen schrumpfen, Auswahllisten mit langen Texten sprengen die Seite
+     nicht (Safari bemisst <select> nach der längsten Option) */
+  .grid>*,.field{min-width:0}
+  select{max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis}
+
+  /* Bericht, Exposé und Präsentation auf dem Handy: Zellen umbrechen, Breites scrollt im Dokument, nicht die Seite */
+  @media screen and (max-width:640px){
+    body.report-mode #report{overflow-x:auto}
+    #report td,#report th{white-space:normal!important;overflow-wrap:anywhere}
+  }
+
+  /* Sprung zu einem Abschnitt: Überschrift nicht unter der Kopfzeile (und am Handy der Kapitelleiste) */
+  main section.card{scroll-margin-top:72px}
+  @media(max-width:1100px){ main section.card{scroll-margin-top:124px} }
 </style>
 </head>
 <body>
@@ -3080,7 +3095,7 @@ function finSchliessen(){
 function finAusBewertung(still){
   /* mdbNum statt parseNum: parseNum liest "267.901" als 267,901 (Punkt = Dezimaltrenner ohne Komma) */
   let emp=mdbNum((($('o_empfehlung')||{}).textContent)||'');
-  if(emp>0){ $('fin_kaufpreis').value=Math.round(emp); finRechnen(); }
+  if(emp>0){ $('fin_kaufpreis').value=Math.round(emp).toLocaleString('de-DE'); finRechnen(); }
   else if(!still) alert('In der Bewertung steht noch keine Preisempfehlung — bitte zuerst die Eckdaten ausfüllen oder den Kaufpreis von Hand eintragen.');
 }
 function finDrucken(){ window.print(); }
@@ -6179,6 +6194,9 @@ function compute(){
   try{ vpStatus(); }catch(e){}
   try{ kkStatus(); }catch(e){}
   try{ vmRender(); if($('vm_n_datum')&&!$('vm_n_datum').value) $('vm_n_datum').value=aufHeute(); }catch(e){}
+  /* Seitenleiste und Handyleiste auch nach Vorlagenwechsel, Import und Selbsttest nachziehen
+     (vorher nur bei Tastatur-/Auswahlereignissen — sie zeigten dann einen veralteten Wert) */
+  if(!SILENT) try{ cockpitUpdate(); }catch(e){}
   autosave();
 }
 function anzeigen(R,D){

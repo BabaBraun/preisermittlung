@@ -24,6 +24,6 @@ export default defineConfig({
     command: 'node tests/server.mjs',
     url: 'http://localhost:' + PORT + '/index.html',
     reuseExistingServer: !process.env.CI,
-    env: { PORT: String(PORT) }
+    env: { PORT: String(PORT), TEST_STEUERUNG: '1' }
   }
 });
