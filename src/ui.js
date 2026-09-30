@@ -94,7 +94,7 @@ function enAusAufnahme(){
   let k=num('au_energiewert'), kl=($('au_energieklasse')||{value:'–'}).value;
   if(k>0){ $('en_kennwert').value=num2(k); $('en_klasse').dataset.manuell=''; }
   if(kl && kl!=='–'){ $('en_klasse').value=kl; $('en_klasse').dataset.manuell='1'; }
-  if(!(k>0) && (!kl||kl==='–')){ alert('Im Aufnahmebogen (①b) sind weder Energiekennwert noch Effizienzklasse eingetragen.'); return; }
+  if(!(k>0) && (!kl||kl==='–')){ alert('Im Aufnahmebogen sind weder Energiekennwert noch Effizienzklasse eingetragen.'); return; }
   compute();
 }
 
@@ -281,9 +281,10 @@ function voll(){
 }
 
 /* ---------- Navigation mit Status ---------- */
-var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen','s-fotos']],
+/* Reihenfolge wie im Formular — die Abschnittsnummern laufen in dieser Folge */
+var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung']],
-                  ['Abschluss',['s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']]];
+                  ['Abschluss',['s-fotos','s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']]];
 var NAV_TOGGLE={'s-sanierung':'san_aktiv','s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
 var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-belwert':'o_beleihungswert','s-empfehlung':'o_empfehlung'};
 function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-z]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
@@ -344,7 +345,7 @@ function cockpitUpdate(){
     let adr=($('ek_anschrift')||{}).value||''; setT('hdr_proj', adr.trim()||'Neue Bewertung');
     let sp=($('o_spanne')||{}).textContent||'–'; setT('cp_spanne', sp&&sp!=='–'?'Verhandlungsspanne '+sp:'Verhandlungsspanne wird berechnet');
     let abwT=(($('o_pl_abw')||{}).textContent||'–').trim(), cls='', txt='', kurz='offen';
-    if(abwT==='–'||abwT===''){ txt='Plausibilität: Vergleichspreis in ⑨ eintragen'; }
+    if(abwT==='–'||abwT===''){ txt='Plausibilität: Vergleichspreis unter Preisempfehlung eintragen'; }
     else{ let a=Math.abs(parseNum(abwT.replace('+',''))); cls=a<=10?'ok':a<=25?'warn':'bad'; kurz=a<=10?'plausibel':a<=25?'erklärungsbedürftig':'prüfen'; txt=kurz+' · '+abwT+' zum Vergleichspreis'; }
     ['cp_plausi','mb_plausi'].forEach(id=>{ let p=$(id); if(!p)return; p.classList.remove('ok','warn','bad'); if(cls)p.classList.add(cls); });
     setT('cp_plausi_t',txt); setT('mb_plausi_t',kurz);

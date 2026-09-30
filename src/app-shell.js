@@ -82,7 +82,7 @@ function appRenderSideNav(){
   items.forEach(x=>{nav.append(navLink(x));gesetzt[x.id]=1;});
  });
  document.querySelectorAll('main>section.card[data-nav]').forEach(x=>{if(!gesetzt[x.id]&&navSichtbar(x))nav.append(navLink(x));});
- navStatus();appNavAktuell();
+ appNummerieren();navStatus();appNavAktuell();
 }
 /* Abschnitt, der gerade oben im Bild ist, in der Liste markieren */
 function appNavAktuell(){
@@ -107,10 +107,44 @@ function appAlleKlappen(offen){
  document.querySelectorAll('main>section.card').forEach(sec=>appAbschnittOeffnen(sec,offen));
  document.querySelectorAll('main>section.card details.app-disclosure').forEach(d=>{d.open=offen;});
 }
+function appKopfVorbereiten(sec){
+ const h=sec.querySelector(':scope>h2');if(!h)return null;
+ let step=h.querySelector(':scope>.step');if(!step){step=document.createElement('span');step.className='step';h.prepend(step);}
+ let titel=h.querySelector(':scope>.app-sec-titel');
+ if(!titel){titel=document.createElement('span');titel.className='app-sec-titel';
+  const t=[...h.childNodes].filter(n=>n!==step&&!(n.nodeType===1&&n.classList.contains('app-sec-toggle'))).map(n=>n.textContent).join('');
+  [...h.childNodes].forEach(n=>{if(n!==step&&!(n.nodeType===1&&n.classList.contains('app-sec-toggle')))n.remove();});
+  titel.textContent=t.replace(/^\s*[\u2460-\u2473]\s?[a-z]?\s*/,'').trim();step.after(titel);}
+ return h;
+}
+/* Nummern fortlaufend in der angezeigten Reihenfolge (Haus oder Wohnung): Abschnitte 1, 2, 3 …, Blöcke 5.1, 5.2 … */
+function appSichtbarIn(el,sec){
+ for(let p=el;p&&p!==sec;p=p.parentElement){
+  if(p.hidden)return false;
+  if(p.parentElement===sec&&sec.classList.contains('app-zu')){if(p.style.display==='none')return false;continue;}   // nur wegen Zuklappen verborgen
+  if(getComputedStyle(p).display==='none')return false;
+ }
+ return true;
+}
+function appNummerieren(){
+ let n=0;
+ document.querySelectorAll('main>section.card').forEach(sec=>{
+  const h=sec.querySelector(':scope>h2');if(!h)return;
+  if(!navSichtbar(sec)||sec.hidden){delete sec.dataset.nr;return;}
+  n++;sec.dataset.nr=n;const step=h.querySelector(':scope>.step');if(step&&step.textContent!==String(n))step.textContent=n;
+  let i=0;
+  sec.querySelectorAll('details.app-disclosure').forEach(d=>{
+   const s=d.querySelector(':scope>summary');if(!s||!s.dataset.titel)return;
+   const t=appSichtbarIn(d,sec)?n+'.'+(++i)+' '+s.dataset.titel:s.dataset.titel;
+   if(s.textContent!==t)s.textContent=t;
+  });
+ });
+ document.querySelectorAll('nav.side a[data-sec]').forEach(a=>{const sec=$(a.dataset.sec),sp=a.querySelector('span');if(sec&&sp){const t=(sec.dataset.nr?sec.dataset.nr+' ':'')+navLabel(sec);if(sp.textContent!==t)sp.textContent=t;}});
+}
 function appAbschnitteKlappbar(){
  const zu=appZuLesen();
  document.querySelectorAll('main>section.card').forEach(sec=>{
-  const h=sec.querySelector(':scope>h2');if(!h||h.querySelector('.app-sec-toggle'))return;
+  const h=appKopfVorbereiten(sec);if(!h||h.querySelector('.app-sec-toggle'))return;
   const b=document.createElement('button');b.type='button';b.className='app-sec-toggle no-print';b.innerHTML=iaSvg('chevron-down');b.setAttribute('aria-controls',sec.id);
   b.addEventListener('click',e=>{e.stopPropagation();appAbschnittUmschalten(sec);});
   h.classList.add('app-sec-kopf');h.append(b);
@@ -120,6 +154,7 @@ function appAbschnitteKlappbar(){
 }
 function appRefresh(){
  if(!APP_STATE.ready)return;
+ appNummerieren();
  const P=window._PRUEF||{},v=voll();
  setT('app_object_value',P.status==='fehler'?'Eingaben prüfen':P.status==='unvollstaendig'?'Noch nicht vollständig':($('o_empfehlung').textContent||'–'));
  setT('app_object_status',P.status==='ok'?'Rechnerische Preisempfehlung':'Angaben vervollständigen, bevor du das Ergebnis verwendest.');
@@ -174,7 +209,7 @@ function appShellInit(){
  document.querySelectorAll('.tile[onclick]').forEach(tile=>{if(tile.tagName==='BUTTON')return;tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});
  document.addEventListener('keydown',event=>{const tile=event.target.closest('.tile[role="button"]');if(tile&&(event.key==='Enter'||event.key===' ')){event.preventDefault();tile.click();}});
  const tileObserver=new MutationObserver(()=>{document.querySelectorAll('.tile[onclick]:not([role]):not(button)').forEach(tile=>{tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});});tileObserver.observe($('start-tiles'),{childList:true});
- appFormDisclosure();appAbschnitteKlappbar();
+ appFormDisclosure();appAbschnitteKlappbar();appNummerieren();
  let navRaf=0;window.addEventListener('scroll',()=>{if(navRaf)return;navRaf=requestAnimationFrame(()=>{navRaf=0;appNavAktuell();});},{passive:true});
  // Drucken (Aufnahmebogen, Druckansicht): zugeklappte Blöcke vorher öffnen, danach wiederherstellen
  let druckZu=[];window.addEventListener('beforeprint',()=>{druckZu=[...document.querySelectorAll('main details.app-disclosure:not([open])')];druckZu.forEach(d=>d.open=true);});
@@ -196,9 +231,9 @@ function appFormDisclosure(){
  document.querySelectorAll('main>section.card').forEach(section=>{
   section.querySelectorAll('h3').forEach(heading=>{
    if(heading.closest('details.app-disclosure>summary'))return;
-   const titel=heading.textContent.replace(/\s+/g,' ').trim(), key='b:'+section.id+':'+titel.slice(0,60);
+   const titel=heading.textContent.replace(/\s+/g,' ').trim().replace(/^\d+[a-z]?(?:\.\d+)?\s*[·.]?\s*/,''), key='b:'+section.id+':'+titel.slice(0,60);
    const details=document.createElement('details');details.className='app-disclosure';details.open=!zu.has(key);
-   const summary=document.createElement('summary');summary.textContent=titel;
+   const summary=document.createElement('summary');summary.textContent=titel;summary.dataset.titel=titel;
    details.append(summary);let next=heading.nextSibling;const nodes=[];
    while(next&&!(next.nodeType===1&&next.tagName==='H3')){nodes.push(next);next=next.nextSibling;}
    heading.before(details);heading.remove();const content=document.createElement('div');content.className='app-disclosure-body';nodes.forEach(n=>content.append(n));details.append(content);

@@ -97,7 +97,7 @@ function vmUebersicht(){
         return '<div class="kd-karte"><div><b>'+sEsc(x.name)+'</b><span>'+sEsc([p?eur(p):'',x.f.vm_start?k.tage+' Tage am Markt':'',k.anfragen+' Anfragen',k.besicht+' Besichtigungen',k.angebote?k.angebote+' Angebote':''].filter(Boolean).join(' · '))
           +(['In Vermarktung','Reserviert'].includes(x.f.vm_status)&&(alt==null||alt>7)?' · <em class="vm-faellig">Eigentümer-Bericht '+(alt==null?'noch nie':'vor '+alt+' Tagen')+'</em>':'')+'</span></div>'
           +(x.id?'<div class="kd-k"><button class="secondary" onclick="vmSchliessen();projektLaden(\''+x.id+'\')">Öffnen</button></div>':'<div class="kd-k"><button class="secondary" onclick="vmSchliessen();document.body.classList.add(\'started\');document.getElementById(\'s-vermarktung\').scrollIntoView()">Öffnen</button></div>')+'</div>'; }).join('')+'</div>').join('')
-      :'<div class="kd-leer">Noch kein Objekt mit Vermarktungsstand. Den Stand setzt du in ⑬ Vermarktung und sicherst die Bewertung als Projekt.</div>');
+      :'<div class="kd-leer">Noch kein Objekt mit Vermarktungsstand. Den Stand setzt du im Abschnitt „Vermarktung“ und sicherst die Bewertung als Projekt.</div>');
 }
 function vmSchliessen(){ $('vm_overlay').classList.remove('on'); document.body.style.overflow=''; }
 function vmStartRender(){

@@ -140,7 +140,7 @@ function raumlisteSync(){
   setT('rl_modus_hint',hint);
   let eh=$('rl_eck_hint');
   if(eh){
-    if(uebernehmen) eh.innerHTML='aus der Raumliste (①b) · <a href="#" onclick="rlZurListe();return false;">ansehen</a>';
+    if(uebernehmen) eh.innerHTML='aus der Raumliste (Aufnahmebogen) · <a href="#" onclick="rlZurListe();return false;">ansehen</a>';
     else if(n) eh.innerHTML='Raumliste: '+num2(d.wfl)+' m² · <a href="#" onclick="rlUebernehmen();return false;">übernehmen</a>';
     else eh.innerHTML='';
   }

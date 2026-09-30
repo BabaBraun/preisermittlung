@@ -86,7 +86,7 @@ function exVorschlag(art){
   if(art==='objekt') t=[exV('gebaeude_besch'),exV('grundstueck_besch'),exV('eindruck')].filter(Boolean).join('\n\n');
   if(art==='ausstattung') t=exAusstattungVorschlag();
   if(art==='lage') t=[exV('lage_mikro'),exV('lage_makro')].filter(Boolean).join('\n\n');
-  if(!t){ alert(art==='ausstattung'?'Im Aufnahmebogen sind noch keine Ausstattungsmerkmale erfasst.':'In ④ Objektdaten & Beschreibung steht dazu noch kein Text.'); return; }
+  if(!t){ alert(art==='ausstattung'?'Im Aufnahmebogen sind noch keine Ausstattungsmerkmale erfasst.':'Unter „Objektdaten & Beschreibung“ steht dazu noch kein Text.'); return; }
   if(exV(ziel)&&!confirm('Den vorhandenen Text ersetzen?')) return;
   $(ziel).value=t; autosave(); exStatus();
 }
@@ -100,7 +100,7 @@ function exTitelbild(ids){ let t=exV('ex_titelbild'); return ids.includes(t)?t:(
 function exFotoWahlRender(){
   let box=$('ex_fotowahl'); if(!box) return;
   let liste=PHOTOS.filter(p=>p.cat==='objekt').concat(PHOTOS.filter(p=>p.cat==='karte'),PHOTOS.filter(p=>p.cat==='schaden'));
-  if(!liste.length){ box.innerHTML='<p class="hint" style="margin:0;grid-column:1/-1">Noch keine Fotos — sie werden unter ⑧ Fotodokumentation aufgenommen.</p>'; return; }
+  if(!liste.length){ box.innerHTML='<p class="hint" style="margin:0;grid-column:1/-1">Noch keine Fotos — sie werden unter „Fotodokumentation“ aufgenommen.</p>'; return; }
   let ids=exFotoIds(), titel=exTitelbild(ids);
   const art={objekt:'Objektfoto',karte:'Karte / Plan',schaden:'Schadensfoto'};
   box.innerHTML=liste.map(p=>{ let an=ids.includes(p.id);

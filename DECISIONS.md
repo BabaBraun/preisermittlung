@@ -470,3 +470,9 @@ Browserspeicher gemerkt (nur eine Anzeigeeinstellung, keine Daten). Die Hauptnav
 Objekte, Markt, Mehr) bleibt. Formularfelder, Rechenkern und Berichte sind unverändert — der Abgleich aller
 Referenzbewertungen (golden.json) ist unverändert grün.
 
+**Nachtrag (2026-09-30):** Die festen Nummern aus früheren Erweiterungen (⑦, ⑦c, ⑦d, ⑦b, ⑦e … bzw. Lücken bei der
+Wohnung) passten nicht zur Reihenfolge. Jetzt fortlaufend 1 … N in der angezeigten Reihenfolge, Blöcke N.1 … (neu
+berechnet, wenn Abschnitte je nach Vordruck ein- oder ausgeblendet werden); Verweise in Texten nennen den Abschnitt
+beim Namen statt mit Nummer. Fehler behoben: Der Titel „Preisansatz nach Vergleichswert“ wurde bei jeder Berechnung
+neu geschrieben und verlor dabei Pfeil und Nummer — der Abschnitt ließ sich nicht mehr zuklappen.
+

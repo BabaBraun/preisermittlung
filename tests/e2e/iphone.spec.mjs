@@ -2,7 +2,7 @@
    Simuliert — ersetzt nicht die Prüfung auf einem echten Gerät (Face ID, Kamera, GPS, Teilen-Menü). */
 import { test, expect } from '@playwright/test';
 import { alleAnsichten } from './ansichten.mjs';
-import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
+import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler, pruefeAlles } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 
 test('iPhone: alle Ansichten ohne waagrechtes Scrollen', async ({ page }) => {
@@ -50,4 +50,10 @@ test('iPhone: App-Bereiche, kurze Eingabeschritte und beide Farbschemata',async(
  const lum=c=>{const rgb=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];};
  for(const c of colors){const a=lum(c.fg),b=lum(c.bg);expect((Math.max(a,b)+.05)/(Math.min(a,b)+.05),c.selector+' Textkontrast').toBeGreaterThanOrEqual(4.5);}
  await keineSkriptfehler(page);
+});
+
+test('iPhone: jeder Abschnitt und Block lässt sich zu- und aufklappen, Nummern fortlaufend', async ({ page }) => {
+  await appOeffnen(page);
+  for (const v of ['wh_bgf', 'etw_vergleich']) await pruefeAlles(page, v);
+  await keineSkriptfehler(page);
 });

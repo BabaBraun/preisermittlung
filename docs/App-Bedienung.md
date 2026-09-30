@@ -11,10 +11,11 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
 
-Alle Abschnitte stehen untereinander in der bekannten Reihenfolge mit Nummer: ① Eckdaten, ①b Aufnahmebogen,
-② Hauptgebäude, ③ Anbau, ④ Objektdaten & Beschreibung … ⑨ Preisempfehlung … ⑬ Vermarktung. Jeder Abschnitt lässt
-sich über den Pfeil rechts (oder einen Klick auf die Überschrift) auf- und zuklappen, jeder Block darin (z. B.
-„4.4 Lage“, „2.2 Restnutzungsdauer“) ebenso. „Alle aufklappen“ / „Alle zuklappen“ stehen über der Liste. Die App
+Alle Abschnitte stehen untereinander in der bekannten Reihenfolge (Eckdaten, Aufnahmebogen, Hauptgebäude, Anbau,
+Objektdaten & Beschreibung … Preisempfehlung … Vermarktung), fortlaufend nummeriert 1, 2, 3 … ohne Lücken — beim Haus
+und bei der Wohnung jeweils passend zu den angezeigten Abschnitten; die Blöcke darin entsprechend 5.1, 5.2 … Jeder
+Abschnitt lässt sich über den Pfeil rechts (oder einen Klick auf die Überschrift) auf- und zuklappen, jeder Block
+darin (z. B. „Lage“, „Restnutzungsdauer“) ebenso. Die Seitenleiste zeigt dieselben Nummern. „Alle aufklappen“ / „Alle zuklappen“ stehen über der Liste. Die App
 merkt sich auf dem Gerät, was zugeklappt ist.
 
 Links steht die Abschnittsliste mit Status (Erfassung, Verfahren, Abschluss) zum Springen, rechts das Ergebnis mit

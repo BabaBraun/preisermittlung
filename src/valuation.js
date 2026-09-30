@@ -54,11 +54,12 @@ function anzeigen(R,D){
   setT('o_vgl_avg', D.vergleich.avg>0?num2(D.vergleich.avg)+' €/m² ('+D.vergleich.anz+' Objekte)':'–');
   setT('o_msp_avg', R.mspData.avg>0?num2(R.mspData.avg)+' €/m² ('+R.mspData.zeilen.length+' Quellen)':'–');
   setT('e_wf',num2(D.wfl));setT('o_vw_geb',eur(D.vwGeb));setT('o_vergleich',eur(R.vergleichWert));
-  setT('h_vergleich', istWohnung?'⑤ Preisansatz nach Vergleichswert (Wohnung)':'⑤b Preisansatz nach Vergleichswert (optional)');
+  { const hv=$('h_vergleich'), t=istWohnung?'Preisansatz nach Vergleichswert (Wohnung)':'Preisansatz nach Vergleichswert (optional)', ti=hv&&hv.querySelector('.app-sec-titel');
+    if(ti){ if(ti.textContent!==t) ti.textContent=t; } else if(hv&&!hv.querySelector('.step')) hv.textContent=(istWohnung?'⑤ ':'⑤b ')+t; }
   setT('vw_hinweis', istWohnung
     ? 'Beim Wohnungs-Vordruck ersetzt der Vergleichswert den Substanzwert (§§ 24–26 ImmoWertV — für ETW das Standardverfahren). Der Bodenwert ist im Vergleichspreis bereits enthalten.'
     : (R.vwAktiv?'Der Vergleichswert wird mit der unten gewählten Gewichtung in die Preisempfehlung einbezogen. Der Bodenwert ist im Vergleichspreis bereits enthalten.'
-             :'Aktuell nur informativ. Zum Einbeziehen oben ankreuzen und in ⑨ die Gewichtung setzen.'));
+             :'Aktuell nur informativ. Zum Einbeziehen oben ankreuzen und unter „Preisempfehlung“ die Gewichtung setzen.'));
   // PV
   $('pv_body').style.opacity=D.pvAktiv?1:.4;
   setT('o_pv_roh',eur(D.pvRoh));setT('o_pv_bewirt','− '+eur(D.pvBew));setT('o_pv_rein',eur(R.pvRein));

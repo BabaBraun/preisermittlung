@@ -8,16 +8,17 @@ test('vier klare Hauptbereiche sind mit der Tastatur erreichbar',async({page})=>
 });
 test('Bewertung: alle Abschnitte untereinander wie früher, Abschnitte und Blöcke auf- und zuklappbar, Eingaben bleiben',async({page})=>{
  await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus nach BGF',exact:true}).click();
- // Reihenfolge wie früher: ① Eckdaten, ①b Aufnahmebogen, ② Hauptgebäude … mit Nummer vor der Überschrift
+ // Reihenfolge wie früher (Eckdaten, Aufnahmebogen, Hauptgebäude …), Nummern fortlaufend 1, 2, 3 …
  const ids=await page.locator('main>section.card:visible').evaluateAll(l=>l.map(s=>s.id));
  expect(ids.slice(0,6)).toEqual(['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen']);expect(ids.length).toBeGreaterThanOrEqual(20);
- await expect(page.locator('#s-eck>h2 .step')).toHaveText('1');await expect(page.locator('#s-hg>h2 .step')).toHaveText('2');
+ await expect(page.locator('#s-eck>h2 .step')).toHaveText('1');await expect(page.locator('#s-aufnahme>h2 .step')).toHaveText('2');await expect(page.locator('#s-hg>h2 .step')).toHaveText('3');
  await page.locator('#ek_anschrift').fill('Übersichtstraße 7');
  // Abschnitt zuklappen: Inhalt weg, Überschrift bleibt; Zustand bleibt nach dem Neuladen erhalten
  await page.locator('#s-eck .app-sec-toggle').click();await expect(page.locator('#ek_anschrift')).toBeHidden();await expect(page.locator('#s-eck>h2')).toBeVisible();
  await expect(page.locator('#s-eck .app-sec-toggle')).toHaveAttribute('aria-expanded','false');
- // Block im Abschnitt: „4.4 Lage“ zu- und aufklappen
- const lage=page.locator('#s-technik details.app-disclosure').filter({has:page.locator('summary',{hasText:'4.4 Lage'})});
+ // Block im Abschnitt „Objektdaten & Beschreibung“ (beim Haus Abschnitt 5): „5.4 Lage“ zu- und aufklappen
+ const lage=page.locator('#s-technik details.app-disclosure').filter({has:page.locator('summary[data-titel="Lage"]')});
+ await expect(lage.locator('summary')).toHaveText('5.4 Lage');
  await expect(lage).toHaveAttribute('open','');await lage.locator('summary').click();await expect(lage).not.toHaveAttribute('open','');
  await page.reload();await expect(page.locator('#s-eck')).toHaveClass(/app-zu/);await expect(lage).not.toHaveAttribute('open','');
  // Sprung über die Abschnittsliste öffnet den Abschnitt wieder; die Eingabe ist unverändert

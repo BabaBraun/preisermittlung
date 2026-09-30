@@ -634,7 +634,7 @@ function grMassstabSetzen(){
 function grListeAktualisieren(){
   let p=grPlan(GR_AKTIV); if(!p) return;
   let n=grInRaumliste(p,false); compute(); autosave();
-  alert(n+' Räume stehen jetzt in der Raumliste (Aufnahmebogen ①b). Frühere Einträge dieses Grundrisses wurden ersetzt, eigene Einträge bleiben.');
+  alert(n+' Räume stehen jetzt in der Raumliste (Aufnahmebogen). Frühere Einträge dieses Grundrisses wurden ersetzt, eigene Einträge bleiben.');
 }
 function grCodeText(p){ return JSON.stringify({immoapp_grundriss:1,grundrisse:[Object.assign({id:p.id},p.d)]},null,1); }
 function grKopieren(text,knopf,fertig){

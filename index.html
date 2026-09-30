@@ -448,7 +448,7 @@
       <p class="hint">Grundfläche je Raum nach lichten Maßen ab Vorderkante der Bekleidung (§ 3 WoFlV), ohne pauschalen
         Putzabzug. Fläche direkt eintragen oder als Länge × Breite, z.&nbsp;B. <b>4,20 x 3,55</b>. Räume mit Dachschräge in zwei
         Zeilen teilen: der Teil ab 2&nbsp;m lichter Höhe zählt voll, der Teil zwischen 1 und 2&nbsp;m zur Hälfte. Den Grundriss aus
-        einer Scan-App als Bild unter ⑧&nbsp;Fotos → Karten &amp; Pläne anhängen.</p>
+        einer Scan-App als Bild unter „Fotodokumentation“ → Karten &amp; Pläne anhängen.</p>
       <label class="toggle no-print"><input type="checkbox" id="rl_aktiv" onchange="compute()"> Wohnfläche aus der Raumliste übernehmen</label>
       <p class="hint no-print" id="rl_modus_hint" style="margin-top:-4px"></p>
       <table class="nhk" id="rl_tbl">
@@ -485,7 +485,7 @@
 
       <h3>Feststellungen vor Ort</h3>
       <div class="grid">
-        <div class="field full"><label>Mängel / Auffälligkeiten <span class="u">(Stichworte — Details in ④)</span></label><textarea id="au_maengel" placeholder="z.B. Feuchtefleck Kellerwand Nordseite; Dachrinne undicht"></textarea></div>
+        <div class="field full"><label>Mängel / Auffälligkeiten <span class="u">(Stichworte — Details unter „Objektdaten &amp; Beschreibung“)</span></label><textarea id="au_maengel" placeholder="z.B. Feuchtefleck Kellerwand Nordseite; Dachrinne undicht"></textarea></div>
         <div class="field full"><label>Sonstige Notizen</label><textarea id="au_notizen"></textarea></div>
       </div>
     </section>
@@ -508,7 +508,7 @@
       </table>
 
       <h3>2.2 · Restnutzungsdauer (Modernisierungspunkte, ImmoWertV Anlage 2)</h3>
-      <p class="hint">Punkte je durchgeführter Modernisierung vergeben (0 bis Maximum). Daraus wird die wirtschaftliche Restnutzungsdauer nach amtlicher Formel abgeleitet: RND = a·Alter²/GND − b·Alter + c·GND. Sie gilt anschließend für Alterswertminderung (2.3) und Ertragswert-Vervielfältiger (⑥).</p>
+      <p class="hint">Punkte je durchgeführter Modernisierung vergeben (0 bis Maximum). Daraus wird die wirtschaftliche Restnutzungsdauer nach amtlicher Formel abgeleitet: RND = a·Alter²/GND − b·Alter + c·GND. Sie gilt anschließend für Alterswertminderung (Gebäudepreis) und Ertragswert-Vervielfältiger (Preisansatz nach dem Gebäudeertrag).</p>
       <div class="grid">
         <div class="field"><label>Gesamtnutzungsdauer <span class="u">Jahre (aus Gebäudetyp)</span></label><input id="nhkhg_gnd" type="text" value="80"></div>
         <div class="field"><label>Angepasste RND <span class="u">Jahre (0 = aus Punkten berechnen)</span></label><input id="nhkhg_rnd" type="text" value="0"></div>
@@ -761,7 +761,7 @@
     <!-- ERTRAG -->
     <section class="card" id="s-ertrag" data-nav="⑥ Preis n. Ertrag">
       <h2>⑥ Preisansatz nach dem Gebäudeertrag</h2>
-      <p class="hint">Restnutzungsdauer automatisch aus Modernisierungspunkten (Sektion ②). Rohertrag aus Eckdaten oder wohnungsweiser Mietrolle.</p>
+      <p class="hint">Restnutzungsdauer automatisch aus Modernisierungspunkten (Abschnitt „Hauptgebäude“). Rohertrag aus Eckdaten oder wohnungsweiser Mietrolle.</p>
 
       <details class="info">
         <summary>📊 Marktmieten-Vergleich (mehrere Quellen gegenüberstellen)</summary>
@@ -928,7 +928,7 @@
           oder als kapitalisierte Energiekostendifferenz. Das Ergebnis fließt als eigene Position in die Preisempfehlung.</p>
 
         <div class="flag">Doppelzählung beachten: Sind Fenster, Dämmung und Heizung bereits über die Modernisierungspunkte
-          in Abschnitt ② erfasst, wirkt die energetische Qualität dort schon über die Restnutzungsdauer auf den Substanzwert.
+          im Abschnitt „Hauptgebäude“ erfasst, wirkt die energetische Qualität dort schon über die Restnutzungsdauer auf den Substanzwert.
           Dieser Zu-/Abschlag ist dann zurückhaltend anzusetzen (oder nur auf den Ertrags-/Vergleichswertanteil zu beziehen)
           und im Bericht zu begründen.</div>
 
@@ -982,7 +982,7 @@
           <div class="field"><label>Strompreis Wärmepumpe <span class="u">€/kWh</span></label><input id="san_preis_wp" type="text" value="0,28"></div>
           <div class="field"><label>Jahresarbeitszahl Wärmepumpe</label><input id="san_jaz" type="text" value="3,0"></div>
         </div>
-        <div class="gr-zeile no-print"><button class="secondary" onclick="sanAusEnergie()" data-ic="arrow-down">Aus Aufnahmebogen und ⑦e übernehmen</button></div>
+        <div class="gr-zeile no-print"><button class="secondary" onclick="sanAusEnergie()" data-ic="arrow-down">Aus Aufnahmebogen und Energetischer Qualität übernehmen</button></div>
         <h3>Maßnahmen</h3>
         <div class="gr-tabelle"><table class="nhk san-tab" id="san_tbl"><thead><tr><th>Maßnahme</th><th>Menge</th><th>Preis je Einheit</th><th>Kosten</th></tr></thead><tbody></tbody></table></div>
         <p class="hint">Mengen schätzt die App aus der Wohnfläche (grau vorgeschlagen); eigene Aufmaße und Angebotspreise überschreiben das.</p>
@@ -1164,20 +1164,20 @@
 
     <section class="card" id="s-rendite" data-nav="⑨b Rendite & Investition">
       <h2>⑨b Rendite &amp; Investitionskosten</h2>
-      <p class="hint">Kennzahlen für Kapitalanleger. Kaufpreis leer/0 = empfohlener Preisansatz aus ⑨ wird übernommen.</p>
+      <p class="hint">Kennzahlen für Kapitalanleger. Kaufpreis leer/0 = empfohlener Preisansatz aus der Preisempfehlung wird übernommen.</p>
       <div class="grid four">
-        <div class="field"><label>Kaufpreis <span class="u">€ (0 = aus ⑨)</span></label><input id="re_kaufpreis" type="text" value="0"></div>
+        <div class="field"><label>Kaufpreis <span class="u">€ (0 = aus Preisempfehlung)</span></label><input id="re_kaufpreis" type="text" value="0"></div>
         <div class="field"><label>Grunderwerbsteuer <span class="u">% (BW 5,0)</span></label><input id="re_grest" type="text" value="5,0"></div>
         <div class="field"><label>Notar &amp; Grundbuch <span class="u">%</span></label><input id="re_notar" type="text" value="2,0"></div>
         <div class="field"><label>Maklercourtage <span class="u">% (inkl. USt.)</span></label><input id="re_makler" type="text" value="3,57"></div>
         <div class="field"><label>+ Sanierungs-/Modernisierungskosten <span class="u">€</span></label><input id="re_sanierung" type="text" value="0"></div>
-        <div class="field"><label>Nicht umlagefähige Kosten <span class="u">€/Jahr (0 = aus ⑥)</span></label><input id="re_nuk" type="text" value="0"></div>
+        <div class="field"><label>Nicht umlagefähige Kosten <span class="u">€/Jahr (0 = aus Ertragswert)</span></label><input id="re_nuk" type="text" value="0"></div>
       </div>
       <div class="row-calc"><span>Kaufpreis (Basis)</span><b id="o_re_kp">0 €</b></div>
       <div class="row-calc"><span>+ Kaufnebenkosten <span id="o_re_nkpct" class="from"></span></span><b id="o_re_nk">0 €</b></div>
       <div class="row-calc"><span>+ Sanierungs-/Modernisierungskosten</span><b id="o_re_san">0 €</b></div>
       <div class="subtotal"><span>Investitionskosten gesamt</span><span id="o_re_invest">0 €</span></div>
-      <div class="row-calc" style="margin-top:10px"><span>Jahresrohertrag <span class="from">(aus ⑥)</span></span><b id="o_re_roh">0 €</b></div>
+      <div class="row-calc" style="margin-top:10px"><span>Jahresrohertrag <span class="from">(aus Ertragswert)</span></span><b id="o_re_roh">0 €</b></div>
       <div class="row-calc"><span>Jahresreinertrag <span class="from">(nach Bewirtschaftungskosten)</span></span><b id="o_re_rein">0 €</b></div>
       <div class="two-col" style="margin-top:12px">
         <div class="subtotal"><span>Bruttomietrendite <span class="u">(Rohertrag / Kaufpreis)</span></span><span id="o_re_brutto">–</span></div>
@@ -1262,15 +1262,15 @@
       </div>
 
       <h3>Texte</h3>
-      <p class="hint">Leer gelassen, übernimmt das Exposé die Beschreibungen aus ④ und die Ausstattung aus dem Aufnahmebogen.
+      <p class="hint">Leer gelassen, übernimmt das Exposé die Beschreibungen aus „Objektdaten &amp; Beschreibung“ und die Ausstattung aus dem Aufnahmebogen.
         Mit den Knöpfen holst du sie zum Überarbeiten hierher.</p>
       <div class="field"><label>Objektbeschreibung</label><textarea id="ex_text_objekt" rows="5"></textarea></div>
       <div class="field" style="margin-top:10px"><label>Ausstattung</label><textarea id="ex_text_ausstattung" rows="6"></textarea></div>
       <div class="field" style="margin-top:10px"><label>Lage</label><textarea id="ex_text_lage" rows="4"></textarea></div>
       <div class="field" style="margin-top:10px"><label>Sonstiges <span class="u">optional</span></label><textarea id="ex_text_sonst" rows="3"></textarea></div>
-      <div class="gr-zeile no-print"><button class="secondary" onclick="exVorschlag('objekt')">Objektbeschreibung aus ④</button>
+      <div class="gr-zeile no-print"><button class="secondary" onclick="exVorschlag('objekt')">Objektbeschreibung übernehmen</button>
         <button class="secondary" onclick="exVorschlag('ausstattung')">Ausstattung aus dem Aufnahmebogen</button>
-        <button class="secondary" onclick="exVorschlag('lage')">Lage aus ④</button></div>
+        <button class="secondary" onclick="exVorschlag('lage')">Lage übernehmen</button></div>
 
       <h3>Bilder</h3>
       <p class="hint">Standardmäßig sind alle Objektfotos gewählt, Schadensfotos nicht. Das erste gewählte Foto ist Titelbild.</p>
@@ -1323,7 +1323,7 @@
       <input type="hidden" id="vp_folien" value="">
       <div class="field" style="margin-top:10px"><label>Vermarktungsplan <span class="u">eine Zeile je Schritt, „Zeitraum: Inhalt“</span></label><textarea id="vp_plan" rows="4"></textarea></div>
       <div class="field" style="margin-top:10px"><label>Ihre Vorteile <span class="u">eine Zeile je Punkt</span></label><textarea id="vp_vorteile" rows="5"></textarea></div>
-      <p class="hint">Leer gelassen, nimmt die Präsentation die grauen Vorschläge. Ansprechpartner und Unternehmen kommen aus ⑪ Exposé,
+      <p class="hint">Leer gelassen, nimmt die Präsentation die grauen Vorschläge. Ansprechpartner und Unternehmen kommen aus dem Exposé,
         Marktzahlen aus deinem Marktüberblick (ab 5 eigenen Kaufpreisen).</p>
     </section>
 
@@ -1369,7 +1369,7 @@
         <div class="cp-status" id="cp_status" role="status" hidden></div>
         <div class="cp-sub" id="cp_spanne">Verhandlungsspanne wird berechnet</div>
       </div>
-      <div class="cp-pill" id="cp_plausi"><span class="dot"></span><span id="cp_plausi_t">Plausibilität: Vergleichspreis in ⑨ eintragen</span></div>
+      <div class="cp-pill" id="cp_plausi"><span class="dot"></span><span id="cp_plausi_t">Plausibilität: Vergleichspreis unter Preisempfehlung eintragen</span></div>
       <div class="cp-sep"></div>
       <div class="cp-rows">
         <div class="cp-row"><span class="n" id="r_sub_lbl">Substanzwert</span><span class="w" id="cp_sub_w"></span><b id="r_sub">0 €</b></div>

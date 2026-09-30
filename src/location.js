@@ -23,7 +23,7 @@ function lageKoord(){
 const LAGE_PRUEFUNGEN=[
   {k:'brw',name:'Bodenrichtwert',dienst:'BORIS-BW',ablage:'adresse',
    url:()=>'https://www.gutachterausschuesse-bw.de/borisbw/?app=boris_bw'+(exOrt()?'&commune='+encodeURIComponent(exOrt()):''),
-   tipp:'Nutzungsbedingungen bestätigen, Adresse in die Suche einfügen. Bodenrichtwert und Stichtag in ① und ④b eintragen.'},
+   tipp:'Nutzungsbedingungen bestätigen, Adresse in die Suche einfügen. Bodenrichtwert und Stichtag in den Eckdaten und unter „Datengrundlagen“ eintragen.'},
   {k:'hochwasser',name:'Hochwasser',dienst:'LUBW, Hochwassergefahrenkarte',ablage:'utm',url:()=>'https://udo.lubw.baden-wuerttemberg.de/public/',
    tipp:'Thema „Hochwassergefahrenkarte“ öffnen, Koordinaten ins Suchfeld einfügen, Eingabe drücken. Liegt das Grundstück in HQ100 oder HQextrem?'},
   {k:'starkregen',name:'Starkregen',dienst:'Gemeinde, Starkregengefahrenkarte',ablage:'adresse',url:()=>'https://www.lubw.baden-wuerttemberg.de/wasser/starkregenrisikomanagement',
@@ -31,7 +31,7 @@ const LAGE_PRUEFUNGEN=[
   {k:'laerm',name:'Umgebungslärm',dienst:'LUBW, Lärmkartierung',ablage:'utm',url:()=>'https://udo.lubw.baden-wuerttemberg.de/public/',
    tipp:'Thema „Umgebungslärm“ (Straße, Schiene) öffnen, Koordinaten ins Suchfeld einfügen.'},
   {k:'bplan',name:'Bebauungsplan',dienst:'Geoportal Baden-Württemberg',ablage:'adresse',url:()=>'https://www.geoportal-bw.de/',
-   tipp:'Im Kartenviewer die Bauleitplanung einblenden, Adresse suchen; sonst bei der Gemeinde nachfragen. Ergebnis in ④ Planungsrecht eintragen.'},
+   tipp:'Im Kartenviewer die Bauleitplanung einblenden, Adresse suchen; sonst bei der Gemeinde nachfragen. Ergebnis unter „Objektdaten & Beschreibung“ → Planungsrecht eintragen.'},
   {k:'baugrund',name:'Baugrund und Hangrutschungen',dienst:'LGRB-Kartenviewer',ablage:'adresse',url:()=>'https://maps.lgrb-bw.de/',
    tipp:'Ingenieurgeologie, Hangbewegungen und Erdfälle prüfen.'},
   {k:'altlasten',name:'Altlasten',dienst:'Landratsamt, Bodenschutz- und Altlastenkataster',ablage:'',url:null,

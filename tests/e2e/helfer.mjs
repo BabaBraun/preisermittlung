@@ -59,3 +59,40 @@ export async function ergebnisLesen(page) {
 export async function keineSkriptfehler(page) {
   expect(page.__fehler || [], 'JavaScript-Fehler auf der Seite').toEqual([]);
 }
+
+/* Bewertung: jeden sichtbaren Abschnitt und Block zu- und aufklappen; Nummern fortlaufend (für Desktop und iPhone) */
+export async function pruefeAlles(page, vordruck) {
+  await page.evaluate(v => { localStorage.removeItem('ia_zugeklappt'); const liste = window.VORDRUCKE_LISTE || VORDRUCKE; pickVordruck(liste.find(x => x.id === v).id); appAlleKlappen(true); }, vordruck);
+  // alle optionalen Teile einschalten, damit auch ihre Blöcke sichtbar sind
+  await page.evaluate(() => { ['anbau_aktiv', 'niess_aktiv', 'eb_aktiv', 'pv_aktiv', 'en_aktiv', 'san_aktiv', 'vw_aktiv', 'bw_aktiv', 'iv_aktiv'].forEach(id => { const e = document.getElementById(id); if (e && !e.checked) { e.checked = true; e.dispatchEvent(new Event('change', { bubbles: true })); } }); compute(); });
+  const r = await page.evaluate(() => {
+    const fehler = [], nummern = [], bloecke = [];
+    const sichtbar = el => el.checkVisibility();   // berücksichtigt auch zugeklappte <details> (offsetWidth dort nicht 0)
+    const abschnitte = [...document.querySelectorAll('main>section.card')].filter(sichtbar);
+    for (const sec of abschnitte) {
+      const h = sec.querySelector(':scope>h2'), knopf = h && h.querySelector('.app-sec-toggle'), step = h && h.querySelector('.step');
+      if (!knopf || !step) { fehler.push(sec.id + ': Überschrift ohne Pfeil oder Nummer'); continue; }
+      nummern.push(step.textContent);
+      const inhalt = [...sec.children].filter(c => c !== h && sichtbar(c));
+      if (!inhalt.length) { fehler.push(sec.id + ': kein sichtbarer Inhalt'); continue; }
+      knopf.click();
+      if (inhalt.some(sichtbar)) fehler.push(sec.id + ': lässt sich nicht zuklappen');
+      if (knopf.getAttribute('aria-expanded') !== 'false') fehler.push(sec.id + ': aria-expanded nicht false');
+      h.querySelector('.app-sec-titel').click();   // Klick auf die Überschrift öffnet wieder
+      if (!inhalt.every(sichtbar)) fehler.push(sec.id + ': lässt sich nicht wieder aufklappen');
+      const n = step.textContent;
+      sec.querySelectorAll('details.app-disclosure').forEach(d => {
+        if (!sichtbar(d)) return;
+        const s = d.querySelector('summary'), body = d.querySelector('.app-disclosure-body');
+        bloecke.push(s.textContent);
+        if (!s.textContent.startsWith(n + '.')) fehler.push(sec.id + ': Block „' + s.textContent + '“ ohne Nummer ' + n + '.x');
+        s.click(); if (d.open || sichtbar(body)) fehler.push(sec.id + ': Block „' + s.textContent + '“ lässt sich nicht zuklappen');
+        s.click(); if (!d.open || !sichtbar(body)) fehler.push(sec.id + ': Block „' + s.textContent + '“ lässt sich nicht aufklappen');
+      });
+    }
+    return { fehler, nummern, bloecke };
+  });
+  expect(r.fehler, vordruck).toEqual([]);
+  expect(r.nummern, vordruck + ': fortlaufend').toEqual(r.nummern.map((_, i) => String(i + 1)));
+  return r;
+}

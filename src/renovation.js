@@ -79,7 +79,7 @@ function sanRechnen(){
   let R=window._R||{}, wert=stufen>0&&R.mittel>0?R.mittel*stufen*(zahlLesen(exV('en_pct_stufe'),false)||2.5)/100:0;
   let S={e0,e1,kl0,kl1,stufen,kH,kW,f,foerder:f.huelle+f.heizung,kosten:kH+kW,eigen:kH+kW-f.huelle-f.heizung,kosten0,kosten1,wert,massn,wpDanach,heizName:h[1],alter,jaz};
   window._SAN=S;
-  if(!e0){ el.innerHTML='<p class="hint">Für die Rechnung fehlt der Energiekennwert (Endenergie) — hier oder in ⑦e bzw. im Aufnahmebogen eintragen.</p>'; return S; }
+  if(!e0){ el.innerHTML='<p class="hint">Für die Rechnung fehlt der Energiekennwert (Endenergie) — hier, unter „Energetische Qualität“ oder im Aufnahmebogen eintragen.</p>'; return S; }
   const z=(a,b,c)=>'<div class="row-calc'+(c?' '+c:'')+'"><span>'+a+'</span><b>'+b+'</b></div>';
   el.innerHTML=z('Kosten der gewählten Maßnahmen',eur(S.kosten))
     +(kH?z('− Förderung Gebäudehülle (BAFA, 15 %'+($('san_isfp').checked?' + iSFP-Bonus':'')+', förderfähig bis '+eur(f.capH)+')',eur(f.huelle)):'')
@@ -87,7 +87,7 @@ function sanRechnen(){
     +'<div class="subtotal"><span>Eigenanteil</span><span>'+eur(S.eigen)+'</span></div>'
     +z('Endenergie','<span class="san-kl kl-'+kl0+'">'+kl0+'</span> '+Math.round(e0)+' → <span class="san-kl kl-'+kl1+'">'+kl1+'</span> '+Math.round(e1)+' kWh/(m²·a)')
     +(wf>0?z('Heizkosten im Jahr',eur(kosten0)+' → '+eur(kosten1)+' <small>('+(kosten0-kosten1>=0?'−':'+')+eur(Math.abs(kosten0-kosten1))+')</small>'):'')
-    +(wert>0?z('Wertwirkung, grob ('+stufen+' Klassenstufe'+(stufen===1?'':'n')+' × '+num2(zahlLesen(exV('en_pct_stufe'),false)||2.5)+' % laut ⑦e)','+ '+eur(wert)):'')
+    +(wert>0?z('Wertwirkung, grob ('+stufen+' Klassenstufe'+(stufen===1?'':'n')+' × '+num2(zahlLesen(exV('en_pct_stufe'),false)||2.5)+' % laut Energetischer Qualität)','+ '+eur(wert)):'')
     +(wert>0&&S.eigen>0?'<p class="hint">Die grobe Wertwirkung deckt rund '+Math.round(wert/S.eigen*100)+' % des Eigenanteils. Dazu kommen die geringeren Heizkosten.</p>':'');
   return S;
 }
