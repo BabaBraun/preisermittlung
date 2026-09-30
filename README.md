@@ -32,6 +32,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Mietverträgen (Fest-, Staffel-, Indexmiete); Sollstellung mit Fälligkeit am 3. Werktag, Zahlungseingänge,
   offene Posten nach § 366 BGB, Verzugszinsen, Mahnvorschlag und Mahnschreiben (Word), Hinweis auf die
   Kündigungsschwelle, Kaution nach § 551 BGB, Leerstand, Fristen; Mieterliste und Mietkonto als Excel.
+  Betriebs- und Heizkostenabrechnung: Kosten nach § 2 BetrKV mit Leistungszeitraum, Verteilerschlüssel
+  (Fläche, Personen, Einheiten, MEA, Verbrauch, direkt) und Umlagekreis; Heizung und Warmwasser nach
+  HeizkostenV (§§ 7–9b) oder laut Messdienst; CO2-Kostenaufteilung; § 35a-Anteile; Abrechnung je Mieter (Word),
+  Übersicht (Excel), Buchung ins Mietkonto mit Anpassung der Vorauszahlungen; Frist nach § 556 Abs. 3 BGB.
 
 ## Aufbau
 
@@ -46,7 +50,9 @@ Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository li
 | `js/office.js` | Word- und Excel-Dateien (Office Open XML) ohne fremde Bibliothek |
 | `js/pdf.js` | Seitenaufteilung für den PDF-Download |
 | `js/verwaltung.js` | Rechenkern der Liegenschaftsverwaltung ohne Bildschirmzugriff (Sollstellung, offene Posten, Zinsen, Fristen, Prüfung von Sicherungen) |
+| `js/verwaltung-nk.js` | Rechenkern der Betriebs- und Heizkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG) |
 | `js/verwaltung-ui.js` | Oberfläche der Liegenschaftsverwaltung; eigene Datenbank `ia_verwaltung` |
+| `js/verwaltung-nk-ui.js` | Oberfläche „Nebenkosten“ (Kosten, Abrechnung, Word/Excel, Buchung) |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |
@@ -79,7 +85,8 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
   Referenzbewertungen des Selbsttests und sieben Fälle gegen eine unabhängige Python-Vergleichsrechnung
   (`tests/referenz/`); Office-Dateien (mit python-docx/openpyxl geöffnet); Prüfung von Sicherungsdateien
   einschließlich älterer Formate; Liegenschaftsverwaltung (Feiertage, Fälligkeit, Sollstellung, offene Posten,
-  Verzugszinsen über Basiszins-Wechsel, Kündigungsschwelle, Kaution, Leerstand) gegen eine eigene
+  Verzugszinsen über Basiszins-Wechsel, Kündigungsschwelle, Kaution, Leerstand, Betriebs- und
+  Heizkostenabrechnung mit Mieterwechsel, Abgrenzung, § 9 HeizkostenV und CO2) gegen eine eigene
   Python-Vergleichsrechnung.
 - **Browser** (`tests/e2e/`): Vergleich aller Rechenergebnisse mit dem festgehaltenen Stand
   (`tests/fixtures/golden.json`, Änderungen nur mit Beleg in `golden-aenderungen.md`), Selbsttest samt

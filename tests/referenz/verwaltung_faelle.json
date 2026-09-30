@@ -5,107 +5,676 @@
       "name": "wohnung_staffel_teilzahlung",
       "wohnraum": true,
       "vertrag": {
-        "id": "vA", "einheitId": "e1", "beginn": "2025-11-15", "mietart": "staffel",
-        "miete": {"kalt": 750, "nk": 150, "hk": 90, "zuschlag": 0, "ust": 0},
+        "id": "vA",
+        "einheitId": "e1",
+        "beginn": "2025-11-15",
+        "mietart": "staffel",
+        "miete": {
+          "kalt": 750,
+          "nk": 150,
+          "hk": 90,
+          "zuschlag": 0,
+          "ust": 0
+        },
         "aenderungen": [
-          {"id": "a1", "ab": "2026-05-01", "kalt": 780, "grund": "staffel"},
-          {"id": "a2", "ab": "2026-08-16", "nk": 170, "grund": "560"}
+          {
+            "id": "a1",
+            "ab": "2026-05-01",
+            "kalt": 780,
+            "grund": "staffel"
+          },
+          {
+            "id": "a2",
+            "ab": "2026-08-16",
+            "nk": 170,
+            "grund": "560"
+          }
         ],
-        "kaution": {"soll": 2250, "art": "bar", "raten": true},
+        "kaution": {
+          "soll": 2250,
+          "art": "bar",
+          "raten": true
+        },
         "sonderposten": [
-          {"id": "s1", "datum": "2026-06-15", "betrag": 212.4, "text": "Nachzahlung Betriebskosten 2025", "art": "nk_nachzahlung"},
-          {"id": "s2", "datum": "2026-07-10", "betrag": -35.5, "text": "Gutschrift Reparatur", "art": "sonstig"}
+          {
+            "id": "s1",
+            "datum": "2026-06-15",
+            "betrag": 212.4,
+            "text": "Nachzahlung Betriebskosten 2025",
+            "art": "nk_nachzahlung"
+          },
+          {
+            "id": "s2",
+            "datum": "2026-07-10",
+            "betrag": -35.5,
+            "text": "Gutschrift Reparatur",
+            "art": "sonstig"
+          }
         ]
       },
       "zahlungen": [
-        {"id": "z01", "vertragId": "vA", "datum": "2025-11-17", "betrag": 520, "art": "miete"},
-        {"id": "z02", "vertragId": "vA", "datum": "2025-12-02", "betrag": 990, "art": "miete"},
-        {"id": "z03", "vertragId": "vA", "datum": "2026-01-12", "betrag": 990, "art": "miete"},
-        {"id": "z04", "vertragId": "vA", "datum": "2026-02-02", "betrag": 900, "art": "miete"},
-        {"id": "z05", "vertragId": "vA", "datum": "2026-03-03", "betrag": 990, "art": "miete", "monat": "2026-03"},
-        {"id": "z06", "vertragId": "vA", "datum": "2026-04-01", "betrag": 990, "art": "miete"},
-        {"id": "z07", "vertragId": "vA", "datum": "2026-04-20", "betrag": -990, "art": "miete", "text": "Rücklastschrift"},
-        {"id": "z08", "vertragId": "vA", "datum": "2026-05-04", "betrag": 1500, "art": "miete"},
-        {"id": "z09", "vertragId": "vA", "datum": "2026-06-30", "betrag": 1020, "art": "miete"},
-        {"id": "z10", "vertragId": "vA", "datum": "2026-08-03", "betrag": 1020, "art": "miete", "monat": "2026-08"},
-        {"id": "z11", "vertragId": "vA", "datum": "2026-09-04", "betrag": 600, "art": "miete"},
-        {"id": "k1", "vertragId": "vA", "datum": "2025-11-15", "betrag": 750, "art": "kaution"},
-        {"id": "k2", "vertragId": "vA", "datum": "2025-12-02", "betrag": 750, "art": "kaution"}
+        {
+          "id": "z01",
+          "vertragId": "vA",
+          "datum": "2025-11-17",
+          "betrag": 520,
+          "art": "miete"
+        },
+        {
+          "id": "z02",
+          "vertragId": "vA",
+          "datum": "2025-12-02",
+          "betrag": 990,
+          "art": "miete"
+        },
+        {
+          "id": "z03",
+          "vertragId": "vA",
+          "datum": "2026-01-12",
+          "betrag": 990,
+          "art": "miete"
+        },
+        {
+          "id": "z04",
+          "vertragId": "vA",
+          "datum": "2026-02-02",
+          "betrag": 900,
+          "art": "miete"
+        },
+        {
+          "id": "z05",
+          "vertragId": "vA",
+          "datum": "2026-03-03",
+          "betrag": 990,
+          "art": "miete",
+          "monat": "2026-03"
+        },
+        {
+          "id": "z06",
+          "vertragId": "vA",
+          "datum": "2026-04-01",
+          "betrag": 990,
+          "art": "miete"
+        },
+        {
+          "id": "z07",
+          "vertragId": "vA",
+          "datum": "2026-04-20",
+          "betrag": -990,
+          "art": "miete",
+          "text": "Rücklastschrift"
+        },
+        {
+          "id": "z08",
+          "vertragId": "vA",
+          "datum": "2026-05-04",
+          "betrag": 1500,
+          "art": "miete"
+        },
+        {
+          "id": "z09",
+          "vertragId": "vA",
+          "datum": "2026-06-30",
+          "betrag": 1020,
+          "art": "miete"
+        },
+        {
+          "id": "z10",
+          "vertragId": "vA",
+          "datum": "2026-08-03",
+          "betrag": 1020,
+          "art": "miete",
+          "monat": "2026-08"
+        },
+        {
+          "id": "z11",
+          "vertragId": "vA",
+          "datum": "2026-09-04",
+          "betrag": 600,
+          "art": "miete"
+        },
+        {
+          "id": "k1",
+          "vertragId": "vA",
+          "datum": "2025-11-15",
+          "betrag": 750,
+          "art": "kaution"
+        },
+        {
+          "id": "k2",
+          "vertragId": "vA",
+          "datum": "2025-12-02",
+          "betrag": 750,
+          "art": "kaution"
+        }
       ]
     },
     {
       "name": "gewerbe_ust_basiszinswechsel",
       "wohnraum": false,
       "vertrag": {
-        "id": "vB", "einheitId": "e2", "beginn": "2025-01-01", "mietart": "fest",
-        "miete": {"kalt": 2000, "nk": 300, "hk": 0, "zuschlag": 100, "ust": 19},
+        "id": "vB",
+        "einheitId": "e2",
+        "beginn": "2025-01-01",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 2000,
+          "nk": 300,
+          "hk": 0,
+          "zuschlag": 100,
+          "ust": 19
+        },
         "aenderungen": [],
-        "kaution": {"soll": 7000, "art": "buergschaft", "raten": false},
+        "kaution": {
+          "soll": 7000,
+          "art": "buergschaft",
+          "raten": false
+        },
         "sonderposten": []
       },
       "zahlungen": [
-        {"id": "g01", "vertragId": "vB", "datum": "2025-01-03", "betrag": 2856, "art": "miete"},
-        {"id": "g02", "vertragId": "vB", "datum": "2025-03-20", "betrag": 5712, "art": "miete"},
-        {"id": "g03", "vertragId": "vB", "datum": "2025-06-30", "betrag": 5000, "art": "miete"},
-        {"id": "g04", "vertragId": "vB", "datum": "2025-10-15", "betrag": 11424, "art": "miete"},
-        {"id": "g05", "vertragId": "vB", "datum": "2026-02-27", "betrag": 8568, "art": "miete"},
-        {"id": "g06", "vertragId": "vB", "datum": "2026-08-31", "betrag": 14000, "art": "miete"},
-        {"id": "g07", "vertragId": "vB", "datum": "2025-01-02", "betrag": 7000, "art": "kaution"}
+        {
+          "id": "g01",
+          "vertragId": "vB",
+          "datum": "2025-01-03",
+          "betrag": 2856,
+          "art": "miete"
+        },
+        {
+          "id": "g02",
+          "vertragId": "vB",
+          "datum": "2025-03-20",
+          "betrag": 5712,
+          "art": "miete"
+        },
+        {
+          "id": "g03",
+          "vertragId": "vB",
+          "datum": "2025-06-30",
+          "betrag": 5000,
+          "art": "miete"
+        },
+        {
+          "id": "g04",
+          "vertragId": "vB",
+          "datum": "2025-10-15",
+          "betrag": 11424,
+          "art": "miete"
+        },
+        {
+          "id": "g05",
+          "vertragId": "vB",
+          "datum": "2026-02-27",
+          "betrag": 8568,
+          "art": "miete"
+        },
+        {
+          "id": "g06",
+          "vertragId": "vB",
+          "datum": "2026-08-31",
+          "betrag": 14000,
+          "art": "miete"
+        },
+        {
+          "id": "g07",
+          "vertragId": "vB",
+          "datum": "2025-01-02",
+          "betrag": 7000,
+          "art": "kaution"
+        }
       ]
     },
     {
       "name": "vertragsende_ueberzahlung",
       "wohnraum": true,
       "vertrag": {
-        "id": "vC", "einheitId": "e3", "beginn": "2024-06-01", "ende": "2026-02-14", "mietart": "fest",
-        "miete": {"kalt": 600, "nk": 120, "hk": 0, "zuschlag": 0, "ust": 0},
-        "aenderungen": [{"id": "c1", "ab": "2025-06-01", "kalt": 640, "grund": "558"}],
-        "kaution": {"soll": 1800, "art": "sparbuch", "raten": false},
+        "id": "vC",
+        "einheitId": "e3",
+        "beginn": "2024-06-01",
+        "ende": "2026-02-14",
+        "mietart": "fest",
+        "miete": {
+          "kalt": 600,
+          "nk": 120,
+          "hk": 0,
+          "zuschlag": 0,
+          "ust": 0
+        },
+        "aenderungen": [
+          {
+            "id": "c1",
+            "ab": "2025-06-01",
+            "kalt": 640,
+            "grund": "558"
+          }
+        ],
+        "kaution": {
+          "soll": 1800,
+          "art": "sparbuch",
+          "raten": false
+        },
         "sonderposten": []
       },
       "zahlungen": [
-        {"id": "c01", "vertragId": "vC", "datum": "2024-06-03", "betrag": 8640, "art": "miete"},
-        {"id": "c02", "vertragId": "vC", "datum": "2025-06-02", "betrag": 7600, "art": "miete"},
-        {"id": "c03", "vertragId": "vC", "datum": "2026-02-02", "betrag": 900, "art": "miete"}
+        {
+          "id": "c01",
+          "vertragId": "vC",
+          "datum": "2024-06-03",
+          "betrag": 8640,
+          "art": "miete"
+        },
+        {
+          "id": "c02",
+          "vertragId": "vC",
+          "datum": "2025-06-02",
+          "betrag": 7600,
+          "art": "miete"
+        },
+        {
+          "id": "c03",
+          "vertragId": "vC",
+          "datum": "2026-02-02",
+          "betrag": 900,
+          "art": "miete"
+        }
       ]
     },
     {
       "name": "schwelle_a_ohne_b",
       "wohnraum": true,
       "vertrag": {
-        "id": "vD", "einheitId": "e4", "beginn": "2026-01-01", "mietart": "index",
-        "miete": {"kalt": 820, "nk": 160, "hk": 110, "zuschlag": 0, "ust": 0},
+        "id": "vD",
+        "einheitId": "e4",
+        "beginn": "2026-01-01",
+        "mietart": "index",
+        "miete": {
+          "kalt": 820,
+          "nk": 160,
+          "hk": 110,
+          "zuschlag": 0,
+          "ust": 0
+        },
         "aenderungen": [],
-        "kaution": {"soll": 3000, "art": "bar", "raten": false},
+        "kaution": {
+          "soll": 3000,
+          "art": "bar",
+          "raten": false
+        },
         "sonderposten": []
       },
       "zahlungen": [
-        {"id": "d01", "vertragId": "vD", "datum": "2026-01-05", "betrag": 1090, "art": "miete"},
-        {"id": "d02", "vertragId": "vD", "datum": "2026-02-03", "betrag": 1090, "art": "miete"},
-        {"id": "d03", "vertragId": "vD", "datum": "2026-03-03", "betrag": 1090, "art": "miete"},
-        {"id": "d04", "vertragId": "vD", "datum": "2026-04-07", "betrag": 1090, "art": "miete"},
-        {"id": "d05", "vertragId": "vD", "datum": "2026-05-05", "betrag": 1090, "art": "miete"},
-        {"id": "d06", "vertragId": "vD", "datum": "2026-06-03", "betrag": 1090, "art": "miete"},
-        {"id": "d07", "vertragId": "vD", "datum": "2026-07-03", "betrag": 1090, "art": "miete"},
-        {"id": "d08", "vertragId": "vD", "datum": "2026-08-20", "betrag": 500, "art": "miete"},
-        {"id": "d09", "vertragId": "vD", "datum": "2026-09-25", "betrag": 490, "art": "miete"},
-        {"id": "d10", "vertragId": "vD", "datum": "2026-01-02", "betrag": 3000, "art": "kaution"}
+        {
+          "id": "d01",
+          "vertragId": "vD",
+          "datum": "2026-01-05",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d02",
+          "vertragId": "vD",
+          "datum": "2026-02-03",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d03",
+          "vertragId": "vD",
+          "datum": "2026-03-03",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d04",
+          "vertragId": "vD",
+          "datum": "2026-04-07",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d05",
+          "vertragId": "vD",
+          "datum": "2026-05-05",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d06",
+          "vertragId": "vD",
+          "datum": "2026-06-03",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d07",
+          "vertragId": "vD",
+          "datum": "2026-07-03",
+          "betrag": 1090,
+          "art": "miete"
+        },
+        {
+          "id": "d08",
+          "vertragId": "vD",
+          "datum": "2026-08-20",
+          "betrag": 500,
+          "art": "miete"
+        },
+        {
+          "id": "d09",
+          "vertragId": "vD",
+          "datum": "2026-09-25",
+          "betrag": 490,
+          "art": "miete"
+        },
+        {
+          "id": "d10",
+          "vertragId": "vD",
+          "datum": "2026-01-02",
+          "betrag": 3000,
+          "art": "kaution"
+        }
       ]
     }
   ],
   "leerstand": {
-    "von": "2026-01-01", "bis": "2026-06-30",
+    "von": "2026-01-01",
+    "bis": "2026-06-30",
     "liegenschaft": {
       "id": "L1",
       "einheiten": [
-        {"id": "e1", "nr": "1", "art": "wohnung", "flaeche": 72.5, "sollmiete": null},
-        {"id": "e2", "nr": "2", "art": "wohnung", "flaeche": 64, "sollmiete": null},
-        {"id": "e3", "nr": "3", "art": "wohnung", "flaeche": 48, "sollmiete": 500}
+        {
+          "id": "e1",
+          "nr": "1",
+          "art": "wohnung",
+          "flaeche": 72.5,
+          "sollmiete": null
+        },
+        {
+          "id": "e2",
+          "nr": "2",
+          "art": "wohnung",
+          "flaeche": 64,
+          "sollmiete": null
+        },
+        {
+          "id": "e3",
+          "nr": "3",
+          "art": "wohnung",
+          "flaeche": 48,
+          "sollmiete": 500
+        }
       ],
       "vertraege": [
-        {"id": "l1", "einheitId": "e1", "beginn": "2020-01-01", "miete": {"kalt": 700}},
-        {"id": "l2", "einheitId": "e2", "beginn": "2021-05-01", "ende": "2026-02-14", "miete": {"kalt": 610}, "aenderungen": [{"id": "x", "ab": "2024-05-01", "kalt": 650}]},
-        {"id": "l3", "einheitId": "e2", "beginn": "2026-05-01", "miete": {"kalt": 690}}
+        {
+          "id": "l1",
+          "einheitId": "e1",
+          "beginn": "2020-01-01",
+          "miete": {
+            "kalt": 700
+          }
+        },
+        {
+          "id": "l2",
+          "einheitId": "e2",
+          "beginn": "2021-05-01",
+          "ende": "2026-02-14",
+          "miete": {
+            "kalt": 610
+          },
+          "aenderungen": [
+            {
+              "id": "x",
+              "ab": "2024-05-01",
+              "kalt": 650
+            }
+          ]
+        },
+        {
+          "id": "l3",
+          "einheitId": "e2",
+          "beginn": "2026-05-01",
+          "miete": {
+            "kalt": 690
+          }
+        }
+      ]
+    }
+  },
+  "nebenkosten": {
+    "cfg": {
+      "von": "2025-01-01",
+      "bis": "2025-12-31",
+      "vzBasis": "soll",
+      "leerPersonen": 1,
+      "verbrauch": {
+        "n_wasser": {
+          "e1": 95,
+          "e2": 70,
+          "e3": 60,
+          "e4": 40
+        }
+      },
+      "heiz": {
+        "modus": "verteilen",
+        "pvHeiz": 70,
+        "pvWW": 60,
+        "wwModus": "messung",
+        "energieKwh": 98000,
+        "wwVolumen": 120,
+        "wwTemp": 55,
+        "brennwert": true,
+        "einheiten": {
+          "e1": {
+            "heiz": 820,
+            "ww": 38
+          },
+          "e2": {
+            "heiz": 610,
+            "ww": 30
+          },
+          "e3": {
+            "heiz": 400,
+            "ww": 15
+          },
+          "e4": {
+            "heiz": 1350,
+            "ww": 10
+          }
+        }
+      },
+      "co2": {
+        "aktiv": true,
+        "kosten": 1150,
+        "kg": 9000,
+        "flaeche": 294.5,
+        "nichtwohn": false
+      }
+    },
+    "liegenschaft": {
+      "id": "LN",
+      "name": "NK-Test",
+      "einheiten": [
+        {
+          "id": "e1",
+          "nr": "W1",
+          "art": "wohnung",
+          "flaeche": 72.5,
+          "mea": 300
+        },
+        {
+          "id": "e2",
+          "nr": "W2",
+          "art": "wohnung",
+          "flaeche": 64,
+          "mea": 250
+        },
+        {
+          "id": "e3",
+          "nr": "W3",
+          "art": "wohnung",
+          "flaeche": 48,
+          "mea": 200
+        },
+        {
+          "id": "e4",
+          "nr": "G1",
+          "art": "gewerbe",
+          "flaeche": 110,
+          "mea": 250
+        },
+        {
+          "id": "e5",
+          "nr": "TG1",
+          "art": "stellplatz"
+        }
+      ],
+      "vertraege": [
+        {
+          "id": "v1",
+          "einheitId": "e1",
+          "beginn": "2020-05-01",
+          "personen": 2,
+          "miete": {
+            "kalt": 800,
+            "nk": 180,
+            "hk": 110
+          }
+        },
+        {
+          "id": "v2",
+          "einheitId": "e2",
+          "beginn": "2025-03-01",
+          "personen": 3,
+          "miete": {
+            "kalt": 700,
+            "nk": 160,
+            "hk": 95
+          }
+        },
+        {
+          "id": "v3a",
+          "einheitId": "e3",
+          "beginn": "2024-01-01",
+          "ende": "2025-06-15",
+          "personen": 1,
+          "miete": {
+            "kalt": 480,
+            "nk": 120,
+            "hk": 70
+          }
+        },
+        {
+          "id": "v3b",
+          "einheitId": "e3",
+          "beginn": "2025-08-01",
+          "personen": 2,
+          "miete": {
+            "kalt": 520,
+            "nk": 125,
+            "hk": 75
+          }
+        },
+        {
+          "id": "v4",
+          "einheitId": "e4",
+          "beginn": "2023-01-01",
+          "personen": null,
+          "miete": {
+            "kalt": 1500,
+            "nk": 250,
+            "hk": 180
+          }
+        }
+      ],
+      "kosten": [
+        {
+          "id": "n_grundsteuer",
+          "kategorie": "grundsteuer",
+          "betrag": 1480.4,
+          "datum": "2025-02-15"
+        },
+        {
+          "id": "n_vers1",
+          "kategorie": "versicherung",
+          "betrag": 2190,
+          "von": "2024-07-01",
+          "bis": "2025-06-30"
+        },
+        {
+          "id": "n_vers2",
+          "kategorie": "versicherung",
+          "betrag": 2280,
+          "von": "2025-07-01",
+          "bis": "2026-06-30"
+        },
+        {
+          "id": "n_wasser",
+          "kategorie": "wasser",
+          "betrag": 1850,
+          "datum": "2025-12-20",
+          "schluessel": "verbrauch"
+        },
+        {
+          "id": "n_muell",
+          "kategorie": "muell",
+          "betrag": 960,
+          "datum": "2025-03-01",
+          "kreis": "wohnen"
+        },
+        {
+          "id": "n_hauswart",
+          "kategorie": "hauswart",
+          "betrag": 2400,
+          "datum": "2025-12-31",
+          "lohn35a": 2400,
+          "art35a": "haushaltsnah"
+        },
+        {
+          "id": "n_garten",
+          "kategorie": "gartenpflege",
+          "betrag": 800,
+          "datum": "2025-10-15",
+          "schluessel": "einheiten",
+          "kreis": "wohnen",
+          "lohn35a": 600,
+          "art35a": "haushaltsnah"
+        },
+        {
+          "id": "n_aufzug",
+          "kategorie": "aufzug",
+          "betrag": 1200,
+          "datum": "2025-06-30",
+          "kreis": "auswahl",
+          "einheitIds": [
+            "e2",
+            "e3"
+          ]
+        },
+        {
+          "id": "n_licht",
+          "kategorie": "beleuchtung",
+          "betrag": 300,
+          "datum": "2025-12-31",
+          "schluessel": "mea"
+        },
+        {
+          "id": "n_reparatur",
+          "kategorie": "instandhaltung",
+          "betrag": 2500,
+          "datum": "2025-09-01"
+        },
+        {
+          "id": "n_heizung",
+          "kategorie": "heizung_ww",
+          "betrag": 9800,
+          "datum": "2025-12-31"
+        },
+        {
+          "id": "n_alt",
+          "kategorie": "grundsteuer",
+          "betrag": 1400,
+          "datum": "2024-02-15"
+        }
       ]
     }
   }

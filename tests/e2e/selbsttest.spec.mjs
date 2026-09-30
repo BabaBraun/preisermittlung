@@ -24,7 +24,7 @@ test('Selbsttest besteht und erhält die offene Bewertung vollständig', async (
   const erg = await page.evaluate(() => window.iaSelbsttest().map(e => ({ g: e.gruppe, n: e.name, ok: e.ok, ist: e.ist, soll: e.soll })));
   const fehler = erg.filter(e => !e.ok);
   expect(fehler, 'fehlgeschlagene Selbsttest-Prüfungen').toEqual([]);
-  expect(erg.length).toBeGreaterThanOrEqual(82);
+  expect(erg.length).toBeGreaterThanOrEqual(86);
 
   const nachher = await page.evaluate(() => JSON.stringify({ s: snapshot(), R: window._R, m: $('en_klasse').dataset.manuell }));
   expect(nachher).toBe(vorher);

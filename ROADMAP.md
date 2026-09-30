@@ -207,7 +207,7 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 39 | [ ] Grundrisse, Marktüberblick und Kundenakte schrittweise aus `index.html` in eigene Dateien | Wartbarkeit der Oberfläche |
 | 40 | [ ] Fachliche Durchsicht der Modelle durch eine Sachverständige/einen Gutachterausschuss | bisher nur gegen Verordnung, ein Gutachten und eigene Vergleichsrechnung geprüft |
 | 41 | [ ] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen | Prozessrisiko (siehe AUDIT, Abschnitt 7) |
-| 42 | [ ] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) | Auftrag „alles“ |
+| 42 | [x] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) — erledigt 2026-09-30 (D16) | Auftrag „alles“ |
 | 43 | [ ] Liegenschaftsverwaltung Stufe 3: Instandhaltung, Dienstleister, Wartungs- und Prüfpflichten | Auftrag „alles“ |
 | 44 | [ ] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) | Auftrag „alles“ |
 | 45 | [ ] Liegenschaftsverwaltung Stufe 5: Mieterhöhung (§§ 557a–559 BGB), Eigentümerbericht, Anlage V, Dokumente, Kontoauszug-Import | Auftrag „alles“ |

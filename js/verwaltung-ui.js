@@ -56,6 +56,7 @@ function lvKpi(k,v,s,cls){ return '<div class="kpi lv-kpi'+(cls?' '+cls:'')+'"><
 function lvFeld(f){
   const id='lvf_'+f.id, w=f.wert==null?'':f.wert;
   if(f.typ==='check') return '<label class="lv-check'+(f.breit?' full':'')+'"><input type="checkbox" id="'+id+'"'+(w?' checked':'')+'> <span>'+lvH(f.label)+'</span>'+(f.hinweis?'<span class="lv-hinweis">'+lvH(f.hinweis)+'</span>':'')+'</label>';
+  if(f.typ==='mehrfach') return '<fieldset class="field lv-mehrfach'+(f.breit?' full':'')+'" id="'+id+'"><legend>'+lvH(f.label)+'</legend>'+f.optionen.map((o,i)=>'<label class="lv-check"><input type="checkbox" id="'+id+'_'+i+'" value="'+lvH(o[0])+'"'+((w||[]).includes(o[0])?' checked':'')+'> <span>'+lvH(o[1])+'</span></label>').join('')+(f.hinweis?'<span class="lv-hinweis">'+lvH(f.hinweis)+'</span>':'')+'</fieldset>';
   let inp;
   if(f.typ==='wahl') inp='<select id="'+id+'">'+f.optionen.map(o=>'<option value="'+lvH(o[0])+'"'+(String(o[0])===String(w)?' selected':'')+'>'+lvH(o[1])+'</option>').join('')+'</select>';
   else if(f.typ==='textarea') inp='<textarea id="'+id+'" rows="'+(f.zeilen||3)+'">'+lvH(w)+'</textarea>';
@@ -73,6 +74,7 @@ function lvFormLesen(liste){
     el.classList.remove('lv-fehler');
     let v;
     if(f.typ==='check') v=el.checked;
+    else if(f.typ==='mehrfach') v=[...el.querySelectorAll('input[type=checkbox]')].filter(x=>x.checked).map(x=>x.value);
     else if(f.typ==='zahl'||f.typ==='betrag'){
       v=LVK.zahlEingabe(el.value);
       if(Number.isNaN(v)){ fehler.push(f.label+': keine gültige Zahl'); el.classList.add('lv-fehler'); }
@@ -162,6 +164,13 @@ function lvLiegenschaftOeffnen(id,reiter){ LV.aktivId=id; LV.reiter=reiter||'ueb
 function lvReiter(r){ LV.reiter=r; LV.form=null; lvMeldung(''); lvRender(); const o=document.getElementById('lv_overlay'); if(o) o.scrollTop=0; }
 function lvZurueck(){ LV.aktivId=null; LV.ansicht='uebersicht'; LV.form=null; lvMeldung(''); lvRender(); }
 const LV_REITER=[['ueberblick','Überblick'],['einheiten','Einheiten'],['vertraege','Mieter & Verträge'],['mietkonto','Mietkonto']];
+const LV_REITER_HTML={ueberblick:l=>lvUeberblickHtml(l),einheiten:l=>lvEinheitenHtml(l),vertraege:l=>lvVertraegeHtml(l),mietkonto:l=>lvMietkontoHtml(l)};
+/* Weitere Teile (Nebenkosten, Instandhaltung, WEG) hängen sich hier ein: Reiter, Fristenquellen, Sprungziele */
+function lvReiterRegistrieren(key,titel,fn){ if(!LV_REITER.some(r=>r[0]===key)) LV_REITER.push([key,titel]); LV_REITER_HTML[key]=fn; }
+const LV_FRISTEN_QUELLEN=[(l,st,h)=>LVK.fristen(l,st,h)];
+function lvFristenQuelleRegistrieren(f){ if(!LV_FRISTEN_QUELLEN.includes(f)) LV_FRISTEN_QUELLEN.push(f); }
+function lvFristenL(l,st,h){ return [].concat(...LV_FRISTEN_QUELLEN.map(q=>{ try{ return q(l,st,h)||[]; }catch(e){ console.error(e); return []; } }))
+  .sort((a,b)=>a.datum<b.datum?-1:a.datum>b.datum?1:0); }
 
 function lvRender(){
   const o=document.getElementById('lv_overlay'); if(!o||!o.classList.contains('on')) return;
@@ -173,7 +182,7 @@ function lvRender(){
     :[['uebersicht','Übersicht'],['fristen','Fristen'],['einstellungen','Absender'],['sicherung','Datensicherung']].map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.ansicht===k?'on':'')+'" onclick="lvAnsicht(\''+k+'\')">'+t+'</button>').join('');
   let html='';
   try{
-    if(l) html=({ueberblick:lvUeberblickHtml,einheiten:lvEinheitenHtml,vertraege:lvVertraegeHtml,mietkonto:lvMietkontoHtml}[LV.reiter]||lvUeberblickHtml)(l);
+    if(l) html=(LV_REITER_HTML[LV.reiter]||lvUeberblickHtml)(l);
     else html=({uebersicht:lvUebersichtHtml,fristen:lvFristenHtml,einstellungen:lvEinstellungenHtml,sicherung:lvSicherungHtml,neu:lvNeuHtml}[LV.ansicht]||lvUebersichtHtml)();
   }catch(e){ console.error(e); html=lvBox('Ansicht nicht verfügbar','<p>Die Ansicht konnte nicht aufgebaut werden: '+lvH(e&&e.message)+'</p>'); }
   const warn=LV.rueckfall?'<div class="lv-warn">Ohne Datenbank: Die Verwaltung speichert nur im Browserspeicher (begrenzt, ohne Dokumente). Bitte regelmäßig über „Datensicherung“ sichern.</div>':'';
@@ -207,16 +216,18 @@ function lvUebersichtHtml(){
     +lvBox('Fristen und Hinweise'+(faellig?' ('+faellig+' fällig)':''),lvFristenTabelle(fr.slice(0,12),true)
       +(fr.length>12?'<div class="mdb-actions"><button class="secondary" onclick="lvAnsicht(\'fristen\')">Alle '+fr.length+' anzeigen</button></div>':''));
 }
-function lvAlleFristen(st,horizont){ return [].concat(...LV.liste.map(l=>LVK.fristen(l,st,horizont))).sort((a,b)=>a.datum<b.datum?-1:a.datum>b.datum?1:0); }
+function lvAlleFristen(st,horizont){ return [].concat(...LV.liste.map(l=>lvFristenL(l,st,horizont))).sort((a,b)=>a.datum<b.datum?-1:a.datum>b.datum?1:0); }
 function lvFristenTabelle(fr,mitL){
   return lvTabelle(['Datum'].concat(mitL?['Liegenschaft']:[],['Frist / Hinweis','Betrifft']),fr.map(f=>
-    '<tr class="lv-klick'+(f.faellig?' lv-faellig':'')+'" onclick="lvFristOeffnen(\''+lvQ(f.liegenschaftId)+'\',\''+lvQ(f.vertragId||'')+'\',\''+lvH(f.art)+'\')">'
+    '<tr class="lv-klick'+(f.faellig?' lv-faellig':'')+'" onclick="lvFristOeffnen(\''+lvQ(f.liegenschaftId)+'\',\''+lvQ(f.vertragId||'')+'\',\''+lvQ(f.art)+'\','+(+f.jahr||0)+')">'
     +'<td>'+lvH(LVK.datumDE(f.datum))+(f.faellig?' '+lvBadge(f.dringend?'dringend':'fällig',f.dringend?'bad':'warn'):'')+'</td>'
     +(mitL?'<td>'+lvH(f.liegenschaft)+'</td>':'')+'<td class="strong">'+lvH(f.titel)+'</td><td>'+lvH(f.text)+'</td></tr>'),'Keine Fristen in den nächsten Wochen.');
 }
-function lvFristOeffnen(lId,vId,art){
+const LV_FRIST_ZIELE={};   // art → function(jahr, vertragId): setzt Reiter und Zustand
+function lvFristOeffnen(lId,vId,art,jahr){
   LV.aktivId=lId; LV.form=null; lvMeldung('');
-  if(vId&&['rueckstand','kaution'].includes(art)){ LV.reiter='mietkonto'; LV.vertragId=vId; }
+  if(LV_FRIST_ZIELE[art]) LV_FRIST_ZIELE[art](jahr,vId);
+  else if(vId&&['rueckstand','kaution'].includes(art)){ LV.reiter='mietkonto'; LV.vertragId=vId; }
   else if(vId){ LV.reiter='vertraege'; LV.form={typ:'vertrag',id:vId}; }
   else LV.reiter='ueberblick';
   lvRender();
@@ -283,7 +294,7 @@ function lvWert(l){
 /* ---------- Reiter „Überblick“ ---------- */
 function lvUeberblickHtml(l){
   if(LV.form&&LV.form.typ==='stamm') return lvFormRahmen('Stammdaten bearbeiten',lvFelder(lvStammFelder(l)),'lvStammSpeichern(\''+lvQ(l.id)+'\')');
-  const st=lvHeute(), wert=lvWert(l), k=LVK.kennzahlen(l,st,{wert}), fr=LVK.fristen(l,st,60);
+  const st=lvHeute(), wert=lvWert(l), k=LVK.kennzahlen(l,st,{wert}), fr=lvFristenL(l,st,60);
   const ls=LVK.leerstand(l,st.slice(0,4)+'-01-01',st), entgangen=ls.reduce((s,x)=>s+x.entgangen,0);
   const angaben=[['Art',LV_ART_L[l.art]],['Eigentümer',lvEigentuemer(l)],['Baujahr',l.baujahr||''],['Wert für die Rendite',wert?lvEur0(wert)+(l.wert>0?'':' (aus Bewertung)'):''],
     ['Mietkonto',l.iban?LVK.ibanLesbar(l.iban)+(l.bank?' · '+l.bank:'')+(l.kontoInhaber?' · '+l.kontoInhaber:''):''],['Notiz',l.notiz]].filter(x=>x[1]);

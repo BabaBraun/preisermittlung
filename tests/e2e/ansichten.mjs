@@ -1,7 +1,7 @@
 /* Gemeinsame Prüfung der Oberfläche für Desktop (Chromium) und iPhone (WebKit): alle Hauptansichten öffnen,
    kein waagrechtes Scrollen, keine Skriptfehler, Bildschirmfotos zur Sichtkontrolle nach tests/ausgabe/. */
 import { expect } from '@playwright/test';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
@@ -62,6 +62,10 @@ export async function alleAnsichten(page, geraet) {
   await pruefe('16e_verwaltung_mietkonto', () => { LV.vertragId = 'Vt1'; lvReiter('mietkonto'); });
   await pruefe('16f_verwaltung_fristen', () => lvAnsicht('fristen'));
   await pruefe('16g_verwaltung_sicherung', () => lvAnsicht('sicherung'));
+  const nk = JSON.parse(readFileSync('tests/referenz/verwaltung_faelle.json', 'utf8')).nebenkosten;
+  await page.evaluate(async ({ l, cfg }) => { l.name = 'Gartenstraße 3'; l.nkAbrechnungen = [Object.assign({ id: 'Nx1' }, cfg)]; await lvSpeichern(l); }, { l: nk.liegenschaft, cfg: nk.cfg });
+  await pruefe('16h_verwaltung_nk_kosten', () => { lvLiegenschaftOeffnen('LN', 'nebenkosten'); LV.nkJahr = 2025; LV.nkAnsicht = 'kosten'; LV.form = { typ: 'kosten', id: null }; lvRender(); });
+  await pruefe('16i_verwaltung_nk_abrechnung', () => { LV.form = null; LV.nkAnsicht = 'abrechnung'; lvRender(); });
   await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');

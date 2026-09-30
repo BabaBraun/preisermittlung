@@ -127,6 +127,18 @@ window.iaSelbsttest=function(){
     const vC={id:'vC',einheitId:'e',beginn:'2024-06-01',ende:'2026-02-14',miete:{kalt:600,nk:120},aenderungen:[{id:'c1',ab:'2025-06-01',kalt:640}]};
     const opC=V.offenePosten(vC,[['2024-06-03',8640],['2025-06-02',7600],['2026-02-02',900]].map((z,i)=>({id:'c'+i,vertragId:'vC',datum:z[0],betrag:z[1],art:'miete'})),'2026-09-29',{aufschlag:5});
     pruef('Liegenschaftsverwaltung','Vertragsende Mitte Februar: Soll und Guthaben',opC.summe.soll+' / '+opC.summe.guthaben,'15100 / 2040');
+    // Nebenkosten: Grundsteuer nach Fläche, Wasser nach Personen, verbundene Heizung (§ 9: 5.000 von 30.000 kWh),
+    // Mieterwechsel W2 zum 01.04. (Heizung nach Gradtagszahlen), CO2 30 kg/m² → Stufe 5, Vermieter 40 %
+    const N=window.ImmoNebenkosten;
+    pruef('Nebenkosten','CO2-Stufe bei 30 kg je m² und Jahr: Anteil Vermieter',N.co2Stufe(30).vermieter,40);
+    const lN={id:'L',einheiten:[{id:'e1',nr:'W1',art:'wohnung',flaeche:60},{id:'e2',nr:'W2',art:'wohnung',flaeche:40}],
+      vertraege:[{id:'v1',einheitId:'e1',beginn:'2025-01-01',personen:2,miete:{kalt:600,nk:150,hk:80}},{id:'v2',einheitId:'e2',beginn:'2025-04-01',personen:1,miete:{kalt:400,nk:100,hk:60}}],
+      kosten:[{id:'k1',kategorie:'grundsteuer',betrag:1000,datum:'2025-05-15'},{id:'k2',kategorie:'wasser',betrag:900,datum:'2025-12-01'},{id:'k3',kategorie:'heizung_ww',betrag:3000,datum:'2025-12-31'}]};
+    const rN=N.abrechnen(lN,{von:'2025-01-01',bis:'2025-12-31',heiz:{modus:'verteilen',wwModus:'messung',energieKwh:30000,wwVolumen:40,wwTemp:60,einheiten:{e1:{heiz:600,ww:25},e2:{heiz:300,ww:15}}},co2:{aktiv:true,kosten:400,kg:3000}});
+    const e1=rN.ergebnisse.find(e=>e.vertragId==='v1'), e2=rN.ergebnisse.find(e=>e.vertragId==='v2');
+    pruef('Nebenkosten','W1: Betriebskosten / Heizung / CO2-Erstattung',e1.kosten+' / '+e1.heiz+' / '+e1.co2Erstattung,'1200 / 1925.42 / 102.69');
+    pruef('Nebenkosten','W1: Nachzahlung nach 2.760 € Vorauszahlungen',e1.saldo,262.73,0.001);
+    pruef('Nebenkosten','W2 (ab April): Guthaben',e2.saldo,-316.27,0.001);
   });
 
   sicher('Bausteine','Aufruf',()=>{

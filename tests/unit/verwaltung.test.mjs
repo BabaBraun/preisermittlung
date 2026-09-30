@@ -122,3 +122,58 @@ test('Sicherungsdateien: fremde und beschädigte Dateien werden verständlich ab
   const ok = V.sicherungPruefen({ typ: 'immoapp-verwaltung', version: 1, liegenschaften: [{ id: 'L1', name: 'X' }], anhaenge: [{ id: 'a1', data: 'QUJD' }, { id: 'a2', data: 'kein base64!' }] });
   assert.equal(ok.ok, true); assert.equal(ok.liegenschaften.length, 1); assert.equal(ok.anhaenge.length, 1); assert.equal(ok.verworfen, 1);
 });
+
+/* ---------- Betriebs- und Heizkostenabrechnung (js/verwaltung-nk.js) ---------- */
+const N = require('../../js/verwaltung-nk.js');
+
+test('Vergleichsrechnung: Betriebs- und Heizkostenabrechnung mit Mieterwechsel, Leerstand, § 9, CO2 und § 35a', () => {
+  const fall = FAELLE.nebenkosten, s = SOLL.nebenkosten;
+  const l = V.bereinigen(JSON.parse(JSON.stringify(fall.liegenschaft)));
+  assert.equal(l.kosten.length, fall.liegenschaft.kosten.length, 'Bereinigung behält alle Kosten');
+  const r = N.abrechnen(l, fall.cfg);
+  assert.equal(r.ok, true, r.fehler.join(' '));
+  for (const e of r.ergebnisse) {
+    const soll = s.ergebnisse[e.vertragId];
+    const ist = { tage: e.tage, kosten: e.kosten, heizung: e.heizung, warmwasser: e.warmwasser, heiz: e.heiz, co2Anteil: e.co2Anteil, co2Erstattung: e.co2Erstattung,
+      vorauszahlung: e.vorauszahlung, saldo: e.saldo, neueVz: e.neueVz, p35a: V.r2(e.p35a.reduce((a, x) => a + x.betrag, 0)) };
+    assert.deepEqual(ist, soll, 'Vertrag ' + e.vertragId);
+  }
+  assert.equal(r.ergebnisse.length, Object.keys(s.ergebnisse).length);
+  assert.deepEqual(r.positionen.filter(p => p.umlage).map(p => ({ id: p.id, gesamt: p.gesamt })), s.positionen);
+  assert.equal(r.positionen.find(p => !p.umlage).gesamt, 2500, 'nicht umlagefähige Reparatur bleibt beim Vermieter');
+  assert.deepEqual({ heizung: r.heiz.heizung, warmwasser: r.heiz.warmwasser, leerstand: r.heiz.leerstand }, s.heiz);
+  assert.deepEqual({ kgM2a: r.co2.kgM2a, vermieterProzent: r.co2.vermieterProzent }, s.co2);
+  assert.deepEqual(r.vermieter, s.vermieter);
+  assert.ok(Math.abs(r.pruefung.rundung) <= 0.05, 'Rundungsdifferenz ' + r.pruefung.rundung);
+  assert.ok(r.hinweise.some(h => /§ 9b Abs. 3/.test(h)), 'Hinweis auf Nutzerwechsel ohne Zwischenablesung');
+});
+
+test('CO2-Stufenmodell (Anlage CO2KostAufG): Grenzen', () => {
+  assert.deepEqual([11.99, 12, 16.99, 17, 31.99, 32, 51.99, 52, 80].map(x => N.co2Stufe(x).vermieter), [0, 10, 10, 20, 40, 50, 80, 95, 95]);
+});
+
+test('Warmwasseranteil § 9 Abs. 2 HeizkostenV: gemessen, pauschal, Brennwert', () => {
+  // 2,5 × 120 m³ × (60 − 10) = 15.000 kWh von 100.000 kWh
+  assert.equal(N.warmwasserAnteil({ wwModus: 'messung', wwVolumen: 120, wwTemp: 60, energieKwh: 100000 }).anteil, 0.15);
+  // 32 × 250 m² = 8.000 kWh, bei Erdgas brennwertbezogen × 1,11 = 8.880 kWh
+  assert.equal(N.warmwasserAnteil({ wwModus: 'pauschal', wwFlaeche: 250, brennwert: true, energieKwh: 88800 }).anteil, 0.1);
+});
+
+test('Abrechnungsfrist und Prüfungen: > 12 Monate, fehlende Flächen, Heizkosten ohne Verteilung, 50–70 %', () => {
+  assert.equal(N.frist('2025-12-31'), '2026-12-31');
+  const l = { id: 'L', einheiten: [{ id: 'e1', nr: 'W1', art: 'wohnung' }], vertraege: [{ id: 'v', einheitId: 'e1', beginn: '2025-01-01', miete: { nk: 100 } }],
+    kosten: [{ id: 'k', kategorie: 'grundsteuer', betrag: 500, datum: '2025-03-01' }, { id: 'h', kategorie: 'heizung', betrag: 900, datum: '2025-12-31' }] };
+  const r = N.abrechnen(l, { von: '2025-01-01', bis: '2026-01-31' });
+  assert.equal(r.ok, false);
+  const t = r.fehler.join(' ');
+  assert.match(t, /höchstens zwölf Monate/); assert.match(t, /Fläche W1/); assert.match(t, /Heizkosten erfasst/);
+  const r2 = N.abrechnen(Object.assign({}, l, { einheiten: [{ id: 'e1', nr: 'W1', art: 'wohnung', flaeche: 50 }] }), { von: '2025-01-01', bis: '2025-12-31', heiz: { modus: 'verteilen', pvHeiz: 80 } });
+  assert.match(r2.fehler.join(' '), /50 bis 70 %/);
+  assert.match(r2.hinweise.join(' '), /§ 12 Abs. 1 HeizkostenV/);
+});
+
+test('Nebenkosten-Fristen: offenes Abrechnungsjahr bis zwölf Monate nach Ende', () => {
+  const l = { id: 'L', name: 'X', vertraege: [{ id: 'v', einheitId: 'e', beginn: '2024-03-01' }], nkAbrechnungen: [{ von: '2024-01-01', bis: '2024-12-31', versandtAm: '2025-06-01' }] };
+  const f = N.fristen(l, '2026-09-29', 60);
+  assert.deepEqual(f.map(x => [x.titel, x.datum]), [['Betriebskostenabrechnung 2025 zustellen', '2026-12-31']]);
+});

@@ -946,6 +946,139 @@
    }
   }
  },
+ "nebenkosten": {
+  "ergebnisse": {
+   "v1": {
+    "tage": 365,
+    "kosten": 2840.42,
+    "heizung": 2111.55,
+    "warmwasser": 514.93,
+    "heiz": 2626.48,
+    "co2Anteil": 308.21,
+    "co2Erstattung": 123.28,
+    "vorauszahlung": 3480.0,
+    "saldo": 1863.62,
+    "neueVz": {
+     "nk": 237,
+     "hk": 209
+    },
+    "p35a": 790.83
+   },
+   "v2": {
+    "tage": 306,
+    "kosten": 2781.3,
+    "heizung": 1126.02,
+    "warmwasser": 352.35,
+    "heiz": 1478.38,
+    "co2Anteil": 173.48,
+    "co2Erstattung": 69.39,
+    "vorauszahlung": 2550.0,
+    "saldo": 1640.29,
+    "neueVz": {
+     "nk": 277,
+     "hk": 141
+    },
+    "p35a": 604.92
+   },
+   "v3a": {
+    "tage": 166,
+    "kosten": 1097.92,
+    "heizung": 655.59,
+    "warmwasser": 110.38,
+    "heiz": 765.97,
+    "co2Anteil": 89.88,
+    "co2Erstattung": 35.95,
+    "vorauszahlung": 1045.0,
+    "saldo": 782.94,
+    "neueVz": null,
+    "p35a": 268.86
+   },
+   "v3b": {
+    "tage": 153,
+    "kosten": 1077.96,
+    "heizung": 458.53,
+    "warmwasser": 101.74,
+    "heiz": 560.27,
+    "co2Anteil": 65.75,
+    "co2Erstattung": 26.3,
+    "vorauszahlung": 1000.0,
+    "saldo": 611.93,
+    "neueVz": {
+     "nk": 215,
+     "hk": 107
+    },
+    "p35a": 247.81
+   },
+   "v4": {
+    "tage": 365,
+    "kosten": 2638.58,
+    "heizung": 3397.17,
+    "warmwasser": 320.56,
+    "heiz": 3717.74,
+    "co2Anteil": 436.26,
+    "co2Erstattung": 174.51,
+    "vorauszahlung": 5160.0,
+    "saldo": 1021.81,
+    "neueVz": {
+     "nk": 220,
+     "hk": 296
+    },
+    "p35a": 896.43
+   }
+  },
+  "positionen": [
+   {
+    "id": "n_grundsteuer",
+    "gesamt": 1480.4
+   },
+   {
+    "id": "n_vers1",
+    "gesamt": 1086.0
+   },
+   {
+    "id": "n_vers2",
+    "gesamt": 1149.37
+   },
+   {
+    "id": "n_wasser",
+    "gesamt": 1850.0
+   },
+   {
+    "id": "n_muell",
+    "gesamt": 960.0
+   },
+   {
+    "id": "n_hauswart",
+    "gesamt": 2400.0
+   },
+   {
+    "id": "n_garten",
+    "gesamt": 800.0
+   },
+   {
+    "id": "n_aufzug",
+    "gesamt": 1200.0
+   },
+   {
+    "id": "n_licht",
+    "gesamt": 300.0
+   }
+  ],
+  "heiz": {
+   "heizung": 8301.5,
+   "warmwasser": 1498.5,
+   "leerstand": 651.16
+  },
+  "co2": {
+   "kgM2a": 30.56,
+   "vermieterProzent": 40
+  },
+  "vermieter": {
+   "leerstand": 1440.75,
+   "nichtUmlagefaehig": 2500.0,
+   "co2": 429.43
+  }
+ },
  "leerstand": [
   {
    "einheitId": "e1",

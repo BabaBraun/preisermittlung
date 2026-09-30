@@ -327,6 +327,10 @@ function text(v,max){ return typeof v==='string'?v.replace(/[\u0000-\u0008\u000B
 function zahl(v){ return typeof v==='number'&&isFinite(v)?v:null; }
 function datum(v){ return datumGueltig(v)?v:null; }
 function wahl(v,liste,std){ return liste.includes(v)?v:std; }
+/* Weitere Module (Nebenkosten, Instandhaltung, WEG) melden hier ihre Bereinigung an, damit ihre Felder beim
+   Speichern und Einspielen erhalten bleiben */
+const ERWEITERUNGEN=[];
+function erweiterungRegistrieren(f){ if(typeof f==='function'&&!ERWEITERUNGEN.includes(f)) ERWEITERUNGEN.push(f); }
 function bereinigen(roh,zaehler){
   zaehler=zaehler||{verworfen:0};
   if(!istObj(roh)||!ID.test(roh.id)) return null;
@@ -361,6 +365,7 @@ function bereinigen(roh,zaehler){
   l.zahlungen=liste(roh.zahlungen,z=>datumGueltig(z.datum)&&typeof z.betrag==='number'&&isFinite(z.betrag)&&(z.vertragId==null||vids.has(z.vertragId))
     ?{id:z.id,datum:z.datum,betrag:z.betrag,vertragId:z.vertragId||null,art:wahl(z.art,ZAHLARTEN,'miete'),monat:typeof z.monat==='string'&&/^\d{4}-\d{2}$/.test(z.monat)?z.monat:'',text:text(z.text,300)}:null);
   l.mahnungen=liste(roh.mahnungen,m=>vids.has(m.vertragId)&&datumGueltig(m.datum)?{id:m.id,vertragId:m.vertragId,datum:m.datum,stufe:Math.max(1,Math.min(3,+m.stufe||1)),betrag:zahl(m.betrag)||0}:null);
+  ERWEITERUNGEN.forEach(f=>f(roh,l,zaehler,{text,zahl,liste,ID,datum}));
   return l;
 }
 /* IBAN-Prüfziffer (ISO 13616, Modulo 97) */
@@ -396,7 +401,7 @@ function sicherungPruefen(o){
 const ImmoVerwaltung={ID,r2,neueId,zahlEingabe,eur,datumGueltig,tagNr,isoTag,monatVon,tageImMonat,monatsErster,monatsLetzter,plusMonate,
   monatsliste,ueberlappung,datumDE,ostersonntag,feiertageBW,istZahlungsWerktag,dritterWerktag,BASISZINS,basiszinsTabelle,basiszinsAm,
   verzugszinsen,TEILE,TEIL_NAMEN,mieteAm,vertragAktiv,istWohnraum,sollstellung,offenePosten,kuendigungsschwelle,MAHNSTUFEN,mahnvorschlag,
-  kaution,aktiverVertrag,vertraegeDerEinheit,leerstand,kennzahlen,fristen,bereinigen,sicherungPruefen,ibanGueltig,ibanLesbar,einstellungenBereinigen,
+  kaution,aktiverVertrag,vertraegeDerEinheit,leerstand,kennzahlen,fristen,bereinigen,erweiterungRegistrieren,sicherungPruefen,ibanGueltig,ibanLesbar,einstellungenBereinigen,
   ARTEN_L,ARTEN_E,EIGENTUEMER,MIETARTEN,ZAHLARTEN,KAUTIONSARTEN};
 wurzel.ImmoVerwaltung=ImmoVerwaltung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoVerwaltung;

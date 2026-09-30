@@ -291,3 +291,28 @@ und Kundenakte nicht berührt und die Sicherung einzeln möglich ist. Ein Dokume
 Zahlungen je Objekt) ist das schnell genug. Der Rechenkern ist gegen eine unabhängige Python-Rechnung
 (`tests/referenz/verwaltung_sollwerte.py`) auf den Cent geprüft.
 
+---
+
+## D16 (2026-09-30) — Betriebs- und Heizkostenabrechnung: Regeln und Vereinfachungen
+
+**Entscheidung:** `js/verwaltung-nk.js` (`ImmoNebenkosten`) rechnet die Abrechnung aus den erfassten Kosten und
+gespeicherten Einstellungen jedes Mal neu; erst „Zustellung vermerken und buchen“ schreibt Nachzahlung bzw.
+Guthaben ins Mietkonto und passt die Vorauszahlungen an (§ 560 Abs. 4 BGB) — mit vollständiger Rücknahme.
+- Kosten mit Leistungszeitraum (z. B. Versicherungsjahr) werden tagesgenau auf den Abrechnungszeitraum
+  abgegrenzt; innerhalb des Zeitraums wird nach Nutzungstagen verteilt, Leerstand trägt der Vermieter.
+- Umlage nach Personen: leere Einheiten zählen mit einer einstellbaren Personenzahl (Vorgabe 1), damit der
+  Leerstand nicht auf die Mieter abgewälzt wird.
+- Heizung/Warmwasser: selbst nach HeizkostenV verteilen oder die Beträge des Messdienstes übernehmen. Beim
+  eigenen Verteilen gibt es keine Zwischenablesung; bei Mieterwechsel gilt § 9b Abs. 3 (Heizung nach
+  Gradtagszahlen oder zeitanteilig, Warmwasser zeitanteilig) — mit Hinweis in der Abrechnung.
+- CO2-Kosten: Einstufung nach der Anlage zum CO2KostAufG (Nichtwohngebäude 50 %), Anteil je Mieter wie seine
+  Heiz- und Warmwasserkosten.
+- Vorauszahlungen: vereinbarte (Soll) als Vorgabe, Rückstände bleiben im Mietkonto; wahlweise tatsächlich
+  gezahlte (Ist).
+- Rundung auf Cent je Mieter und Position; die Rundungsdifferenz wird in der Kontrolle ausgewiesen.
+
+**Begründung:** Die Rechnung bleibt nachvollziehbar und jederzeit korrigierbar, solange nicht gebucht ist; die
+Buchung ist der bewusste Schritt „Abrechnung ist raus“. Die Vereinfachungen (keine Zwischenablesung, fiktive
+Person bei Leerstand) sind in der Abrechnung sichtbar und bei Messdienst-Abrechnungen nicht nötig. Der Kern
+ist gegen eine unabhängige Python-Rechnung (Tag-für-Tag-Belegung, exakte Brüche) auf den Cent geprüft.
+
