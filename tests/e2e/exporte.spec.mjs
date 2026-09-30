@@ -13,7 +13,8 @@ mkdirSync(AUSGABE, { recursive: true });
 function pruefe(datei) {
   const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
   expect(r.status, 'Datei lässt sich nicht öffnen: ' + r.stderr).toBe(0);
-  return JSON.parse(r.stdout);
+  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
+  return JSON.parse(r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{')));
 }
 async function vorbereiten(page) {
   await appOeffnen(page);

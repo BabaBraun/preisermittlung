@@ -16,7 +16,8 @@ const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import docx, ope
 function pruefe(datei) {
   const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
   assert.equal(r.status, 0, 'Python konnte die Datei nicht öffnen: ' + r.stderr);
-  return JSON.parse(r.stdout);
+  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
+  return JSON.parse(r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{')));
 }
 const schreibe = (name, bytes) => { const p = new URL(name, AUSGABE); writeFileSync(p, bytes); return p.pathname.replace(/^\/([A-Za-z]:)/, '$1'); };
 

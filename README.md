@@ -62,6 +62,7 @@ npm test                     # Rechenkern, Office-Dateien, Sicherungsprüfung (N
 npm run test:e2e             # Browsertests: Desktop (Chromium) und iPhone 13 (WebKit)
 npm run test:alle            # beides
 python tests/referenz/sollwerte.py   # Sollwerte der unabhängigen Vergleichsrechnung neu erzeugen
+PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersatzschrift gegenprüfen
 ```
 
 - **Node** (`tests/unit/`): Zahlenformate, Barwertfaktor, Restnutzungsdauer, Grenzfälle (Zins 0 %, Laufzeit 0,

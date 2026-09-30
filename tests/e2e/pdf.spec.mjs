@@ -13,7 +13,10 @@ mkdirSync(AUSGABE, { recursive: true });
 const pdfLesen = (datei, bilder) => {
   const r = spawnSync(PY, ['tests/referenz/pruefe_pdf.py', datei].concat(bilder ? ['--bilder', bilder] : []), { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   expect(r.status, 'PDF lässt sich nicht öffnen: ' + r.stderr).toBe(0);
-  return JSON.parse(r.stdout);
+  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
+  const zeile = r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{'));
+  expect(zeile, 'keine Ausgabe der PDF-Prüfung: ' + r.stdout.slice(0, 300)).toBeTruthy();
+  return JSON.parse(zeile);
 };
 const SATZ = 'Das Grundstück liegt in ruhiger Wohnlage mit guter Anbindung an den Ortskern; die Umgebung ist durch Ein- und Zweifamilienhäuser geprägt. ';
 const LANG = Array.from({ length: 8 }, (_, i) => 'Absatz ' + (i + 1) + ': ' + SATZ.repeat(6)).join('\n\n') + 'ENDE-DES-LANGEN-TEXTES';
@@ -21,6 +24,8 @@ const LANG = Array.from({ length: 8 }, (_, i) => 'Absatz ' + (i + 1) + ': ' + SA
 async function vorbereiten(page) {
   await page.route(/cdnjs\.cloudflare\.com|fonts\.(googleapis|gstatic)\.com/, r => r.abort());
   await appOeffnen(page);
+  // PDF_SCHRIFT=Verdana simuliert breitere Ersatzschriften (z. B. DejaVu Sans unter Linux)
+  if (process.env.PDF_SCHRIFT) await page.addStyleTag({ content: '*{font-family:"' + process.env.PDF_SCHRIFT + '" !important}' });
   await arbeitsflaeche(page);
   await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz'));
   await page.evaluate(({ foto, gr, lang }) => {

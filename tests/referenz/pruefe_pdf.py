@@ -5,7 +5,16 @@ import json, sys, os
 
 
 def main():
-    import fitz
+    try:
+        import pymupdf as fitz          # aktueller Modulname
+    except ImportError:
+        import fitz
+    # MuPDF-Warnungen nicht auf die Standardausgabe (sie stünden sonst vor dem JSON)
+    try:
+        fitz.TOOLS.mupdf_display_warnings(False)
+        fitz.TOOLS.mupdf_display_errors(False)
+    except Exception:
+        pass
     pfad = sys.argv[1]
     d = fitz.open(pfad)
     seiten = []
