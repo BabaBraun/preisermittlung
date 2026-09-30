@@ -2728,6 +2728,10 @@
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
+/* Maskieren: Bilddaten nur als data:-URL eines Rasterbilds, IDs nur aus Buchstaben, Ziffern, _ und -.
+   Schützt Bericht, Exposé und Listen vor eingeschleustem HTML/JavaScript (z. B. aus einer fremden Datei). */
+function bildUrl(s){ return (typeof s==='string'&&/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=\s]+$/.test(s))?s:''; }
+function idSicher(s){ return String(s==null?'':s).replace(/[^\w-]/g,''); }
 /* Zahlen lesen — eine Regel für die ganze App (vorher zwei, die „267.901“ unterschiedlich lasen).
    Komma vorhanden → deutsche Schreibweise, Punkte sind Tausender. Mehrere Punkte → Tausender.
    Ein einzelner Punkt vor genau drei Ziffern („450.000“, „1.200“) ist mehrdeutig: In Betragsfeldern
@@ -2806,7 +2810,7 @@ function buildNHK(prefix, ownRND){
    Zum Mitgeben oder Mailen an den Eigentuemer: was liegt vor, was fehlt noch.
    Nutzt dieselbe Druckstrecke wie der Bericht. */
 function druckeUnterlagen(){
-  const esc=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const esc=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   let st=unterlagenStatus();
   let adr=(($('ek_anschrift')||{}).value||'').trim();
   let ag=(($('ek_ag')||{}).value||'').trim();
@@ -3372,9 +3376,9 @@ function renderProjekte(){
        <td style="text-align:left">${e(p.objekt||'–')}${p.nFotos?'<br><span style="color:var(--muted);font-size:11.5px">'+p.nFotos+' Foto'+(p.nFotos===1?'':'s')+'</span>':''}</td>
        <td>${e(p.datum||'')}</td>
        <td style="white-space:nowrap">
-         <button onclick="projektLaden('${p.id}')">Öffnen</button>
-         <button onclick="projektDuplizieren('${p.id}')">Duplizieren</button>
-         <button onclick="projektLoeschen('${p.id}')">Löschen</button>
+         <button onclick="projektLaden('${idSicher(p.id)}')">Öffnen</button>
+         <button onclick="projektDuplizieren('${idSicher(p.id)}')">Duplizieren</button>
+         <button onclick="projektLoeschen('${idSicher(p.id)}')">Löschen</button>
        </td></tr>`);
   });
 }
@@ -4247,7 +4251,7 @@ function grListen(){
   document.querySelectorAll('[data-gr-liste]').forEach(box=>{
     if(!GRUNDRISSE.length){ box.innerHTML=box.dataset.grLeer?'<p class="hint" style="margin:6px 0 0">'+box.dataset.grLeer+'</p>':''; return; }
     box.innerHTML=GRUNDRISSE.map(p=>{ let i=grInfo(p);
-      return '<button type="button" class="gr-karte" onclick="grBearbeiten(\''+p.id+'\')" aria-label="Grundriss '+grE(grTitel(i.N))+' ansehen und bearbeiten">'
+      return '<button type="button" class="gr-karte" onclick="grBearbeiten(\''+idSicher(p.id)+'\')" aria-label="Grundriss '+grE(grTitel(i.N))+' ansehen und bearbeiten">'
         +'<span class="gr-bild">'+grSVG(i.N,p.darst,{klein:true})+'</span>'
         +'<span class="gr-info"><b>'+grE(grTitel(i.N))+'</b><span>'+grE(i.text)+'</span></span></button>'; }).join('');
   });
@@ -4579,10 +4583,10 @@ function exFotoWahlRender(){
   let ids=exFotoIds(), titel=exTitelbild(ids);
   const art={objekt:'Objektfoto',karte:'Karte / Plan',schaden:'Schadensfoto'};
   box.innerHTML=liste.map(p=>{ let an=ids.includes(p.id);
-    return '<label class="ex-foto'+(an?' on':'')+'"><input type="checkbox"'+(an?' checked':'')+' onchange="exFotoSetzen(\''+p.id+'\',this.checked)" aria-label="'+sEsc(p.caption||art[p.cat])+' ins Exposé">'
-      +'<img src="'+p.data+'" alt="">'+(an&&p.id===titel?'<span class="nr">Titelbild</span>':'')
+    return '<label class="ex-foto'+(an?' on':'')+'"><input type="checkbox"'+(an?' checked':'')+' onchange="exFotoSetzen(\''+idSicher(p.id)+'\',this.checked)" aria-label="'+sEsc(p.caption||art[p.cat])+' ins Exposé">'
+      +'<img src="'+bildUrl(p.data)+'" alt="">'+(an&&p.id===titel?'<span class="nr">Titelbild</span>':'')
       +'<small>'+sEsc(p.caption||art[p.cat])+'</small>'
-      +(an&&p.id!==titel?'<button type="button" class="ex-titel-k" onclick="event.preventDefault();exTitelSetzen(\''+p.id+'\')">Als Titelbild</button>':'')+'</label>'; }).join('');
+      +(an&&p.id!==titel?'<button type="button" class="ex-titel-k" onclick="event.preventDefault();exTitelSetzen(\''+idSicher(p.id)+'\')">Als Titelbild</button>':'')+'</label>'; }).join('');
 }
 function exFotoSetzen(id,an){
   let ids=exFotoIds(); if(an&&!ids.includes(id)) ids.push(id); if(!an) ids=ids.filter(x=>x!==id);
@@ -4648,7 +4652,7 @@ function exposeAnzeigen(pdf){
   let wahl=exV('ex_gr')||'plan', grund='';
   if(wahl!=='keine'&&GRUNDRISSE.length) grund='<h2>Grundrisse</h2>'+GRUNDRISSE.map(p=>{ let N=grNorm(p.d);
     return '<figure class="gr-fig">'+grSVG(N,wahl==='plan'?p.darst:wahl)+'</figure>'; }).join('');   // Titel steht in der Zeichnung
-  let bilder=weitere.length?'<h2>Bilder</h2><div class="ex-bilder">'+weitere.map(p=>'<figure><img src="'+p.data+'" alt="'+esc(p.caption||'Foto')+'">'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>').join('')+'</div>':'';
+  let bilder=weitere.length?'<h2>Bilder</h2><div class="ex-bilder">'+weitere.map(p=>'<figure><img src="'+bildUrl(p.data)+'" alt="'+esc(p.caption||'Foto')+'">'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>').join('')+'</div>':'';
   let ini=(K.name||'').split(/\s+/).filter(Boolean).map(s=>s[0]).slice(0,2).join('').toUpperCase();
   let kontakt=(K.name||K.tel||K.mail)?'<h2>Ihr Ansprechpartner</h2><div class="ex-kontakt">'+(ini?'<div class="ini">'+esc(ini)+'</div>':'')+'<div>'
     +(K.name?'<b>'+esc(K.name)+'</b>':'')+(K.funktion?'<div>'+esc(K.funktion)+'</div>':'')+(K.firma?'<div>'+esc(K.firma)+'</div>':'')
@@ -4658,7 +4662,7 @@ function exposeAnzeigen(pdf){
     +'<button onclick="window.print()">Drucken</button><button onclick="downloadPDF()">PDF herunterladen</button><button onclick="pdfTeilen()">Teilen</button></div>'
     +(K.firma?'<div class="ex-kopf">'+esc(K.firma)+'</div>':'')
     +'<h1>'+esc(titel)+'</h1>'+(unter?'<p class="ex-sub">'+esc(unter)+'</p>':'')
-    +(titelFoto?'<img class="ex-hero" src="'+titelFoto.data+'" alt="'+esc(titelFoto.caption||titel)+'">':'')
+    +(titelFoto&&bildUrl(titelFoto.data)?'<img class="ex-hero" src="'+bildUrl(titelFoto.data)+'" alt="'+esc(titelFoto.caption||titel)+'">':'')
     +'<div class="ex-preis"><span>Kaufpreis</span><b>'+(preis>0?eur(preis):'auf Anfrage')+'</b>'+(exV('ex_provision')?'<small>Käuferprovision: '+esc(exV('ex_provision'))+'</small>':'')+'</div>'
     +(fakten.length?'<div class="ex-fakten">'+fakten.map(f=>'<div class="ex-fakt"><span>'+f[0]+'</span><b>'+esc(f[1])+'</b></div>').join('')+'</div>':'')
     +block('Objektbeschreibung',tObj)+block('Ausstattung',tAus)+block('Lage',tLage)+block('Sonstiges',tSonst)
@@ -4868,7 +4872,7 @@ function kdAkte(id,fokus){
     +kkProfilHtml(k)
     +'<h3>Bewertungen</h3>'
     +(bew.length?'<div class="kd-karten">'+bew.map(p=>'<div class="kd-karte"><div><b>'+sEsc(p.name)+'</b><span>'+sEsc([p.datum,p.empf&&p.empf!=='0 €'?p.empf:''].filter(Boolean).join(' · '))+'</span></div>'
-      +(p.typ==='projekt'?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+p.id+'\')">Öffnen</button><button class="secondary" onclick="kdProjektLoesen(\''+p.id+'\')">Zuordnung lösen</button></div>'
+      +(p.typ==='projekt'?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+idSicher(p.id)+'\')">Öffnen</button><button class="secondary" onclick="kdProjektLoesen(\''+idSicher(p.id)+'\')">Zuordnung lösen</button></div>'
         :'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();document.body.classList.add(\'started\');window.scrollTo(0,0)">Zur Bewertung</button><button class="secondary" onclick="kdAktuelleZuordnen(\'\')">Zuordnung lösen</button></div>')+'</div>').join('')+'</div>'
       :'<p class="hint" style="margin:0">Noch keine Bewertung zugeordnet.</p>')
     +(zugeordnet?'':'<div class="gr-zeile"><button class="secondary" onclick="kdAktuelleZuordnen(\''+id+'\')">Aktuelle Bewertung diesem Kunden zuordnen</button></div>')
@@ -5460,7 +5464,7 @@ function vpFolien(M){
   let T=exV('vp_titel')||(vpObjektwort()+(ort?' in '+ort:'')), f=[];
   const fuss='<div class="vp-fuss">'+e([K.firma,K.name].filter(Boolean).join(' · '))+'</div>';
   const add=(k,h)=>{ if(!aus.includes(k)) f.push({k:k,html:'<section class="vp-folie vp-'+k+'">'+h+fuss+'</section>'}); };
-  add('titel',(titel?'<div class="vp-bild" style="background-image:url('+titel.data+')"></div>':'')
+  add('titel',(titel&&bildUrl(titel.data)?'<div class="vp-bild" style="background-image:url('+bildUrl(titel.data)+')"></div>':'')
     +'<div class="vp-titeltext"><p class="vp-kicker">Marktwert und Vermarktung</p><h1>'+e(T)+'</h1>'
     +(exV('vp_fuer')?'<p class="vp-sub">'+e(exV('vp_fuer'))+'</p>':'')+'<p class="vp-sub">'+new Date().toLocaleDateString('de-DE',{month:'long',year:'numeric'})+'</p></div>');
   let fakten=[['Wohnfläche',num('ek_wohnflaeche')>0?exZahl(exV('ek_wohnflaeche'))+' m²':''],[w?'Etage':'Grundstück',w?exV('ek_etage'):(num('ek_gs_flaeche')>0?exZahl(exV('ek_gs_flaeche'))+' m²':'')],
@@ -6407,8 +6411,10 @@ function nhkAnzeigen(prefix,d,erg){
 function druckbericht(){
   compute();const R=window._R;
   const w = modus()==='wohnung';
+  /* Maskiert auch Anführungszeichen, weil Werte in Attributen (alt, title) landen */
+  const esc=s=>(''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const L=(l,v)=>`<tr><td>${l}</td><td>${v}</td></tr>`;
-  const XL=(prefix,max)=>extraLines(prefix,max).map(x=>L('· '+x[0],eur(x[1]))).join('');
+  const XL=(prefix,max)=>extraLines(prefix,max).map(x=>L('· '+esc(x[0]),eur(x[1]))).join('');
   let anbauRows=(!w&&$('anbau_aktiv').checked)?L('Anbau/Nebengebäude · BGF',num2(R.bgfAN)+' m² × '+num2(R.an.preis)+' €/m²')+XL('xan',2)+L('Anbau vor Marktanpassung',eur(R.anVor)):'';
   let niessRow=$('niess_aktiv').checked?`<tr><td>− Belastung Nießbrauchsrecht</td><td>${eur(R.niessWert)}</td></tr>`:'';
   const today=new Date().toLocaleDateString('de-DE');
@@ -6419,15 +6425,15 @@ function druckbericht(){
   let bodenBlock = w ? `
    <h2>Wohnung / Gemeinschaft</h2>
    <table>
-    ${L('Miteigentumsanteil',$('ek_mea').value||'–')}
-    ${L('Etage / Lage',$('ek_etage').value||'–')}
+    ${L('Miteigentumsanteil',esc($('ek_mea').value||'–'))}
+    ${L('Etage / Lage',esc($('ek_etage').value||'–'))}
     ${L('Wohnfläche',num2(num('ek_wohnflaeche'))+' m²')}
     ${L('Hausgeld gesamt',num2(num('ek_hausgeld'))+' €/Monat')}
     ${L('davon nicht umlagefähig',num2(num('ek_hausgeld_nu'))+' €/Monat')}
    </table>` : `
    <h2>Grundstück &amp; Bodenwert</h2>
    <table>
-    ${L('Flurstück / Zone',$('ek_flst').value||'–')}
+    ${L('Flurstück / Zone',esc($('ek_flst').value||'–'))}
     ${L('Grundstücksfläche',num2(num('ek_gs_flaeche')+num('xgs1_flaeche')+num('xgs2_flaeche'))+' m²')}
     ${L('Bodenrichtwert (Anteil I)',num2(num('ek_brw'))+' €/m²')}
     <tr class="total"><td>Bodenwert vor Marktanpassung</td><td>${eur(R.bodenwert)}</td></tr>
@@ -6456,7 +6462,6 @@ function druckbericht(){
    </table>`;
 
   // Objektbeschreibung (Freitexte) & Fotos
-  const esc=s=>(''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const bt=(title,id)=>{let e=$(id);let v=e?(e.value||'').trim():'';return v?`<h3>${title}</h3><div class="beschr">${esc(v)}</div>`:'';};
   // Strukturierte Objektdaten (nur befüllte Felder)
   const dl=(label,id,suffix)=>{let e=$(id);let v=e?(''+(e.value||'')).trim():'';if(!v||v==='0'||v==='–')return '';return `<tr><td>${label}</td><td>${esc(v)}${suffix||''}</td></tr>`;};
@@ -6477,7 +6482,7 @@ function druckbericht(){
   ].join('');
   if(beschreibungBlock) beschreibungBlock='<h2>Objektbeschreibung</h2>'+beschreibungBlock;
   const IA_FOTOLABEL={objekt:'Objektfoto',schaden:'Schadensfoto',karte:'Kartenausschnitt'};
-  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${p.data}" alt="${esc(p.caption||IA_FOTOLABEL[cat]||'Foto')}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
+  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${bildUrl(p.data)}" alt="${esc(p.caption||IA_FOTOLABEL[cat]||'Foto')}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
   let fotoBlock=PHOTOS.some(p=>p.cat==='objekt'||p.cat==='schaden')?('<h2>Fotodokumentation</h2>'+
     (PHOTOS.some(p=>p.cat==='objekt')?'<h3>Objektfotos</h3>'+fotoGrid('objekt'):'')+
     (PHOTOS.some(p=>p.cat==='schaden')?'<h3>Schadensfotos</h3>'+fotoGrid('schaden'):'')):'';
@@ -6590,7 +6595,7 @@ function druckbericht(){
   let signBlock = `<div class="signblock">
      <div class="sigcol">
        <p class="sig-place">${sigOrt?esc(sigOrt)+', den '+esc(sigDatum):esc(sigDatum)}</p>
-       ${SIGNATURE?`<img class="sig-img" src="${SIGNATURE}" alt="Unterschrift">`:''}
+       ${bildUrl(SIGNATURE)?`<img class="sig-img" src="${bildUrl(SIGNATURE)}" alt="Unterschrift">`:''}
        <div class="sig-line${SIGNATURE?' hasimg':''}">${sigName?esc(sigName):'&nbsp;'}${sigFunk?'<br><span style="color:#666">'+esc(sigFunk)+'</span>':''}</div>
      </div>
      <div class="sigcol"></div>
@@ -6605,7 +6610,7 @@ function druckbericht(){
      <div class="kopf">${esc(kopf)}</div>
      <h1>Rechnerische Preisermittlung</h1>
      <div class="sub">${esc(objektTyp)}</div>
-     ${titelbild?`<img class="titelbild" src="${titelbild}" alt="Titelbild">`:''}
+     ${bildUrl(titelbild)?`<img class="titelbild" src="${bildUrl(titelbild)}" alt="Titelbild">`:''}
      <table>
       ${L('Objekt',esc($('ek_anschrift').value||'–'))}
       ${L('Auftraggeber(in)',esc($('ek_ag').value||'–'))}
@@ -6641,10 +6646,10 @@ function druckbericht(){
    ${coverBlock}
    ${mitDeckblatt?'':`<p style="color:var(--muted);margin-top:14px">${esc(kopf)}</p>
    <h1>Rechnerische Preisermittlung</h1>`}
-   ${$('ek_vordruck').value?`<p style="color:var(--accent);font-weight:600;margin:0 0 6px">Vordruck: ${$('ek_vordruck').value}</p>`:''}
-   ${mitDeckblatt?'':`<p><b>${objektTyp}</b> · ${$('ek_anschrift').value||''}<br>
-   Auftraggeber: ${$('ek_ag').value||'–'} · Stichtag: ${$('ek_stichtag').value||today}<br>
-   Nutzung: ${$('ek_nutzung').value||'–'}</p>`}
+   ${$('ek_vordruck').value?`<p style="color:var(--accent);font-weight:600;margin:0 0 6px">Vordruck: ${esc($('ek_vordruck').value)}</p>`:''}
+   ${mitDeckblatt?'':`<p><b>${esc(objektTyp)}</b> · ${esc($('ek_anschrift').value||'')}<br>
+   Auftraggeber: ${esc($('ek_ag').value||'–')} · Stichtag: ${esc($('ek_stichtag').value||today)}<br>
+   Nutzung: ${esc($('ek_nutzung').value||'–')}</p>`}
    ${objektBlock}
    ${auBlock}
    ${beschreibungBlock}
@@ -6845,7 +6850,7 @@ function renderPhotos(){
     let g=$('gal_'+cat); if(!g)return; g.innerHTML='';
     PHOTOS.filter(p=>p.cat===cat).forEach(p=>{
       let d=document.createElement('div'); d.className='photo';
-      d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${p.id}')">✕</button><img src="${p.data}" alt="${(p.caption||FOTO_LABEL[p.cat]||'Foto').replace(/"/g,'&quot;')}"><input class="no-print" placeholder="Bildunterschrift…" value="${(p.caption||'').replace(/"/g,'&quot;')}" oninput="capPhoto('${p.id}',this.value)">`;
+      d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${idSicher(p.id)}')">✕</button><img src="${bildUrl(p.data)}" alt="${sEsc(p.caption||FOTO_LABEL[p.cat]||'Foto')}"><input class="no-print" placeholder="Bildunterschrift…" value="${sEsc(p.caption||'')}" oninput="capPhoto('${idSicher(p.id)}',this.value)">`;
       g.appendChild(d);
     });
   });
@@ -6866,7 +6871,7 @@ function addSignature(files){
 function renderSignature(){
   let box=$('sig_preview'); if(!box)return;
   box.innerHTML = SIGNATURE
-    ? `<img src="${SIGNATURE}" alt="Unterschrift"> <button class="del no-print" aria-label="Unterschrift entfernen" style="position:static;display:inline-block;vertical-align:top;margin-left:8px" onclick="clearSignature()">✕ entfernen</button>`
+    ? `<img src="${bildUrl(SIGNATURE)}" alt="Unterschrift"> <button class="del no-print" aria-label="Unterschrift entfernen" style="position:static;display:inline-block;vertical-align:top;margin-left:8px" onclick="clearSignature()">✕ entfernen</button>`
     : '<span style="color:var(--muted);font-size:12px">Kein Unterschrift-Bild eingefügt.</span>';
 }
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
@@ -7339,8 +7344,8 @@ function mdbPdfRender(){
   if(!MDB_PENDING.length){ el.innerHTML='<p class="hint" style="margin:8px 0 0">Noch kein PDF angehängt.</p>'; return; }
   el.innerHTML=MDB_PENDING.map(p=>
     '<div class="pdfrow"><span>&#128196;</span><span class="nm">'+mdbEsc(p.name)+'</span><span class="sz">'+mdbBytes(p.size)+'</span>'+
-    (p.blob?'<span class="badge">neu</span>':'<button type="button" onclick="mdbPdfOeffnen(&quot;'+p.id+'&quot;)">Öffnen</button>')+
-    '<button type="button" style="color:#9d2b2b" onclick="mdbPdfWeg(&quot;'+p.id+'&quot;)">Entfernen</button></div>').join('')+
+    (p.blob?'<span class="badge">neu</span>':'<button type="button" onclick="mdbPdfOeffnen(&quot;'+idSicher(p.id)+'&quot;)">Öffnen</button>')+
+    '<button type="button" style="color:#9d2b2b" onclick="mdbPdfWeg(&quot;'+idSicher(p.id)+'&quot;)">Entfernen</button></div>').join('')+
     '<p class="hint" style="margin:8px 0 0">Zusammen '+mdbBytes(MDB_PENDING.reduce((s,p)=>s+p.size,0))+' — Anhänge werden beim Speichern übernommen.</p>';
 }
 function mdbPdfWeg(id){ MDB_PENDING=MDB_PENDING.filter(p=>p.id!==id); mdbPdfRender(); }
@@ -8584,7 +8589,7 @@ new MutationObserver(ms=>{
 /* ---------- Objektsuche: Bewertungen (Projekte + aktuelle Arbeit) und Marktüberblick ---------- */
 var SUCHE={offen:false,q:'',hits:[],aktiv:0,markt:[]};
 function sNorm(s){ return (''+(s==null?'':s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ß/g,'ss'); }
-function sEsc(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sEsc(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 async function sucheOeffnen(){
   let o=$('suche'); if(!o)return;
   o.classList.add('on'); SUCHE.offen=true;
