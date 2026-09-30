@@ -10,8 +10,19 @@ def main():
     d = fitz.open(pfad)
     seiten = []
     for i, s in enumerate(d):
+        # unterste Textzeile nach Koordinaten (ohne laufende Kopfzeile) mit Schriftgröße — für die Prüfung,
+        # ob eine Überschrift allein am Seitenende steht (die Reihenfolge von get_text() ist nicht verlässlich)
+        zeilen = []
+        for blk in s.get_text('dict')['blocks']:
+            for ln in blk.get('lines', []):
+                t = ''.join(sp['text'] for sp in ln['spans']).strip()
+                if not t or ('Stichtag' in t and '·' in t):
+                    continue
+                zeilen.append({'text': t, 'y': round(ln['bbox'][3], 1), 'groesse': round(max(sp['size'] for sp in ln['spans']), 2)})
+        letzte = max(zeilen, key=lambda z: z['y']) if zeilen else None
         seiten.append({'breite_mm': round(s.rect.width / 72 * 25.4), 'hoehe_mm': round(s.rect.height / 72 * 25.4),
-                       'text': s.get_text(), 'bilder': len(s.get_images())})
+                       'text': s.get_text(), 'bilder': len(s.get_images()), 'letzte': letzte,
+                       'groessen': sorted({z['groesse'] for z in zeilen})})
     if '--bilder' in sys.argv:
         ziel = sys.argv[sys.argv.index('--bilder') + 1]
         os.makedirs(ziel, exist_ok=True)

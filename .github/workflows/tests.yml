@@ -33,7 +33,12 @@ jobs:
           git diff --exit-code tests/referenz/sollwerte.json
 
       - name: Rechenkern (Node)
-        run: npm test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee node-tests.log
+      - name: Fehler der Node-Tests als Anmerkung
+        if: failure()
+        run: grep -E "^✖|not ok|AssertionError|Error:" node-tests.log | head -20 | sed 's/^/::error title=Node-Test::/' || true
 
       - name: Browser installieren
         run: npx playwright install --with-deps chromium webkit

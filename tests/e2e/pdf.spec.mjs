@@ -66,15 +66,16 @@ test('Druckansicht: A4, Bedienelemente ausgeblendet, langer Text vollständig', 
   expect(text).toContain('Rechnerische Preisermittlung');
   expect(text.replace(/\s+/g, '')).toContain('ENDE-DES-LANGEN-TEXTES');
   expect(text).toContain('472.970 €');
-  // keine Überschrift allein am Seitenende, keine leere letzte Seite
+  // keine Überschrift allein am Seitenende: unterste Zeile nach Koordinaten, Überschriften sind nummeriert und
+  // größer gesetzt (h2 11,25 pt) als Fließtext und Inhaltsverzeichnis (≤ 10 pt); die Kopfzeile ist ausgenommen
   const kopf = /^\d{1,2}\.\s+\S/;
-  const zeilenVon = t => t.split(/\r?\n/).map(z => z.trim()).filter(Boolean);
+  const groesste = Math.max(...r.details.flatMap(s => s.groessen.filter(g => g < 14)));
+  expect(groesste, 'Überschriftengröße erkannt').toBeGreaterThan(10.5);
   r.details.slice(0, -1).forEach((s, i) => {
-    const zeilen = zeilenVon(s.text);
-    expect(kopf.test(zeilen[zeilen.length - 1] || ''), 'Seite ' + (i + 1) + ' endet mit einer Überschrift: ' + zeilen[zeilen.length - 1]).toBe(false);
+    const z = s.letzte || { text: '', groesse: 0 };
+    expect(kopf.test(z.text) && z.groesse >= 10.5, 'Seite ' + (i + 1) + ' endet mit einer Überschrift: ' + z.text).toBe(false);
   });
-  const letzte = zeilenVon(r.details[r.details.length - 1].text);
-  expect(letzte.length, 'letzte Seite ist leer').toBeGreaterThan(2);
+  expect(r.details[r.details.length - 1].letzte, 'letzte Seite ist leer').not.toBeNull();
   expect(r.details.reduce((s, x) => s + x.bilder, 0), 'eingebettete Bilder').toBeGreaterThanOrEqual(1);
   // gleiche Testfotos bettet Chromium nur einmal ein; deshalb im Dokument prüfen: alle Bilder geladen und sichtbar
   const bilder = await page.evaluate(() => [...document.querySelectorAll('#report img, #report svg.gr-svg')].map(e =>
@@ -106,4 +107,21 @@ test('Exposé (Hochformat) und Präsentation (Querformat) als PDF', async ({ pag
   expect(vp.seiten, 'eine Seite je Folie').toBe(folien);
   expect(vp.details.every(s => s.breite_mm === 297 && s.hoehe_mm === 210), 'Folien im Querformat').toBe(true);
   await keineSkriptfehler(page);
+});
+
+test('Druckansicht: bei verschiedenem Textumfang nie eine Überschrift allein am Seitenende', async ({ page }) => {
+  test.skip(!PY, 'PyMuPDF fehlt');
+  test.setTimeout(180_000);
+  await vorbereiten(page);
+  // Gegenprobe (einmalig am 2026-09-30): ohne die Umbruchregeln fand dieselbe Prüfung bei jedem Versatz 1–3 verwaiste Überschriften
+  for (const versatz of [0, 120, 240, 360, 480]) {
+    await page.evaluate(v => { druckbericht(); const d = document.createElement('div'); d.style.height = v + 'px'; const h = document.querySelector('#report h2'); (h.closest('.kopf-halt') || h).before(d); }, versatz);
+    await page.emulateMedia({ media: 'print' });
+    const datei = AUSGABE + 'druck_versatz_' + versatz + '.pdf';
+    await page.pdf({ path: datei, format: 'A4', printBackground: true });
+    await page.emulateMedia({ media: 'screen' });
+    const r = pdfLesen(datei);
+    const verwaist = r.details.slice(0, -1).map((s, i) => s.letzte && /^\d{1,2}\.\s+\S/.test(s.letzte.text) && s.letzte.groesse >= 10.5 ? 'Seite ' + (i + 1) + ': ' + s.letzte.text : null).filter(Boolean);
+    expect(verwaist, 'Versatz ' + versatz + ' px').toEqual([]);
+  }
 });
