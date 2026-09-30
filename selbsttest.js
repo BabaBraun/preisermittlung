@@ -110,6 +110,25 @@ window.iaSelbsttest=function(){
     pruef('Investition','Vermögenszuwachs nach Steuern',M.zuwachs,180510.82,0.5);
   });
 
+  sicher('Liegenschaftsverwaltung','Aufruf',()=>{
+    const V=window.ImmoVerwaltung;
+    pruef('Liegenschaftsverwaltung','Ostersonntag 2026',V.ostersonntag(2026),'2026-04-05');
+    pruef('Liegenschaftsverwaltung','Miete fällig April 2026 (Karfreitag, Ostermontag)',V.dritterWerktag('2026-04'),'2026-04-07');
+    pruef('Liegenschaftsverwaltung','Miete fällig Januar 2026 (Heilige Drei Könige)',V.dritterWerktag('2026-01'),'2026-01-07');
+    pruef('Liegenschaftsverwaltung','Verzugszinsen 1.000 € für 30 Tage (1,27 % + 5 Pp.)',V.r2(V.verzugszinsen(1000,'2026-03-03','2026-04-02',5)),5.15,0.001);
+    // Sollwerte aus der unabhängigen Vergleichsrechnung tests/referenz/verwaltung_sollwerte.py
+    const zD=[['2026-01-05',1090],['2026-02-03',1090],['2026-03-03',1090],['2026-04-07',1090],['2026-05-05',1090],['2026-06-03',1090],['2026-07-03',1090],['2026-08-20',500],['2026-09-25',490]]
+      .map((z,i)=>({id:'d'+i,vertragId:'vD',datum:z[0],betrag:z[1],art:'miete'}));
+    const vD={id:'vD',einheitId:'e',beginn:'2026-01-01',miete:{kalt:820,nk:160,hk:110,zuschlag:0,ust:0}};
+    const opD=V.offenePosten(vD,zD,'2026-09-29',{aufschlag:5}), ks=V.kuendigungsschwelle(opD,vD,'2026-09-29');
+    pruef('Liegenschaftsverwaltung','Mietkonto: Rückstand aus zwei Teilzahlungen',opD.summe.rueckstand,1190,0.001);
+    pruef('Liegenschaftsverwaltung','Mietkonto: Verzugszinsen',opD.summe.zinsen,11.85,0.001);
+    pruef('Liegenschaftsverwaltung','Kündigungsschwelle a erreicht, b nicht (§ 543 BGB)',(ks.a?'a':'-')+(ks.b?'b':'-'),'a-');
+    const vC={id:'vC',einheitId:'e',beginn:'2024-06-01',ende:'2026-02-14',miete:{kalt:600,nk:120},aenderungen:[{id:'c1',ab:'2025-06-01',kalt:640}]};
+    const opC=V.offenePosten(vC,[['2024-06-03',8640],['2025-06-02',7600],['2026-02-02',900]].map((z,i)=>({id:'c'+i,vertragId:'vC',datum:z[0],betrag:z[1],art:'miete'})),'2026-09-29',{aufschlag:5});
+    pruef('Liegenschaftsverwaltung','Vertragsende Mitte Februar: Soll und Guthaben',opC.summe.soll+' / '+opC.summe.guthaben,'15100 / 2040');
+  });
+
   sicher('Bausteine','Aufruf',()=>{
     pruef('Bausteine','Barwertfaktor 5 % / 20 Jahre',barwertfaktor(5,20),12.46221,0.00001);
     pruef('Bausteine','Restnutzungsdauer Anlage 2: 7 Punkte, Alter 41, GND 80',computeRND(41,80,7),43.98717,0.0001);

@@ -5,6 +5,7 @@ import { mkdirSync } from 'node:fs';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
+import { LIEGENSCHAFT_TEST } from '../fixtures/verwaltung.mjs';
 
 export async function alleAnsichten(page, geraet) {
   const ordner = 'tests/ausgabe/ansichten_' + geraet + '/';
@@ -53,6 +54,15 @@ export async function alleAnsichten(page, geraet) {
   await page.evaluate(() => schliesseProjekte());
   await pruefe('16_marktueberblick', () => mdbOeffnen());
   await page.evaluate(() => mdbClose());
+  await page.evaluate(async x => { await lvStart(); await lvSpeichern(JSON.parse(JSON.stringify(x))); }, LIEGENSCHAFT_TEST);
+  await pruefe('16a_verwaltung_uebersicht', () => lvOeffnen('uebersicht'));
+  await pruefe('16b_verwaltung_ueberblick', () => lvLiegenschaftOeffnen('Ltest1', 'ueberblick'));
+  await pruefe('16c_verwaltung_einheiten', () => { lvReiter('einheiten'); LV.form = { typ: 'einheit', id: null }; lvRender(); });
+  await pruefe('16d_verwaltung_vertrag', () => { lvReiter('vertraege'); LV.form = { typ: 'vertrag', id: 'Vt1' }; lvRender(); });
+  await pruefe('16e_verwaltung_mietkonto', () => { LV.vertragId = 'Vt1'; lvReiter('mietkonto'); });
+  await pruefe('16f_verwaltung_fristen', () => lvAnsicht('fristen'));
+  await pruefe('16g_verwaltung_sicherung', () => lvAnsicht('sicherung'));
+  await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');
   await pruefe('18_praesentation', () => vpStarten());

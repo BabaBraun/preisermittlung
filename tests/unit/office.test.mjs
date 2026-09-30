@@ -51,7 +51,8 @@ test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 
       ['Bruttomietrendite', { v: 5.94, s: 'pct' }],
       ['Vervielfältiger', { v: 26.49957, s: 'dez' }],
       [{ v: 'Empfohlener Preisansatz', s: 'fett' }, { v: 472970.43, s: 'fetteur' }],
-      ['Text mit <Klammern> & „Anführung“', { v: -1234.5, s: 'eur' }]
+      ['Text mit <Klammern> & „Anführung“', { v: -1234.5, s: 'eur' }],
+      ['Miete mit Cent', { v: 1040.32, s: 'eurc' }, { v: 2255.22, s: 'fetteurc' }]
     ] },
     { name: 'Eingaben: Test/1', zeilen: [['Feld', 'Wert'], ['ek_brw', '380']] }
   ], { titel: 'Test' });
@@ -66,6 +67,8 @@ test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 
   assert.equal(z.B6.fett, true);
   assert.equal(z.A7.wert, 'Text mit <Klammern> & „Anführung“');
   assert.equal(z.B7.wert, -1234.5);
+  assert.equal(z.B8.format, '#,##0.00 "€"'); assert.equal(z.B8.wert, 1040.32);
+  assert.equal(z.C8.format, '#,##0.00 "€"'); assert.equal(z.C8.fett, true);
 });
 
 test('DOCX: Überschriften, Tabellen, Bild und Seitenumbruch', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {

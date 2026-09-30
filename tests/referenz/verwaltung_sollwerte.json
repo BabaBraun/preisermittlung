@@ -1,0 +1,966 @@
+{
+ "stichtag": "2026-09-29",
+ "ostern": {
+  "2020": "2020-04-12",
+  "2021": "2021-04-04",
+  "2022": "2022-04-17",
+  "2023": "2023-04-09",
+  "2024": "2024-03-31",
+  "2025": "2025-04-20",
+  "2026": "2026-04-05",
+  "2027": "2027-03-28",
+  "2028": "2028-04-16",
+  "2029": "2029-04-01",
+  "2030": "2030-04-21",
+  "2031": "2031-04-13",
+  "2032": "2032-03-28",
+  "2033": "2033-04-17",
+  "2034": "2034-04-09",
+  "2035": "2035-03-25"
+ },
+ "dritterWerktag": {
+  "2025-01": "2025-01-07",
+  "2025-02": "2025-02-05",
+  "2025-03": "2025-03-05",
+  "2025-04": "2025-04-03",
+  "2025-05": "2025-05-06",
+  "2025-06": "2025-06-04",
+  "2025-07": "2025-07-03",
+  "2025-08": "2025-08-05",
+  "2025-09": "2025-09-03",
+  "2025-10": "2025-10-06",
+  "2025-11": "2025-11-05",
+  "2025-12": "2025-12-03",
+  "2026-01": "2026-01-07",
+  "2026-02": "2026-02-04",
+  "2026-03": "2026-03-04",
+  "2026-04": "2026-04-07",
+  "2026-05": "2026-05-06",
+  "2026-06": "2026-06-03",
+  "2026-07": "2026-07-03",
+  "2026-08": "2026-08-05",
+  "2026-09": "2026-09-03",
+  "2026-10": "2026-10-05",
+  "2026-11": "2026-11-04",
+  "2026-12": "2026-12-03",
+  "2027-01": "2027-01-07",
+  "2027-02": "2027-02-03",
+  "2027-03": "2027-03-03",
+  "2027-04": "2027-04-05",
+  "2027-05": "2027-05-05",
+  "2027-06": "2027-06-03",
+  "2027-07": "2027-07-05",
+  "2027-08": "2027-08-04",
+  "2027-09": "2027-09-03",
+  "2027-10": "2027-10-05",
+  "2027-11": "2027-11-04",
+  "2027-12": "2027-12-03"
+ },
+ "vertraege": {
+  "wohnung_staffel_teilzahlung": {
+   "soll": [
+    {
+     "id": "M2025-11",
+     "faellig": "2025-11-15",
+     "betrag": 528.0
+    },
+    {
+     "id": "M2025-12",
+     "faellig": "2025-12-03",
+     "betrag": 990.0
+    },
+    {
+     "id": "M2026-01",
+     "faellig": "2026-01-07",
+     "betrag": 990.0
+    },
+    {
+     "id": "M2026-02",
+     "faellig": "2026-02-04",
+     "betrag": 990.0
+    },
+    {
+     "id": "M2026-03",
+     "faellig": "2026-03-04",
+     "betrag": 990.0
+    },
+    {
+     "id": "M2026-04",
+     "faellig": "2026-04-07",
+     "betrag": 990.0
+    },
+    {
+     "id": "M2026-05",
+     "faellig": "2026-05-06",
+     "betrag": 1020.0
+    },
+    {
+     "id": "M2026-06",
+     "faellig": "2026-06-03",
+     "betrag": 1020.0
+    },
+    {
+     "id": "M2026-07",
+     "faellig": "2026-07-03",
+     "betrag": 1020.0
+    },
+    {
+     "id": "M2026-08",
+     "faellig": "2026-08-05",
+     "betrag": 1030.32
+    },
+    {
+     "id": "M2026-09",
+     "faellig": "2026-09-03",
+     "betrag": 1040.0
+    },
+    {
+     "id": "Xs1",
+     "faellig": "2026-06-15",
+     "betrag": 212.4
+    },
+    {
+     "id": "Xs2",
+     "faellig": "2026-07-10",
+     "betrag": -35.5
+    }
+   ],
+   "posten": [
+    {
+     "id": "M2025-11",
+     "bezahlt": 528.0,
+     "offen": 0.0,
+     "zinsen": 0.2,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-12",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 0.05,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-01",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 0.88,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-02",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 0.94,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-03",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-04",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 0.45,
+     "status": "verspaetet"
+    },
+    {
+     "id": "Rz07",
+     "bezahlt": 990.0,
+     "offen": 0.0,
+     "zinsen": 2.38,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-05",
+     "bezahlt": 1020.0,
+     "offen": 0.0,
+     "zinsen": 5.74,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-06",
+     "bezahlt": 1020.0,
+     "offen": 0.0,
+     "zinsen": 11.54,
+     "status": "verspaetet"
+    },
+    {
+     "id": "Xs1",
+     "bezahlt": 27.5,
+     "offen": 184.9,
+     "zinsen": 3.88,
+     "status": "teilweise"
+    },
+    {
+     "id": "M2026-07",
+     "bezahlt": 0.0,
+     "offen": 1020.0,
+     "zinsen": 16.03,
+     "status": "offen"
+    },
+    {
+     "id": "M2026-08",
+     "bezahlt": 1020.0,
+     "offen": 10.32,
+     "zinsen": 0.1,
+     "status": "teilweise"
+    },
+    {
+     "id": "M2026-09",
+     "bezahlt": 0.0,
+     "offen": 1040.0,
+     "zinsen": 4.83,
+     "status": "offen"
+    }
+   ],
+   "summe": {
+    "soll": 11810.72,
+    "rueckstand": 2255.22,
+    "guthaben": 0.0,
+    "zinsen": 47.02
+   },
+   "schwelle": {
+    "a": true,
+    "b": true,
+    "monatsmiete": 1040.0
+   },
+   "kaution": {
+    "hoechst": 2250.0,
+    "ist": 1500.0,
+    "faelligOffen": 750.0,
+    "raten": [
+     {
+      "faellig": "2025-11-15",
+      "betrag": 750.0
+     },
+     {
+      "faellig": "2025-12-03",
+      "betrag": 750.0
+     },
+     {
+      "faellig": "2026-01-07",
+      "betrag": 750.0
+     }
+    ]
+   }
+  },
+  "gewerbe_ust_basiszinswechsel": {
+   "soll": [
+    {
+     "id": "M2025-01",
+     "faellig": "2025-01-07",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-02",
+     "faellig": "2025-02-05",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-03",
+     "faellig": "2025-03-05",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-04",
+     "faellig": "2025-04-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-05",
+     "faellig": "2025-05-06",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-06",
+     "faellig": "2025-06-04",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-07",
+     "faellig": "2025-07-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-08",
+     "faellig": "2025-08-05",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-09",
+     "faellig": "2025-09-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-10",
+     "faellig": "2025-10-06",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-11",
+     "faellig": "2025-11-05",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2025-12",
+     "faellig": "2025-12-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-01",
+     "faellig": "2026-01-07",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-02",
+     "faellig": "2026-02-04",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-03",
+     "faellig": "2026-03-04",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-04",
+     "faellig": "2026-04-07",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-05",
+     "faellig": "2026-05-06",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-06",
+     "faellig": "2026-06-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-07",
+     "faellig": "2026-07-03",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-08",
+     "faellig": "2026-08-05",
+     "betrag": 2856.0
+    },
+    {
+     "id": "M2026-09",
+     "faellig": "2026-09-03",
+     "betrag": 2856.0
+    }
+   ],
+   "posten": [
+    {
+     "id": "M2025-01",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-02",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 37.92,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-03",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 13.23,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-04",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 77.6,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-05",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 69.94,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-06",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 108.91,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-07",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 83.57,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-08",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 57.06,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-09",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 60.8,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-10",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 115.72,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-11",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 91.61,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2025-12",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 106.47,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-01",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 190.86,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-02",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 168.36,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-03",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 145.86,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-04",
+     "bezahlt": 2856.0,
+     "offen": 0.0,
+     "zinsen": 118.54,
+     "status": "verspaetet"
+    },
+    {
+     "id": "M2026-05",
+     "bezahlt": 1864.0,
+     "offen": 992.0,
+     "zinsen": 103.52,
+     "status": "teilweise"
+    },
+    {
+     "id": "M2026-06",
+     "bezahlt": 0.0,
+     "offen": 2856.0,
+     "zinsen": 96.6,
+     "status": "offen"
+    },
+    {
+     "id": "M2026-07",
+     "bezahlt": 0.0,
+     "offen": 2856.0,
+     "zinsen": 72.44,
+     "status": "offen"
+    },
+    {
+     "id": "M2026-08",
+     "bezahlt": 0.0,
+     "offen": 2856.0,
+     "zinsen": 45.27,
+     "status": "offen"
+    },
+    {
+     "id": "M2026-09",
+     "bezahlt": 0.0,
+     "offen": 2856.0,
+     "zinsen": 21.4,
+     "status": "offen"
+    }
+   ],
+   "summe": {
+    "soll": 59976.0,
+    "rueckstand": 12416.0,
+    "guthaben": 0.0,
+    "zinsen": 1785.68
+   },
+   "schwelle": {
+    "a": true,
+    "b": true,
+    "monatsmiete": 2856.0
+   },
+   "kaution": {
+    "hoechst": 6000.0,
+    "ist": 7000.0,
+    "faelligOffen": 0.0,
+    "raten": [
+     {
+      "faellig": "2025-01-01",
+      "betrag": 7000.0
+     }
+    ]
+   }
+  },
+  "vertragsende_ueberzahlung": {
+   "soll": [
+    {
+     "id": "M2024-06",
+     "faellig": "2024-06-05",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-07",
+     "faellig": "2024-07-03",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-08",
+     "faellig": "2024-08-05",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-09",
+     "faellig": "2024-09-04",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-10",
+     "faellig": "2024-10-04",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-11",
+     "faellig": "2024-11-06",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2024-12",
+     "faellig": "2024-12-04",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-01",
+     "faellig": "2025-01-07",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-02",
+     "faellig": "2025-02-05",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-03",
+     "faellig": "2025-03-05",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-04",
+     "faellig": "2025-04-03",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-05",
+     "faellig": "2025-05-06",
+     "betrag": 720.0
+    },
+    {
+     "id": "M2025-06",
+     "faellig": "2025-06-04",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-07",
+     "faellig": "2025-07-03",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-08",
+     "faellig": "2025-08-05",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-09",
+     "faellig": "2025-09-03",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-10",
+     "faellig": "2025-10-06",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-11",
+     "faellig": "2025-11-05",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2025-12",
+     "faellig": "2025-12-03",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2026-01",
+     "faellig": "2026-01-07",
+     "betrag": 760.0
+    },
+    {
+     "id": "M2026-02",
+     "faellig": "2026-02-04",
+     "betrag": 380.0
+    }
+   ],
+   "posten": [
+    {
+     "id": "M2024-06",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-07",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-08",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-09",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-10",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-11",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2024-12",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-01",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-02",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-03",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-04",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-05",
+     "bezahlt": 720.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-06",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-07",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-08",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-09",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-10",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-11",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2025-12",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-01",
+     "bezahlt": 760.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-02",
+     "bezahlt": 380.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    }
+   ],
+   "summe": {
+    "soll": 15100.0,
+    "rueckstand": 0.0,
+    "guthaben": 2040.0,
+    "zinsen": 0.0
+   },
+   "schwelle": {
+    "a": false,
+    "b": false,
+    "monatsmiete": 760.0
+   },
+   "kaution": {
+    "hoechst": 1800.0,
+    "ist": 0.0,
+    "faelligOffen": 1800.0,
+    "raten": [
+     {
+      "faellig": "2024-06-01",
+      "betrag": 1800.0
+     }
+    ]
+   }
+  },
+  "schwelle_a_ohne_b": {
+   "soll": [
+    {
+     "id": "M2026-01",
+     "faellig": "2026-01-07",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-02",
+     "faellig": "2026-02-04",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-03",
+     "faellig": "2026-03-04",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-04",
+     "faellig": "2026-04-07",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-05",
+     "faellig": "2026-05-06",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-06",
+     "faellig": "2026-06-03",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-07",
+     "faellig": "2026-07-03",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-08",
+     "faellig": "2026-08-05",
+     "betrag": 1090.0
+    },
+    {
+     "id": "M2026-09",
+     "faellig": "2026-09-03",
+     "betrag": 1090.0
+    }
+   ],
+   "posten": [
+    {
+     "id": "M2026-01",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-02",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-03",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-04",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-05",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-06",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-07",
+     "bezahlt": 1090.0,
+     "offen": 0.0,
+     "zinsen": 0.0,
+     "status": "bezahlt"
+    },
+    {
+     "id": "M2026-08",
+     "bezahlt": 990.0,
+     "offen": 100.0,
+     "zinsen": 6.79,
+     "status": "teilweise"
+    },
+    {
+     "id": "M2026-09",
+     "bezahlt": 0.0,
+     "offen": 1090.0,
+     "zinsen": 5.06,
+     "status": "offen"
+    }
+   ],
+   "summe": {
+    "soll": 9810.0,
+    "rueckstand": 1190.0,
+    "guthaben": 0.0,
+    "zinsen": 11.85
+   },
+   "schwelle": {
+    "a": true,
+    "b": false,
+    "monatsmiete": 1090.0
+   },
+   "kaution": {
+    "hoechst": 2460.0,
+    "ist": 3000.0,
+    "faelligOffen": 0.0,
+    "raten": [
+     {
+      "faellig": "2026-01-01",
+      "betrag": 3000.0
+     }
+    ]
+   }
+  }
+ },
+ "leerstand": [
+  {
+   "einheitId": "e1",
+   "leerTage": 0,
+   "entgangen": 0.0
+  },
+  {
+   "einheitId": "e2",
+   "leerTage": 75,
+   "entgangen": 1625.0
+  },
+  {
+   "einheitId": "e3",
+   "leerTage": 181,
+   "entgangen": 3000.0
+  }
+ ]
+}

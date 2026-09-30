@@ -266,3 +266,28 @@ GND als kritisch) und empfiehlt, die Restnutzungsdauer sachverständig zu prüfe
 ausdrücklich, und ein reales Gutachten (Referenz ALEX99) wendet sie dort an. Ein Eingriff wäre nicht
 nachgewiesen gewesen. Anders beim Gebäudealter: § 4 Abs. 1 ImmoWertV bezieht es eindeutig auf das
 Stichtagsjahr — das wurde korrigiert (siehe `tests/fixtures/golden-aenderungen.md`).
+
+---
+
+## D15 (2026-09-30) — Liegenschaftsverwaltung als eigenes Modul mit eigener Datenbank
+
+**Entscheidung:** Die Verwaltung (Kachel „Liegenschaftsverwaltung“) hat einen eigenen Rechenkern ohne DOM
+(`js/verwaltung.js`, `ImmoVerwaltung`), eine eigene Oberfläche (`js/verwaltung-ui.js`) und eine eigene
+IndexedDB `ia_verwaltung` (ein Dokument je Liegenschaft mit Einheiten, Verträgen, Zahlungen und Mahnungen).
+Fachliche Regeln:
+- Fälligkeit am dritten Werktag (§ 556b Abs. 1 BGB); der Samstag zählt dabei nicht (BGH VIII ZR 129/09),
+  Feiertage nach dem Feiertagsgesetz Baden-Württemberg.
+- Sollstellung je Monat, anteilig nur bei Beginn, Ende oder Änderung innerhalb des Monats (Kalendertage).
+- Zahlungen zuerst auf den bestimmten Monat, sonst auf die älteste Schuld (§ 366 BGB); Rücklastschriften als
+  neue Forderung am Buchungstag, Gutschriften wie Zahlungen.
+- Verzugszinsen mit dem jeweils gültigen Basiszins (Tabelle der Bundesbank, je Liegenschaft ergänzbar),
+  + 5 Pp. bei Wohnraum, + 9 Pp. bei Gewerbe (§ 288 BGB).
+- Kündigungsschwelle (§ 543 Abs. 2 Nr. 3, § 569 Abs. 3 Nr. 1 BGB) und Kaution über drei Nettokaltmieten
+  (§ 551 BGB) nur als Hinweis „prüfen“, nie als Rechtsfolge.
+
+**Begründung:** Getrennte Datenbank, damit ein Fehler oder ein voller Speicher in der Verwaltung Bewertungen
+und Kundenakte nicht berührt und die Sicherung einzeln möglich ist. Ein Dokument je Liegenschaft hält
+Änderungen atomar (eine Transaktion) und die Sicherung einfach; bei den erwarteten Mengen (einige Tausend
+Zahlungen je Objekt) ist das schnell genug. Der Rechenkern ist gegen eine unabhängige Python-Rechnung
+(`tests/referenz/verwaltung_sollwerte.py`) auf den Cent geprüft.
+

@@ -193,6 +193,11 @@ ungültigen Angaben (D13); Maskierung aller Eingaben; echte `.docx`/`.xlsx` (D11
 Seitenumbrüchen (D12); Importe geprüft und atomar; App-Sperre als Sichtschutz beschrieben; 43 Node- und
 28 Browsertests (Desktop und iPhone/WebKit), GitHub Actions grün. Einzelheiten in `SUMMARY.md` und `AUDIT.md`.
 
+**2026-09-30, Liegenschaftsverwaltung Stufe 1 (Mietverwaltung):** neue Kachel mit Liegenschaften, Einheiten,
+Mietverträgen (Fest-, Staffel-, Indexmiete, Mietänderungen), Sollstellung, Zahlungseingängen, offenen Posten,
+Verzugszinsen, Mahnvorschlag mit Word-Schreiben, Kaution, Leerstand, Fristen, Excel-Mieterliste und -Mietkonto,
+eigener Datensicherung (D15). Weitere Stufen siehe unten.
+
 ### Offen nach dem 2026-09-30
 
 | # | Was | Warum |
@@ -202,3 +207,7 @@ Seitenumbrüchen (D12); Importe geprüft und atomar; App-Sperre als Sichtschutz 
 | 39 | [ ] Grundrisse, Marktüberblick und Kundenakte schrittweise aus `index.html` in eigene Dateien | Wartbarkeit der Oberfläche |
 | 40 | [ ] Fachliche Durchsicht der Modelle durch eine Sachverständige/einen Gutachterausschuss | bisher nur gegen Verordnung, ein Gutachten und eigene Vergleichsrechnung geprüft |
 | 41 | [ ] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen | Prozessrisiko (siehe AUDIT, Abschnitt 7) |
+| 42 | [ ] Liegenschaftsverwaltung Stufe 2: Nebenkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG, § 35a EStG) | Auftrag „alles“ |
+| 43 | [ ] Liegenschaftsverwaltung Stufe 3: Instandhaltung, Dienstleister, Wartungs- und Prüfpflichten | Auftrag „alles“ |
+| 44 | [ ] Liegenschaftsverwaltung Stufe 4: WEG (Wirtschaftsplan, Hausgeld, Jahresabrechnung, Versammlung, Beschlusssammlung) | Auftrag „alles“ |
+| 45 | [ ] Liegenschaftsverwaltung Stufe 5: Mieterhöhung (§§ 557a–559 BGB), Eigentümerbericht, Anlage V, Dokumente, Kontoauszug-Import | Auftrag „alles“ |

@@ -28,6 +28,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   (`.docx`) und Excel (`.xlsx`), alles offline.
 - **Beratung:** Kundenakte mit Suchprofil und Käuferabgleich, Wiedervorlagen, Finanzierungsrechner mit
   Budget-Check, Marktüberblick (eigene Angebots- und Kaufpreise mit Auswertung).
+- **Liegenschaftsverwaltung:** Liegenschaften von Kunden, eigene und Objekte der Bank mit Einheiten und
+  Mietverträgen (Fest-, Staffel-, Indexmiete); Sollstellung mit Fälligkeit am 3. Werktag, Zahlungseingänge,
+  offene Posten nach § 366 BGB, Verzugszinsen, Mahnvorschlag und Mahnschreiben (Word), Hinweis auf die
+  Kündigungsschwelle, Kaution nach § 551 BGB, Leerstand, Fristen; Mieterliste und Mietkonto als Excel.
 
 ## Aufbau
 
@@ -41,6 +45,8 @@ Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository li
 | `js/daten.js` | Prüfung von Projekt-, Gesamt- und Marktdaten-Sicherungen vor dem Einlesen |
 | `js/office.js` | Word- und Excel-Dateien (Office Open XML) ohne fremde Bibliothek |
 | `js/pdf.js` | Seitenaufteilung für den PDF-Download |
+| `js/verwaltung.js` | Rechenkern der Liegenschaftsverwaltung ohne Bildschirmzugriff (Sollstellung, offene Posten, Zinsen, Fristen, Prüfung von Sicherungen) |
+| `js/verwaltung-ui.js` | Oberfläche der Liegenschaftsverwaltung; eigene Datenbank `ia_verwaltung` |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |
@@ -64,6 +70,7 @@ npm test                     # Rechenkern, Office-Dateien, Sicherungsprüfung (N
 npm run test:e2e             # Browsertests: Desktop (Chromium) und iPhone 13 (WebKit)
 npm run test:alle            # beides
 python tests/referenz/sollwerte.py   # Sollwerte der unabhängigen Vergleichsrechnung neu erzeugen
+python tests/referenz/verwaltung_sollwerte.py   # dasselbe für die Liegenschaftsverwaltung
 PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersatzschrift gegenprüfen
 ```
 
@@ -71,7 +78,9 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
   sehr alte Gebäude, leere, negative und extreme Werte), Finanzierung, Budget, Investition, die beiden
   Referenzbewertungen des Selbsttests und sieben Fälle gegen eine unabhängige Python-Vergleichsrechnung
   (`tests/referenz/`); Office-Dateien (mit python-docx/openpyxl geöffnet); Prüfung von Sicherungsdateien
-  einschließlich älterer Formate.
+  einschließlich älterer Formate; Liegenschaftsverwaltung (Feiertage, Fälligkeit, Sollstellung, offene Posten,
+  Verzugszinsen über Basiszins-Wechsel, Kündigungsschwelle, Kaution, Leerstand) gegen eine eigene
+  Python-Vergleichsrechnung.
 - **Browser** (`tests/e2e/`): Vergleich aller Rechenergebnisse mit dem festgehaltenen Stand
   (`tests/fixtures/golden.json`, Änderungen nur mit Beleg in `golden-aenderungen.md`), Selbsttest samt
   Erhalt der offenen Bewertung, Eingabeprüfung, Maskierung von Eingaben, Word/Excel/PDF/Druck,
@@ -97,8 +106,10 @@ sind sie weg. Deshalb regelmäßig sichern und die Dateien außerhalb des Gerät
 | alle Projekte mit Fotos, Kunden, Wiedervorlagen, Marktberichte | Projekte → „Alle Projekte sichern“ | `ImmoApp Projekte JJJJ-MM-TT.json` |
 | die offene Bewertung | Export-Menü → „Als Datei sichern“ | `<Adresse>.json` |
 | Marktüberblick (schlank oder mit PDF-Anhängen) | Marktüberblick → Datensicherung | `Marktdaten_….json` |
+| Liegenschaftsverwaltung (Liegenschaften, Verträge, Zahlungen, Absender) | Liegenschaftsverwaltung → Datensicherung | `ImmoApp Verwaltung JJJJ-MM-TT.json` |
 
-Einspielen: „Sicherung einspielen“ bzw. „Datei öffnen“ bzw. im Marktüberblick „Sicherung einlesen“. Jede
+Einspielen: „Sicherung einspielen“ bzw. „Datei öffnen“ bzw. im Marktüberblick „Sicherung einlesen“ bzw. in
+der Liegenschaftsverwaltung „Sicherung einspielen“. Jede
 Datei wird vollständig geprüft, bevor etwas überschrieben wird; beschädigte oder fremde Dateien werden mit
 einer Meldung abgelehnt, unlesbare Einträge übersprungen. Bei vorhandenen Einträgen gewinnt die neuere
 Fassung. Ältere Dateiformate bleiben lesbar. **Die Dateien sind nicht verschlüsselt** — so sensibel
@@ -115,6 +126,8 @@ Geräteverschlüsselung des Betriebssystems.
 - Der PDF-Download ist ein Bild-PDF (Text nicht durchsuchbar); für das Bewertungsdokument ist die
   Druckansicht („Als PDF sichern“) mit echtem Text vorzuziehen.
 - Keine Synchronisation zwischen Geräten, kein Server (D2).
+- Liegenschaftsverwaltung: Hinweise zu Kündigung, Kaution und Mahnung sind Arbeitshilfen, keine Rechtsberatung;
+  Mahnschreiben vor dem Versand prüfen. Kappungsgrenzen-Gemeinden sind nicht hinterlegt (Häkchen je Liegenschaft).
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim
   Fotografieren, GPS im Aufnahmebogen, Teilen-Menü und „In Dateien sichern“ auf dem iPhone, Öffnen von
   `.ics`-Kalendereinträgen, Installation als Home-Bildschirm-App.

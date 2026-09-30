@@ -65,7 +65,7 @@ const REL_PAKET=(haupt)=>KOPF+'<Relationships xmlns="http://schemas.openxmlforma
   +'<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>';
 
 /* ---------- XLSX ---------- */
-const XLSX_STIL={normal:0,eur:1,dez:2,pct:3,fett:4,fetteur:5,titel:6,text:7,zahl:8};
+const XLSX_STIL={normal:0,eur:1,dez:2,pct:3,fett:4,fetteur:5,titel:6,text:7,zahl:8,eurc:9,fetteurc:10};
 function spalte(n){ let s=''; n++; while(n>0){ let m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; }
 function blattName(n,i){ let s=String(n||('Tabelle'+(i+1))).replace(/[\[\]:*?\/\\]/g,' ').trim().slice(0,31); return s||('Tabelle'+(i+1)); }
 function xlsxBlatt(b){
@@ -81,12 +81,12 @@ function xlsxBlatt(b){
   return KOPF+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"/></sheetViews>'+cols+'<sheetData>'+zeilen+'</sheetData></worksheet>';
 }
 const XLSX_STILE=KOPF+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-  +'<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0 &quot;€&quot;"/><numFmt numFmtId="165" formatCode="#,##0.00"/><numFmt numFmtId="166" formatCode="0.00&quot; %&quot;"/><numFmt numFmtId="167" formatCode="#,##0.####"/></numFmts>'
+  +'<numFmts count="5"><numFmt numFmtId="164" formatCode="#,##0 &quot;€&quot;"/><numFmt numFmtId="165" formatCode="#,##0.00"/><numFmt numFmtId="166" formatCode="0.00&quot; %&quot;"/><numFmt numFmtId="167" formatCode="#,##0.####"/><numFmt numFmtId="168" formatCode="#,##0.00 &quot;€&quot;"/></numFmts>'
   +'<fonts count="3"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FF1B4B7A"/><name val="Arial"/></font></fonts>'
   +'<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
   +'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
   +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-  +'<cellXfs count="9"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+  +'<cellXfs count="11"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
   +'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
   +'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
   +'<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
@@ -94,7 +94,9 @@ const XLSX_STILE=KOPF+'<styleSheet xmlns="http://schemas.openxmlformats.org/spre
   +'<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
   +'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
   +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
-  +'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>'
+  +'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="168" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="168" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/></cellXfs>'
   +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
 function xlsx(blaetter, meta){
   const b=blaetter&&blaetter.length?blaetter:[{name:'Tabelle1',zeilen:[]}];

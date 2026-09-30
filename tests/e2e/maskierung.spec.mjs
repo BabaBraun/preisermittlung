@@ -14,7 +14,7 @@ test('keine Ausführung eingeschleuster Inhalte in Dokumenten und Listen', async
   await page.evaluate(({ last, foto }) => {
     // alle Freitextfelder (keine Zahlenfelder, damit die Bewertung gültig bleibt)
     document.querySelectorAll('input[type=text],input:not([type]),textarea').forEach(e => {
-      if (!e.id || e.closest('#mdb_overlay,#suche,#fin_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#gr_overlay')) return;
+      if (!e.id || e.closest('#mdb_overlay,#suche,#fin_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#gr_overlay,#lv_overlay')) return;
       const zahl = /^-?[\d.,\s]*$/.test(e.defaultValue) && e.defaultValue !== '';
       if (!zahl && !/_(base|val)\d?$/.test(e.id)) e.value = last;
     });

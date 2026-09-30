@@ -23,12 +23,16 @@ test('Offline-Start nach dem ersten Besuch: App, Rechenkern, Exporte und PDF-Bau
   await erstbesuch(page);
   await context.setOffline(true);
   await page.reload();
-  await page.waitForFunction(() => typeof compute === 'function' && !!window.ImmoKern && !!window.ImmoOffice && !!window.ImmoPdf && !!window.ImmoDaten);
+  await page.waitForFunction(() => typeof compute === 'function' && !!window.ImmoKern && !!window.ImmoOffice && !!window.ImmoPdf && !!window.ImmoDaten
+    && !!window.ImmoVerwaltung && typeof lvOeffnen === 'function');
   await page.evaluate(() => window.IA_BEREIT_P);
   await arbeitsflaeche(page);
   await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz'));
   await expect(page.locator('#r_empfehlung')).toHaveText('472.970 €');
   expect(await page.evaluate(async () => { await html2pdfLaden(); return typeof html2pdf; })).toBe('function');
+  await page.evaluate(() => lvOeffnen('uebersicht'));   // Liegenschaftsverwaltung offline
+  await expect(page.locator('#lv_body')).toContainText('Erste Liegenschaft anlegen');
+  await page.evaluate(() => lvSchliessen());
   const st = await page.evaluate(async () => { const r = await fetch('selbsttest.js'); return r.status; });
   expect(st).toBe(200);
   await context.setOffline(false);
