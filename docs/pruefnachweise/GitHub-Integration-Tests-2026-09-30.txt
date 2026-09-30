@@ -1,0 +1,509 @@
+
+> immoapp@1.0.0 test
+> npm run test:unit && npm run test:browser
+
+
+> immoapp@1.0.0 test:unit
+> node --test tests/unit/*.test.mjs
+
+TAP version 13
+# Subtest: Playwright-Image im Workflow passt zur Version von @playwright/test
+ok 1 - Playwright-Image im Workflow passt zur Version von @playwright/test
+  ---
+  duration_ms: 4.814292
+  type: 'test'
+  ...
+# Subtest: JSON lesen: leer, beschädigt, mit BOM
+ok 2 - JSON lesen: leer, beschädigt, mit BOM
+  ---
+  duration_ms: 4.978292
+  type: 'test'
+  ...
+# Subtest: Projektdatei: aktuelles Format bleibt vollständig erhalten
+ok 3 - Projektdatei: aktuelles Format bleibt vollständig erhalten
+  ---
+  duration_ms: 0.476417
+  type: 'test'
+  ...
+# Subtest: Projektdatei: Altformat (flache Feldliste) wird erkannt
+ok 4 - Projektdatei: Altformat (flache Feldliste) wird erkannt
+  ---
+  duration_ms: 0.079333
+  type: 'test'
+  ...
+# Subtest: Projektdatei: manipulierte Inhalte werden verworfen
+ok 5 - Projektdatei: manipulierte Inhalte werden verworfen
+  ---
+  duration_ms: 0.139
+  type: 'test'
+  ...
+# Subtest: Projektdatei: falsche Dateiarten mit Hinweis
+ok 6 - Projektdatei: falsche Dateiarten mit Hinweis
+  ---
+  duration_ms: 0.05825
+  type: 'test'
+  ...
+# Subtest: Gesamtsicherung Version 2 und Version 1 (reine Projektliste)
+ok 7 - Gesamtsicherung Version 2 und Version 1 (reine Projektliste)
+  ---
+  duration_ms: 0.186625
+  type: 'test'
+  ...
+# Subtest: Gesamtsicherung: beschädigte und fremde Dateien
+ok 8 - Gesamtsicherung: beschädigte und fremde Dateien
+  ---
+  duration_ms: 0.110833
+  type: 'test'
+  ...
+# Subtest: Marktdaten: Objekte und PDF-Anhänge, beschädigte Anhänge werden verworfen
+ok 9 - Marktdaten: Objekte und PDF-Anhänge, beschädigte Anhänge werden verworfen
+  ---
+  duration_ms: 0.181208
+  type: 'test'
+  ...
+# Subtest: kleine positive Zinsen bleiben numerisch stabil
+ok 10 - kleine positive Zinsen bleiben numerisch stabil
+  ---
+  duration_ms: 1.058
+  type: 'test'
+  ...
+# Subtest: Finanzierung: Restschuld zum Beginn ist das ganze Darlehen
+ok 11 - Finanzierung: Restschuld zum Beginn ist das ganze Darlehen
+  ---
+  duration_ms: 0.616333
+  type: 'test'
+  ...
+# Subtest: negative Sondertilgung erhöht die Schuld nicht
+ok 12 - negative Sondertilgung erhöht die Schuld nicht
+  ---
+  duration_ms: 0.200166
+  type: 'test'
+  ...
+# Subtest: Zahlen lesen: deutsche Formate, Beträge und Faktoren
+ok 13 - Zahlen lesen: deutsche Formate, Beträge und Faktoren
+  ---
+  duration_ms: 1.882334
+  type: 'test'
+  ...
+# Subtest: Barwertfaktor (Anlage 1 ImmoWertV) inklusive Zins 0 % und Laufzeit 0
+ok 14 - Barwertfaktor (Anlage 1 ImmoWertV) inklusive Zins 0 % und Laufzeit 0
+  ---
+  duration_ms: 0.234875
+  type: 'test'
+  ...
+# Subtest: Restnutzungsdauer nach Anlage 2 ImmoWertV
+ok 15 - Restnutzungsdauer nach Anlage 2 ImmoWertV
+  ---
+  duration_ms: 0.211791
+  type: 'test'
+  ...
+# Subtest: Interpolation der Standardstufen und NHK-Basiswerte
+ok 16 - Interpolation der Standardstufen und NHK-Basiswerte
+  ---
+  duration_ms: 0.463417
+  type: 'test'
+  ...
+# Subtest: Effizienzklassen nach Kennwert
+ok 17 - Effizienzklassen nach Kennwert
+  ---
+  duration_ms: 0.067458
+  type: 'test'
+  ...
+# Subtest: Keine erfundene Restlebenserwartung aus Alter allein
+ok 18 - Keine erfundene Restlebenserwartung aus Alter allein
+  ---
+  duration_ms: 0.048917
+  type: 'test'
+  ...
+# Subtest: Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)
+ok 19 - Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)
+  ---
+  duration_ms: 4.016333
+  type: 'test'
+  ...
+# Subtest: Referenzbewertung Eigentumswohnung
+ok 20 - Referenzbewertung Eigentumswohnung
+  ---
+  duration_ms: 0.904083
+  type: 'test'
+  ...
+# Subtest: Alter bezieht sich auf das Stichtagsjahr (§ 4 Abs. 1 ImmoWertV)
+ok 21 - Alter bezieht sich auf das Stichtagsjahr (§ 4 Abs. 1 ImmoWertV)
+  ---
+  duration_ms: 0.614875
+  type: 'test'
+  ...
+# Subtest: Höchst-Restnutzungsdauer im Beleihungswert je Objektart (Anlage 2 BelWertV)
+ok 22 - Höchst-Restnutzungsdauer im Beleihungswert je Objektart (Anlage 2 BelWertV)
+  ---
+  duration_ms: 0.8665
+  type: 'test'
+  ...
+# Subtest: Leere Eingaben: keine NaN, Empfehlung 0
+ok 23 - Leere Eingaben: keine NaN, Empfehlung 0
+  ---
+  duration_ms: 0.479416
+  type: 'test'
+  ...
+# Subtest: Extreme Werte bleiben endlich
+ok 24 - Extreme Werte bleiben endlich
+  ---
+  duration_ms: 0.22525
+  type: 'test'
+  ...
+# Subtest: Finanzierung: Referenzfall und Grenzfälle (Zins 0 %, keine Tilgung, Betrag 0)
+ok 25 - Finanzierung: Referenzfall und Grenzfälle (Zins 0 %, keine Tilgung, Betrag 0)
+  ---
+  duration_ms: 0.254
+  type: 'test'
+  ...
+# Subtest: Budget-Check
+ok 26 - Budget-Check
+  ---
+  duration_ms: 0.0675
+  type: 'test'
+  ...
+# Subtest: Investitionsrechnung (Sollwerte aus unabhängiger Python-Rechnung)
+ok 27 - Investitionsrechnung (Sollwerte aus unabhängiger Python-Rechnung)
+  ---
+  duration_ms: 0.519291
+  type: 'test'
+  ...
+# Subtest: Eingabeprüfung: gültige und ungültige Zahlen
+ok 28 - Eingabeprüfung: gültige und ungültige Zahlen
+  ---
+  duration_ms: 0.352125
+  type: 'test'
+  ...
+# Subtest: Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bewertungen
+ok 29 - Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bewertungen
+  ---
+  duration_ms: 11.675083
+  type: 'test'
+  ...
+# Subtest: Beleihung: null Prozent Kosten kann den Mindestansatz nicht unterschreiten
+ok 30 - Beleihung: null Prozent Kosten kann den Mindestansatz nicht unterschreiten
+  ---
+  duration_ms: 4.3515
+  type: 'test'
+  ...
+# Subtest: Beleihung: nachgewiesene höhere Gesamtkosten werden angesetzt
+ok 31 - Beleihung: nachgewiesene höhere Gesamtkosten werden angesetzt
+  ---
+  duration_ms: 0.461125
+  type: 'test'
+  ...
+# Subtest: Beleihung: Sicherheitsabschlag niemals unter zehn Prozent
+ok 32 - Beleihung: Sicherheitsabschlag niemals unter zehn Prozent
+  ---
+  duration_ms: 0.259417
+  type: 'test'
+  ...
+# Subtest: Beleihung: kurze Restnutzungsdauer kapitalisiert den gesamten Reinertrag
+ok 33 - Beleihung: kurze Restnutzungsdauer kapitalisiert den gesamten Reinertrag
+  ---
+  duration_ms: 0.909209
+  type: 'test'
+  ...
+# Subtest: Beleihung: Abbruchkosten werden als Barwert berücksichtigt
+ok 34 - Beleihung: Abbruchkosten werden als Barwert berücksichtigt
+  ---
+  duration_ms: 0.834084
+  type: 'test'
+  ...
+# Subtest: Beleihung: kein Gebäudereinertrag benötigt abgezinsten Bodenwert abzüglich Freilegung
+ok 35 - Beleihung: kein Gebäudereinertrag benötigt abgezinsten Bodenwert abzüglich Freilegung
+  ---
+  duration_ms: 0.552875
+  type: 'test'
+  ...
+# Subtest: Beleihung: der Ertragswert ist der reguläre Ausgangswert
+ok 36 - Beleihung: der Ertragswert ist der reguläre Ausgangswert
+  ---
+  duration_ms: 1.305666
+  type: 'test'
+  ...
+# Subtest: Beleihung: Nutzungsaufschlag für Produktionsimmobilien
+ok 37 - Beleihung: Nutzungsaufschlag für Produktionsimmobilien
+  ---
+  duration_ms: 0.986375
+  type: 'test'
+  ...
+# Subtest: PV bereits im Grundwert wird nicht nochmals addiert
+ok 38 - PV bereits im Grundwert wird nicht nochmals addiert
+  ---
+  duration_ms: 1.92
+  type: 'test'
+  ...
+# Subtest: Energetischer Zustand bereits im Grundwert wird nicht nochmals abgezogen
+ok 39 - Energetischer Zustand bereits im Grundwert wird nicht nochmals abgezogen
+  ---
+  duration_ms: 0.806792
+  type: 'test'
+  ...
+# Subtest: Energiekosten-Barwert ist kein automatisch angenommener Marktabschlag
+ok 40 - Energiekosten-Barwert ist kein automatisch angenommener Marktabschlag
+  ---
+  duration_ms: 0.408417
+  type: 'test'
+  ...
+# Subtest: Beschränktes Recht verwendet keine Gesamtmiete als stillen Ersatz
+ok 41 - Beschränktes Recht verwendet keine Gesamtmiete als stillen Ersatz
+  ---
+  duration_ms: 0.252709
+  type: 'test'
+  ...
+# Subtest: Alter allein erzeugt keine erfundene Restlebenserwartung
+ok 42 - Alter allein erzeugt keine erfundene Restlebenserwartung
+  ---
+  duration_ms: 0.757667
+  type: 'test'
+  ...
+# Subtest: Steuerlicher Rechtswert wird nicht als Marktbelastung abgezogen
+ok 43 - Steuerlicher Rechtswert wird nicht als Marktbelastung abgezogen
+  ---
+  duration_ms: 0.227833
+  type: 'test'
+  ...
+# Subtest: Marktansatz ohne Quellen und Begründung bleibt Entwurf
+ok 44 - Marktansatz ohne Quellen und Begründung bleibt Entwurf
+  ---
+  duration_ms: 0.441083
+  type: 'test'
+  ...
+# Subtest: Garage ohne bestätigte Existenz darf nicht als geprüfter Ansatz erscheinen
+ok 45 - Garage ohne bestätigte Existenz darf nicht als geprüfter Ansatz erscheinen
+  ---
+  duration_ms: 0.244167
+  type: 'test'
+  ...
+# Subtest: Beleihung bekommt einen getrennten Prüfstatus
+ok 46 - Beleihung bekommt einen getrennten Prüfstatus
+  ---
+  duration_ms: 0.535959
+  type: 'test'
+  ...
+# Subtest: Wohnung verlangt Vergleichsdaten, keine fiktiven NHK-/Sachwertquellen
+ok 47 - Wohnung verlangt Vergleichsdaten, keine fiktiven NHK-/Sachwertquellen
+  ---
+  duration_ms: 0.221375
+  type: 'test'
+  ...
+# Subtest: Reiner Vergleichswert verlangt keine ungenutzten Boden-/Garagenansätze
+ok 48 - Reiner Vergleichswert verlangt keine ungenutzten Boden-/Garagenansätze
+  ---
+  duration_ms: 0.233292
+  type: 'test'
+  ...
+# Subtest: Wohnungsbau-Instandhaltung kann nicht auf den hochwertigen Büro-Satz abgesenkt werden
+ok 49 - Wohnungsbau-Instandhaltung kann nicht auf den hochwertigen Büro-Satz abgesenkt werden
+  ---
+  duration_ms: 0.191
+  type: 'test'
+  ...
+# Subtest: Beleihung: falsch formatierte Kosten bleiben fehlerhaft statt freigegeben
+ok 50 - Beleihung: falsch formatierte Kosten bleiben fehlerhaft statt freigegeben
+  ---
+  duration_ms: 0.404833
+  type: 'test'
+  ...
+# Subtest: Widersprüchliche Nutzungsarten dürfen nicht vollständig geprüft erscheinen
+ok 51 - Widersprüchliche Nutzungsarten dürfen nicht vollständig geprüft erscheinen
+  ---
+  duration_ms: 0.32125
+  type: 'test'
+  ...
+# Subtest: Fehlender nachhaltiger Ertrag bleibt beim Ertragsverfahren unvollständig
+ok 52 - Fehlender nachhaltiger Ertrag bleibt beim Ertragsverfahren unvollständig
+  ---
+  duration_ms: 0.164917
+  type: 'test'
+  ...
+# Subtest: Negative Kosten-Garagenzahl und negativer Besichtigungsabschlag werden erkannt
+ok 53 - Negative Kosten-Garagenzahl und negativer Besichtigungsabschlag werden erkannt
+  ---
+  duration_ms: 0.159583
+  type: 'test'
+  ...
+# Subtest: Sachwertorientierung verlangt einen Herstellungsansatz
+ok 54 - Sachwertorientierung verlangt einen Herstellungsansatz
+  ---
+  duration_ms: 0.165666
+  type: 'test'
+  ...
+# Subtest: CRC-32 nach Norm (Prüfwert für „123456789“)
+ok 55 - CRC-32 nach Norm (Prüfwert für „123456789“)
+  ---
+  duration_ms: 0.36925
+  type: 'test'
+  ...
+# Subtest: Spaltenbuchstaben
+ok 56 - Spaltenbuchstaben
+  ---
+  duration_ms: 0.271083
+  type: 'test'
+  ...
+# Subtest: Bildmaße aus JPEG
+ok 57 - Bildmaße aus JPEG
+  ---
+  duration_ms: 0.240917
+  type: 'test'
+  ...
+# Subtest: XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen
+ok 58 - XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen
+  ---
+  duration_ms: 0.065125
+  type: 'test'
+  ...
+# Subtest: ZIP-Container ist gültig
+ok 59 - ZIP-Container ist gültig
+  ---
+  duration_ms: 28.830333
+  type: 'test'
+  ...
+# Subtest: XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen
+ok 60 - XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen
+  ---
+  duration_ms: 76.208625
+  type: 'test'
+  ...
+# Subtest: DOCX: Überschriften, Tabellen, Bild und Seitenumbruch
+ok 61 - DOCX: Überschriften, Tabellen, Bild und Seitenumbruch
+  ---
+  duration_ms: 58.089
+  type: 'test'
+  ...
+# Subtest: Schutz der Standardausgabe: Meldungen landen auf stderr, stdout enthält nur das JSON
+ok 62 - Schutz der Standardausgabe: Meldungen landen auf stderr, stdout enthält nur das JSON
+  ---
+  duration_ms: 41.674417
+  type: 'test'
+  ...
+# Subtest: zusätzliche Ausgabe vor dem JSON: Fehler nennt stdout und stderr
+ok 63 - zusätzliche Ausgabe vor dem JSON: Fehler nennt stdout und stderr
+  ---
+  duration_ms: 18.914417
+  type: 'test'
+  ...
+# Subtest: Abbruch des Skripts: Fehler nennt Exit-Code und stderr
+ok 64 - Abbruch des Skripts: Fehler nennt Exit-Code und stderr
+  ---
+  duration_ms: 22.827584
+  type: 'test'
+  ...
+# Subtest: lange Ausgaben werden in der Meldung sichtbar gekürzt, nicht still
+ok 65 - lange Ausgaben werden in der Meldung sichtbar gekürzt, nicht still
+  ---
+  duration_ms: 17.964875
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: gewerbe_ertrag
+ok 66 - Vergleichsrechnung: gewerbe_ertrag
+  ---
+  duration_ms: 3.620875
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: haus_niessbrauch_vergleich_energie
+ok 67 - Vergleichsrechnung: haus_niessbrauch_vergleich_energie
+  ---
+  duration_ms: 1.24775
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: haus_wohnrecht_erbbau_pv
+ok 68 - Vergleichsrechnung: haus_wohnrecht_erbbau_pv
+  ---
+  duration_ms: 0.343208
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: etw_hausgeld_leibrente
+ok 69 - Vergleichsrechnung: etw_hausgeld_leibrente
+  ---
+  duration_ms: 0.189458
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: grenzfall_zins_null
+ok 70 - Vergleichsrechnung: grenzfall_zins_null
+  ---
+  duration_ms: 0.185166
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: grenzfall_sehr_alt
+ok 71 - Vergleichsrechnung: grenzfall_sehr_alt
+  ---
+  duration_ms: 0.162417
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: leer
+ok 72 - Vergleichsrechnung: leer
+  ---
+  duration_ms: 0.378292
+  type: 'test'
+  ...
+1..72
+# tests 72
+# suites 0
+# pass 72
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 419.10675
+
+> immoapp@1.0.0 test:browser
+> playwright test
+
+[WebServer] (node:2186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 44 tests using 1 worker
+
+(node:2215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/app-bedienung.spec.mjs:4:1 › vier klare Hauptbereiche sind mit der Tastatur erreichbar (903ms)
+  ✓   2 [desktop] › tests/e2e/app-bedienung.spec.mjs:9:1 › Bewertung zeigt gezielte Schritte und bewahrt Eingaben beim Wechsel (951ms)
+  ✓   3 [desktop] › tests/e2e/app-bedienung.spec.mjs:16:1 › Prüfhinweise öffnen das richtige Feld und Browser-Zurück behält den Kontext (474ms)
+  ✓   4 [desktop] › tests/e2e/app-bedienung.spec.mjs:19:1 › Objektübersicht verwendet die berechneten Werte und keine vorgetäuschte Vollständigkeit (407ms)
+  ✓   5 [desktop] › tests/e2e/app-bedienung.spec.mjs:24:1 › Hauptnavigation bleibt tatsächlich anklickbar und liegt vor der Startfläche (491ms)
+  ✓   6 [desktop] › tests/e2e/app-bedienung.spec.mjs:30:1 › globale Suche öffnet gespeicherte Projekte auch aus Mehr (568ms)
+  ✓   7 [desktop] › tests/e2e/app-bedienung.spec.mjs:37:1 › globale Suche zeigt die aktuelle Bewertung aus der Objektliste (497ms)
+  ✓   8 [desktop] › tests/e2e/charakterisierung.spec.mjs:14:1 › Rechenergebnisse entsprechen dem festgehaltenen Stand (715ms)
+  ✓   9 [desktop] › tests/e2e/datensicherung.spec.mjs:41:1 › vom neuen Projekt bis zum wieder geöffneten Bericht: Werte stimmen überall überein (1.4s)
+  ✓  10 [desktop] › tests/e2e/datensicherung.spec.mjs:68:1 › Bewertung als Datei sichern und in einem leeren Browser wieder öffnen (mit Fotos, Grundriss, Unterschrift) (1.1s)
+  ✓  11 [desktop] › tests/e2e/datensicherung.spec.mjs:84:1 › Gesamtsicherung: Projekte, Kunden und Wiedervorlagen wandern vollständig auf ein leeres Gerät (1.2s)
+  ✓  12 [desktop] › tests/e2e/datensicherung.spec.mjs:112:1 › Marktüberblick: Sicherung mit PDF-Anhang byte-genau übertragen (1.1s)
+  ✓  13 [desktop] › tests/e2e/datensicherung.spec.mjs:136:1 › beschädigte und falsche Dateien: verständliche Meldung, nichts wird überschrieben (1.9s)
+  ✓  14 [desktop] › tests/e2e/datensicherung.spec.mjs:171:1 › voller Speicher: Import bricht vollständig ab, Arbeitsstand meldet den Fehler sichtbar (555ms)
+  ✓  15 [desktop] › tests/e2e/datensicherung.spec.mjs:204:1 › ohne IndexedDB (z. B. gesperrt): App rechnet, Projekte landen im Rückfallspeicher, Hinweis bei der Kundenakte (449ms)
+  ✓  16 [desktop] › tests/e2e/datensicherung.spec.mjs:222:1 › ältere Dateiformate: flache Bewertung und Projektsicherung Version 1 (833ms)
+  ✓  17 [desktop] › tests/e2e/diagnostic.spec.mjs:3:1 › modulare App initialisiert alle Funktionen ohne Skriptfehler (346ms)
+  ✓  18 [desktop] › tests/e2e/eingabepruefung.spec.mjs:8:1 › Text statt Zahl: Feld markiert, keine Empfehlung, Bericht als Entwurf (552ms)
+  ✓  19 [desktop] › tests/e2e/eingabepruefung.spec.mjs:35:1 › Negative Werte und Prozent über 100 werden gemeldet (478ms)
+  ✓  20 [desktop] › tests/e2e/eingabepruefung.spec.mjs:47:1 › Leeres Formular: keine Empfehlung, fehlende Angaben werden genannt (411ms)
+  ✓  21 [desktop] › tests/e2e/exporte.spec.mjs:27:1 › Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Grundriss (524ms)
+  ✓  22 [desktop] › tests/e2e/exporte.spec.mjs:46:1 › Excel-Export ist eine echte .xlsx-Datei mit Zahlenwerten und allen Eingaben (429ms)
+  ✓  23 [desktop] › tests/e2e/konsistenz.spec.mjs:36:1 › nach jedem Vorlagenwechsel stimmen Empfehlung, Gewichtung und Spanne überall überein (1.3s)
+  ✓  24 [desktop] › tests/e2e/konsistenz.spec.mjs:48:1 › nach Datei-Import und nach dem Selbsttest bleibt alles übereinstimmend (691ms)
+  ✓  25 [desktop] › tests/e2e/layout.spec.mjs:5:1 › Desktop: alle Ansichten (12.3s)
+  ✓  26 [desktop] › tests/e2e/maskierung.spec.mjs:10:1 › keine Ausführung eingeschleuster Inhalte in Dokumenten und Listen (2.9s)
+  ✓  27 [desktop] › tests/e2e/modellkorrekturen.spec.mjs:5:1 › Frisches Formular enthält keine unbelegten Garagen und Außenanlagen (281ms)
+  ✓  28 [desktop] › tests/e2e/modellkorrekturen.spec.mjs:6:1 › Fehlende Beleihungsgrundlagen ändern ausschließlich den eigenen Prüfstatus (375ms)
+  ✓  29 [desktop] › tests/e2e/modellkorrekturen.spec.mjs:7:1 › Nutzungsarten bleiben bei Bedienung konsistent (409ms)
+  ✓  30 [desktop] › tests/e2e/modellkorrekturen.spec.mjs:8:1 › Bereits enthaltene PV verändert den Grundwert nicht (371ms)
+  ✓  31 [desktop] › tests/e2e/native-export.spec.mjs:4:1 › nativer PDF-Download liefert eine echte PDF-Datei an das Teilen-Menü (1.1s)
+  ✓  32 [desktop] › tests/e2e/native-export.spec.mjs:11:1 › fehlgeschlagenes natives Teilen zeigt einen Fehler und markiert keine Sicherung (358ms)
+  ✓  33 [desktop] › tests/e2e/native-export.spec.mjs:22:1 › abgebrochenes natives Teilen behält den vorherigen Sicherungszeitpunkt (325ms)
+  ✓  34 [desktop] › tests/e2e/offline.spec.mjs:21:1 › Offline-Start nach dem ersten Besuch: App, Rechenkern, Exporte und PDF-Baustein aus dem Cache (672ms)
+  ✓  35 [desktop] › tests/e2e/offline.spec.mjs:37:1 › Update: eine neue Fassung übernimmt die Kontrolle und räumt den alten Cache ab (1.9s)
+  ✓  36 [desktop] › tests/e2e/pdf.spec.mjs:38:1 › PDF-Download funktioniert ohne Internet und enthält alle Seiten (1.8s)
+  ✓  37 [desktop] › tests/e2e/pdf.spec.mjs:57:1 › Druckansicht: A4, Bedienelemente ausgeblendet, langer Text vollständig (778ms)
+  ✓  38 [desktop] › tests/e2e/pdf.spec.mjs:91:1 › Exposé (Hochformat) und Präsentation (Querformat) als PDF (1.6s)
+  ✓  39 [desktop] › tests/e2e/pdf.spec.mjs:115:1 › Druckansicht: bei verschiedenem Textumfang nie eine Überschrift allein am Seitenende (1.8s)
+  ✓  40 [desktop] › tests/e2e/selbsttest.spec.mjs:9:1 › Selbsttest besteht und erhält die offene Bewertung vollständig (488ms)
+(node:2831) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 [iphone] › tests/e2e/iphone.spec.mjs:8:1 › iPhone: alle Ansichten ohne waagrechtes Scrollen (13.8s)
+  ✓  42 [iphone] › tests/e2e/iphone.spec.mjs:13:1 › iPhone: Selbsttest und Referenzbewertung in der Safari-Engine (492ms)
+  ✓  43 [iphone] › tests/e2e/iphone.spec.mjs:23:1 › iPhone: Bedienleiste unten ist mit dem Finger erreichbar (mind. 44 px) (342ms)
+  ✓  44 [iphone] › tests/e2e/iphone.spec.mjs:30:1 › iPhone: App-Bereiche, kurze Eingabeschritte und beide Farbschemata (1.3s)
+
+  44 passed (1.1m)

@@ -21,3 +21,8 @@ ios/App/DerivedData/
 **/DerivedData/
 *.xcresult/
 *.xctestproducts/
+
+# Ergänzende Ausschlüsse aus dem aktuellen Hauptbranch
+__pycache__/
+
+.DS_Store
