@@ -4,21 +4,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
 const require = createRequire(import.meta.url);
 const O = require('../../js/office.js');
 const AUSGABE = new URL('../ausgabe/', import.meta.url);
 mkdirSync(AUSGABE, { recursive: true });
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import docx, openpyxl'], { encoding: 'utf8' }).status === 0);
-function pruefe(datei) {
-  const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
-  assert.equal(r.status, 0, 'Python konnte die Datei nicht öffnen: ' + r.stderr);
-  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
-  return JSON.parse(r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{')));
-}
+const PY = pythonMit('docx, openpyxl');
+const pruefe = datei => pythonJson(PY, ['tests/referenz/pruefe_office.py', datei]);
 const schreibe = (name, bytes) => { const p = new URL(name, AUSGABE); writeFileSync(p, bytes); return p.pathname.replace(/^\/([A-Za-z]:)/, '$1'); };
 
 test('CRC-32 nach Norm (Prüfwert für „123456789“)', () => {

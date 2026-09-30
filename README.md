@@ -52,12 +52,14 @@ Entscheidungen mit Begründung stehen in [DECISIONS.md](DECISIONS.md), der Arbei
 
 ## Tests
 
-Voraussetzungen: Node.js 24, Python 3 mit `python-docx`, `openpyxl` und `pymupdf` (für die Prüfung der
-erzeugten Dateien; fehlt Python, werden diese Prüfungen übersprungen).
+Voraussetzungen: Node.js 24, Python 3 mit den Bibliotheken aus `tests/requirements.txt` (PyMuPDF,
+python-docx, openpyxl in festen Versionen) für die Prüfung der erzeugten Dateien. Fehlt Python, werden diese
+Prüfungen lokal übersprungen; in GitHub Actions sind sie Pflicht.
 
 ```bash
 npm install
 npx playwright install chromium webkit
+pip install -r tests/requirements.txt
 npm test                     # Rechenkern, Office-Dateien, Sicherungsprüfung (Node, ohne Browser)
 npm run test:e2e             # Browsertests: Desktop (Chromium) und iPhone 13 (WebKit)
 npm run test:alle            # beides
@@ -76,6 +78,9 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
   Datensicherung (vollständiger Ablauf, Datei-Import/-Export, Gesamtsicherung, PDF-Anhänge, beschädigte
   Dateien, voller Speicher, fehlende Datenbank), Übereinstimmung der Werte über alle Vordrucke,
   Offline-Start und Service-Worker-Update, alle Ansichten auf Desktop und iPhone.
+- **Python-Prüfskripte** (`tests/referenz/pruefe_*.py`) öffnen die erzeugten Dateien mit unabhängigen
+  Bibliotheken. Auf ihre Standardausgabe geht nur das JSON-Ergebnis; Meldungen der Bibliotheken landen auf
+  stderr. Jede andere Ausgabe lässt den Test mit vollständiger stdout-/stderr-Ausgabe scheitern.
 - **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`).
 - Alle Testdaten sind synthetisch.
 

@@ -34,7 +34,7 @@ Hilfsfunktion ab) wurde vom Maskierungstest sofort erkannt und behoben.
 
 | Testlauf | Ergebnis |
 |---|---|
-| `npm test` (Node: Rechenkern, Vergleichsrechnung, Office-Dateien, Sicherungsprüfung) | 39 von 39 bestanden, 0 übersprungen |
+| `npm test` (Node: Rechenkern, Vergleichsrechnung, Office-Dateien, Sicherungsprüfung) | 43 von 43 bestanden, 0 übersprungen |
 | `npm run test:e2e` Desktop, Chromium | 25 von 25 bestanden |
 | `npm run test:e2e` iPhone 13, WebKit | 3 von 3 bestanden (Ansichten, Selbsttest, Bedienleiste) |
 | Eingebauter Selbsttest (Chromium und WebKit) | 74 von 74 bestanden |
@@ -46,10 +46,20 @@ Hilfsfunktion ab) wurde vom Maskierungstest sofort erkannt und behoben.
 
 **GitHub Actions — Verlauf:** Der erste Lauf (`7fa7d96`) war grün, hatte die PDF-Prüfungen aber still
 übersprungen, weil PyMuPDF auf dem Runner fehlte. Nach dem Nachinstallieren schlugen sie fehl (`4a0a9fa`,
-`76ae86d`): Unter Linux schrieb PyMuPDF eine Warnung vor das JSON-Ergebnis, und die alte Prüfung auf verwaiste
-Überschriften hing von der Reihenfolge der Textextraktion ab (unter Windows wirkungslos, unter Linux
-Fehlalarm). Beides ist behoben; seit `7466f7e` sind alle Schritte grün, und die Office-/PDF-Prüfungen dürfen
-in GitHub Actions nicht mehr übersprungen werden.
+`76ae86d`): Der Runner installierte PyMuPDF 1.28.2 (lokal 1.27.2.3), das beim Import des alten Modulnamens
+`fitz` „warning: The `fitz` API is deprecated …“ auf die Standardausgabe schreibt — vor das JSON-Ergebnis.
+Mit 1.28.2 lokal nachgestellt; die PDFs selbst waren in Ordnung (keine MuPDF-Warnung, keine Reparatur). Zudem
+hing die alte Prüfung auf verwaiste Überschriften von der Reihenfolge der Textextraktion ab (unter Windows
+wirkungslos, unter Linux Fehlalarm). Beides ist behoben; seit `7466f7e` sind alle Schritte grün, und die
+Office-/PDF-Prüfungen dürfen in GitHub Actions nicht mehr übersprungen werden.
+
+Nachgeschärft: Die Prüfskripte lenken die Standardausgabe während der Prüfung auf stderr um
+(`tests/referenz/nur_json.py`), nur das Ergebnis geht auf stdout. Die Tests lesen die gesamte Ausgabe als
+JSON und melden andernfalls Exit-Code, stdout und stderr (`tests/pythonpruefung.mjs`) — das frühere
+Heraussuchen der JSON-Zeile hätte andere Ausgaben still verworfen. Die PDF-Tests prüfen zusätzlich, dass
+MuPDF das PDF nicht reparieren muss und keine Warnung meldet (Gegenprobe: ein PDF mit verfälschtem Verweis
+auf die Querverweistabelle wird erkannt). Python-Bibliotheken sind in `tests/requirements.txt` fest
+versioniert.
 
 ## Verbleibende Probleme und nötige Geräteprüfungen
 

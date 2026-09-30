@@ -6,9 +6,11 @@
 - .zip/.docx/.xlsx: zipfile.testzip() prüft Prüfsummen und Aufbau des Containers
 - .docx: python-docx liest Absätze, Formatvorlagen, Tabellen und eingebettete Bilder
 - .xlsx: openpyxl liest Blätter, Zellwerte und Zahlenformate
-Beendet sich mit Fehlercode, wenn die Datei nicht geöffnet werden kann.
+Beendet sich mit Fehlercode, wenn die Datei nicht geöffnet werden kann. Auf die Standardausgabe geht
+ausschließlich das JSON (siehe nur_json.py).
 """
-import json, sys, zipfile
+import sys, zipfile
+import nur_json
 
 
 def pruefe_zip(pfad):
@@ -44,14 +46,14 @@ def pruefe_xlsx(pfad):
 
 
 def main():
+    ausgeben = nur_json.umlenken()
     pfad = sys.argv[1]
     erg = {'zip': pruefe_zip(pfad)}
     if pfad.endswith('.docx'):
         erg['docx'] = pruefe_docx(pfad)
     elif pfad.endswith('.xlsx'):
         erg['xlsx'] = pruefe_xlsx(pfad)
-    sys.stdout.reconfigure(encoding='utf-8')
-    print(json.dumps(erg, ensure_ascii=False, default=str))
+    ausgeben(erg)
 
 
 if __name__ == '__main__':

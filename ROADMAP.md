@@ -190,8 +190,8 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
 Sicherungsdateien, Office-Export und PDF-Seitenaufteilung als eigene Dateien (D10); Alter nach Stichtag,
 Höchst-RND im Beleihungswert, typografisches Minus korrigiert; Eingabeprüfung ohne Preisempfehlung bei
 ungültigen Angaben (D13); Maskierung aller Eingaben; echte `.docx`/`.xlsx` (D11); PDF offline mit eigenen
-Seitenumbrüchen (D12); Importe geprüft und atomar; App-Sperre als Sichtschutz beschrieben; 39 Node- und
-27 Browsertests (Desktop und iPhone/WebKit), GitHub Actions grün. Einzelheiten in `SUMMARY.md` und `AUDIT.md`.
+Seitenumbrüchen (D12); Importe geprüft und atomar; App-Sperre als Sichtschutz beschrieben; 43 Node- und
+28 Browsertests (Desktop und iPhone/WebKit), GitHub Actions grün. Einzelheiten in `SUMMARY.md` und `AUDIT.md`.
 
 ### Offen nach dem 2026-09-30
 

@@ -1,21 +1,16 @@
 /* Exporte aus der App: Word (.docx), Excel (.xlsx) und Projektdatei (.json).
    Die heruntergeladenen Dateien werden mit python-docx/openpyxl geöffnet (tests/referenz/pruefe_office.py). */
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import docx, openpyxl'], { encoding: 'utf8' }).status === 0);
+const PY = pythonMit('docx, openpyxl');
 const AUSGABE = 'tests/ausgabe/';
 mkdirSync(AUSGABE, { recursive: true });
-function pruefe(datei) {
-  const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
-  expect(r.status, 'Datei lässt sich nicht öffnen: ' + r.stderr).toBe(0);
-  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
-  return JSON.parse(r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{')));
-}
+const pruefe = datei => pythonJson(PY, ['tests/referenz/pruefe_office.py', datei]);
 async function vorbereiten(page) {
   await appOeffnen(page);
   await arbeitsflaeche(page);

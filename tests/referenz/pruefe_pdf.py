@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Öffnet ein PDF mit PyMuPDF und gibt Seitenzahl, Seitengröße und Text je Seite als JSON aus.
-Optional: --bilder ordner  speichert jede Seite als PNG (für die Sichtkontrolle)."""
-import json, sys, os
+"""Öffnet ein PDF mit PyMuPDF und gibt Seitenzahl, Seitengröße und Text je Seite als JSON aus, dazu, ob MuPDF
+das PDF reparieren musste, und seine Warnungen (fehlende Schriften, fehlerhafte Struktur o. Ä.).
+Optional: --bilder ordner  speichert jede Seite als PNG (für die Sichtkontrolle).
+Auf die Standardausgabe geht ausschließlich das JSON (siehe nur_json.py)."""
+import os, sys
+import nur_json
 
 
 def main():
-    try:
-        import pymupdf as fitz          # aktueller Modulname
-    except ImportError:
-        import fitz
-    # MuPDF-Warnungen nicht auf die Standardausgabe (sie stünden sonst vor dem JSON)
-    try:
-        fitz.TOOLS.mupdf_display_warnings(False)
-        fitz.TOOLS.mupdf_display_errors(False)
-    except Exception:
-        pass
+    ausgeben = nur_json.umlenken()
+    import pymupdf                      # nicht „fitz“: veraltet, ab 1.28 mit Hinweis beim Import
+    pymupdf.TOOLS.reset_mupdf_warnings()
     pfad = sys.argv[1]
-    d = fitz.open(pfad)
+    d = pymupdf.open(pfad)
     seiten = []
     for i, s in enumerate(d):
         # unterste Textzeile nach Koordinaten (ohne laufende Kopfzeile) mit Schriftgröße — für die Prüfung,
@@ -37,8 +33,8 @@ def main():
         os.makedirs(ziel, exist_ok=True)
         for i, s in enumerate(d):
             s.get_pixmap(dpi=50).save(os.path.join(ziel, 'seite_%02d.png' % (i + 1)))
-    sys.stdout.reconfigure(encoding='utf-8')
-    print(json.dumps({'seiten': len(d), 'details': seiten}, ensure_ascii=False))
+    ausgeben({'seiten': len(d), 'details': seiten, 'repariert': d.is_repaired,
+              'warnungen': [w for w in pymupdf.TOOLS.mupdf_warnings().splitlines() if w.strip()]})
 
 
 if __name__ == '__main__':

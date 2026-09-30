@@ -1,22 +1,20 @@
 /* PDF-Erstellung (html2pdf, lokal aus vendor/) und Druckansicht mit langen Texten und vielen Fotos.
    Das Internet ist gesperrt: der PDF-Baustein muss aus dem Repository kommen. */
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import fitz'], { encoding: 'utf8' }).status === 0);
+const PY = pythonMit('pymupdf');
 const AUSGABE = 'tests/ausgabe/';
 mkdirSync(AUSGABE, { recursive: true });
 const pdfLesen = (datei, bilder) => {
-  const r = spawnSync(PY, ['tests/referenz/pruefe_pdf.py', datei].concat(bilder ? ['--bilder', bilder] : []), { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  expect(r.status, 'PDF lässt sich nicht öffnen: ' + r.stderr).toBe(0);
-  // nur die JSON-Zeile lesen: Bibliotheken schreiben unter Umständen Warnungen davor
-  const zeile = r.stdout.split(/\r?\n/).reverse().find(z => z.trim().startsWith('{'));
-  expect(zeile, 'keine Ausgabe der PDF-Prüfung: ' + r.stdout.slice(0, 300)).toBeTruthy();
-  return JSON.parse(zeile);
+  const r = pythonJson(PY, ['tests/referenz/pruefe_pdf.py', datei].concat(bilder ? ['--bilder', bilder] : []));
+  expect(r.repariert, datei + ': MuPDF musste das PDF beim Öffnen reparieren').toBe(false);
+  expect(r.warnungen, datei + ': MuPDF meldet Probleme im PDF').toEqual([]);
+  return r;
 };
 const SATZ = 'Das Grundstück liegt in ruhiger Wohnlage mit guter Anbindung an den Ortskern; die Umgebung ist durch Ein- und Zweifamilienhäuser geprägt. ';
 const LANG = Array.from({ length: 8 }, (_, i) => 'Absatz ' + (i + 1) + ': ' + SATZ.repeat(6)).join('\n\n') + 'ENDE-DES-LANGEN-TEXTES';
