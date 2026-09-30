@@ -1,5 +1,11 @@
 # Audit — ImmoApp (Stand 2026-09-23)
 
+> **Hinweis (2026-09-30):** Dieser Audit beschreibt den Stand vom 23.09.2026. Mehrere Aussagen sind überholt —
+> die App besteht nicht mehr aus einer einzigen Datei, es gibt automatisierte Tests, und die Aussage „keine
+> offenen funktionalen Bugs“ in Abschnitt 3 hat sich nicht gehalten. Maßgeblich ist die **Nachprüfung vom
+> 30.09.2026 am Ende dieses Dokuments**; sie trennt ausdrücklich zwischen tatsächlich getesteten Funktionen
+> und Aussagen aus älteren Dokumenten.
+
 Grundlage: vollständiger Codescan (index.html, 4.349 Zeilen / 324 KB, sw.js, manifest.webmanifest),
 Git-Historie (7 Commits), Kontrastberechnung nach WCAG-Formel, Stichproben in allen Modulen.
 
@@ -145,3 +151,60 @@ Solo-Projekt ohne Build-Tooling: fachlich korrekt, gegen echte Vorlagen verifizi
 gerade neu gestalteten Bedienkonzept. Die Lücken liegen konsequent dort, wo der Auftrag sie auch benennt:
 Beleihungswert, energetische Bewertung, Berater-Werkzeuge jenseits der reinen Wertermittlung,
 Barrierefreiheit im Detail, und die Frage nach einer echten iPhone-App statt eines Home-Screen-Icons.
+
+
+---
+
+# Nachprüfung (2026-09-30)
+
+## Ausgangszustand
+
+- Codefassung `6be0438` (sw.js v37), `index.html` rund 700 KB, dazu `selbsttest.js`.
+- Selbsttest: **74 von 74 Prüfungen bestanden** (die im Auftrag genannte Zahl 46 war ein älterer Stand; seit
+  dem 29.09. kamen Finanzierung, Förderung, Investition und Grundriss dazu). Nachgewiesen am 30.09. im
+  Browser und seitdem in jedem Testlauf, auch in der Safari-Engine (WebKit).
+- Automatisierte Tests gab es keine; alle früheren Prüfungen waren Handprüfungen im Browser.
+
+## Was tatsächlich getestet ist — und was nicht
+
+| Bereich | Stand |
+|---|---|
+| Rechenkern (alle Verfahren, Grenzfälle, Zahlenformate) | automatisiert: 24 Node-Tests, 7 Fälle gegen unabhängige Python-Rechnung, 10 Vergleichsfälle im Browser |
+| Selbsttest erhält die offene Bewertung | automatisiert (Felder, Fotos, Grundriss, Unterschrift, Arbeitsspeicher) |
+| Word/Excel | automatisiert mit python-docx/openpyxl; manuell in Word, Excel und LibreOffice geöffnet |
+| PDF-Download und Druckansicht | automatisiert (Seitenzahl, Format, Text, Bilder); Seitenumbrüche per Sichtkontrolle der Seitenbilder |
+| Datensicherung (Projekt, Gesamtsicherung, Marktdaten mit PDF, beschädigte Dateien, voller Speicher, fehlende Datenbank, Altformate) | automatisiert im Browser |
+| Offline-Start, Service-Worker-Update | automatisiert (Chromium) |
+| Darstellung Desktop und iPhone | automatisiert: Chromium 1280 × 900, WebKit mit iPhone-13-Profil |
+| App-Sperre (Face ID/Touch ID), Kamera, GPS, Teilen-Menü, Home-Bildschirm-Installation auf iOS | **nicht auf echten Geräten geprüft** — nur Codepfade bzw. simuliert |
+| Fachliche Richtigkeit der Modelle | Formeln gegen Verordnungstexte und ein reales Gutachten geprüft; **keine vollständige fachliche Validierung** durch eine Sachverständige oder einen Gutachterausschuss |
+
+## Gefundene und behobene Fehler
+
+1. **Gebäudealter aus dem laufenden Jahr statt aus dem Stichtag** (§ 4 Abs. 1 ImmoWertV) — gespeicherte
+   Bewertungen änderten jedes Jahr ihren Wert.
+2. **Höchst-Restnutzungsdauer im Beleihungswert wirkungslos** — die Objektart wurde als Feldname gelesen, es
+   galten immer 80 Jahre.
+3. **Leeres Formular zeigte 25.875 €**, Text statt Zahl wurde still als 0 gerechnet, negative Werte und
+   Abschläge über 100 % liefen ohne Hinweis durch.
+4. **Unmaskierte Eingaben in Bericht und Excel-Export** (Anschrift, Auftraggeber, Objektdaten, Bezeichnungen
+   der Zusatzpositionen), ungeprüfte Bilddaten und IDs aus importierten Dateien in `src`/`onclick`.
+5. **Word/Excel waren HTML-Dateien** mit falscher Endung.
+6. **PDF nur mit Internet**; im PDF wurden Grundriss und Fotos zerschnitten, Überschriften standen allein am
+   Seitenende, Präsentationsfolien verrutschten; die Druckansicht endete mit einer leeren Seite.
+7. **„Datei öffnen“ überschrieb die offene Bewertung ohne Prüfung und Rückfrage.**
+8. **Halber Import bei vollem Speicher** — Transaktionen wurden bei Fehlern nicht abgebrochen.
+9. **Seitenleiste/Handyleiste zeigten nach Vorlagenwechsel, Import und Selbsttest veraltete Werte.**
+10. **iPhone:** waagrechtes Scrollen der ganzen Seite (Auswahlliste im Beleihungswert, breite
+    Berichtstabellen); Überschriften nach dem Sprung unter der Kopfzeile.
+11. **Typografisches Minus „−“ wurde als Plus gelesen.**
+12. **Beschreibung der App-Sperre** legte einen Schutz nahe, den sie nicht bietet — sie verschlüsselt nicht.
+
+Einzelheiten und Belege: `SUMMARY.md` (Abschnitt 2026-09-30) und `tests/fixtures/golden-aenderungen.md`.
+
+## Weiterhin offen
+
+- Echte Geräteprüfungen (siehe Tabelle).
+- Restlebenserwartung als Näherung statt Sterbetafel; Modellgrenze der Anlage 2 bei Alter über der
+  Gesamtnutzungsdauer (nur Hinweis, D14).
+- Große Teile der Oberfläche (Grundrisse, Marktüberblick, Kundenakte) stehen weiterhin in `index.html`.

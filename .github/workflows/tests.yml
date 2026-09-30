@@ -25,7 +25,7 @@ jobs:
       - name: Abhängigkeiten
         run: |
           npm ci
-          pip install python-docx openpyxl
+          pip install python-docx openpyxl pymupdf
 
       - name: Sollwerte der Vergleichsrechnung sind aktuell
         run: |

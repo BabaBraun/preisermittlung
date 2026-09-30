@@ -37,8 +37,8 @@ Status-Zeichen: [ ] offen · [~] in Arbeit · [x] fertig · [→] verschoben (mi
 | 16 | [x] Beleihungswert nach BelWertV inkl. Sicherheitsabschläge | Bewertung (C) | Größte fachliche Lücke; eigenes Regelwerk (§§ 4–7, 16 ff. BelWertV), braucht sorgfältige, separate Umsetzung |
 | 17 | [x] Exposé-Generator (Vertriebsdokument, nicht Bewertungsbericht) — 2026-09-29 | Berater-Feature (D) | Eigenständiges Layout, eigene Textbausteine, Fotoauswahl getrennt vom Wertermittlungsbericht |
 | 18 | [x] Kundenakte (mehrere Objekte/Vorgänge je Kunde, Historie) — 2026-09-29, D8 | Berater-Feature (D) | Geht über die heutige „ein Bewertungsstand = ein Projekt"-Logik hinaus, braucht ein neues Datenmodell |
-| 19 | [ ] compute() modularisieren (ein Verfahren = eine Funktion) | Code-Qualität | Kein Nutzerwert direkt sichtbar, aber Voraussetzung, um Phase-3-Verfahren wie BelWertV sauber einzuhängen |
-| 20 | [x] Automatisierte Regressionstests für die Rechenkerne (Selbsttest, 2026-09-29) | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
+| 19 | [x] compute() modularisieren — Rechenkern ohne DOM in `js/kern.js` (2026-09-30, D10) | Code-Qualität | Kein Nutzerwert direkt sichtbar, aber Voraussetzung, um Phase-3-Verfahren wie BelWertV sauber einzuhängen |
+| 20 | [x] Automatisierte Regressionstests — Selbsttest (2026-09-29), Node- und Browsertests mit GitHub Actions (2026-09-30) | Code-Qualität | Schützt die bereits verifizierten Berechnungen vor künftigen Änderungen |
 
 ## Später / dokumentiert, aber nicht jetzt (siehe Begründung in DECISIONS.md)
 
@@ -184,3 +184,21 @@ Verkäufer-Präsentation, Käuferkartei, Vermarktung, Finanzierbarkeit, Investor
   eigenes Dokument für den Anleger. Zwölf neue Prüfungen im Selbsttest gegen eine unabhängige Vergleichsrechnung
   (jetzt 74). Nebenbei behoben: lange Prüfhinweise und der Knopf „Vergleichsobjekte aus dem Marktüberblick“ liefen
   über den Rand.
+
+
+**2026-09-30, Wartbarkeit, Exporte, Datensicherung, Tests:** Rechenkern, Speicherschicht, Prüfung von
+Sicherungsdateien, Office-Export und PDF-Seitenaufteilung als eigene Dateien (D10); Alter nach Stichtag,
+Höchst-RND im Beleihungswert, typografisches Minus korrigiert; Eingabeprüfung ohne Preisempfehlung bei
+ungültigen Angaben (D13); Maskierung aller Eingaben; echte `.docx`/`.xlsx` (D11); PDF offline mit eigenen
+Seitenumbrüchen (D12); Importe geprüft und atomar; App-Sperre als Sichtschutz beschrieben; 39 Node- und
+27 Browsertests (Desktop und iPhone/WebKit), GitHub Actions grün. Einzelheiten in `SUMMARY.md` und `AUDIT.md`.
+
+### Offen nach dem 2026-09-30
+
+| # | Was | Warum |
+|---|---|---|
+| 37 | [ ] Geräteprüfung auf dem iPhone: Face ID, Kamera, GPS, Teilen-Menü/„In Dateien sichern“, `.ics`, Home-Bildschirm-Installation offline | nur simuliert (WebKit-Profil, nicht iOS) |
+| 38 | [ ] Restlebenserwartung aus der amtlichen Sterbetafel statt Näherung | genauer Kapitalwert bei Nießbrauch/Wohnrecht |
+| 39 | [ ] Grundrisse, Marktüberblick und Kundenakte schrittweise aus `index.html` in eigene Dateien | Wartbarkeit der Oberfläche |
+| 40 | [ ] Fachliche Durchsicht der Modelle durch eine Sachverständige/einen Gutachterausschuss | bisher nur gegen Verordnung, ein Gutachten und eigene Vergleichsrechnung geprüft |
+| 41 | [ ] Service-Worker-Version automatisch aus dem Inhalt ableiten statt von Hand hochzählen | Prozessrisiko (siehe AUDIT, Abschnitt 7) |

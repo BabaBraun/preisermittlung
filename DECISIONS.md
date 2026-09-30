@@ -191,3 +191,78 @@ vergleicht die App das Modell des Satzes mit der Bewertung und warnt bei Abweich
 **Umsetzung:** Datensätze im localStorage (`ia_parameter`), teilbar als Datei für Kolleginnen und Kollegen
 und Teil der Gesamtsicherung. Die Abfrage des Sachwertfaktors wählt die Zeile, in deren Spanne der
 vorläufige Sachwert fällt; liegt er außerhalb, die nächste Klasse mit Hinweis.
+
+---
+
+## D10 (2026-09-30) — Module ohne Build-Schritt, Tests mit Node und Playwright
+
+**Entscheidung:** Rechenkern (`js/kern.js`), Speicherschicht (`js/speicher.js`), Prüfung von Sicherungsdateien
+(`js/daten.js`), Office-Export (`js/office.js`) und PDF-Seitenaufteilung (`js/pdf.js`) liegen als eigene
+Dateien neben `index.html`. Es sind klassische Skripte (kein ES-Modul, kein Bundler): Sie hängen ein Objekt an
+`globalThis` (`ImmoKern`, `ImmoSpeicher`, …) und exportieren dasselbe per `module.exports` für Node. Die
+Oberfläche bleibt in `index.html`.
+
+**Begründung:** Die Bereitstellung als statische PWA (GitHub Pages, keine Installation, kein Build) bleibt
+unverändert; der Service Worker cacht die zusätzlichen Dateien. ES-Module hätten den Start über `file://`
+verhindert und einen Build nahegelegt. Der Rechenkern liest keine Seitenelemente mehr, sondern bekommt einen
+Eingabe-Leser `{n, v, an}` — damit ist er in Node ohne Browser prüfbar. Die frühere Anforderung „läuft als
+einzelne hochgeladene Datei“ (Netlify Drop) gilt nicht mehr, seit die App auf GitHub Pages liegt.
+
+**Absicherung des Umbaus:** Vor dem Umbau wurden zehn synthetische Bewertungen im Browser gerechnet und alle
+Zahlen aus `window._R` sowie alle angezeigten Ergebnisse festgehalten (`tests/fixtures/golden.json`). Der
+Umbau war ergebnisgleich; jede spätere Abweichung ist in `tests/fixtures/golden-aenderungen.md` mit Quelle
+und Vorher/Nachher begründet.
+
+---
+
+## D11 (2026-09-30) — Word und Excel als echte Office-Dateien, selbst erzeugt
+
+**Entscheidung:** `.docx` und `.xlsx` werden in `js/office.js` direkt als Office Open XML geschrieben,
+einschließlich des ZIP-Containers (Einträge unkomprimiert). Keine fremde Bibliothek.
+
+**Begründung:** Die bisherigen Exporte waren HTML-Dateien mit `.doc`/`.xls`-Endung (Office warnt beim Öffnen,
+Excel speicherte Zahlen als Text, Werte wurden unmaskiert eingesetzt). Bibliotheken wie `docx` oder SheetJS
+wären mehrere hundert Kilobyte groß und für den kleinen Funktionsumfang (Überschriften, Absätze, Tabellen,
+Bilder; Zellen mit Zahlenformat) nicht nötig. Die erzeugten Dateien werden in den Tests mit python-docx,
+openpyxl und zipfile geöffnet und wurden zusätzlich manuell in Word, Excel und LibreOffice geprüft.
+
+---
+
+## D12 (2026-09-30) — PDF: html2pdf lokal, Seitenumbrüche selbst gesetzt
+
+**Entscheidung:** html2pdf 0.10.1 liegt unverändert in `vendor/` (Integritäts-Hash wie zuvor beim CDN, das
+nur noch als Rückfall dient) und im Service-Worker-Cache. Die Seitenumbrüche setzt `js/pdf.js` selbst;
+html2pdfs eigene Umbruchlogik ist abgeschaltet.
+
+**Begründung:** Offline war bisher kein PDF möglich. html2pdfs Umbruchlogik misst relativ zum Fenster, kennt
+keine Raster und rechnet mit der Breite des Berichts statt der des gerenderten Containers — Grundriss und
+Fotos wurden zerschnitten, Präsentationsfolien verrutschten. Die eigene Aufteilung misst im Container von
+html2pdf, hält Überschriften bei ihrem Block, teilt Fotoraster in Zeilen und lange Texte in Absätze und
+setzt jede Folie auf genau eine Seite. Die Druckansicht des Browsers (echter Text, durchsuchbar) bleibt der
+empfohlene Weg für das Bewertungsdokument; der PDF-Download ist ein Bild-PDF.
+
+---
+
+## D13 (2026-09-30) — Keine Preisempfehlung aus ungültigen oder fehlenden Angaben
+
+**Entscheidung:** `ImmoKern.pruefen()` prüft jedes Feld, das die Rechnung gelesen hat, und die Mindestangaben.
+Bei Fehlern oder fehlenden Angaben zeigen Seitenleiste, Handyleiste und Abschnitt ⑨ „–“ mit Begründung;
+der Bericht erscheint mit Entwurfshinweis und weist den Wert als „Entwurf“ aus. Die Rechnung selbst läuft
+unverändert weiter (wichtig für Zwischenstände).
+
+**Begründung:** Vorher zeigte ein leeres Formular 25.875 €, „abc“ wurde still als 0 gerechnet, negative
+Bodenrichtwerte liefen durch. Ein Wert, der plausibel aussieht, aber auf ungültigen Eingaben beruht, ist
+gefährlicher als gar keiner.
+
+---
+
+## D14 (2026-09-30) — Restnutzungsdauer jenseits der Gesamtnutzungsdauer: Hinweis statt Formeländerung
+
+**Entscheidung:** Die Formel der Anlage 2 ImmoWertV bleibt unverändert, auch wenn das Alter die
+Gesamtnutzungsdauer übersteigt. Die Eingabeprüfung meldet diesen Fall (bei einem Ergebnis über 70 % der
+GND als kritisch) und empfiehlt, die Restnutzungsdauer sachverständig zu prüfen und von Hand einzutragen.
+
+**Begründung:** Die Formel steigt jenseits ihres Scheitels wieder an; die Anlage 2 regelt diesen Bereich nicht
+ausdrücklich, und ein reales Gutachten (Referenz ALEX99) wendet sie dort an. Ein Eingriff wäre nicht
+nachgewiesen gewesen. Anders beim Gebäudealter: § 4 Abs. 1 ImmoWertV bezieht es eindeutig auf das
+Stichtagsjahr — das wurde korrigiert (siehe `tests/fixtures/golden-aenderungen.md`).

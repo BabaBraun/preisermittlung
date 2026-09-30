@@ -1,3 +1,61 @@
+# Zusammenfassung — Wartbarkeit, Exporte, Datensicherung und Tests (2026-09-30)
+
+Auftrag: bestehende App verbessern, ohne Backend und ohne kostenpflichtige Dienste; Rechenkern, Speicherung,
+Exporte und Oberfläche trennen; Fehler und Exporte beheben; Datensicherung stärken; reproduzierbare Tests
+lokal und in GitHub Actions; Dokumentation auf den tatsächlichen Stand bringen. Gearbeitet in kleinen
+Schritten mit je eigenem Commit (`0c33f2a` bis zum Doku-Commit), jeder Schritt mit Tests.
+
+## Umgesetzt
+
+- **Module ohne Build** (D10): `js/kern.js` (Rechenkern ohne DOM), `js/speicher.js` (IndexedDB),
+  `js/daten.js` (Prüfung von Sicherungsdateien), `js/office.js` (Word/Excel), `js/pdf.js` (PDF-Seiten).
+  Der Umbau des Rechenkerns war nachweislich ergebnisgleich (10 Vergleichsfälle, alle Zahlen und Anzeigen).
+- **Fachliche Korrekturen mit Quelle** (`tests/fixtures/golden-aenderungen.md`): Alter nach § 4 Abs. 1
+  ImmoWertV aus dem Stichtagsjahr; Höchst-Restnutzungsdauer im Beleihungswert je Objektart; typografisches
+  Minus. Die Restnutzungsdauer jenseits der Gesamtnutzungsdauer bleibt bewusst unverändert (D14).
+- **Eingabeprüfung** (D13): keine Preisempfehlung aus ungültigen oder fehlenden Angaben; Bericht als Entwurf.
+- **Maskierung** aller Nutzereingaben und importierten Daten in Bericht, Exposé, Präsentation, Listen, Excel.
+- **Echte `.docx`/`.xlsx`** (D11), **PDF offline** mit sauberen Seitenumbrüchen (D12), Druckansicht ohne
+  leere Schlussseite.
+- **Datensicherung:** jede Datei wird vor dem Einlesen geprüft, Importe sind atomar, ältere Formate bleiben
+  lesbar, „Datei öffnen“ fragt nach und stellt bei Fehlern den alten Stand wieder her; App-Sperre korrekt
+  als Sichtschutz ohne Verschlüsselung beschrieben.
+- **Tests und CI:** Node-Tests, Browsertests für Desktop (Chromium) und iPhone (WebKit), GitHub Actions.
+
+## Gefundene und behobene Fehler
+
+Zwölf Fehler, aufgelistet in `AUDIT.md` (Nachprüfung 2026-09-30). Die meisten fanden erst die neuen Tests:
+etwa der halbe Import bei vollem Speicher (Transaktion nicht abgebrochen), die veraltete Handyleiste nach
+Vorlagenwechsel, das waagrechte Scrollen am iPhone, zerschnittene Grundrisse im PDF und die leere letzte
+Druckseite. Ein beim Maskieren selbst eingebauter Fehler (Bericht brach wegen einer zu spät deklarierten
+Hilfsfunktion ab) wurde vom Maskierungstest sofort erkannt und behoben.
+
+## Tatsächlich ausgeführte Tests (Stand des letzten Laufs)
+
+| Testlauf | Ergebnis |
+|---|---|
+| `npm test` (Node: Rechenkern, Vergleichsrechnung, Office-Dateien, Sicherungsprüfung) | 39 von 39 bestanden |
+| `npm run test:e2e` Desktop, Chromium | 24 von 24 bestanden |
+| `npm run test:e2e` iPhone 13, WebKit | 3 von 3 bestanden (Ansichten, Selbsttest, Bedienleiste) |
+| Eingebauter Selbsttest (Chromium und WebKit) | 74 von 74 bestanden |
+| GitHub Actions (Linux, Commit `7fa7d96`) | alle Schritte grün |
+| Word, Excel, LibreOffice (manuell per Automatisierung) | Dateien öffnen ohne Reparaturmeldung; Word: 7 Seiten, 16 Tabellen, 4 Bilder |
+| Seitenbilder von PDF-Download, Druckansicht und Präsentation | per Sicht geprüft |
+
+## Verbleibende Probleme und nötige Geräteprüfungen
+
+- **Auf dem iPhone selbst prüfen:** Face ID/Touch ID der App-Sperre, Kamera, GPS, Teilen-Menü und „In Dateien
+  sichern“ (PDF, Word, Excel, Sicherungen), Öffnen von `.ics`-Terminen, Installation und Offline-Start als
+  Home-Bildschirm-App. In den Tests nur simuliert (WebKit-Engine mit iPhone-Profil, nicht iOS).
+- Keine vollständige fachliche Validierung: Formeln sind gegen Verordnungstexte, ein reales Gutachten und eine
+  unabhängige Vergleichsrechnung geprüft, nicht durch eine Sachverständige oder einen Gutachterausschuss.
+- Restlebenserwartung ist eine Näherung (überschreibbar); Sterbetafel des Statistischen Bundesamts wäre genauer.
+- Der PDF-Download bleibt ein Bild-PDF; für Bewertungsdokumente die Druckansicht verwenden.
+- Weitere Teile der Oberfläche (Grundrisse, Marktüberblick, Kundenakte) könnten schrittweise in eigene
+  Dateien wandern.
+
+---
+
 # Zusammenfassung — Ausbau der ImmoApp (2026-09-23)
 
 Ausgangspunkt war eine funktionierende, fachlich verifizierte Web-App für rechnerische Preisermittlungen mit
