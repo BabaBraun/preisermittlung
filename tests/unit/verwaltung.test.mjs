@@ -177,3 +177,47 @@ test('Nebenkosten-Fristen: offenes Abrechnungsjahr bis zwölf Monate nach Ende',
   const f = N.fristen(l, '2026-09-29', 60);
   assert.deepEqual(f.map(x => [x.titel, x.datum]), [['Betriebskostenabrechnung 2025 zustellen', '2026-12-31']]);
 });
+
+/* ---------- Instandhaltung und Pflichten (js/verwaltung-ih.js) ---------- */
+const IH = require('../../js/verwaltung-ih.js');
+
+test('Pflichten: nächste Fälligkeit aus letzter Erledigung und Turnus; Fristen für fällige, fehlende und bald fällige', () => {
+  assert.equal(IH.naechste({ letzte: '2025-10-15', monate: 12 }), '2026-10-15');
+  assert.equal(IH.naechste({ letzte: '2024-01-31', monate: 1 }), '2024-02-29');
+  assert.equal(IH.naechste({ letzte: null, monate: 12 }), null);
+  const l = { id: 'L', name: 'X', einheiten: [{ id: 'e1', nr: 'W1' }], pflichten: [
+    { id: 'p1', art: 'rauchmelder', letzte: '2025-10-15', monate: 12 },          // in 16 Tagen
+    { id: 'p2', art: 'legionellen', letzte: '2023-06-01', monate: 36 },          // seit 2026-06-01 überfällig
+    { id: 'p3', art: 'aufzug', letzte: null, monate: 24 },                       // noch nie erfasst
+    { id: 'p4', art: 'gasleitung', letzte: '2020-01-01', monate: 144 },          // weit in der Zukunft
+    { id: 'p5', art: 'dachrinne', letzte: '2020-01-01', monate: 12, aktiv: false } ],
+    vorgaenge: [{ id: 'v1', titel: 'Wasserschaden Bad', einheitId: 'e1', prio: 'notfall', status: 'beauftragt', gemeldetAm: '2026-09-28', terminAm: '2026-10-02' },
+      { id: 'v2', titel: 'Tür klemmt', status: 'erledigt', erledigtAm: '2026-09-20' }] };
+  const f = IH.fristen(l, '2026-09-29', 60);
+  const titel = f.map(x => x.titel);
+  assert.ok(titel.includes('Rauchwarnmelder: Wartung und Funktionsprüfung fällig'));
+  assert.ok(titel.includes('Trinkwasser: Untersuchung auf Legionellen überfällig'));
+  assert.ok(f.find(x => x.pflichtId === 'p2').dringend, 'mehr als 30 Tage überfällig');
+  assert.ok(titel.includes('Aufzug: Prüfung durch eine zugelassene Überwachungsstelle: letzte Erledigung eintragen'));
+  assert.ok(!f.some(x => x.pflichtId === 'p4' || x.pflichtId === 'p5'));
+  assert.ok(titel.includes('Notfall: Wasserschaden Bad'));
+  assert.ok(titel.includes('Handwerkertermin: Wasserschaden Bad'));
+  assert.ok(titel.includes('Rechnung erfassen: Tür klemmt'));
+});
+
+test('Vorgang → Kosten: Instandhaltung nicht umlagefähig, Wartung in der gewählten Kostenart, § 35a als Handwerkerleistung', () => {
+  const k = IH.kostenAusVorgang({ id: 'v9', titel: 'Heizung Wartung', rechnung: 480, rechnungAm: '2026-03-02', lohn35a: 300, kostenart: 'wartung', umlageKategorie: 'heizung' });
+  assert.deepEqual([k.id, k.kategorie, k.betrag, k.datum, k.lohn35a, k.art35a, k.vorgangId], ['Kv9', 'heizung', 480, '2026-03-02', 300, 'handwerker', 'v9']);
+  assert.equal(IH.kostenAusVorgang({ id: 'v8', titel: 'Rohrbruch', rechnung: 1200, erledigtAm: '2026-05-05' }).kategorie, 'instandhaltung');
+  assert.equal(IH.kostenAusVorgang({ id: 'v7', titel: 'offen' }), null);
+});
+
+test('Bereinigung behält Vorgänge und Pflichten; Dienstleister werden geprüft', () => {
+  const l = V.bereinigen({ id: 'L', einheiten: [{ id: 'e1', nr: 'W1' }],
+    vorgaenge: [{ id: 'v1', titel: 'Riss', einheitId: 'e1', prio: 'xx', status: 'erledigt', fotos: ['a1', 'kaputt id'], verlauf: [{ datum: '2026-01-02', text: 'gemeldet' }, { datum: 'x' }] }],
+    pflichten: [{ id: 'p1', art: 'rauchmelder', monate: 12, letzte: '2025-10-15' }, { id: 'p 2' }] });
+  assert.equal(l.vorgaenge[0].prio, 'normal'); assert.equal(l.vorgaenge[0].status, 'erledigt');
+  assert.deepEqual(l.vorgaenge[0].fotos, ['a1']); assert.equal(l.vorgaenge[0].verlauf.length, 1);
+  assert.equal(l.pflichten.length, 1); assert.equal(l.pflichten[0].letzte, '2025-10-15');
+  assert.deepEqual(IH.dienstleisterBereinigen([{ id: 'd1', name: 'Sanitär Muster', telefon: '0000' }, { id: 'd 2' }, 5]).map(d => d.name), ['Sanitär Muster']);
+});

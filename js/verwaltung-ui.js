@@ -7,8 +7,8 @@
 'use strict';
 
 const LVK=ImmoVerwaltung;
-const LV_DB_NAME='ia_verwaltung', LV_DB_VER=1, LV_RUECKFALL='ia_lv_rueckfall', LV_EINST_KEY='ia_lv_einstellungen';
-var LV={db:null,bereit:false,rueckfall:false,liste:[],einst:{},aktivId:null,ansicht:'uebersicht',reiter:'ueberblick',
+const LV_DB_NAME='ia_verwaltung', LV_DB_VER=1, LV_RUECKFALL='ia_lv_rueckfall', LV_EINST_KEY='ia_lv_einstellungen', LV_DL_KEY='ia_lv_dienstleister';
+var LV={db:null,bereit:false,rueckfall:false,liste:[],einst:{},dienstleister:[],aktivId:null,ansicht:'uebersicht',reiter:'ueberblick',
   vertragId:null,form:null,meldung:'',start:null};
 
 const LV_ART_L={mfh:'Mehrfamilienhaus',wohnhaus:'Ein-/Zweifamilienhaus',etw:'Eigentumswohnung (Sondereigentum)',weg:'Wohnungseigentümergemeinschaft (WEG)',
@@ -108,10 +108,12 @@ async function lvStart(){
       const roh=await ImmoSpeicher.tx(LV.db,'liegenschaften','readonly',s=>s.getAll());
       LV.liste=roh.map(x=>LVK.bereinigen(x)).filter(Boolean);
       try{ LV.einst=LVK.einstellungenBereinigen(await ImmoSpeicher.tx(LV.db,'meta','readonly',s=>s.get('einstellungen'))); }catch(e){ LV.einst={}; }
+      try{ LV.dienstleister=lvDlBereinigen(await ImmoSpeicher.tx(LV.db,'meta','readonly',s=>s.get('dienstleister'))); }catch(e){ LV.dienstleister=[]; }
     }catch(e){
       LV.db=null; LV.rueckfall=true;
       try{ LV.liste=(JSON.parse(localStorage.getItem(LV_RUECKFALL))||[]).map(x=>LVK.bereinigen(x)).filter(Boolean); }catch(x){ LV.liste=[]; }
       try{ LV.einst=LVK.einstellungenBereinigen(JSON.parse(localStorage.getItem(LV_EINST_KEY))); }catch(x){ LV.einst={}; }
+      try{ LV.dienstleister=lvDlBereinigen(JSON.parse(localStorage.getItem(LV_DL_KEY))); }catch(x){ LV.dienstleister=[]; }
     }
     LV.bereit=true;
     lvStartHinweis();
@@ -146,7 +148,17 @@ async function lvLoeschenDb(id){
 async function lvMetaSetzen(key,wert){
   if(LV.db) await ImmoSpeicher.tx(LV.db,'meta','readwrite',s=>s.put(wert,key));
   else if(key==='einstellungen') localStorage.setItem(LV_EINST_KEY,JSON.stringify(wert));
+  else if(key==='dienstleister') localStorage.setItem(LV_DL_KEY,JSON.stringify(wert));
 }
+function lvDlBereinigen(a){ return window.ImmoInstandhaltung?ImmoInstandhaltung.dienstleisterBereinigen(a):[]; }
+/* Anhänge (Fotos, Dokumente) im Speicher „anhaenge“: {id, liegenschaftId, name, typ, size, datum, data(base64)} */
+async function lvAnhangSpeichern(a){
+  if(!LV.db) throw new Error('Anhänge brauchen die Datenbank des Browsers — in diesem Fenster ist sie nicht verfügbar');
+  await ImmoSpeicher.tx(LV.db,'anhaenge','readwrite',s=>s.put(a));
+}
+async function lvAnhangLesen(id){ if(!LV.db) return null; try{ return await ImmoSpeicher.tx(LV.db,'anhaenge','readonly',s=>s.get(id)); }catch(e){ return null; } }
+async function lvAnhaengeLoeschen(ids){ if(!LV.db||!ids.length) return; await ImmoSpeicher.tx(LV.db,'anhaenge','readwrite',s=>{ ids.forEach(id=>s.delete(id)); }); }
+function lvDataUrl(a){ return a&&a.data?'data:'+(a.typ||'application/octet-stream')+';base64,'+a.data:''; }
 async function lvMetaLesen(key){ if(!LV.db) return null; try{ return await ImmoSpeicher.tx(LV.db,'meta','readonly',s=>s.get(key)); }catch(e){ return null; } }
 
 /* ---------- Öffnen, Navigation ---------- */
@@ -167,6 +179,9 @@ const LV_REITER=[['ueberblick','Überblick'],['einheiten','Einheiten'],['vertrae
 const LV_REITER_HTML={ueberblick:l=>lvUeberblickHtml(l),einheiten:l=>lvEinheitenHtml(l),vertraege:l=>lvVertraegeHtml(l),mietkonto:l=>lvMietkontoHtml(l)};
 /* Weitere Teile (Nebenkosten, Instandhaltung, WEG) hängen sich hier ein: Reiter, Fristenquellen, Sprungziele */
 function lvReiterRegistrieren(key,titel,fn){ if(!LV_REITER.some(r=>r[0]===key)) LV_REITER.push([key,titel]); LV_REITER_HTML[key]=fn; }
+const LV_ANSICHTEN=[['uebersicht','Übersicht'],['fristen','Fristen'],['einstellungen','Absender'],['sicherung','Datensicherung']];
+const LV_ANSICHT_HTML={uebersicht:()=>lvUebersichtHtml(),fristen:()=>lvFristenHtml(),einstellungen:()=>lvEinstellungenHtml(),sicherung:()=>lvSicherungHtml(),neu:()=>lvNeuHtml()};
+function lvAnsichtRegistrieren(key,titel,fn,vor){ if(!LV_ANSICHTEN.some(a=>a[0]===key)){ const i=vor?LV_ANSICHTEN.findIndex(a=>a[0]===vor):-1; if(i>=0) LV_ANSICHTEN.splice(i,0,[key,titel]); else LV_ANSICHTEN.push([key,titel]); } LV_ANSICHT_HTML[key]=fn; }
 const LV_FRISTEN_QUELLEN=[(l,st,h)=>LVK.fristen(l,st,h)];
 function lvFristenQuelleRegistrieren(f){ if(!LV_FRISTEN_QUELLEN.includes(f)) LV_FRISTEN_QUELLEN.push(f); }
 function lvFristenL(l,st,h){ return [].concat(...LV_FRISTEN_QUELLEN.map(q=>{ try{ return q(l,st,h)||[]; }catch(e){ console.error(e); return []; } }))
@@ -179,11 +194,11 @@ function lvRender(){
   document.getElementById('lv_headinfo').textContent=l?lvAdresse(l):(LV.liste.length+' Liegenschaft'+(LV.liste.length===1?'':'en')+(LV.rueckfall?' · ohne Datenbank':''));
   document.getElementById('lv_tabs').innerHTML=l
     ?'<button class="lv-zurueck" onclick="lvZurueck()">← Alle</button>'+LV_REITER.map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.reiter===k?'on':'')+'" onclick="lvReiter(\''+k+'\')">'+t+'</button>').join('')
-    :[['uebersicht','Übersicht'],['fristen','Fristen'],['einstellungen','Absender'],['sicherung','Datensicherung']].map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.ansicht===k?'on':'')+'" onclick="lvAnsicht(\''+k+'\')">'+t+'</button>').join('');
+    :LV_ANSICHTEN.map(([k,t])=>'<button id="lvt_'+k+'" class="'+(LV.ansicht===k?'on':'')+'" onclick="lvAnsicht(\''+k+'\')">'+t+'</button>').join('');
   let html='';
   try{
     if(l) html=(LV_REITER_HTML[LV.reiter]||lvUeberblickHtml)(l);
-    else html=({uebersicht:lvUebersichtHtml,fristen:lvFristenHtml,einstellungen:lvEinstellungenHtml,sicherung:lvSicherungHtml,neu:lvNeuHtml}[LV.ansicht]||lvUebersichtHtml)();
+    else html=(LV_ANSICHT_HTML[LV.ansicht]||lvUebersichtHtml)();
   }catch(e){ console.error(e); html=lvBox('Ansicht nicht verfügbar','<p>Die Ansicht konnte nicht aufgebaut werden: '+lvH(e&&e.message)+'</p>'); }
   const warn=LV.rueckfall?'<div class="lv-warn">Ohne Datenbank: Die Verwaltung speichert nur im Browserspeicher (begrenzt, ohne Dokumente). Bitte regelmäßig über „Datensicherung“ sichern.</div>':'';
   document.getElementById('lv_body').innerHTML=warn+(LV.meldung?'<div class="lv-ok" role="status">'+lvH(LV.meldung)+'</div>':'')+html;
@@ -638,7 +653,7 @@ async function lvSicherungErstellen(teilen){
   if(!LV.liste.length){ alert('Es sind noch keine Liegenschaften erfasst.'); return; }
   let anhaenge=[];
   if(LV.db){ try{ anhaenge=await ImmoSpeicher.tx(LV.db,'anhaenge','readonly',s=>s.getAll()); }catch(e){ anhaenge=[]; } }
-  const datei={typ:'immoapp-verwaltung',version:1,erstellt:new Date().toISOString(),liegenschaften:LV.liste,einstellungen:LV.einst||{},anhaenge};
+  const datei={typ:'immoapp-verwaltung',version:1,erstellt:new Date().toISOString(),liegenschaften:LV.liste,einstellungen:LV.einst||{},dienstleister:LV.dienstleister||[],anhaenge};
   const b=new Blob([JSON.stringify(datei)],{type:'application/json'}), name='ImmoApp Verwaltung '+lvHeute()+'.json';
   if(teilen&&typeof iaTeilen==='function'){ if(await iaTeilen(b,name,'Sicherung Liegenschaftsverwaltung')==='abgebrochen') return; }
   else if(typeof iaHerunterladen==='function') iaHerunterladen(b,name);
@@ -665,6 +680,8 @@ async function lvSicherungAusText(text){
   }catch(e){ alert('Die Sicherung konnte nicht eingespielt werden ('+lvFehlerText(e)+'). Es wurde nichts verändert.'); return false; }
   neu.forEach(l=>{ const i=LV.liste.findIndex(x=>x.id===l.id); if(i>=0) LV.liste[i]=l; else LV.liste.push(l); });
   if(sp.einstellungen&&!(LV.einst&&LV.einst.name)){ try{ await lvMetaSetzen('einstellungen',sp.einstellungen); LV.einst=sp.einstellungen; }catch(e){} }
+  const dl=lvDlBereinigen(sp.dienstleister), dlNeu=dl.filter(d=>!(LV.dienstleister||[]).some(x=>x.id===d.id));
+  if(dlNeu.length){ try{ const alle=(LV.dienstleister||[]).concat(dlNeu); await lvMetaSetzen('dienstleister',alle); LV.dienstleister=alle; }catch(e){} }
   lvMeldung('Sicherung eingespielt: '+n.neu+' neu, '+n.ersetzt+' ersetzt, '+n.gleich+' unverändert.'); lvRender(); lvStartHinweis();
   return true;
 }

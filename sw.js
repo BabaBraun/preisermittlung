@@ -1,6 +1,6 @@
 /* Service Worker – macht die Preisermittlung offline nutzbar.
    CACHE bei jeder Änderung an der App hochzählen, damit Geräte die neue Version laden. */
-const CACHE = 'preisermittlung-v45';
+const CACHE = 'preisermittlung-v46';
 
 const ASSETS = [
   './',
@@ -14,8 +14,10 @@ const ASSETS = [
   './js/speicher.js',
   './js/verwaltung.js',
   './js/verwaltung-nk.js',
+  './js/verwaltung-ih.js',
   './js/verwaltung-ui.js',
   './js/verwaltung-nk-ui.js',
+  './js/verwaltung-ih-ui.js',
   './vendor/html2pdf.bundle.min.js',
   './icons/icon-192.png',
   './icons/icon-512.png',

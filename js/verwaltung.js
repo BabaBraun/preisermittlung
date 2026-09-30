@@ -395,7 +395,8 @@ function sicherungPruefen(o){
     else anV++;
   });
   if(!liegenschaften.length) return {ok:false,fehler:o.liegenschaften.length?'Keine der '+o.liegenschaften.length+' Liegenschaften ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Liegenschaften.'};
-  return {ok:true,version:o.version||1,liegenschaften,anhaenge,einstellungen:istObj(o.einstellungen)?einstellungenBereinigen(o.einstellungen):null,verworfen:z.verworfen+anV};
+  return {ok:true,version:o.version||1,liegenschaften,anhaenge,einstellungen:istObj(o.einstellungen)?einstellungenBereinigen(o.einstellungen):null,
+    dienstleister:Array.isArray(o.dienstleister)?o.dienstleister.filter(istObj).slice(0,2000):[],verworfen:z.verworfen+anV};
 }
 
 const ImmoVerwaltung={ID,r2,neueId,zahlEingabe,eur,datumGueltig,tagNr,isoTag,monatVon,tageImMonat,monatsErster,monatsLetzter,plusMonate,

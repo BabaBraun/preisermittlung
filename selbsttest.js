@@ -139,6 +139,9 @@ window.iaSelbsttest=function(){
     pruef('Nebenkosten','W1: Betriebskosten / Heizung / CO2-Erstattung',e1.kosten+' / '+e1.heiz+' / '+e1.co2Erstattung,'1200 / 1925.42 / 102.69');
     pruef('Nebenkosten','W1: Nachzahlung nach 2.760 € Vorauszahlungen',e1.saldo,262.73,0.001);
     pruef('Nebenkosten','W2 (ab April): Guthaben',e2.saldo,-316.27,0.001);
+    const I=window.ImmoInstandhaltung;
+    pruef('Instandhaltung','Nächste Prüfung: 31.01.2024 + 1 Monat (Schaltjahr)',I.naechste({letzte:'2024-01-31',monate:1}),'2024-02-29');
+    pruef('Instandhaltung','Abgerechnete Reparatur: nicht umlagefähig',I.kostenAusVorgang({id:'x',titel:'Rohrbruch',rechnung:1200,erledigtAm:'2026-05-05'}).kategorie,'instandhaltung');
   });
 
   sicher('Bausteine','Aufruf',()=>{

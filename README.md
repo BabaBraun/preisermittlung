@@ -36,6 +36,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   (Fläche, Personen, Einheiten, MEA, Verbrauch, direkt) und Umlagekreis; Heizung und Warmwasser nach
   HeizkostenV (§§ 7–9b) oder laut Messdienst; CO2-Kostenaufteilung; § 35a-Anteile; Abrechnung je Mieter (Word),
   Übersicht (Excel), Buchung ins Mietkonto mit Anpassung der Vorauszahlungen; Frist nach § 556 Abs. 3 BGB.
+  Instandhaltung: Schäden und Aufträge mit Dringlichkeit, Stand, Fotos, Verlauf, Dienstleister, Angebot und
+  Rechnung (automatisch in den Kosten), Auftrag an den Handwerker als Word; Wartungs- und Prüfpflichten aus
+  einem Katalog mit Rechtsgrundlage (Rauchwarnmelder, Legionellen, Aufzug, Schornsteinfeger u. a.) mit
+  Fälligkeiten in den Fristen.
 
 ## Aufbau
 
@@ -53,6 +57,8 @@ Kein Build-Schritt: Die Dateien werden so ausgeliefert, wie sie im Repository li
 | `js/verwaltung-nk.js` | Rechenkern der Betriebs- und Heizkostenabrechnung (BetrKV, HeizkostenV, CO2KostAufG) |
 | `js/verwaltung-ui.js` | Oberfläche der Liegenschaftsverwaltung; eigene Datenbank `ia_verwaltung` |
 | `js/verwaltung-nk-ui.js` | Oberfläche „Nebenkosten“ (Kosten, Abrechnung, Word/Excel, Buchung) |
+| `js/verwaltung-ih.js` | Instandhaltung und Prüfpflichten: Katalog, Fälligkeiten, Fristen, Übernahme in die Kosten |
+| `js/verwaltung-ih-ui.js` | Oberfläche „Instandhaltung“ (Vorgänge mit Fotos, Pflichten) und „Dienstleister“ |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb (`CACHE` bei jeder Änderung hochzählen) |
@@ -113,7 +119,7 @@ sind sie weg. Deshalb regelmäßig sichern und die Dateien außerhalb des Gerät
 | alle Projekte mit Fotos, Kunden, Wiedervorlagen, Marktberichte | Projekte → „Alle Projekte sichern“ | `ImmoApp Projekte JJJJ-MM-TT.json` |
 | die offene Bewertung | Export-Menü → „Als Datei sichern“ | `<Adresse>.json` |
 | Marktüberblick (schlank oder mit PDF-Anhängen) | Marktüberblick → Datensicherung | `Marktdaten_….json` |
-| Liegenschaftsverwaltung (Liegenschaften, Verträge, Zahlungen, Absender) | Liegenschaftsverwaltung → Datensicherung | `ImmoApp Verwaltung JJJJ-MM-TT.json` |
+| Liegenschaftsverwaltung (Liegenschaften, Verträge, Zahlungen, Kosten, Abrechnungen, Vorgänge mit Fotos, Pflichten, Dienstleister, Absender) | Liegenschaftsverwaltung → Datensicherung | `ImmoApp Verwaltung JJJJ-MM-TT.json` |
 
 Einspielen: „Sicherung einspielen“ bzw. „Datei öffnen“ bzw. im Marktüberblick „Sicherung einlesen“ bzw. in
 der Liegenschaftsverwaltung „Sicherung einspielen“. Jede
@@ -135,6 +141,7 @@ Geräteverschlüsselung des Betriebssystems.
 - Keine Synchronisation zwischen Geräten, kein Server (D2).
 - Liegenschaftsverwaltung: Hinweise zu Kündigung, Kaution und Mahnung sind Arbeitshilfen, keine Rechtsberatung;
   Mahnschreiben vor dem Versand prüfen. Kappungsgrenzen-Gemeinden sind nicht hinterlegt (Häkchen je Liegenschaft).
+  Der Pflichtenkatalog nennt übliche Turnusse als Richtwert; maßgeblich sind Bescheide, Herstellerangaben und die Anlage.
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim
   Fotografieren, GPS im Aufnahmebogen, Teilen-Menü und „In Dateien sichern“ auf dem iPhone, Öffnen von
   `.ics`-Kalendereinträgen, Installation als Home-Bildschirm-App.

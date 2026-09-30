@@ -66,6 +66,13 @@ export async function alleAnsichten(page, geraet) {
   await page.evaluate(async ({ l, cfg }) => { l.name = 'Gartenstraße 3'; l.nkAbrechnungen = [Object.assign({ id: 'Nx1' }, cfg)]; await lvSpeichern(l); }, { l: nk.liegenschaft, cfg: nk.cfg });
   await pruefe('16h_verwaltung_nk_kosten', () => { lvLiegenschaftOeffnen('LN', 'nebenkosten'); LV.nkJahr = 2025; LV.nkAnsicht = 'kosten'; LV.form = { typ: 'kosten', id: null }; lvRender(); });
   await pruefe('16i_verwaltung_nk_abrechnung', () => { LV.form = null; LV.nkAnsicht = 'abrechnung'; lvRender(); });
+  await page.evaluate(async () => { LV.dienstleister = [{ id: 'D1', name: 'Sanitär Test GmbH mit sehr langem Firmennamen', gewerk: 'Sanitär' }];
+    await lvAendern(l => { l.vorgaenge = [{ id: 'G1', titel: 'Wasserfleck an der Decke im Badezimmer der Wohnung im ersten Obergeschoss', einheitId: 'e2', prio: 'dringend', status: 'beauftragt', dienstleisterId: 'D1', angebot: 450, gemeldetAm: '2026-09-20', terminAm: '2026-10-02', fotos: [], verlauf: [{ datum: '2026-09-20', text: 'erfasst' }] }];
+      l.pflichten = [{ id: 'P1', art: 'legionellen', monate: 36, letzte: '2023-06-01', aktiv: true, historie: [] }, { id: 'P2', art: 'rauchmelder', monate: 12, letzte: null, aktiv: true, historie: [] }]; }, '', 'LN'); });
+  await pruefe('16j_verwaltung_vorgaenge', () => { lvLiegenschaftOeffnen('LN', 'instandhaltung'); LV.ihAnsicht = 'vorgaenge'; lvRender(); });
+  await pruefe('16k_verwaltung_vorgang', () => { LV.form = { typ: 'vorgang', id: 'G1' }; lvRender(); });
+  await pruefe('16l_verwaltung_pflichten', () => { LV.form = null; LV.ihAnsicht = 'pflichten'; lvRender(); });
+  await pruefe('16m_verwaltung_dienstleister', () => lvAnsicht('dienstleister'));
   await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');

@@ -316,3 +316,23 @@ Buchung ist der bewusste Schritt „Abrechnung ist raus“. Die Vereinfachungen 
 Person bei Leerstand) sind in der Abrechnung sichtbar und bei Messdienst-Abrechnungen nicht nötig. Der Kern
 ist gegen eine unabhängige Python-Rechnung (Tag-für-Tag-Belegung, exakte Brüche) auf den Cent geprüft.
 
+---
+
+## D17 (2026-09-30) — Instandhaltung und Prüfpflichten: Katalog als Richtwert, Kosten aus Vorgängen
+
+**Entscheidung:** `js/verwaltung-ih.js` (`ImmoInstandhaltung`) führt Vorgänge (gemeldet → beauftragt → in Arbeit →
+erledigt → abgerechnet) mit Verlauf, Fotos und Dienstleister sowie Pflichten mit Turnus und letzter Erledigung.
+- Der Pflichtenkatalog nennt je Eintrag Rechtsgrundlage, „Pflicht“ oder „Empfehlung“ und den üblichen Turnus
+  (u. a. LBO BW § 15 Abs. 7 Rauchwarnmelder, § 31 TrinkwV Legionellen, BetrSichV Aufzug, SchfHwG, AwSV, GEG).
+  Er wird nicht automatisch angewendet — der Nutzer übernimmt, was für die Liegenschaft zutrifft.
+- Pflichten ohne eingetragene letzte Erledigung erscheinen sofort als Frist („letzte Erledigung eintragen“).
+- Abgerechnete Vorgänge erscheinen automatisch in den Kosten der Liegenschaft (Instandhaltung nicht umlagefähig,
+  Wartung wahlweise als vereinbarte Betriebskostenart), mit Arbeitskosten nach § 35a Abs. 3 EStG; beim
+  Zurücksetzen oder Löschen des Vorgangs verschwinden sie wieder.
+- Dienstleister gelten für alle Liegenschaften; Fotos liegen als Anhänge in der Datenbank der Verwaltung.
+
+**Begründung:** Prüfpflichten hängen von Anlage, Größe, Nutzung und Bescheiden ab (z. B. Legionellen nur bei
+Großanlagen, Heizöltank nach Größe und Schutzgebiet); ein automatisch angelegter Katalog würde falsche Fristen
+erzeugen. Die Verknüpfung Vorgang → Kosten vermeidet doppelte Erfassung und hält die Nebenkostenabrechnung
+und die Eigentümerauswertung konsistent.
+
