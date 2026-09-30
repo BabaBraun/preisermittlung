@@ -1180,4 +1180,3 @@ async function mdbAnhangWeg(id){
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ var o=document.getElementById('mdb_overlay'); if(o&&o.classList.contains('on')) mdbClose(); }
 });
-

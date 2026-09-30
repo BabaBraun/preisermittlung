@@ -108,4 +108,3 @@ function vmStartRender(){
   el.querySelector('span:last-child').textContent=l.length+' Objekt'+(l.length===1?'':'e')+' in Vermarktung'+(faellig?' · '+faellig+' Eigentümer-Bericht'+(faellig===1?'':'e')+' fällig':'');
   el.hidden=false;
 }
-

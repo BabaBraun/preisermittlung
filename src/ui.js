@@ -548,4 +548,3 @@ document.addEventListener('keydown',e=>{
 /* ---------- Datenschutz-Hinweis (gebuendelt an einer Stelle statt verstreut) ---------- */
 function dsgvoOeffnen(){ let o=$('dsgvo_overlay'); if(o)o.classList.add('on'); }
 function dsgvoSchliessen(){ let o=$('dsgvo_overlay'); if(o)o.classList.remove('on'); }
-

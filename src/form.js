@@ -173,4 +173,3 @@ function buildRefTable(){
   });
   $('nhk_ref_tbl').innerHTML=h;
 }
-

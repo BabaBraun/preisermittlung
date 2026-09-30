@@ -231,4 +231,3 @@ function kdAnzeige(){
 }
 function kdEckWahl(){ kdOeffnen(null,id=>kdAktuelleZuordnen(id)); }
 function kdNachAufgaben(){ if(KD_AKTIV&&$('kd_overlay').classList.contains('on')) kdAkte(KD_AKTIV); else if($('kd_liste')) kdListeZeilen(); }
-

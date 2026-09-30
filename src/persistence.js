@@ -52,4 +52,3 @@ async function neu(){
   try{ await IA_BEREIT_P; if(IA_DB_BEREIT){ clearTimeout(FOTO_TIMER); FOTO_GEAENDERT=false; await iaPut('arbeit',[],'fotos'); } }catch(e){}
   location.reload();
 }
-

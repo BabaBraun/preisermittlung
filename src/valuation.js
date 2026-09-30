@@ -254,4 +254,3 @@ function nhkAnzeigen(prefix,d,erg){
   setT(prefix+'_wm',num2(d.wm*100)+' %');
   setT(prefix+'_preis',num2(erg.preis)+' €/m²');
 }
-

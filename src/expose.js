@@ -192,4 +192,3 @@ function exposeAnzeigen(pdf){
   document.body.classList.add('report-mode'); window.scrollTo(0,0);
   if(pdf) setTimeout(downloadPDF,150);
 }
-

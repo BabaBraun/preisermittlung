@@ -26,4 +26,3 @@ function sensitivitaet(){
     +`<td>${eur(d.wert)}</td><td>${d.istBasis?'–':(d.abw>0?'+':'')+num2(d.abw)+' %'}</td></tr>`).join('');
   window._SZEN_DATA=data;
 }
-

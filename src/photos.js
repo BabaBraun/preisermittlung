@@ -56,4 +56,3 @@ function renderSignature(){
     : '<span style="color:var(--muted);font-size:12px">Kein Unterschrift-Bild eingefügt.</span>';
 }
 function clearSignature(){SIGNATURE=null;renderSignature();autosave();}
-

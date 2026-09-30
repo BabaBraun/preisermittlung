@@ -152,4 +152,3 @@ function vpStatus(){
   $('vp_angebot').placeholder=R.empfehlung>0?'Vorschlag '+eur(vpRund(R.empfehlung*(1+(R.vh||0.05)),5000)):'';
   $('vp_plan').placeholder=VP_PLAN; $('vp_vorteile').placeholder=VP_VORTEILE;
 }
-

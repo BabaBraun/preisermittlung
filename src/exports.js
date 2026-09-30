@@ -112,4 +112,3 @@ async function pdfTeilen(){
   iaHinweis('');
   await iaTeilen(blob,pdfName(),titel);
 }
-

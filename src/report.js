@@ -332,4 +332,3 @@ function druckbericht(){
   document.body.classList.add('report-mode');window.scrollTo(0,0);
   berichtUmbrueche($('report'));   /* nach dem Einblenden: braucht die Höhen der Blöcke */
 }
-

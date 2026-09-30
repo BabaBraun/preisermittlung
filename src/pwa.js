@@ -63,4 +63,3 @@ function unterlagenStatus(){
   AU_UNTERLAGEN.forEach((u,i)=>{let e=$('au_ul'+i);if(e&&e.checked)da.push(u);else fehlt.push(u);});
   return {da,fehlt};
 }
-

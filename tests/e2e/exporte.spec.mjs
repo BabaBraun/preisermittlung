@@ -1,20 +1,16 @@
 /* Exporte aus der App: Word (.docx), Excel (.xlsx) und Projektdatei (.json).
    Die heruntergeladenen Dateien werden mit python-docx/openpyxl geöffnet (tests/referenz/pruefe_office.py). */
 import { test, expect } from '@playwright/test';
-import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './helfer.mjs';
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import docx, openpyxl'], { encoding: 'utf8' }).status === 0);
+const PY = pythonMit('docx, openpyxl');
 const AUSGABE = 'tests/ausgabe/';
 mkdirSync(AUSGABE, { recursive: true });
-function pruefe(datei) {
-  const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
-  expect(r.status, 'Datei lässt sich nicht öffnen: ' + r.stderr).toBe(0);
-  return JSON.parse(r.stdout);
-}
+const pruefe = datei => pythonJson(PY, ['tests/referenz/pruefe_office.py', datei]);
 async function vorbereiten(page) {
   await appOeffnen(page);
   await arbeitsflaeche(page);
@@ -29,7 +25,7 @@ async function vorbereiten(page) {
 }
 
 test('Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Grundriss', async ({ page }) => {
-  test.skip(!PY, 'Python mit python-docx/openpyxl fehlt');
+  test.skip(!PY && !process.env.CI, 'Python mit python-docx/openpyxl fehlt');   // in GitHub Actions Pflicht
   await vorbereiten(page);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => exportWord())]);
   expect(dl.suggestedFilename()).toBe('Preisermittlung Musterweg 7 74360 Ilsfeld.docx');
@@ -48,7 +44,7 @@ test('Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Gr
 });
 
 test('Excel-Export ist eine echte .xlsx-Datei mit Zahlenwerten und allen Eingaben', async ({ page }) => {
-  test.skip(!PY, 'Python mit python-docx/openpyxl fehlt');
+  test.skip(!PY && !process.env.CI, 'Python mit python-docx/openpyxl fehlt');   // in GitHub Actions Pflicht
   await vorbereiten(page);
   const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => exportExcel())]);
   expect(dl.suggestedFilename()).toBe('Preisermittlung Musterweg 7 74360 Ilsfeld.xlsx');

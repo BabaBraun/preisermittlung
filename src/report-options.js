@@ -91,4 +91,3 @@ function rpLeiste(){
     +'<button class="no-print" onclick="rpZurAuswahl()">Abschnitte wählen</button>';
 }
 function rpZurAuswahl(){ document.body.classList.remove('report-mode'); document.body.classList.add('started'); let z=$('rp_liste'); if(z) setTimeout(()=>appScrollIntoView(z,{behavior:'smooth',block:'center'}),50); }
-

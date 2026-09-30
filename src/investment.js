@@ -132,4 +132,3 @@ function wkVorlage(){
   renderWKRows();compute();
 }
 function wkLines(){let o=[];for(let i=0;i<N_WK;i++){let v=num('wk_val'+i);let b=($('wk_bez'+i).value||'').trim();if(v!==0)o.push([b||'Wertkorrektur',v]);}return o;}
-

@@ -694,4 +694,3 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('gr_overl
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('vm_overlay'); if(o&&o.classList.contains('on')) vmSchliessen(); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('pq_overlay'); if(o&&o.classList.contains('on')) pqSchliessen(); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('kd_overlay'); if(o&&o.classList.contains('on')) kdSchliessen(); } });
-

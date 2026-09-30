@@ -435,4 +435,3 @@ function buildModPunkte(){
       `<tr><td>${el[0]}</td><td>${el[1]}</td><td><input id="mod_p${i}" type="text" value="0" style="width:70px"></td></tr>`);
   });
 }
-

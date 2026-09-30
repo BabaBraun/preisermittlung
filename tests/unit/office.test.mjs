@@ -4,20 +4,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
 const require = createRequire(import.meta.url);
 const O = require('../../js/office.js');
 const AUSGABE = new URL('../ausgabe/', import.meta.url);
 mkdirSync(AUSGABE, { recursive: true });
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import docx, openpyxl'], { encoding: 'utf8' }).status === 0);
-function pruefe(datei) {
-  const r = spawnSync(PY, ['tests/referenz/pruefe_office.py', datei], { encoding: 'utf8' });
-  assert.equal(r.status, 0, 'Python konnte die Datei nicht öffnen: ' + r.stderr);
-  return JSON.parse(r.stdout);
-}
+const PY = pythonMit('docx, openpyxl');
+const pruefe = datei => pythonJson(PY, ['tests/referenz/pruefe_office.py', datei]);
 const schreibe = (name, bytes) => { const p = new URL(name, AUSGABE); writeFileSync(p, bytes); return p.pathname.replace(/^\/([A-Za-z]:)/, '$1'); };
 
 test('CRC-32 nach Norm (Prüfwert für „123456789“)', () => {
@@ -40,13 +36,13 @@ test('XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen', () => {
   assert.equal(O.xmlText('a<b>&"c"\u0001'), 'a&lt;b&gt;&amp;&quot;c&quot;');
 });
 
-test('ZIP-Container ist gültig', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('ZIP-Container ist gültig', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const z = O.zip([{ name: 'a.txt', daten: 'Grüße' }, { name: 'ordner/b.bin', daten: new Uint8Array([0, 1, 2, 255]) }]);
   const r = pruefe(schreibe('test.zip', z));
   assert.deepEqual(r.zip.dateien, ['a.txt', 'ordner/b.bin']);
 });
 
-test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const x = O.xlsx([
     { name: 'Ergebnis', spalten: [40, 18], zeilen: [
       [{ v: 'Rechnerische Preisermittlung', s: 'titel' }],
@@ -72,7 +68,7 @@ test('XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen', { skip: !PY && 
   assert.equal(z.B7.wert, -1234.5);
 });
 
-test('DOCX: Überschriften, Tabellen, Bild und Seitenumbruch', { skip: !PY && 'Python mit docx/openpyxl fehlt' }, () => {
+test('DOCX: Überschriften, Tabellen, Bild und Seitenumbruch', { skip: !PY && !process.env.CI && 'Python mit docx/openpyxl fehlt' }, () => {
   const bild = Object.assign(O.dataUrlZuBild(FOTO_JPEG), { typ: 'bild', alt: 'Ansicht', breiteCm: 8 });
   const d = O.docx([
     { typ: 'h1', text: 'Rechnerische Preisermittlung' },

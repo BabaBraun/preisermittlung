@@ -231,4 +231,3 @@ async function pjSicherungsHinweis(){
     el.hidden=false;
   } else el.hidden=true;
 }
-

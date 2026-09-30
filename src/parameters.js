@@ -197,4 +197,3 @@ function pqImportText(text){
   if(da>=0) l[da]=s; else l.push(s);
   if(pqSpeichern(l)) pqListe();
 }
-

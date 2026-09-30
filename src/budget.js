@@ -72,4 +72,3 @@ function finAusExpose(){
   finOeffnen(); if(p>0){ $('fin_kaufpreis').value=Math.round(p).toLocaleString('de-DE'); finRechnen(); }
   setTimeout(()=>{ let b=$('fin_budget_box'); if(b) appScrollIntoView(b,{behavior:'smooth',block:'start'}); },150);
 }
-

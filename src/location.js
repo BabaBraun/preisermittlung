@@ -80,4 +80,3 @@ function lageBericht(esc){
       +'<td>'+esc(erg(p.k))+(exV('lg_no_'+p.k)?' — '+esc(exV('lg_no_'+p.k)):'')+'</td></tr>').join('')+'</table>'
     +(c?'<div class="beschr">Lage des Objekts: UTM 32 (EPSG:25832) '+c.ost+' / '+c.nord+'.</div>':'');
 }
-

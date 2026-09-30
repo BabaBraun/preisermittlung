@@ -114,4 +114,3 @@ function sanAusEnergie(){
   let j=(exV('au_heizung_bj').match(/(19|20)\d\d/)||[''])[0]; if(j) $('san_heizjahr').value=j;
   compute(); autosave();
 }
-

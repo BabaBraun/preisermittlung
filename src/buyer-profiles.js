@@ -93,4 +93,3 @@ async function kkAngebotVermerken(id){
   k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum:aufHeute(),art:'Angebot',text:'Objekt angeboten: '+o.titel+(o.preis?' ('+eur(o.preis)+')':'')}]);
   if(await kdSpeichern(k)){ iaHinweis('Bei '+kdName(k)+' vermerkt'); setTimeout(()=>iaHinweis(''),2200); kkTrefferZeigen(); }
 }
-

@@ -199,3 +199,7 @@ Die während der Arbeit aktualisierte GitHub-Fassung `7fa7d96` bleibt die fachli
 Die Build-Werkzeuge erzeugen lokale Schriftarten, eine native Capacitor-Brücke und einen vollständigen Offline-Cache mit Inhalts-Hash. Ein Update wartet auf das Schließen alter Fenster; eine fehlende Datei verhindert die Installation der unvollständigen Version. Einzeldatei-Uploads werden zugunsten des vollständigen statischen Ordners aufgegeben und in der Anleitung korrigiert.
 
 Der Mac besitzt Xcode. Deshalb wird die bisher nur theoretische Capacitor-Vorbereitung konkret als Xcode-Projekt umgesetzt und im Simulator geprüft. Keine SwiftUI-Neuentwicklung und keine Veröffentlichung. Gerätesperre über LocalAuthentication, Dateiausgabe über Filesystem/Share. PWA-Speicher und native App-Speicher werden nicht automatisch zusammengeführt.
+
+## Aktueller Stand nach der nativen Umsetzung
+
+Die frühere Capacitor-Vorbereitung wurde durch eine echte SwiftUI-App ersetzt. Hauptprojekt ist `ios/ImmoAppNative.xcodeproj`. Der gemeinsame Formelkern läuft lokal in JavaScriptCore; Bedienung, Speicherung und PDF-Ausgabe sind nativ. Frühere Aussagen zur WebView-Vorbereitung dokumentieren den damaligen Zwischenschritt.

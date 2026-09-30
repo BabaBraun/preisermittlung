@@ -8,26 +8,43 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    # Runner und Image auf demselben Ubuntu (24.04 „noble“): setup-python nimmt Python aus dem Werkzeug-Cache
+    # des Runners, das muss im Container lauffähig sein. Beim Wechsel beide zusammen ändern.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
+    # Offizielles Playwright-Image: Chromium, WebKit und ihre Systembibliotheken sind schon enthalten.
+    # Das ersetzt „npx playwright install --with-deps“ (meist ~1 Minute, bei langsamen Paketquellen bis 15).
+    # Die Version muss zu @playwright/test in package.json passen: beim Aktualisieren beide ändern —
+    # sonst bricht Playwright mit einem Hinweis auf das passende Image ab (npm test prüft das vorab).
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    # im Container wäre sonst „sh“ (dash) die Standard-Shell — ohne „set -o pipefail“
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
 
-      - uses: actions/setup-python@v5
+      # ab v6: ohne lsb_release (fehlt im Image) über /etc/os-release. Der Werkzeug-Cache des Runners liegt im
+      # Container unter /__t, die Startzeile von „pip“ zeigt aber auf den Pfad des Runners — deshalb kein
+      # „cache: pip“ (ruft pip auf) und unten „python -m pip“.
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
       - name: Abhängigkeiten
         run: |
           npm ci
-          pip install -r tests/requirements.txt
+          python -m pip install -r tests/requirements.txt
+          npx playwright --version
 
-      - name: Web-App bauen
+      - name: Statische Ausgabe bauen
         run: npm run build
 
       - name: Sollwerte der Vergleichsrechnung sind aktuell
@@ -36,17 +53,19 @@ jobs:
           git diff --exit-code tests/referenz/sollwerte.json
 
       - name: Rechenkern (Node)
-        run: npm run test:unit
-
-      - name: Browser installieren
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          set -o pipefail
+          npm run test:unit 2>&1 | tee node-tests.log
+      - name: Fehler der Node-Tests als Anmerkung
+        if: failure()
+        run: grep -E "^✖|not ok|AssertionError|Error:" node-tests.log | head -20 | sed 's/^/::error title=Node-Test::/' || true
 
       - name: Browsertests (Desktop und iPhone)
         run: npx playwright test
 
       - name: Testbericht sichern
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
