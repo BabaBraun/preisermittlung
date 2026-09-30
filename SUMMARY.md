@@ -34,13 +34,22 @@ Hilfsfunktion ab) wurde vom Maskierungstest sofort erkannt und behoben.
 
 | Testlauf | Ergebnis |
 |---|---|
-| `npm test` (Node: Rechenkern, Vergleichsrechnung, Office-Dateien, Sicherungsprüfung) | 39 von 39 bestanden |
-| `npm run test:e2e` Desktop, Chromium | 24 von 24 bestanden |
+| `npm test` (Node: Rechenkern, Vergleichsrechnung, Office-Dateien, Sicherungsprüfung) | 39 von 39 bestanden, 0 übersprungen |
+| `npm run test:e2e` Desktop, Chromium | 25 von 25 bestanden |
 | `npm run test:e2e` iPhone 13, WebKit | 3 von 3 bestanden (Ansichten, Selbsttest, Bedienleiste) |
 | Eingebauter Selbsttest (Chromium und WebKit) | 74 von 74 bestanden |
-| GitHub Actions (Linux, Commit `7fa7d96`) | alle Schritte grün |
+| PDF-Tests mit anderen Schriften (`PDF_SCHRIFT` = Verdana, Courier New, Times New Roman, Arial) | alle bestanden |
+| Gegenprobe der PDF-Umbruchprüfung ohne Umbruchregeln | findet bei jedem von 12 Versätzen 1–3 verwaiste Überschriften (Prüfung wirkt) |
+| GitHub Actions (Linux) | grün ab Commit `7466f7e`, siehe unten |
 | Word, Excel, LibreOffice (manuell per Automatisierung) | Dateien öffnen ohne Reparaturmeldung; Word: 7 Seiten, 16 Tabellen, 4 Bilder |
 | Seitenbilder von PDF-Download, Druckansicht und Präsentation | per Sicht geprüft |
+
+**GitHub Actions — Verlauf:** Der erste Lauf (`7fa7d96`) war grün, hatte die PDF-Prüfungen aber still
+übersprungen, weil PyMuPDF auf dem Runner fehlte. Nach dem Nachinstallieren schlugen sie fehl (`4a0a9fa`,
+`76ae86d`): Unter Linux schrieb PyMuPDF eine Warnung vor das JSON-Ergebnis, und die alte Prüfung auf verwaiste
+Überschriften hing von der Reihenfolge der Textextraktion ab (unter Windows wirkungslos, unter Linux
+Fehlalarm). Beides ist behoben; seit `7466f7e` sind alle Schritte grün, und die Office-/PDF-Prüfungen dürfen
+in GitHub Actions nicht mehr übersprungen werden.
 
 ## Verbleibende Probleme und nötige Geräteprüfungen
 

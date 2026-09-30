@@ -172,7 +172,7 @@ Barrierefreiheit im Detail, und die Frage nach einer echten iPhone-App statt ein
 | Rechenkern (alle Verfahren, Grenzfälle, Zahlenformate) | automatisiert: 24 Node-Tests, 7 Fälle gegen unabhängige Python-Rechnung, 10 Vergleichsfälle im Browser |
 | Selbsttest erhält die offene Bewertung | automatisiert (Felder, Fotos, Grundriss, Unterschrift, Arbeitsspeicher) |
 | Word/Excel | automatisiert mit python-docx/openpyxl; manuell in Word, Excel und LibreOffice geöffnet |
-| PDF-Download und Druckansicht | automatisiert (Seitenzahl, Format, Text, Bilder); Seitenumbrüche per Sichtkontrolle der Seitenbilder |
+| PDF-Download und Druckansicht | automatisiert (Seitenzahl, Format, Text, Bilder, keine verwaiste Überschrift bei fünf Textumfängen — Prüfung per Gegenprobe als wirksam belegt); dazu Sichtkontrolle der Seitenbilder |
 | Datensicherung (Projekt, Gesamtsicherung, Marktdaten mit PDF, beschädigte Dateien, voller Speicher, fehlende Datenbank, Altformate) | automatisiert im Browser |
 | Offline-Start, Service-Worker-Update | automatisiert (Chromium) |
 | Darstellung Desktop und iPhone | automatisiert: Chromium 1280 × 900, WebKit mit iPhone-13-Profil |
