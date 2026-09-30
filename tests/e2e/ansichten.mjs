@@ -37,9 +37,9 @@ export async function alleAnsichten(page, geraet) {
     PHOTOS = [{ id: 'f1', cat: 'objekt', data: foto, caption: 'Ansicht' }]; GRUNDRISSE = [{ id: 'g1', darst: 'aufteilung', d: gr }];
     compute(); renderPhotos(); grListen();
   }, { foto: FOTO_JPEG, gr: GRUNDRISS_TEST });
-  const abschnitte = await page.evaluate(() => [...document.querySelectorAll('main section.card[id]')].filter(s => getComputedStyle(s).display !== 'none').map(s => s.id));
+  const abschnitte = await page.evaluate(() => [...document.querySelectorAll('main section.card[id]')].filter(s => navSichtbar(s)).map(s => s.id));
   expect(abschnitte.length).toBeGreaterThan(15);
-  for (const id of abschnitte) await pruefe('abschnitt_' + id, i => { document.getElementById(i).scrollIntoView(); }, id);
+  for (const id of abschnitte) await pruefe('abschnitt_' + id, i => { appShowSection(i); document.getElementById(i).scrollIntoView(); }, id);
   if (breite < 800) await pruefe('10_cockpit_blatt', () => { document.body.classList.add('cp-open'); });
   await page.evaluate(() => document.body.classList.remove('cp-open'));
   await pruefe('11_bericht', () => { druckbericht(); window.scrollTo(0, 0); });

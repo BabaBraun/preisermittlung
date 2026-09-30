@@ -26,3 +26,25 @@ test('iPhone: Bedienleiste unten ist mit dem Finger erreichbar (mind. 44 px)', a
   expect(hoehen.length).toBeGreaterThanOrEqual(4);
   for (const h of hoehen) expect(h).toBeGreaterThanOrEqual(44);
 });
+
+test('iPhone: App-Bereiche, kurze Eingabeschritte und beide Farbschemata',async({page})=>{
+ await appOeffnen(page);const nav=page.getByRole('navigation',{name:'Hauptbereiche'});
+ for(const [name,target] of [['Objekte','#projekt_overlay'],['Markt','#mdb_overlay'],['Mehr','#app_more'],['Übersicht','#start-step0']]){
+  await nav.getByRole('button',{name,exact:true}).click();await expect(page.locator(target)).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+ }
+ await page.screenshot({animations:'disabled',path:'tests/ausgabe/app-iphone-uebersicht.png'});
+ await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));await page.evaluate(()=>appOpenObject());await expect(page.locator('#app_object_value')).toHaveText('472.970 €');
+ await page.screenshot({animations:'disabled',path:'tests/ausgabe/app-iphone-objekt.png'});
+ await page.getByRole('navigation',{name:'Bewertungsschritte'}).getByRole('button',{name:'Besichtigung',exact:true}).click();await page.getByRole('button',{name:'Hauptgebäude',exact:true}).click();
+ await expect(page.locator('main section.card:visible')).toHaveCount(1);
+ const details=page.locator('#s-hg details.app-disclosure');expect(await details.count()).toBeGreaterThanOrEqual(3);
+ await page.locator('#s-hg details.app-disclosure>summary').filter({hasText:'Restnutzungsdauer'}).click();await expect(page.locator('#mod_p0')).toBeVisible();
+ await page.screenshot({animations:'disabled',path:'tests/ausgabe/app-iphone-besichtigung.png'});
+ await page.evaluate(()=>themeApply('dark'));await page.evaluate(()=>appOpenObject());await page.screenshot({animations:'disabled',path:'tests/ausgabe/app-iphone-dunkel.png'});
+ await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+ const colors=await page.evaluate(()=>['#mbar button[aria-current="page"]','#app_steps button[aria-pressed="true"]','#exportMenu>button'].map(selector=>{const c=getComputedStyle(document.querySelector(selector));return {selector,fg:c.color,bg:c.backgroundColor};}));
+ const lum=c=>{const rgb=c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];};
+ for(const c of colors){const a=lum(c.fg),b=lum(c.bg);expect((Math.max(a,b)+.05)/(Math.min(a,b)+.05),c.selector+' Textkontrast').toBeGreaterThanOrEqual(4.5);}
+ await keineSkriptfehler(page);
+});

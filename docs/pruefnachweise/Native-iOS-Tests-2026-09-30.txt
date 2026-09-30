@@ -1,0 +1,7 @@
+Native SwiftUI-App, Scheme ImmoApp, iOS 17+
+7 native XCTest-/UI-Tests bestanden, 0 fehlgeschlagen, 0 übersprungen.
+10 charakterisierte Vergleichsfälle zwischen vorheriger Laufzeit und JavaScriptCore geprüft.
+Geprüft: Referenzwerte/Mindestansätze; Sicherung inklusive Anhängen; atomare Speicherung, Neustart und ungültiger Import; mehrseitige PDF-Datei mit Entwurfswarnung; keine HTML-/CSS-Oberfläche und kein Capacitor im Bundle; echter UI-Ablauf ohne WebView.
+Result Bundle: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/result-bundles/test_sim_2026-09-30T15-44-21-397Z_pid75919_8d40ec89.xcresult
+Buildlog: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/logs/test_sim_2026-09-30T15-44-21-397Z_pid75919_97ba1efa.log
+Simulator: iPhone 17, iOS 26.2. Keine Prüfung auf physischem iPhone; kein TestFlight-Upload.

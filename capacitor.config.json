@@ -1,0 +1,9 @@
+{
+  "appId": "de.immoapp.preisermittlung",
+  "appName": "ImmoApp",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile"
+  }
+}

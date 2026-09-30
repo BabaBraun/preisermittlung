@@ -25,7 +25,10 @@ jobs:
       - name: Abhängigkeiten
         run: |
           npm ci
-          pip install python-docx openpyxl
+          pip install -r tests/requirements.txt
+
+      - name: Web-App bauen
+        run: npm run build
 
       - name: Sollwerte der Vergleichsrechnung sind aktuell
         run: |
@@ -33,7 +36,7 @@ jobs:
           git diff --exit-code tests/referenz/sollwerte.json
 
       - name: Rechenkern (Node)
-        run: npm test
+        run: npm run test:unit
 
       - name: Browser installieren
         run: npx playwright install --with-deps chromium webkit

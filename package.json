@@ -4,12 +4,35 @@
   "version": "1.0.0",
   "description": "ImmoApp – rechnerische Preisermittlung als statische PWA (ohne Build-Schritt)",
   "scripts": {
-    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test": "npm run test:unit && npm run test:browser",
     "test:e2e": "playwright test",
     "test:alle": "node --test \"tests/unit/*.test.mjs\" && playwright test",
-    "serve": "node tests/server.mjs"
+    "serve": "node tests/server.mjs",
+    "build": "node scripts/build.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "test:browser": "playwright test",
+    "ios:sync": "node scripts/native-resources.mjs",
+    "ios:open": "open ios/ImmoAppNative.xcodeproj"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "@capacitor/cli": "8.5.2",
+    "esbuild": "0.28.2",
+    "jszip": "3.10.1",
+    "exceljs": "4.4.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
+    "@capacitor/share": "8.0.2",
+    "@capacitor/filesystem": "8.1.3",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@fontsource/ibm-plex-serif": "5.3.0"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
   }
 }

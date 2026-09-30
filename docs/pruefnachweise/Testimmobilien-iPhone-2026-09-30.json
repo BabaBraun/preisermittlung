@@ -1,0 +1,12 @@
+{
+  "added" : 6,
+  "testNames" : [
+    "TEST – Einfamilienhaus mit PV",
+    "TEST – Vermietete Eigentumswohnung",
+    "TEST – Mehrfamilienhaus mit sechs Wohnungen",
+    "TEST – Sanierungsbedürftiges Altbauhaus",
+    "TEST – Wohnrecht und kurze Restnutzung",
+    "TEST – Unvollständige Erstaufnahme"
+  ],
+  "version" : 1
+}

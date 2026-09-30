@@ -5,7 +5,7 @@ import json, sys, os
 
 
 def main():
-    import fitz
+    import pymupdf as fitz
     pfad = sys.argv[1]
     d = fitz.open(pfad)
     seiten = []

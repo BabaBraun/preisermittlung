@@ -1,127 +1,59 @@
-# Zusammenfassung — Ausbau der ImmoApp (2026-09-23)
+## Preis-Anzeige korrigiert (Build 3)
 
-Ausgangspunkt war eine funktionierende, fachlich verifizierte Web-App für rechnerische Preisermittlungen mit
-angeschlossenem Marktüberblick. Gearbeitet wurde nach dem vorgegebenen Ablauf: vollständiges Audit,
-priorisierte Roadmap, schrittweise Umsetzung mit Test und eigenem Commit je Schritt, anschließend kritische
-Neubewertung.
+Preis direkt am Objekt; fehlende Grundlagen statt scheinbarer Empfehlung von 0 Euro. Fünf vollständige Testfälle auf dem iPhone korrekt berechnet. 16 native Tests bestanden. [Prüfung und Grenzen](docs/Preis-Anzeigeprüfung.md).
 
-**Zahlen:** 10 Commits, 17 abgeschlossene Roadmap-Punkte, index.html von 324 KB auf 388 KB gewachsen,
-Service-Worker-Cache von v10 auf v19. Alles live unter
-[bababraun.github.io/preisermittlung](https://bababraun.github.io/preisermittlung/).
+## Neue Eingabeführung auf iOS
 
----
+Build 2 ersetzt lange Formularlisten durch kurze Schritte mit Zurück/Weiter und Feldnavigation. 357 skalare Zahlenfelder sind explizit als Ganzzahl, Dezimalzahl oder vorzeichenbehaftete Zahl definiert. Optionale Angaben und ungenutzte Tabellenzeilen bleiben ausgeblendet; bestehende Angaben erhalten. Zwölf native Tests bestanden. [Details](docs/Native-Eingabeführung.md).
 
-## Was umgesetzt wurde
+# Aktueller Stand: native iOS-App
 
-### Barrierefreiheit und Sicherheit (Phase 1)
+Das iOS-Hauptprojekt ist jetzt eine SwiftUI-App unter `ios/ImmoAppNative.xcodeproj`. Native Erfassung, Objektverwaltung, Berechnung, Prüfhinweise, Fotos, JSON-Sicherungen, PDF-Berichte und Gerätesperre sind umgesetzt. Keine HTML-Oberfläche, keine WebView, kein Capacitor im App-Bundle. Der bewährte Rechenkern läuft lokal über JavaScriptCore.
 
-- **Kontrastfehler behoben.** Drei Farbwerte verstießen gegen WCAG AA (3,2:1 statt 4,5:1) und betrafen sehr
-  viel Text — Hinweiszeilen, Kennzahl-Unterzeilen, Warnungen. Jetzt durchgehend über 4,5:1, in beiden Modi.
-- **Screenreader-Kopplung** von Label und Eingabefeld für 208 von 209 Formularfeldern nachgerüstet, generisch
-  zur Laufzeit statt 200 Handänderungen — greift auch für die dynamisch erzeugten Felder des Marktüberblicks.
-- **aria-label** auf allen Icon-Schaltern, **alt-Text** auf allen Bildern, **Touch-Targets** von 36 auf 44 px.
-- **Subresource-Integrity-Hash** für die PDF-Bibliothek vom CDN.
-- **Kamera** öffnet bei Objekt-, Schadens- und Kartenfotos direkt (capture-Attribut).
-- **Datenschutz-Hinweis gebündelt**: ein Panel erklärt, wo welche Daten liegen und wie man sie löscht,
-  erreichbar von Startseite, Export-Menü und Projekte-Übersicht.
+**Sieben native Tests bestanden**, einschließlich zehn Referenzfälle und eines echten UI-Ablaufs. Weitere eigenständige Zusatzfunktionen der früheren PWA sind noch zu übertragen; der vollständige Umfang steht in [Native iOS-App](docs/Native-iOS-App.md).
 
-### Native Fähigkeiten und Schutz (Phase 2)
+Die folgenden Abschnitte dokumentieren die vorherigen Ausbaustufen.
 
-- **App-Sperre über Face ID / Touch ID / Windows Hello** (WebAuthn, vollständig ohne Server). Der
-  Sperrbildschirm blockiert Sicht und Bedienung ab dem ersten Bildaufbau. Mit deutlichem Hinweis bei der
-  Einrichtung: ohne Server gibt es keinen Wiederherstellungscode, vorher sichern.
-- **Standort per GPS** im Aufnahmebogen, mit Genauigkeitsangabe, Kartenlink und Übernahme in den Bericht.
+# Zusammenfassung — Stand 30. September 2026
 
-### Bewertungsfunktionen (Phase 2 und 3)
+Die lokale Umsetzung übernimmt die zwischenzeitlich aktualisierte GitHub-Fassung `7fa7d96` und ergänzt sie um vollständige Modularisierung, lokale Schriftarten, atomare Offline-Updates, weitere Grenzfalltests und ein konkret gebautes iOS-Projekt. Historische Berichte liegen unter `docs/historisch/`.
 
-- **Energetische Qualität als Wertfaktor** (§ 8 Abs. 3 ImmoWertV). Vorher wurden Energiekennwert und
-  Effizienzklasse nur dokumentiert und flossen nirgends in den Wert ein. Jetzt zwei nachvollziehbare
-  Herleitungen: Marktabschlag je Effizienzklasse oder kapitalisierte Energiekostendifferenz. Mit
-  ausdrücklichem Warnhinweis gegen Doppelzählung mit den Modernisierungspunkten.
-- **Beleihungswert nach BelWertV** — die größte fachliche Lücke für den Bankkontext. Ertrags- und Sachwertweg
-  mit der Ableitung nach § 4, alle normativen Mindestwerte am Wortlaut der Verordnung geprüft und als
-  überschreibbare Felder mit Paragraphenverweis hinterlegt (15 % Bewirtschaftungskosten, Zinsbandbreiten
-  3,5–5,5 % bzw. 4,5–6,5 %, Höchst-Restnutzungsdauern der Anlage 2, 10 % Sicherheitsabschlag,
-  Kleindarlehensgrenze, Besichtigungsabschläge).
-- **Plausibilitätsprüfung** mit 17 Regeln auf logische Widersprüche und typische Zahlendreher, gesammelt im
-  Cockpit, mit Sprung zum betroffenen Feld.
+## Fachliche Modellkorrekturen
 
-### Werkzeuge für den Beratungsalltag (Phase 2)
+Die im Audit gefundenen Fehler wurden behoben: unbelegte Vorgaben entfernt, eigener Beleihungsstatus, Mindestansätze und Sonderfälle abgesichert, Quellen und Gewichtung verpflichtend dokumentiert, PV/Energie-Doppelzählung verhindert und Rechte ohne erfundene Lebensdauer bewertet. Berichte unterscheiden wirtschaftliche Szenarien und Marktansätze. Details und verbleibende fachliche Grenzen: [Berechnungsprüfung](docs/Berechnungsprüfung.md).
 
-- **Finanzierungsrechner**: Nebenkosten, Finanzierungsbedarf, monatliche Rate, Restschuld am Ende der
-  Zinsbindung, vollständiger Tilgungsplan, optionales Förderdarlehen als zweite Tranche, Sondertilgung,
-  Beleihungsauslauf zum Kaufpreis **und** zum Beleihungswert.
-- **Wiedervorlagen**: Aufgaben mit Frist und Objektbezug, fällige Vorgänge auf der Startseite und als Zähler
-  in der Kopfzeile.
-- **Unterlagenliste** als eigenes Dokument für den Eigentümer.
+Der vollständige abschließende Lauf besteht aus **67 Unit-Tests und 43 Browsertests**, ohne Fehler oder übersprungene Tests. Die neue Prüfung ergänzt 25 Unit- und 4 Browsertests. Der abschließende vollständige Nachweis steht unter `docs/pruefnachweise/Modellkorrekturen-Tests-2026-09-30.txt`. Die früher unten aufgeführten Zahlen dokumentieren die vorangegangene Ausbaustufe.
 
----
+## Neue App-Bedienung
 
-## Was bewusst nicht umgesetzt wurde
+Vier Hauptbereiche, Objektübersicht mit Fortschritt, vier Bewertungsgruppen und jeweils nur ein sichtbarer Formularabschnitt. Aufklappbare Details vermeiden ein endloses Formular. Projekt-/Marktseiten sind in die Navigation eingebettet; gespeicherte Daten und Rechenverfahren bleiben erhalten. Touch-Ziele, Tastatur, Browser-Zurück, globale Suche und beide Farbschemata sind geprüft.
 
-Drei Dinge wurden nach Prüfung verworfen oder zurückgestellt — jeweils begründet in `DECISIONS.md`:
+Der neue vollständige Testlauf steht unter `docs/pruefnachweise/App-Layout-Tests-2026-09-30.txt`; die ergänzte Dunkelmodus-Kontrastprüfung unter `docs/pruefnachweise/iPhone-Kontrast-2026-09-30.txt`. Der aktualisierte iOS-Simulator-Build ist ebenfalls erfolgreich kompiliert; reale Geräteprüfungen bleiben offen.
 
-1. **Keine Neuentwicklung als native App.** Capacitor, React Native und SwiftUI wurden bewertet. Ergebnis:
-   Die PWA bleibt die Strategie und wurde um native Fähigkeiten erweitert. Ein Rewrite würde den fachlich
-   verifizierten Rechenkern wegwerfen oder eine zweite Codebasis erzeugen. Capacitor bleibt der Weg für eine
-   echte App-Store-App — der iOS-Build braucht zwingend einen Mac mit Xcode und ist von hier aus nicht
-   abschließbar.
-2. **Keine Push-Benachrichtigungen.** Web Push funktioniert auf dem iPhone seit iOS 16.4 auch für
-   Home-Screen-Apps, braucht aber zwingend einen Server, der die Nachricht auslöst. Ohne Backend wäre das
-   eine unzuverlässige Halblösung gewesen. Stattdessen die verlässliche In-App-Liste.
-3. **Eine bereits gebaute Warnung wieder entfernt.** Die Prüfung auf große Abweichung zwischen Substanz- und
-   Ertragswert schlug bei eigengenutzten Einfamilienhäusern strukturell an — dort liegt der Sachwert
-   regelmäßig weit über dem Ertragswert. Sie hätte bei fast jeder Hausbewertung gewarnt und damit alle
-   übrigen Hinweise entwertet.
+## Ergebnis
 
----
+- HTML und CSS getrennt; fachliche Browsermodule in `src/`. Die Initialisierung läuft nach allen Moduldefinitionen.
+- Bestehender DOM-unabhängiger Rechenkern, Datenprüfung, Speichermechanik und echte DOCX/XLSX/PDF-Exporte erhalten.
+- Vollständige lokale Laufzeitdateien; keine Cloud-Migration. Neue PWA-Versionen installieren sich atomar und aktivieren sich nach dem Schließen alter Fenster.
+- Zusätzliche Fehler bei sehr kleinen positiven Zinsen und bei `restNach(0)` behoben und dokumentiert.
+- Native PDF-/Office-/JSON-Ausgabe über Filesystem/Share. Bei Abbruch oder Fehler wird eine Sicherung nicht als erfolgreich markiert.
+- README, Installationsanleitung, Entscheidungen, Roadmap und CI aktualisiert.
 
-## Gefundene und behobene Fehler
+## Frühere Prüfungen vor den Modellkorrekturen
 
-- **Mietregeln rechneten mit der falschen Einheit.** Zwei der neuen Plausibilitätsregeln behandelten das
-  Mietfeld als Monatsmiete, obwohl es die Jahresmiete führt. Die App hätte bei korrekten Eingaben gewarnt
-  und den echten Fehler verfehlt. Beim Bau des Beleihungswerts aufgefallen und behoben.
-- **Kopfzeile am Handy überlief.** Durch die neuen Schalter lagen ausgerechnet Export und Bericht außerhalb
-  eines 375-px-Bildschirms.
-- **„Aus Bewertung" verlor die Tausenderstellen** im Finanzierungsrechner (267.901 € wurden zu 268 €) — der
-  bekannte Unterschied zwischen den beiden Zahlenparsern der App.
-- **Tilgung null erzeugte einen 60-Jahre-Plan aus Nullzeilen** statt einer ehrlichen Meldung.
-- **Abschnittskürzel mit Suffix „e"** wurden in Navigation und Schrittplakette verstümmelt dargestellt.
+- `npm test`: **42 Unit-Tests und 39 Browsertests bestanden**, keine Fehler, keine übersprungenen Tests.
+- Browser: installiertes Chrome für Desktop, WebKit für die iPhone-Ansicht.
+- Exporte unabhängig mit python-docx, openpyxl und PyMuPDF geöffnet; PDF-Seitenformat, langer Text, Fotos, Exposé und Querformat-Präsentation geprüft.
+- Unabhängige Python-Sollwerte neu berechnet; keine Änderung der festgehaltenen Sollwertdatei.
+- `npm run build`: 54 lokale Offline-Dateien, circa 1,9 MB statische Ausgabe.
+- `npm audit`: keine gemeldeten bekannten Sicherheitslücken in den installierten npm-Abhängigkeiten zum Prüfzeitpunkt.
+- Xcode: iOS-Simulator-Build erfolgreich, App `de.immoapp.preisermittlung` installiert und gestartet; Laufzeitlog bestätigt geladenen WebView.
+- Unabhängige Codeprüfung: Controller-Registrierung, nativer PDF-Weg und Share-Fehlerbehandlung korrigiert; Regressionstests für native Dateiausgabe und Sicherungsabbrüche ergänzt.
 
----
+Der vollständige Testlauf liegt unter `docs/pruefnachweise/Tests-2026-09-30.txt`. Die Suite erfasst mehrere vollständige Referenzfälle und zahlreiche Abläufe innerhalb eines Tests; eine bestandene Suite ist keine fachliche Zertifizierung sämtlicher Bewertungsmodelle.
 
-## Offene Punkte
+## iOS-Grenzen
 
-Vollständig in `ROADMAP.md`. Der Stand: Phase 1 und 2 sind abgeschlossen, aus Phase 3 ist der Beleihungswert
-umgesetzt. Offen bleiben Exposé-Generator, Kundenakte, die Modularisierung des Rechenkerns und
-Regressionstests — dazu sieben neue Punkte, die sich erst aus dieser Arbeit ergeben haben.
+Die installierbare Capacitor-App verwendet weiterhin die Web-Oberfläche. Eine vollständige SwiftUI-Version wurde nicht gebaut. Physisches iPhone, reale Biometrie/Gerätecode, Kamera, GPS, native Dateifreigabe, Hintergrundwechsel, endgültiges Branding, Signierung und TestFlight-Verfügbarkeit sind noch gesondert zu prüfen. Es wurde nichts veröffentlicht.
 
-**Nicht abschließend geprüft:** Die App-Sperre wurde mit simulierten WebAuthn-Antworten über alle Codepfade
-getestet (Einrichten, Erfolg, Fehlschlag, Deaktivieren). Ein echter Face-ID-Dialog lässt sich in der
-Entwicklungsumgebung nicht auslösen — **bitte auf dem iPhone einmal gegenprüfen**, bevor du dich darauf
-verlässt. Gleiches gilt für die Standorterfassung, die hier nur mit gestellten Koordinaten lief.
-
----
-
-## Top 10 für die nächsten Schritte
-
-1. **Zahlenauswertung vereinheitlichen.** Die zwei unterschiedlichen Parser haben inzwischen drei Fehler
-   verursacht. Eine gemeinsame Funktion schließt eine Fehlerquelle, die sonst immer wieder zuschlägt.
-2. **Regressionstests aus den verifizierten Sollwerten.** Aus dieser Sitzung liegen exakt gegengerechnete
-   Ergebnisse vor. Als Testfälle festgehalten schützen sie jede künftige Änderung — gerade weil der
-   Rechenkern das Wertvollste an der App ist.
-3. **App-Sperre und GPS auf dem iPhone gegenprüfen.** Zwei Funktionen, die nur auf echter Hardware
-   abschließend beweisbar sind.
-4. **Beleihungswert um den Vergleichswert nach § 19 ergänzen** und einmal gegen einen echten Bankfall
-   rechnen, den du kennst — das ist die beste Validierung.
-5. **Die zwei Plausibilitätsprüfungen zusammenführen**, damit nicht zwei ähnliche Warnungen an
-   verschiedenen Stellen stehen.
-6. **Berichtsabschnitte auswählbar machen.** Der Bericht ist deutlich länger geworden; nicht jeder Abschnitt
-   gehört in jedes Dokument.
-7. **Exposé-Generator** als nächstes großes Vertriebswerkzeug — der Bericht ist ein Bewertungsdokument, kein
-   Verkaufsexposé.
-8. **Rechenkern modularisieren.** `compute()` ist auf über 400 Zeilen gewachsen und hat beim Einbau der
-   neuen Verfahren zweimal zu Reihenfolgefehlern geführt. Voraussetzung für alles Weitere.
-9. **Kundenakte**, wenn die Wiedervorlagen sich im Alltag bewähren — dann lohnt das größere Datenmodell.
-10. **Capacitor-Grundgerüst aufsetzen**, sobald ein Mac verfügbar ist. Die App ist dafür vorbereitet; es
-    fehlt nur der Schritt, den nur macOS gehen kann.
+PWA und native App speichern getrennt; vorhandene Daten werden über Sicherungsdateien übertragen. Die Gerätesperre ist keine Datenverschlüsselung. Aufwand und Startbefehle: `docs/Verbesserungen-und-iOS.md`.

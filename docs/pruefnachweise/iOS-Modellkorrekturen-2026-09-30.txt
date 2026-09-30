@@ -1,0 +1,5 @@
+npm run ios:sync: erfolgreich; 56 lokale Offline-Dateien.
+Xcode-Simulatorbuild: SUCCEEDED, Debug, scheme App, CODE_SIGNING_ALLOWED=NO.
+Buildprotokoll: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/logs/build_sim_2026-09-30T15-10-44-397Z_pid75919_cf919cd0.log
+Keine erneute Prüfung auf einem physischen iPhone, kein TestFlight-Upload.
+Unabhängige Nachprüfung: alle vier konkreten Reviewer-Befunde behoben; keine verbleibende konkrete Regression in diesen Korrekturen.

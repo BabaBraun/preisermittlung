@@ -42,13 +42,23 @@ test('Update: eine neue Fassung übernimmt die Kontrolle und räumt den alten Ca
   const st = await page.request.get('/__test/sw?cache=' + encodeURIComponent(NEU));
   expect(st.ok(), 'Testserver mit TEST_STEUERUNG=1 starten (npm run test:e2e startet ihn so)').toBe(true);
   try {
+    const newWorkerPromise=context.waitForEvent('serviceworker');
     await page.evaluate(async () => { const reg = await navigator.serviceWorker.getRegistration(); await reg.update(); });
-    await expect.poll(() => page.evaluate(() => caches.keys()), { timeout: 30_000 }).toEqual([NEU]);
-    await page.reload();
-    await page.waitForFunction(() => typeof compute === 'function');
-    expect(await page.evaluate(async c => (await (await caches.open(c)).keys()).length, NEU)).toBeGreaterThanOrEqual(ASSETS.length);
-    expect(await page.evaluate(() => navigator.serviceWorker.controller && navigator.serviceWorker.controller.state)).toBe('activated');
+    const newWorker=await newWorkerPromise;
+    await expect.poll(() => page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration()).waiting), {timeout:30000}).toBe(true);
+    // Alte Seiten bleiben konsistent; die neue Version aktiviert sich nach Schließen aller alten Fenster.
+    expect(await page.evaluate(() => caches.keys())).toEqual(expect.arrayContaining([CACHE,NEU]));
+    const activated=newWorker.evaluate(()=>new Promise(resolve=>self.addEventListener('activate',()=>resolve(true),{once:true})));
+    await page.close();
+    await activated;
+    const updated=await context.newPage();
+    await updated.goto('/index.html');
+    await expect.poll(() => updated.evaluate(() => caches.keys()), { timeout: 30000 }).toEqual([NEU]);
+    await updated.waitForFunction(() => typeof compute === 'function');
+    expect(await updated.evaluate(async c => (await (await caches.open(c)).keys()).length, NEU)).toBeGreaterThanOrEqual(ASSETS.length);
+    expect(await updated.evaluate(() => navigator.serviceWorker.controller && navigator.serviceWorker.controller.state)).toBe('activated');
+    await updated.close();
   } finally {
-    await page.request.get('/__test/sw');
+    await context.request.get('/__test/sw');
   }
 });

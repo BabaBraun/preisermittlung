@@ -1,72 +1,75 @@
 # ImmoApp
 
-Web-App für Immobilienberater: rechnerische Preisermittlung nach ImmoWertV –
-Substanz-(Sachwert-), Ertrags- und Vergleichswertverfahren, Aufnahmebogen für den
-Ortstermin, Fotodokumentation und druckfertiger Bericht.
+Native iOS-App mit SwiftUI für Immobilienerfassung und rechnerische Bewertung. Hauptprojekt: `ios/ImmoAppNative.xcodeproj`, Scheme `ImmoApp`, ab iOS 17. [Umfang, Tests und noch offene Übertragungen](docs/Native-iOS-App.md).
 
-Die App läuft vollständig im Browser. **Alle Eingaben bleiben auf dem Gerät**
-(localStorage); es werden keine Daten an einen Server übertragen.
+Die bisherige offlinefähige PWA bleibt als separate Quellfassung erhalten. Das iOS-Hauptprojekt verwendet keine WebView oder Capacitor.
 
-## Aufruf
+## Aktuelle Modellprüfung
 
-Als installierbare App (PWA) über GitHub Pages – siehe
-[ANLEITUNG-App-aufs-Handy.md](ANLEITUNG-App-aufs-Handy.md).
+Fehlende Quellen und Begründungen bleiben als Entwurf sichtbar. Beleihung wird getrennt geprüft; PV-/Energieszenarien und steuerliche Rechtswerte werden vom Marktansatz unterschieden. [Umgesetzte Korrekturen und fachliche Grenzen](docs/Berechnungsprüfung.md).
 
-## Funktionsumfang
+## Funktionen der bisherigen Gesamtanwendung
 
-- **9 Vordrucke** in drei Kategorien: Eigentumswohnung, Wohnhaus, Gewerbe
-- **Sachwert** über NHK 2010 (Anlage 4 ImmoWertV) mit Standardstufen je Bauteil,
-  Baupreisindex und Regionalfaktor
-- **Restnutzungsdauer** nach Modernisierungspunkten (Anlage 2 ImmoWertV)
-- **Ertragswert** mit Mietrolle, Bewirtschaftungskosten nach § 32 und Vervielfältiger
-- **Vergleichswert** mit Vergleichsobjekt-Tabelle
-- **Belastungen**: Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht
-- **Wertkorrekturen** nach § 8 Abs. 3 ImmoWertV
-- **PV-Anlage** über Barwert des Solarertrags
-- Aufnahmebogen, Unterlagen-Checkliste, Sensitivitätsanalyse, Renditekennzahlen
-- Bericht mit Deckblatt, Inhaltsverzeichnis, Fotos und Unterschriftsfeld
-- Export als PDF, Word und Excel
+- Sachwert, Ertragswert und Vergleichswert mit NHK, Modernisierung und Restnutzungsdauer.
+- Belastungen, Erbbaurecht, PV, energetische Qualität, Beleihungswert und Rendite.
+- Aufnahmebogen, Fotos, Grundrisse, Bewertungsbericht und Verkaufsexposé.
+- Marktdatenbank, Datengrundlagen und Modellkonformität, Kundenakten und Wiedervorlagen.
+- Finanzierung, Budget, Investitionsrechnung, Verkäufer-Präsentation, Käuferprofile und Vermarktungsübersicht.
+- Echte DOCX- und XLSX-Dateien, PDF und Sicherungsdateien.
 
-## Marktdatenbank
+Die Anwendung verwendet keinen eigenen Server für Kundendaten. Bewertungen, Kunden und Marktdaten liegen in localStorage/IndexedDB auf dem jeweiligen Gerät. Dateien werden nur auf Nutzeraktion exportiert oder geteilt. Betriebssystem-Sicherungen und externe Links unterliegen den Einstellungen des jeweiligen Geräts. Die optionale Gerätesperre verschlüsselt die Daten nicht.
 
-Über den Schalter **📊 Marktdaten** in der Kopfzeile: eine eigene Sammlung von
-Angebots- und Kaufpreisen als Grundlage für den Vergleichswert und für die
-laufende Marktbeobachtung.
+## Bedienung
 
-- **Erfassen** – 48 Objektmerkmale, Preisverlauf mit Datum, Exposé-PDF als Anhang.
-  Der Exposé-Text lässt sich einfügen; ein Parser füllt das Formular vor.
-- **Bestand** – filter- und sortierbare Liste, CSV-Export für Excel.
-- **Übersicht** – Kennzahlen-Kacheln (Median €/m², Trend, Vermarktungsdauer,
-  Reduzierungsquote, eigene Abschlagsquote) und sechs Diagramme: Preisentwicklung
-  je Quartal, Ortsvergleich, Flächendegression, Baujahr, Vermarktung, eigene
-  Bewertung gegen Markt. Unter fünf Fällen wird keine Aussage ausgewiesen.
-- **Vergleich** – sucht zu einem Zielobjekt die ähnlichsten Fälle, leitet einen
-  Vergleichspreis ab und übergibt ihn in den Vordruck. Umgekehrt lässt sich ein
-  bewertetes Objekt aus der Preisermittlung in die Datenbank übernehmen.
-- **Datensicherung** – dauerhafter Speicher, Speicheranzeige, automatische
-  Zweitkopie ohne Anhänge, Sicherung als Datei (schlank oder vollständig).
+Vier Hauptbereiche: **Übersicht, Objekte, Markt und Mehr**. Eine Bewertung hat eine eigene Objektübersicht mit Preis, Fortschritt und nächster fehlender Angabe. Die Arbeitsschritte **Objekt, Besichtigung, Bewertung und Ergebnis** öffnen gezielt einen Formularbereich. Längere Inhalte sind aufklappbar; Prüfhinweise und Suchtreffer führen direkt zum richtigen Feld bzw. Objekt.
 
-Angebots- und Kaufpreise werden getrennt geführt: Portalpreise sind
-Angebotspreise, echte Kaufpreise stammen aus eigenen Vermittlungen. Aus Fällen mit
-beidem berechnet die App die eigene Abschlagsquote, mit der sich Angebotspreise
-näherungsweise auf Kaufpreisniveau umrechnen lassen.
+Auf dem iPhone steht die Hauptnavigation unten, am Desktop links. Hell-/Dunkelmodus, Tastaturbedienung und Sicherheitsabstände bleiben unterstützt. Screenshots und Details: [App-Bedienung](docs/App-Bedienung.md).
 
-Die Sammlung liegt in der IndexedDB des jeweiligen Geräts und wird **nicht**
-zwischen Geräten synchronisiert – Austausch über die Sicherungsdatei.
+## Start und Tests
 
-## Dateien
+Node.js 22 oder neuer:
 
-| Datei | Zweck |
+```sh
+npm ci
+npm run build
+npm run serve
+```
+
+Dann `http://127.0.0.1:8790/index.html` öffnen. Zum Bereitstellen den vollständigen Inhalt von `dist/` verwenden. Einzeldatei-Uploads von `index.html` sind nach der Modularisierung nicht mehr ausreichend. Die im Repository enthaltenen Laufzeitdateien können auch direkt statisch bereitgestellt werden.
+
+```sh
+npx playwright install chromium webkit
+python3 -m pip install python-docx openpyxl pymupdf
+npm test
+```
+
+Die Python-Bibliotheken öffnen exportierte Office-/PDF-Dateien unabhängig von der Anwendung. Ohne diese Bibliotheken werden die betreffenden Prüfungen als übersprungen angezeigt. `npm run test:unit` prüft den Rechenkern; `npm run test:browser` prüft die vollständigen Browserabläufe. GitHub Actions installiert alle Prüfbibliotheken und baut vor den Tests.
+
+## iOS
+
+```sh
+npm run ios:sync
+npm run ios:open
+```
+
+Das Xcode-Projekt liegt in `ios/App/App.xcodeproj`. Die Hülle verwendet die bestehende Web-Oberfläche und den gleichen Rechenkern; Dateien werden über das native Teilen-Menü ausgegeben. Das lokale Projekt wurde im iPhone-Simulator gebaut und gestartet. Es ist noch keine signierte, auf einem physischen iPhone oder in TestFlight geprüfte Veröffentlichung.
+
+Vorhandene PWA-Daten müssen als Sicherungsdateien exportiert und in der nativen App importiert werden; beide haben getrennte Speicherbereiche. Aufwand und offene Geräteprüfungen: [Verbesserungen und iOS](docs/Verbesserungen-und-iOS.md).
+
+## Struktur
+
+| Pfad | Aufgabe |
 |---|---|
-| `index.html` | die komplette App (Icons eingebettet) |
-| `manifest.webmanifest` | App-Name, Icon, Farben |
-| `sw.js` | Service Worker für den Offline-Betrieb |
-| `icons/` | App-Icons |
-| `Wertermittlung.html` | alte Adresse, leitet auf `index.html` weiter |
+| `index.html`, `assets/` | Formular, Layout, lokale Schriftarten |
+| `js/kern.js` | DOM-unabhängige Bewertungs- und Finanzierungsfunktionen |
+| `js/daten.js`, `js/speicher.js` | Dateiprüfung und atomare Speichermechanik |
+| `js/office.js`, `js/pdf.js` | Office-Formate und PDF-Seitenaufteilung |
+| `src/` | Fachliche Browsermodule, App-Navigation und native Brücke |
+| `src/init.js` | Initialisierung nach dem Laden aller Module |
+| `sw.template.js`, `scripts/build.mjs` | vollständig gecachter Build mit Versions-Hash |
+| `tests/` | Referenzwerte, Unit- und Browserprüfungen |
+| `ios/` | Capacitor-/Swift-Projekt |
 
-## Hinweis
+## Grenzen
 
-Die Ergebnisse sind eine rechnerische Preiseinschätzung und **kein
-Verkehrswertgutachten**. Marktparameter (Baupreisindex, Sachwertfaktor,
-Liegenschaftszinssätze) sind vor jeder Ermittlung anhand der Daten des örtlichen
-Gutachterausschusses zu prüfen.
+Die Ergebnisse sind rechnerische Preiseinschätzungen und kein Verkehrswertgutachten. Marktparameter und Modellkonformität müssen je Bewertung fachlich geprüft werden. Regelmäßig vollständige Sicherungen außerhalb des Browsers ablegen; beim Löschen von Website- oder App-Daten kann der lokale Bestand verloren gehen.

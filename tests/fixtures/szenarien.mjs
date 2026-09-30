@@ -15,15 +15,15 @@ export const SZENARIEN = [
   {
     name: 'haus_anbau_niessbrauch_vergleich', felder: mit(FALL_HAUS, {
       anbau_aktiv: true, an_baujahr: '1995', bgfan_e0: '42', bgfan_e1: '42', an_aussen: '5.000',
-      niess_aktiv: true, ni_art: 'niessbrauch', ni_alter: '74', ni_geschlecht: 'w', ni_grundst: '450', ni_nuk: '20',
+      niess_aktiv: true, ni_art: 'niessbrauch', ni_alter: '74', ni_leben:'15,6', ni_geschlecht: 'w', ni_grundst: '450', ni_nuk: '20',
       vw_aktiv: true, vw_preis: '3.200', gew_vergleich: '30',
-      en_modus: 'kosten', en_preis_kwh: '0,14', en_zins: '3', en_jahre: '20',
+      en_modus: 'kosten', en_markt_ansatz:'-12000', en_preis_kwh: '0,14', en_zins: '3', en_jahre: '20',
       wk_bez0: 'Feuchtigkeit im Keller', wk_val0: '12.000', wk_bez1: 'Carport', wk_val1: '-3.000', xemp1_val: '2.500'
     })
   },
   {
     name: 'haus_wohnrecht_erbbaurecht', felder: mit(FALL_HAUS, {
-      niess_aktiv: true, ni_art: 'wohnrecht', ni_alter: '81', ni_geschlecht: 'm', ni_miete: '7.200', ni_nuk: '10',
+      niess_aktiv: true, ni_art: 'wohnrecht', ni_alter: '81', ni_leben:'4,9', ni_umfang:'teil', ni_geschlecht: 'm', ni_miete: '7.200', ni_nuk: '10',
       eb_aktiv: true, eb_zins_eur: '1.800', eb_restlaufzeit: '55', eb_verzinsung: '0', eb_abschlag: '5',
       bw_ansatz: 'ertrag', verhandlung: '8', gewichtung: '0.4', pv_aktiv: false, en_aktiv: false
     })
@@ -52,7 +52,7 @@ export const SZENARIEN = [
   },
   {
     name: 'etw_hausgeld_niessbrauch', felder: mit(FALL_ETW, {
-      ek_hausgeld_nu: '180', er_rnd_override: '35', niess_aktiv: true, ni_art: 'niessbrauch', ni_alter: '68', ni_geschlecht: 'm',
+      ek_hausgeld_nu: '180', er_rnd_override: '35', niess_aktiv: true, ni_art: 'niessbrauch', ni_alter: '68', ni_leben:'15,5', ni_miete:'8424', ni_geschlecht: 'm',
       pl_markt: '3.600', pl_quelle: 'Marktbericht (synthetisch)'
     })
   },
@@ -64,3 +64,7 @@ export const SZENARIEN = [
     })
   }
 ];
+
+// Nur vollständig angegebene synthetische Testfälle erhalten synthetische Nachweise. Keine Produkt-Sonderbehandlung.
+const NACHWEISE=lade('nachweise.json');
+SZENARIEN.forEach(s=>{if(s.name!=='leer'){s.felder=Object.assign({},NACHWEISE,s.felder);if(s.name==='gewerbe_mietrolle'){Object.assign(s.felder,{bpi:'131',bpi_faktor:'1.406',hg_aussen:'0',hg_garage:'0'});}}});

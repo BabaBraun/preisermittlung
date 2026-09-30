@@ -1,75 +1,29 @@
-# Preisermittlung als App aufs Handy
+# ImmoApp auf dem Handy
 
-Die Wertermittlung ist jetzt eine **PWA** (Progressive Web App): Sie lässt sich auf dem
-Homescreen installieren, startet mit eigenem Icon im Vollbild und funktioniert **ohne
-Internet** – ideal für den Ortstermin im Keller ohne Empfang.
+## PWA
 
-## Dateien
+1. Den vollständigen Inhalt von `dist/` auf einem HTTPS-Webserver bereitstellen. Vorher `npm ci` und `npm run build` ausführen.
+2. Auf dem iPhone in Safari öffnen und über „Teilen → Zum Home-Bildschirm“ hinzufügen; auf Android über „App installieren“.
+3. Beim ersten Besuch online bleiben, bis die App vollständig geladen ist. Danach stehen Formulare, Rechenkern, Schriftarten und Exporte offline bereit.
 
-| Datei | Zweck | nötig? |
-|---|---|---|
-| `index.html` | **die komplette App** – Icons sind eingebettet | **ja** |
-| `manifest.webmanifest` | App-Name, Icon, Farben | optional |
-| `sw.js` | Service Worker – macht die App offlinefähig | optional |
-| `icons/` | Icons als Einzeldateien | optional |
-| `Wertermittlung.html` | alte Adresse, leitet auf `index.html` weiter | nein |
+`index.html` allein reicht nicht mehr: Die Anwendung verwendet fachliche Module, CSS und lokale Bibliotheken. Wer den Repository-Ordner direkt bereitstellt, muss alle dort vorhandenen Laufzeitdateien einschließlich `src/`, `js/`, `assets/`, `vendor/`, Icons und `sw.js` mitnehmen.
 
-**Die App steckt vollständig in `index.html`.** Die übrigen Dateien sind Zugabe:
-Liegen sie daneben, kommt der **Offline-Betrieb** dazu.
+Updates werden vollständig vorgeladen. Für die Aktivierung alle geöffneten ImmoApp-Fenster schließen und neu öffnen. Ein unvollständiges Update ersetzt keine funktionierende Version.
 
-## Schritt 1 – Ins Netz stellen
+## Native iOS-App
 
-Für die Installation als App braucht der Browser eine **https://**-Adresse.
-(Ein reines Öffnen der Datei vom Handy-Speicher reicht dafür nicht.)
+Das lokale Xcode-Projekt steht unter `ios/App/App.xcodeproj` bereit:
 
-**Variante A – Netlify Drop, nur eine Datei (am einfachsten)**
-1. <https://app.netlify.com/drop> öffnen
-2. **`index.html`** allein auf die Seite ziehen
-3. Fertig – es entsteht sofort eine `https://…netlify.app`-Adresse
+```sh
+npm ci
+npm run ios:sync
+npm run ios:open
+```
 
-Die App ist damit vollständig nutzbar und installierbar. Nur der Offline-Betrieb fehlt.
+In Xcode Signing-Team und Zielgerät wählen. Der Simulator-Build wurde geprüft. Die Installation und Gerätefunktionen auf einem echten iPhone sowie TestFlight bleiben gesonderte Schritte; siehe [iOS-Hinweise](docs/Verbesserungen-und-iOS.md).
 
-**Variante B – Netlify Drop, ganzer Ordner (mit Offline-Betrieb)**
-Statt der einzelnen Datei den **Ordner** `Wertermittlungen` aufs Drop-Feld ziehen –
-nicht die Dateien einzeln markieren, sondern den Ordner selbst greifen.
-Im Datei-Dialog von Netlify lassen sich keine Ordner wählen; **Drag & Drop aus dem
-Explorer** ist der Weg. Damit ist die App auch ohne Empfang nutzbar.
+## Daten mitnehmen
 
-**Variante C – Bank-Intranet (empfohlen für den dienstlichen Einsatz)**
-Ordner von der IT auf einen internen Webserver legen lassen, z. B.
-`https://intranet.vb-bia.de/preisermittlung/`
+PWA, PC-Browser und native iOS-App speichern getrennt. Projekte/Kunden/Wiedervorlagen über die Projektsicherung, Marktdaten einschließlich PDF-Anhängen über die Marktsicherung übertragen. Fotos und Grundrisse sind Teil der Projektdateien. Sicherungen außerhalb des Browsers aufbewahren und einen Import prüfen, bevor Originaldaten gelöscht werden.
 
-> Vor dem Veröffentlichen auf einem **externen** Dienst bitte mit IT/Compliance abstimmen.
-> Die App enthält keine Kundendaten (alle Eingaben bleiben lokal auf dem Gerät),
-> es geht allein um das Werkzeug selbst.
-
-## Schritt 2 – Auf dem Handy installieren
-
-**iPhone / iPad (Safari)**
-1. Adresse in **Safari** öffnen (nicht Chrome – nur Safari kann installieren)
-2. Unten auf **Teilen** tippen (Quadrat mit Pfeil nach oben)
-3. **„Zum Home-Bildschirm"** wählen → **Hinzufügen**
-
-**Android (Chrome)**
-1. Adresse in Chrome öffnen
-2. Auf den Button **📲 Installieren** in der App tippen
-   (oder Menü ⋮ → „App installieren")
-
-Danach liegt die App mit eigenem Icon auf dem Homescreen und startet ohne Browserleiste.
-
-## Gut zu wissen
-
-- **Offline:** Nur mit `sw.js` (Variante B/C). Dann läuft nach dem ersten Start alles
-  ohne Internet – rechnen, Fotos aufnehmen, Bericht ansehen. Bei der Einzeldatei
-  (Variante A) braucht die App eine Verbindung.
-- **Daten bleiben auf dem Gerät.** Es werden keine Daten an einen Server gesendet.
-  Handy und PC teilen sich die Projekte **nicht** – zum Übertragen „💾 Datei" nutzen
-  und die JSON-Datei auf dem anderen Gerät über „📂 Öffnen" laden.
-- **PDF:** Der direkte PDF-Download braucht einmalig Internet. Offline öffnet sich
-  stattdessen der Druckdialog – dort „Als PDF sichern" wählen (funktioniert auf
-  iPhone und Android genauso).
-- **Speicherplatz:** Fotos werden im Gerätespeicher des Browsers abgelegt (ca. 5–10 MB).
-  Bei vielen Fotos die Bewertung über „💾 Datei" sichern und im Browser aufräumen.
-- **Update:** Neue Fassung wieder auf Netlify ziehen. Wird `sw.js` mitgeliefert,
-  dort zusätzlich `const CACHE = 'preisermittlung-vX';` hochzählen – sonst behalten
-  installierte Geräte die alte Fassung.
+Face ID/Touch ID bzw. Gerätecode schützen nur den App-Zugang. Exportierte Dateien und Datenbanken sind dadurch nicht verschlüsselt.

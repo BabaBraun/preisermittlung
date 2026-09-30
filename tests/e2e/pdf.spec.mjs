@@ -7,7 +7,7 @@ import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler } from './h
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG, GRUNDRISS_TEST } from '../fixtures/medien.mjs';
 
-const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import fitz'], { encoding: 'utf8' }).status === 0);
+const PY = ['python', 'python3'].find(p => spawnSync(p, ['-c', 'import pymupdf'], { encoding: 'utf8' }).status === 0);
 const AUSGABE = 'tests/ausgabe/';
 mkdirSync(AUSGABE, { recursive: true });
 const pdfLesen = (datei, bilder) => {

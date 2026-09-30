@@ -1,0 +1,44 @@
+[
+  {
+    "name": "TEST – Einfamilienhaus mit PV",
+    "preisStatus": "ok",
+    "beleihungsStatus": "ok",
+    "preis": 472970,
+    "begründung": "Fiktives EFH, 145 m², Garage und zusätzliche PV. Alle Quellen sind synthetische Testannahmen."
+  },
+  {
+    "name": "TEST – Vermietete Eigentumswohnung",
+    "preisStatus": "ok",
+    "beleihungsStatus": "inaktiv",
+    "preis": 238799,
+    "begründung": "Fiktive vermietete ETW, 78 m². Vergleichs- und Ertragsansätze dienen ausschließlich dem Test."
+  },
+  {
+    "name": "TEST – Mehrfamilienhaus mit sechs Wohnungen",
+    "preisStatus": "ok",
+    "beleihungsStatus": "inaktiv",
+    "preis": 887783,
+    "begründung": "Fiktives MFH mit sechs Mieteinheiten und aktiver Mietrolle. 360 m² Wohnfläche, 41.040 € Jahresmiete."
+  },
+  {
+    "name": "TEST – Sanierungsbedürftiges Altbauhaus",
+    "preisStatus": "ok",
+    "beleihungsStatus": "inaktiv",
+    "preis": 387855,
+    "begründung": "Fiktiver Altbau mit expliziter Restnutzungsdauer und getrenntem Energiekosten-Szenario. Marktabschlag ist eine Testannahme."
+  },
+  {
+    "name": "TEST – Wohnrecht und kurze Restnutzung",
+    "preisStatus": "ok",
+    "beleihungsStatus": "ok",
+    "preis": 455321,
+    "begründung": "Fiktives Teilwohnrecht mit 12 Jahren Laufzeit und separatem Beleihungssonderfall bei 20 Jahren Restnutzung."
+  },
+  {
+    "name": "TEST – Unvollständige Erstaufnahme",
+    "preisStatus": "unvollstaendig",
+    "beleihungsStatus": "inaktiv",
+    "preis": 0,
+    "begründung": "Absichtlich unvollständig: fehlende Marktdaten und Quellen sollen sichtbar als Entwurf erscheinen."
+  }
+]

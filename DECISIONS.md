@@ -191,3 +191,11 @@ vergleicht die App das Modell des Satzes mit der Bewertung und warnt bei Abweich
 **Umsetzung:** Datensätze im localStorage (`ia_parameter`), teilbar als Datei für Kolleginnen und Kollegen
 und Teil der Gesamtsicherung. Die Abfrage des Sachwertfaktors wählt die Zeile, in deren Spanne der
 vorläufige Sachwert fällt; liegt er außerhalb, die nächste Klasse mit Hinweis.
+
+## D10 (2026-09-30) — Modularisierung und lokale iOS-Hülle
+
+Die während der Arbeit aktualisierte GitHub-Fassung `7fa7d96` bleibt die fachliche Grundlage. Zusätzlich werden CSS und Browseradapter aus der HTML-Datei gelöst. Klassische Skripte erhalten ihre bisherigen globalen Schnittstellen; die Initialisierung findet nach dem Laden aller Module statt. Der pure Rechenkern wird weiter über unabhängige Sollwerte geprüft.
+
+Die Build-Werkzeuge erzeugen lokale Schriftarten, eine native Capacitor-Brücke und einen vollständigen Offline-Cache mit Inhalts-Hash. Ein Update wartet auf das Schließen alter Fenster; eine fehlende Datei verhindert die Installation der unvollständigen Version. Einzeldatei-Uploads werden zugunsten des vollständigen statischen Ordners aufgegeben und in der Anleitung korrigiert.
+
+Der Mac besitzt Xcode. Deshalb wird die bisher nur theoretische Capacitor-Vorbereitung konkret als Xcode-Projekt umgesetzt und im Simulator geprüft. Keine SwiftUI-Neuentwicklung und keine Veröffentlichung. Gerätesperre über LocalAuthentication, Dateiausgabe über Filesystem/Share. PWA-Speicher und native App-Speicher werden nicht automatisch zusammengeführt.

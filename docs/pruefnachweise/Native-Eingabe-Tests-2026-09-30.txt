@@ -1,0 +1,7 @@
+Build 2: native Eingabeführung.
+12 Tests bestanden, 0 Fehler, 0 übersprungen, keine Warnungen im vollständigen Lauf.
+Vollständiger Lauf: ~/Library/Developer/XcodeBuildMCP/workspaces/https-github-com-bababraun-preisermittlung-schau-60911a3f3c81/result-bundles/test_sim_2026-09-30T16-31-12-097Z_pid75919_c9141c21.xcresult
+Zeigt: Dezimal-/Ganzzahl-Tastatur; Tastatur-Feldwechsel; Zurück/Weiter; Werterhalt und Fortsetzen; kurze Seiten; optionale und wohnungsspezifische Fragen; Rechenreferenzen, Speicherung, Sicherungen, PDFs und keine WebView.
+Signierter Gerätebuild: BUILD SUCCEEDED, /tmp/immoapp-eingabe-device-build.txt.
+Build 2 auf dem physischen iPhone 15 Pro installiert und gestartet; Version 1.0.0, Bundle-Version 2 von devicectl bestätigt.
+Abschließend Hilfetext auf tatsächliche Modul-Aktivierungen begrenzt; Gerätebuild erneut erfolgreich.

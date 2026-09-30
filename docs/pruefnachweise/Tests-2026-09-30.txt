@@ -1,0 +1,316 @@
+
+> immoapp@1.0.0 test
+> npm run test:unit && npm run test:browser
+
+
+> immoapp@1.0.0 test:unit
+> node --test tests/unit/*.test.mjs
+
+TAP version 13
+# Subtest: JSON lesen: leer, beschädigt, mit BOM
+ok 1 - JSON lesen: leer, beschädigt, mit BOM
+  ---
+  duration_ms: 2.322417
+  type: 'test'
+  ...
+# Subtest: Projektdatei: aktuelles Format bleibt vollständig erhalten
+ok 2 - Projektdatei: aktuelles Format bleibt vollständig erhalten
+  ---
+  duration_ms: 0.4455
+  type: 'test'
+  ...
+# Subtest: Projektdatei: Altformat (flache Feldliste) wird erkannt
+ok 3 - Projektdatei: Altformat (flache Feldliste) wird erkannt
+  ---
+  duration_ms: 0.078
+  type: 'test'
+  ...
+# Subtest: Projektdatei: manipulierte Inhalte werden verworfen
+ok 4 - Projektdatei: manipulierte Inhalte werden verworfen
+  ---
+  duration_ms: 0.140208
+  type: 'test'
+  ...
+# Subtest: Projektdatei: falsche Dateiarten mit Hinweis
+ok 5 - Projektdatei: falsche Dateiarten mit Hinweis
+  ---
+  duration_ms: 0.102542
+  type: 'test'
+  ...
+# Subtest: Gesamtsicherung Version 2 und Version 1 (reine Projektliste)
+ok 6 - Gesamtsicherung Version 2 und Version 1 (reine Projektliste)
+  ---
+  duration_ms: 0.191083
+  type: 'test'
+  ...
+# Subtest: Gesamtsicherung: beschädigte und fremde Dateien
+ok 7 - Gesamtsicherung: beschädigte und fremde Dateien
+  ---
+  duration_ms: 0.111083
+  type: 'test'
+  ...
+# Subtest: Marktdaten: Objekte und PDF-Anhänge, beschädigte Anhänge werden verworfen
+ok 8 - Marktdaten: Objekte und PDF-Anhänge, beschädigte Anhänge werden verworfen
+  ---
+  duration_ms: 0.189459
+  type: 'test'
+  ...
+# Subtest: kleine positive Zinsen bleiben numerisch stabil
+ok 9 - kleine positive Zinsen bleiben numerisch stabil
+  ---
+  duration_ms: 1.288208
+  type: 'test'
+  ...
+# Subtest: Finanzierung: Restschuld zum Beginn ist das ganze Darlehen
+ok 10 - Finanzierung: Restschuld zum Beginn ist das ganze Darlehen
+  ---
+  duration_ms: 0.249834
+  type: 'test'
+  ...
+# Subtest: negative Sondertilgung erhöht die Schuld nicht
+ok 11 - negative Sondertilgung erhöht die Schuld nicht
+  ---
+  duration_ms: 0.069333
+  type: 'test'
+  ...
+# Subtest: Zahlen lesen: deutsche Formate, Beträge und Faktoren
+ok 12 - Zahlen lesen: deutsche Formate, Beträge und Faktoren
+  ---
+  duration_ms: 0.760416
+  type: 'test'
+  ...
+# Subtest: Barwertfaktor (Anlage 1 ImmoWertV) inklusive Zins 0 % und Laufzeit 0
+ok 13 - Barwertfaktor (Anlage 1 ImmoWertV) inklusive Zins 0 % und Laufzeit 0
+  ---
+  duration_ms: 0.1805
+  type: 'test'
+  ...
+# Subtest: Restnutzungsdauer nach Anlage 2 ImmoWertV
+ok 14 - Restnutzungsdauer nach Anlage 2 ImmoWertV
+  ---
+  duration_ms: 0.117542
+  type: 'test'
+  ...
+# Subtest: Interpolation der Standardstufen und NHK-Basiswerte
+ok 15 - Interpolation der Standardstufen und NHK-Basiswerte
+  ---
+  duration_ms: 0.334042
+  type: 'test'
+  ...
+# Subtest: Effizienzklassen nach Kennwert
+ok 16 - Effizienzklassen nach Kennwert
+  ---
+  duration_ms: 0.057625
+  type: 'test'
+  ...
+# Subtest: Restlebenserwartung: dokumentierte Näherung (keine amtliche Sterbetafel)
+ok 17 - Restlebenserwartung: dokumentierte Näherung (keine amtliche Sterbetafel)
+  ---
+  duration_ms: 0.048708
+  type: 'test'
+  ...
+# Subtest: Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)
+ok 18 - Referenzbewertung Wohnhaus (Sollwerte aus dem Selbsttest, unabhängig nachgerechnet)
+  ---
+  duration_ms: 3.435875
+  type: 'test'
+  ...
+# Subtest: Referenzbewertung Eigentumswohnung
+ok 19 - Referenzbewertung Eigentumswohnung
+  ---
+  duration_ms: 1.134292
+  type: 'test'
+  ...
+# Subtest: Alter bezieht sich auf das Stichtagsjahr (§ 4 Abs. 1 ImmoWertV)
+ok 20 - Alter bezieht sich auf das Stichtagsjahr (§ 4 Abs. 1 ImmoWertV)
+  ---
+  duration_ms: 0.74925
+  type: 'test'
+  ...
+# Subtest: Höchst-Restnutzungsdauer im Beleihungswert je Objektart (Anlage 2 BelWertV)
+ok 21 - Höchst-Restnutzungsdauer im Beleihungswert je Objektart (Anlage 2 BelWertV)
+  ---
+  duration_ms: 0.748125
+  type: 'test'
+  ...
+# Subtest: Leere Eingaben: keine NaN, Empfehlung 0
+ok 22 - Leere Eingaben: keine NaN, Empfehlung 0
+  ---
+  duration_ms: 1.561209
+  type: 'test'
+  ...
+# Subtest: Extreme Werte bleiben endlich
+ok 23 - Extreme Werte bleiben endlich
+  ---
+  duration_ms: 0.389833
+  type: 'test'
+  ...
+# Subtest: Finanzierung: Referenzfall und Grenzfälle (Zins 0 %, keine Tilgung, Betrag 0)
+ok 24 - Finanzierung: Referenzfall und Grenzfälle (Zins 0 %, keine Tilgung, Betrag 0)
+  ---
+  duration_ms: 0.256708
+  type: 'test'
+  ...
+# Subtest: Budget-Check
+ok 25 - Budget-Check
+  ---
+  duration_ms: 0.073917
+  type: 'test'
+  ...
+# Subtest: Investitionsrechnung (Sollwerte aus unabhängiger Python-Rechnung)
+ok 26 - Investitionsrechnung (Sollwerte aus unabhängiger Python-Rechnung)
+  ---
+  duration_ms: 0.525333
+  type: 'test'
+  ...
+# Subtest: Eingabeprüfung: gültige und ungültige Zahlen
+ok 27 - Eingabeprüfung: gültige und ungültige Zahlen
+  ---
+  duration_ms: 0.37275
+  type: 'test'
+  ...
+# Subtest: Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bewertungen
+ok 28 - Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bewertungen
+  ---
+  duration_ms: 24.007416
+  type: 'test'
+  ...
+# Subtest: CRC-32 nach Norm (Prüfwert für „123456789“)
+ok 29 - CRC-32 nach Norm (Prüfwert für „123456789“)
+  ---
+  duration_ms: 0.348083
+  type: 'test'
+  ...
+# Subtest: Spaltenbuchstaben
+ok 30 - Spaltenbuchstaben
+  ---
+  duration_ms: 0.273042
+  type: 'test'
+  ...
+# Subtest: Bildmaße aus JPEG
+ok 31 - Bildmaße aus JPEG
+  ---
+  duration_ms: 0.568667
+  type: 'test'
+  ...
+# Subtest: XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen
+ok 32 - XML-Maskierung entfernt Steuerzeichen und maskiert Sonderzeichen
+  ---
+  duration_ms: 0.080875
+  type: 'test'
+  ...
+# Subtest: ZIP-Container ist gültig
+ok 33 - ZIP-Container ist gültig
+  ---
+  duration_ms: 29.754125
+  type: 'test'
+  ...
+# Subtest: XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen
+ok 34 - XLSX: Zahlen bleiben Zahlen, Formate und Umlaute stimmen
+  ---
+  duration_ms: 78.44825
+  type: 'test'
+  ...
+# Subtest: DOCX: Überschriften, Tabellen, Bild und Seitenumbruch
+ok 35 - DOCX: Überschriften, Tabellen, Bild und Seitenumbruch
+  ---
+  duration_ms: 58.484042
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: gewerbe_ertrag
+ok 36 - Vergleichsrechnung: gewerbe_ertrag
+  ---
+  duration_ms: 2.796542
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: haus_niessbrauch_vergleich_energie
+ok 37 - Vergleichsrechnung: haus_niessbrauch_vergleich_energie
+  ---
+  duration_ms: 1.165958
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: haus_wohnrecht_erbbau_pv
+ok 38 - Vergleichsrechnung: haus_wohnrecht_erbbau_pv
+  ---
+  duration_ms: 0.800833
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: etw_hausgeld_leibrente
+ok 39 - Vergleichsrechnung: etw_hausgeld_leibrente
+  ---
+  duration_ms: 0.345041
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: grenzfall_zins_null
+ok 40 - Vergleichsrechnung: grenzfall_zins_null
+  ---
+  duration_ms: 0.196
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: grenzfall_sehr_alt
+ok 41 - Vergleichsrechnung: grenzfall_sehr_alt
+  ---
+  duration_ms: 0.30625
+  type: 'test'
+  ...
+# Subtest: Vergleichsrechnung: leer
+ok 42 - Vergleichsrechnung: leer
+  ---
+  duration_ms: 0.457166
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 398.223208
+
+> immoapp@1.0.0 test:browser
+> playwright test
+
+[WebServer] (node:68269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 31 tests using 1 worker
+
+(node:68297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/e2e/charakterisierung.spec.mjs:14:1 › Rechenergebnisse entsprechen dem festgehaltenen Stand (1.5s)
+  ✓   2 [desktop] › tests/e2e/datensicherung.spec.mjs:33:1 › vom neuen Projekt bis zum wieder geöffneten Bericht: Werte stimmen überall überein (2.0s)
+  ✓   3 [desktop] › tests/e2e/datensicherung.spec.mjs:60:1 › Bewertung als Datei sichern und in einem leeren Browser wieder öffnen (mit Fotos, Grundriss, Unterschrift) (1.2s)
+  ✓   4 [desktop] › tests/e2e/datensicherung.spec.mjs:76:1 › Gesamtsicherung: Projekte, Kunden und Wiedervorlagen wandern vollständig auf ein leeres Gerät (1.4s)
+  ✓   5 [desktop] › tests/e2e/datensicherung.spec.mjs:104:1 › Marktüberblick: Sicherung mit PDF-Anhang byte-genau übertragen (1.2s)
+  ✓   6 [desktop] › tests/e2e/datensicherung.spec.mjs:128:1 › beschädigte und falsche Dateien: verständliche Meldung, nichts wird überschrieben (1.4s)
+  ✓   7 [desktop] › tests/e2e/datensicherung.spec.mjs:163:1 › voller Speicher: Import bricht vollständig ab, Arbeitsstand meldet den Fehler sichtbar (917ms)
+  ✓   8 [desktop] › tests/e2e/datensicherung.spec.mjs:196:1 › ohne IndexedDB (z. B. gesperrt): App rechnet, Projekte landen im Rückfallspeicher, Hinweis bei der Kundenakte (535ms)
+  ✓   9 [desktop] › tests/e2e/datensicherung.spec.mjs:214:1 › ältere Dateiformate: flache Bewertung und Projektsicherung Version 1 (734ms)
+  ✓  10 [desktop] › tests/e2e/diagnostic.spec.mjs:3:1 › modulare App initialisiert alle Funktionen ohne Skriptfehler (338ms)
+  ✓  11 [desktop] › tests/e2e/eingabepruefung.spec.mjs:8:1 › Text statt Zahl: Feld markiert, keine Empfehlung, Bericht als Entwurf (799ms)
+  ✓  12 [desktop] › tests/e2e/eingabepruefung.spec.mjs:34:1 › Negative Werte und Prozent über 100 werden gemeldet (614ms)
+  ✓  13 [desktop] › tests/e2e/eingabepruefung.spec.mjs:46:1 › Leeres Formular: keine Empfehlung, fehlende Angaben werden genannt (445ms)
+  ✓  14 [desktop] › tests/e2e/exporte.spec.mjs:31:1 › Word-Export ist eine echte .docx-Datei mit Bericht, Tabellen, Fotos und Grundriss (658ms)
+  ✓  15 [desktop] › tests/e2e/exporte.spec.mjs:50:1 › Excel-Export ist eine echte .xlsx-Datei mit Zahlenwerten und allen Eingaben (618ms)
+  ✓  16 [desktop] › tests/e2e/konsistenz.spec.mjs:36:1 › nach jedem Vorlagenwechsel stimmen Empfehlung, Gewichtung und Spanne überall überein (1.6s)
+  ✓  17 [desktop] › tests/e2e/konsistenz.spec.mjs:48:1 › nach Datei-Import und nach dem Selbsttest bleibt alles übereinstimmend (885ms)
+  ✓  18 [desktop] › tests/e2e/layout.spec.mjs:5:1 › Desktop: alle Ansichten (12.5s)
+  ✓  19 [desktop] › tests/e2e/maskierung.spec.mjs:10:1 › keine Ausführung eingeschleuster Inhalte in Dokumenten und Listen (2.9s)
+  ✓  20 [desktop] › tests/e2e/native-export.spec.mjs:4:1 › nativer PDF-Download liefert eine echte PDF-Datei an das Teilen-Menü (989ms)
+  ✓  21 [desktop] › tests/e2e/native-export.spec.mjs:11:1 › fehlgeschlagenes natives Teilen zeigt einen Fehler und markiert keine Sicherung (412ms)
+  ✓  22 [desktop] › tests/e2e/native-export.spec.mjs:22:1 › abgebrochenes natives Teilen behält den vorherigen Sicherungszeitpunkt (518ms)
+  ✓  23 [desktop] › tests/e2e/offline.spec.mjs:21:1 › Offline-Start nach dem ersten Besuch: App, Rechenkern, Exporte und PDF-Baustein aus dem Cache (1.1s)
+  ✓  24 [desktop] › tests/e2e/offline.spec.mjs:37:1 › Update: eine neue Fassung übernimmt die Kontrolle und räumt den alten Cache ab (2.6s)
+  ✓  25 [desktop] › tests/e2e/pdf.spec.mjs:35:1 › PDF-Download funktioniert ohne Internet und enthält alle Seiten (2.0s)
+  ✓  26 [desktop] › tests/e2e/pdf.spec.mjs:54:1 › Druckansicht: A4, Bedienelemente ausgeblendet, langer Text vollständig (854ms)
+  ✓  27 [desktop] › tests/e2e/pdf.spec.mjs:87:1 › Exposé (Hochformat) und Präsentation (Querformat) als PDF (1.7s)
+  ✓  28 [desktop] › tests/e2e/selbsttest.spec.mjs:9:1 › Selbsttest besteht und erhält die offene Bewertung vollständig (559ms)
+(node:69323) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [iphone] › tests/e2e/iphone.spec.mjs:8:1 › iPhone: alle Ansichten ohne waagrechtes Scrollen (17.2s)
+  ✓  30 [iphone] › tests/e2e/iphone.spec.mjs:13:1 › iPhone: Selbsttest und Referenzbewertung in der Safari-Engine (1.6s)
+  ✓  31 [iphone] › tests/e2e/iphone.spec.mjs:23:1 › iPhone: Bedienleiste unten ist mit dem Finger erreichbar (mind. 44 px) (502ms)
+
+  31 passed (1.1m)
