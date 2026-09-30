@@ -2743,6 +2743,7 @@
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/daten.js"></script>
+<script src="js/speicher.js"></script>
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -3267,45 +3268,18 @@ var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der 
 var FOTO_GEAENDERT=false, FOTO_TIMER=null;
 var SPEICHER_FEHLER={};
 
+/* Mechanik in js/speicher.js (ImmoSpeicher); hier nur die Datenbank der Bewertungen */
 function iaDbOeffnen(){
-  return new Promise((ok,fehler)=>{
-    if(!window.indexedDB){ fehler(new Error('Keine IndexedDB verfügbar')); return; }
-    let rq; try{ rq=indexedDB.open(IA_DB_NAME,IA_DB_VER); }catch(e){ fehler(e); return; }
-    rq.onupgradeneeded=()=>{ let db=rq.result;
-      if(!db.objectStoreNames.contains('projekte')) db.createObjectStore('projekte',{keyPath:'id'});
-      if(!db.objectStoreNames.contains('arbeit')) db.createObjectStore('arbeit');
-      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
-      if(!db.objectStoreNames.contains('kunden')) db.createObjectStore('kunden',{keyPath:'id'}); };
-    rq.onsuccess=()=>{ let db=rq.result; speicherFehler('db','');
-      db.onversionchange=()=>{ db.close(); speicherFehler('db','Die App wurde in einem anderen Fenster aktualisiert. Bitte diese Seite neu laden.'); };
-      ok(db); };
-    rq.onerror=()=>fehler(rq.error||new Error('IndexedDB nicht verfügbar'));
-    // Ein älteres, noch offenes Fenster hält die Datenbank: nicht aufgeben, sondern warten und Bescheid sagen
-    rq.onblocked=()=>speicherFehler('db','Die ImmoApp ist noch in einem anderen Fenster oder Tab geöffnet. Bitte dort schließen, dann geht es hier weiter.');
-  });
+  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'}},t=>speicherFehler('db',t));
 }
-/* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist */
-function iaTx(store,modus,arbeit){
-  return new Promise((ok,fehler)=>{
-    if(!IA_DB){ fehler(new Error('Keine Datenbank')); return; }
-    let tx, rq;
-    /* Fehler während der Arbeit: Transaktion abbrechen, sonst würden die bis dahin geschriebenen Einträge
-       gespeichert (halber Import) */
-    try{ tx=IA_DB.transaction(store,modus); rq=arbeit(tx.objectStore(store)); }catch(e){ try{ if(tx) tx.abort(); }catch(x){} fehler(e); return; }
-    tx.oncomplete=()=>ok(rq&&typeof rq==='object'&&'readyState' in rq?rq.result:undefined);
-    tx.onerror=()=>fehler(tx.error||new Error('Speichern fehlgeschlagen'));
-    tx.onabort=()=>fehler(tx.error||new Error('Speichern abgebrochen'));
-  });
-}
+/* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist.
+   Bei einem Fehler wird sie abgebrochen — kein halb geschriebener Stand. */
+function iaTx(store,modus,arbeit){ return ImmoSpeicher.tx(IA_DB,store,modus,arbeit); }
 function iaGet(store,key){ return iaTx(store,'readonly',s=>s.get(key)); }
 function iaPut(store,wert,key){ return iaTx(store,'readwrite',s=>key===undefined?s.put(wert):s.put(wert,key)); }
 function iaDel(store,key){ return iaTx(store,'readwrite',s=>s.delete(key)); }
 function iaAlle(store){ return iaTx(store,'readonly',s=>s.getAll()); }
-function iaFehlerText(e){
-  let n=e&&(e.name||''), m=e&&(e.message||'');
-  if(n==='QuotaExceededError'||/quota/i.test(m)) return 'Der Speicher des Geräts ist voll';
-  return m||'unbekannter Fehler';
-}
+function iaFehlerText(e){ return ImmoSpeicher.fehlerText(e); }
 function iaMB(b){ if(!(b>0)) return '0 MB'; return b>=1e9?num2(b/1e9)+' GB':(b>=1e7?Math.round(b/1e6):num2(b/1e6))+' MB'; }
 
 /* Sichtbarer Hinweis, wenn etwas nicht gespeichert werden konnte — nie mehr stillschweigend */
@@ -8117,17 +8091,13 @@ async function mdbImportSchreiben(objekte,anhaenge){
   let vorhanden={}; MDBALL.forEach(o=>vorhanden[o.id]=o);
   let erg={neu:0,ers:0,anh:0}, jetzt=Date.now();
   let blobs=anhaenge.map(a=>({id:a.id,objId:a.objId,name:a.name,size:a.size,blob:mdbB642Blob(a.data)}));
-  await new Promise((ok,fehler)=>{
-    let tx=mdbDB.transaction(['objekte','anhaenge'],'readwrite'), so=tx.objectStore('objekte'), sa=tx.objectStore('anhaenge');
-    tx.oncomplete=()=>ok(); tx.onerror=()=>fehler(tx.error); tx.onabort=()=>fehler(tx.error||new Error('abgebrochen'));
-    try{
-      objekte.forEach(o=>{
-        if(!o.id) o.id='o'+jetzt.toString(36)+Math.random().toString(36).slice(2,6);
-        let alt=vorhanden[o.id]; if(alt&&(alt.ts||0)>=(o.ts||0)) return;
-        if(!o.ts) o.ts=jetzt; so.put(o); alt?erg.ers++:erg.neu++;
-      });
-      blobs.forEach(a=>{ sa.put(a); erg.anh++; });
-    }catch(e){ try{ tx.abort(); }catch(x){} fehler(e); }
+  await ImmoSpeicher.tx(mdbDB,['objekte','anhaenge'],'readwrite',st=>{
+    objekte.forEach(o=>{
+      if(!o.id) o.id='o'+jetzt.toString(36)+Math.random().toString(36).slice(2,6);
+      let alt=vorhanden[o.id]; if(alt&&(alt.ts||0)>=(o.ts||0)) return;
+      if(!o.ts) o.ts=jetzt; st.objekte.put(o); alt?erg.ers++:erg.neu++;
+    });
+    blobs.forEach(a=>{ st.anhaenge.put(a); erg.anh++; });
   });
   return erg;
 }
