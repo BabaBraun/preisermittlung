@@ -1086,6 +1086,14 @@
   .pruef-status.fehler{background:var(--bad-bg);color:var(--bad)}
   #report .entwurf{border:2px solid #B42318;background:#FEF3F2;color:#7A271A;padding:10px 14px;margin:0 0 14px;font-size:12.5px;line-height:1.5;break-inside:avoid}
   #report .entwurf ul{margin:6px 0 0;padding-left:18px}
+
+  /* Seitenumbrüche im Bericht */
+  #report h2,#report h3{break-after:avoid;page-break-after:avoid}
+  #report .kopf-halt,#report .schluss-halt,#report tr,#report figure,#report .signblock,#report .cover .ergebnis,#report .chart{break-inside:avoid;page-break-inside:avoid}
+  #report img{break-inside:avoid;page-break-inside:avoid}
+  #report img.gr{max-width:100%;height:auto;display:block;margin:0 auto}
+  #report .beschr{orphans:3;widows:3}
+  @media print{ #report{padding-bottom:0!important;margin-bottom:0!important} }
 </style>
 </head>
 <body>
@@ -2726,6 +2734,7 @@
 
 <script src="js/kern.js"></script>
 <script src="js/office.js"></script>
+<script src="js/pdf.js"></script>
 <script>
 /* ---------- Helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -6746,6 +6755,7 @@ function druckbericht(){
       : '<div style="color:#777">Keine Abschnitte vorhanden.</div>';
   }
   document.body.classList.add('report-mode');window.scrollTo(0,0);
+  berichtUmbrueche($('report'));   /* nach dem Einblenden: braucht die Höhen der Blöcke */
 }
 
 /* ---------- PDF-Download ---------- */
@@ -6754,25 +6764,56 @@ function pdfName(){
   let n=($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';
   return 'Preisermittlung '+n+'.pdf';
 }
-/* PDF-Baustein (html2pdf) wird erst bei Bedarf vom CDN geladen, mit Integritätsprüfung (D3) */
+/* PDF-Baustein (html2pdf 0.10.1) liegt im Repository (vendor/) und im Service-Worker-Cache — die
+   PDF-Erstellung funktioniert damit auch offline. Integritätsprüfung wie bisher (D3); fehlt die lokale
+   Datei (z. B. einzeln hochgeladene index.html), wird wie früher das CDN versucht. */
+const HTML2PDF_SRI='sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
 function html2pdfLaden(){
   if(window.html2pdf) return Promise.resolve();
-  return new Promise((ok,fehler)=>{
+  const laden=src=>new Promise((ok,fehler)=>{
     let s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    s.integrity='sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
-    s.crossOrigin='anonymous'; s.onload=()=>ok(); s.onerror=()=>fehler(new Error('offline'));
+    s.src=src; s.integrity=HTML2PDF_SRI; s.crossOrigin='anonymous';
+    s.onload=()=>window.html2pdf?ok():fehler(new Error('leer')); s.onerror=()=>{ s.remove(); fehler(new Error('nicht geladen')); };
     document.body.appendChild(s);
   });
+  return laden('vendor/html2pdf.bundle.min.js')
+    .catch(()=>laden('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'));
 }
+/* Seitenumbrüche: Überschrift und folgender Block bleiben zusammen (Druck und PDF). Grundrisse werden für das
+   PDF zu Bildern, weil html2canvas die SVG-Pläne falsch skaliert. */
+function berichtUmbrueche(r){
+  const zusammen=(els,kl)=>{ let w=document.createElement('div'); w.className=kl||'kopf-halt'; els[0].before(w); w.append(...els); };
+  /* Überschrift + folgender Block, wenn dieser klein ist (unter ~ einer halben Seite); große Blöcke laufen
+     über Seiten weiter, die Überschrift hält dort über break-after:avoid Anschluss */
+  r.querySelectorAll('h2,h3').forEach(h=>{
+    if(h.parentElement&&h.parentElement.classList.contains('kopf-halt')) return;
+    let n=h.nextElementSibling; if(!n||/^H[1-3]$/.test(n.tagName)||n.classList.contains('pagebreak')) return;
+    if(n.getBoundingClientRect().height<450) zusammen([h,n]);
+  });
+  /* Haftungshinweis und Unterschrift gemeinsam, damit die Unterschrift nie allein auf der letzten Seite steht */
+  let sig=r.querySelector('.signblock'), disc=sig&&sig.previousElementSibling;
+  if(sig) zusammen(disc&&disc.classList.contains('disc')?[disc,sig]:[sig],'schluss-halt');
+}
+async function pdfVorbereiten(){ try{ await grSvgAlsBild($('report')); }catch(e){} }
 function pdfOptionen(){
-  return {margin:[12,12,14,12],filename:pdfName(),pagebreak:{mode:['avoid-all','css']},
+  return {margin:[12,12,14,12],filename:pdfName(),
+    pagebreak:{mode:[]},   /* Umbrüche setzt js/pdf.js (seitenAufteilen), siehe pdfErstellen() */
     html2canvas:{scale:2,useCORS:true,ignoreElements:el=>el.classList&&el.classList.contains('no-print')},
     jsPDF:{unit:'mm',format:'a4',orientation:$('report').className==='praesentation'?'landscape':'portrait'}};
 }
+/* PDF über html2pdf mit eigener Seitenaufteilung (js/pdf.js). ziel: 'speichern' oder 'blob' */
+async function pdfErstellen(ziel){
+  await html2pdfLaden(); await pdfVorbereiten();
+  let w=html2pdf().set(pdfOptionen()).from($('report')).toContainer().then(function(){
+    /* Seitenhöhe aus der Breite des Containers: html2canvas rendert den ganzen Container, nicht nur den Bericht */
+    let c=this.prop.container, root=c.firstElementChild||c;
+    ImmoPdf.seitenAufteilen(root,c.getBoundingClientRect().width*this.prop.pageSize.inner.ratio);
+  });
+  return ziel==='blob'?w.outputPdf('blob'):w.save();
+}
 function downloadPDF(){
-  html2pdfLaden().then(()=>html2pdf().set(pdfOptionen()).from($('report')).save())
-    .catch(()=>{ alert('Kein Internet für den direkten PDF-Download.\nEs öffnet sich der Druckdialog – dort "Als PDF speichern" wählen.'); window.print(); });
+  pdfErstellen('speichern')
+    .catch(()=>{ alert('Der PDF-Baustein ließ sich nicht laden.\nEs öffnet sich der Druckdialog – dort „Als PDF speichern“ wählen.'); window.print(); });
 }
 
 /* ---------- Teilen: Datei an das Teilen-Menü des Geräts geben (OneDrive, Dateien, Mail …) ------------
@@ -6817,9 +6858,9 @@ async function pdfTeilen(){
   let r=$('report'), titel=r.dataset.pdfname||'Preisermittlung';
   iaHinweis('PDF wird erstellt …');
   try{ await html2pdfLaden(); }
-  catch(e){ iaHinweis(''); alert('Für das PDF braucht die App einmal eine Internetverbindung.\nOhne Internet: „Drucken“ wählen und dort über Teilen → „In Dateien sichern“.'); return; }
+  catch(e){ iaHinweis(''); alert('Der PDF-Baustein ließ sich nicht laden.\nAlternative: „Drucken“ wählen und dort über Teilen → „In Dateien sichern“.'); return; }
   let blob;
-  try{ blob=await html2pdf().set(pdfOptionen()).from(r).outputPdf('blob'); }
+  try{ blob=await pdfErstellen('blob'); }
   catch(e){ iaHinweis(''); alert('Das PDF konnte nicht erstellt werden.'); return; }
   iaHinweis('');
   await iaTeilen(blob,pdfName(),titel);
