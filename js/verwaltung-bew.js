@@ -7,6 +7,7 @@
 'use strict';
 const V=wurzel.ImmoVerwaltung||(typeof require==='function'?require('./verwaltung.js'):null);
 const BPI=wurzel.ImmoBaupreisindex||(typeof require==='function'?require('./baupreisindex.js'):null);
+const JB=wurzel.ImmoJahresbewertung||(typeof require==='function'?require('./jahresbewertung.js'):null);
 const {datumGueltig,tagNr,isoTag,plusMonate,datumDE,r2}=V;
 
 const ARTEN=[['preiseinschaetzung','Rechnerische Preiseinschätzung'],['gutachten','Verkehrswertgutachten'],['beleihung','Beleihungswertermittlung'],['sonstig','Sonstige Bewertung']];
@@ -18,7 +19,14 @@ function bereinigen(roh,l,zaehler,h){
   l.bewertungen=liste(roh.bewertungen,b=>datumGueltig(b.stichtag)?{id:b.id,stichtag:b.stichtag,art:ART[b.art]?b.art:'preiseinschaetzung',
     status:b.status==='entwurf'?'entwurf':'final',boden:zahl(b.boden),substanz:zahl(b.substanz),ertrag:zahl(b.ertrag),ergebnis:zahl(b.ergebnis),
     bpi:zahl(b.bpi),bpiText:text(b.bpiText,120),projektId:typeof b.projektId==='string'&&ID.test(b.projektId)?b.projektId:null,
-    quelle:text(b.quelle,300),notiz:text(b.notiz,3000)}:null);
+    quelle:text(b.quelle,300),notiz:text(b.notiz,3000),vordruck:b.vordruck&&JB?JB.bereinigen(b.vordruck):null}:null);
+}
+/* Ergebnisse eines Vordrucks (Jahresbewertung) in die Felder der Bewertung übernehmen */
+function ausVordruck(b){
+  if(!b||!b.vordruck||!JB) return b;
+  const r=JB.rechnen(b.vordruck), g=b.vordruck.gebaeude[0], rr=x=>x==null?null:r2(x);
+  return Object.assign(b,{stichtag:b.vordruck.stichtag||b.stichtag,boden:rr(r.boden),substanz:rr(r.substanz),ertrag:rr(r.ertrag),ergebnis:rr(r.ergebnis),
+    bpi:g&&g.bpi||null,bpiText:g?g.bpiText||'':''});
 }
 /* Verlauf aufsteigend nach Stichtag; Veränderung jeweils gegenüber der vorigen abgeschlossenen Bewertung */
 function verlauf(l){
@@ -86,7 +94,7 @@ function stichtagVorschlag(alt,heute){
 }
 
 V.erweiterungRegistrieren(bereinigen);
-const ImmoLvBewertung={ARTEN,ART,STATUS,bereinigen,verlauf,aktuell,naechsterStichtag,fristen,fortschreiben,stichtagVorschlag,zahl};
+const ImmoLvBewertung={ARTEN,ART,STATUS,bereinigen,ausVordruck,verlauf,aktuell,naechsterStichtag,fristen,fortschreiben,stichtagVorschlag,zahl};
 wurzel.ImmoLvBewertung=ImmoLvBewertung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoLvBewertung;
 })(typeof globalThis!=='undefined'?globalThis:this);

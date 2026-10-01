@@ -46,6 +46,26 @@ Liegenschaftsverwaltung → Liegenschaft → Reiter „Bewertungen“:
   abgeschlossenen) in den Fristen. Einheiten können als „Eigennutzung“ markiert werden; sie zählen nicht als
   Leerstand, die Zielmiete gilt dann als fiktive Miete.
 
+## Jahresbewertung (Liegenschaften der Bank)
+
+Startseite → Kachel „Jahresbewertung“ oder Mehr → „Jahresbewertung“ (in der Liegenschaftsverwaltung der Reiter
+„Jahresbewertung“ neben „Übersicht“):
+
+- **Übersicht:** je Objekt eine Zeile, je Stichtag eine Spalte mit Ergebnis, Veränderung zur Vorbewertung und
+  „Entwurf“; darunter die Summe je Stichtag. „Übersicht als Excel“ lädt Übersicht und Einzelwerte herunter.
+- **Vordruck:** ein Tipp auf einen Wert öffnet ihn — Stichtag, Stand, Grund und Boden, je Gebäude Baujahr, BGF,
+  Nutzungsdauer, angepasste RND, Baupreisindex (amtlich per Knopf), NHK-Kostenkennwerte und Anteile je Standardstufe,
+  Pauschalansätze, objektspezifische Merkmale, PV-Anlage, Mieten je Einheit und Gebäude, Bewirtschaftung,
+  Liegenschaftszins, Abschlag für gewerbliche Vermietung. Jede Zahl ist änderbar; Bodenwert, Substanz, Ertrag und
+  Ergebnis oben rechnen beim Tippen mit. Gerechnet wird wie im Excel-Vordruck der Bank, einschließlich seiner
+  Rundungen (Alterswertminderung volle %, Gebäudepreis volle €, Vervielfältiger zwei Stellen). Mehrere Gebäude
+  bekommen je eigene Restnutzungsdauer im Ertrag; der Boden wird nach dem Mietanteil verteilt. Bauteile ohne Anteil
+  (z. B. keine Heizung im Lager) zählen 0.
+- **Fortschreiben:** „Alle fortschreiben“ (oder je Objekt) legt aus dem letzten Vordruck einen Entwurf zum neuen
+  Stichtag an: amtlicher Baupreisindex je Gebäudeart, angepasste RND um die vergangenen Jahre verringert.
+- Die Vordrucke gehören zur Liegenschaft (Reiter „Bewertungen“, Knopf „Vordruck“) und sind in der Datensicherung
+  der Verwaltung enthalten.
+
 ## Prüfung
 
 42 Unit-Tests und 39 Browsertests im vollständigen Lauf bestanden. Zusätzlich ist der tatsächliche Textkontrast der aktiven Navigation, Arbeitsschritte und des Exportbuttons im iPhone-Dunkelmodus geprüft (mindestens 4,5:1). Fotos, Sicherungen, ältere Formate, Rechenwerte und Office-/PDF-Dateien wurden erneut geprüft.

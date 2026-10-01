@@ -1,0 +1,66 @@
+{
+  "_hinweis": "Synthetische Prüffälle für den Vordruck der Jahresbewertung (js/jahresbewertung.js) — keine echten Objekte.",
+  "faelle": [
+    {
+      "name": "buero_mit_pv",
+      "vordruck": {
+        "stichtag": "2025-12-31",
+        "boden": [{"text": "Grundstück", "flaeche": 412.5, "brw": 320, "abschlag": 10}],
+        "gebaeude": [{"text": "Bürogebäude", "baujahr": 1995, "bgf": 640, "gnd": 80, "rnd": 52, "abschlagBauweise": 5,
+          "bpiArt": "buero", "bpi": 136.2, "bpiFaktor": 1.4472,
+          "kosten1": [655, 730, 930, 1520, 1900], "kosten2": [0, 0, 0, 0, 0],
+          "anteile": [[0, 0.4, 0.4, 0, 0.2], [0, 0, 0.7, 0.3, 0], [0, 0, 0.6, 0.4, 0], [0, 0, 0.5, 0.5, 0], [0, 0, 0.5, 0.5, 0],
+                      [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0.5, 0.5]]}],
+        "pauschal": [{"text": "Außenanlagen", "betrag": 25000}],
+        "objektspezifisch": [{"text": "Instandhaltungsstau", "betrag": -8000}],
+        "pv": {"kwp": 9.9, "kwh": 9500, "eurKwh": 0.2311, "bwk": 15, "lz": 5, "inbetrieb": "2013-04-01", "eegEnde": "2033-04-01"},
+        "mieten": [{"text": "Büro", "flaeche": 640, "monat": 6400, "gebaeude": 0, "abschlag": 0},
+                   {"text": "Laden", "flaeche": 95, "monat": 950, "gebaeude": 0, "abschlag": 5}],
+        "bwk": 20, "lz": 4.5, "abschlagFest": null, "gewichtung": 50
+      }
+    },
+    {
+      "name": "zwei_gebaeude_fester_abschlag",
+      "vordruck": {
+        "stichtag": "2024-12-31",
+        "boden": [{"text": "Anteil I", "flaeche": 800, "brw": 400, "abschlag": 20}, {"text": "Anteil II", "flaeche": 150, "brw": 120, "abschlag": 0}],
+        "gebaeude": [
+          {"text": "Hauptgebäude", "baujahr": 1970, "bgf": 300, "gnd": 80, "rnd": 35, "abschlagBauweise": 0, "bpiArt": "buero", "bpi": 130.9, "bpiFaktor": 1.4472,
+           "kosten1": [605, 675, 860, 1085, 1375], "kosten2": [575, 640, 735, 885, 1105],
+           "anteile": [[0, 0.5, 0.5, 0, 0], [0, 0.5, 0.5, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0.5, 0.5, 0, 0]]},
+          {"text": "Lager", "baujahr": 1970, "bgf": 420, "gnd": 60, "rnd": null, "abschlagBauweise": 0, "bpiArt": "gewerbe", "bpi": 129.1, "bpiFaktor": 1.4368,
+           "kosten1": [245, 275, 350, 490, 640], "kosten2": [245, 275, 350, 490, 640],
+           "anteile": [[0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [1, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 1, 0, 0, 0]]}],
+        "pauschal": [{"text": "Stellplätze", "betrag": 12000}],
+        "objektspezifisch": [],
+        "pv": null,
+        "mieten": [{"text": "Büro", "monat": 1500, "gebaeude": 0}, {"text": "Keller", "monat": 300, "gebaeude": 0},
+                   {"text": "Lager EG", "monat": 600, "gebaeude": 1}, {"text": "Lager UG", "monat": 200, "gebaeude": 1}],
+        "bwk": 18, "lz": 4, "abschlagFest": 400, "gewichtung": 50
+      }
+    },
+    {
+      "name": "grundstueck_ohne_gebaeude",
+      "vordruck": {
+        "stichtag": "2026-12-31",
+        "boden": [{"text": "Parkplatz", "flaeche": 600, "brw": 250, "abschlag": 15}],
+        "gebaeude": [], "pauschal": [{"text": "Befestigung", "betrag": 30000}], "objektspezifisch": [{"text": "Wegerecht", "betrag": -5000}],
+        "pv": null, "mieten": [], "bwk": null, "lz": null, "abschlagFest": null, "gewichtung": 50
+      }
+    },
+    {
+      "name": "gewichtung_rnd_rechnerisch",
+      "vordruck": {
+        "stichtag": "2026-06-30",
+        "boden": [{"text": "Grundstück", "flaeche": 281, "brw": 345, "abschlag": 0}],
+        "gebaeude": [{"text": "Wohn- und Geschäftshaus", "baujahr": 1986, "bgf": 795, "gnd": 80, "rnd": null, "abschlagBauweise": 0, "bpiArt": "wohnen", "bpi": 139.6, "bpiFaktor": 1.4164,
+          "kosten1": [605, 675, 860, 1085, 1375], "kosten2": [575, 640, 735, 885, 1105],
+          "anteile": [[0, 0.5, 0.5, 0, 0], [0, 0.5, 0.5, 0, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0.5, 0.5, 0, 0]]}],
+        "pauschal": [{"text": "Außenanlagen", "betrag": 30000}, {"text": "Stellplätze", "betrag": 7000}],
+        "objektspezifisch": [], "pv": null,
+        "mieten": [{"text": "EG Laden", "monat": 400, "abschlag": 5}, {"text": "1. OG", "monat": 915}, {"text": "UG", "monat": 293.56}],
+        "bwk": 20, "lz": 4.9, "abschlagFest": null, "gewichtung": 70
+      }
+    }
+  ]
+}

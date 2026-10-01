@@ -216,4 +216,5 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 48 | [ ] Sicherung mit vielen Dokumenten: Dateien getrennt sichern (ZIP) statt Base64 im JSON | große Sicherungen auf dem Handy |
 | 49 | [x] Bewertungen je Liegenschaft mit Fortschreibung, amtlicher Baupreisindex BW, Eigennutzung — erledigt 2026-10-01 (D23) | jährliche Bewertung der Liegenschaften der Bank |
 | 50 | [ ] Baupreisindex BW vierteljährlich nachtragen (`js/baupreisindex.js`): August 2026 erscheint im Oktober, November 2026 Anfang 2027 | Stichtag 31.12.2026 braucht den Novemberwert |
-| 51 | [ ] Ertragswert getrennt je Gebäude (eigene Restnutzungsdauer für Neben-/Lagergebäude) und fehlende Bauteile (Kostenanteil 0) in den NHK | Bank- und Lagergebäude in einer Bewertung |
+| 51 | [~] Ertragswert getrennt je Gebäude und fehlende Bauteile (Kostenanteil 0): in der Jahresbewertung umgesetzt (D24); in der Preisermittlung offen | Bank- und Lagergebäude in einer Bewertung |
+| 52 | [x] Jahresbewertung als eigener Bereich mit änderbarem Vordruck der Bank, Fortschreiben aller Objekte, Excel-Übersicht — erledigt 2026-10-01 (D24) | Liegenschaften der Bank 2023/2024/2026 |

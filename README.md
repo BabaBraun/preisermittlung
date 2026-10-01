@@ -59,6 +59,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Übernahme des Ergebnisses aus der Preisermittlung, Fortschreibung auf einen neuen Stichtag (amtlicher Baupreisindex,
   Restnutzungsdauer, PV-Laufzeit) als Entwurf, jährliche Bewertung von Objekten der Bank in den Fristen. Einheiten in
   Eigennutzung (z. B. eigene Filiale) zählen nicht als Leerstand.
+  Jahresbewertung (eigener Bereich): Liegenschaften der Bank je Stichtag nebeneinander, je Objekt und Stichtag ein
+  Vordruck mit allen Angaben des Excel-Vordrucks der Bank (Boden, Gebäude mit NHK-Anteilen je Stufe, Baupreisindex,
+  Restnutzungsdauer, Mieten je Gebäude, PV-Anlage, Pauschalen), jede Zahl änderbar und sofort neu gerechnet — mit den
+  Rundungen des Vordrucks; alle Objekte auf einen neuen Stichtag fortschreiben; Übersicht als Excel.
 
 ## Aufbau
 
@@ -91,6 +95,7 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/verwaltung-bericht.js`, `js/verwaltung-bericht-ui.js` | Jahresbericht, Eigentümerbericht (Word), Anlage V (Excel) |
 | `js/verwaltung-dok.js`, `js/verwaltung-dok-ui.js` | Dokumente je Liegenschaft mit Fristen |
 | `js/verwaltung-bew.js`, `js/verwaltung-bew-ui.js` | Bewertungen je Liegenschaft: Verlauf, Übernahme aus der Preisermittlung, Fortschreibung |
+| `js/jahresbewertung.js`, `js/jahresbewertung-ui.js` | Jahresbewertung nach dem Vordruck der Bank: Rechnung, Übersicht, Vordruck-Editor, Fortschreibung |
 | `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |

@@ -64,3 +64,13 @@
 #lv_overlay .lv-zweck{font-size:12px;color:var(--text-2);max-width:340px;overflow-wrap:anywhere}
 @media(max-width:640px){ #lv_overlay .lv-dl{grid-template-columns:1fr} #lv_overlay .lv-aktionen{white-space:normal} }
 #lv_overlay .lv-bew-notiz{display:inline-block;max-width:52ch;margin-top:3px;color:var(--text-2);line-height:1.45}
+#lv_overlay .jb-zelle{display:inline-flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:7.5em;padding:6px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);cursor:pointer;font:inherit;text-align:right}
+#lv_overlay .jb-zelle:hover{border-color:var(--accent)}
+#lv_overlay .jb-zelle.jb-entwurf{border-style:dashed}
+#lv_overlay .jb-leer{color:var(--muted)}
+#lv_overlay .jb-erg{position:sticky;top:110px;z-index:20;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 14px;padding:10px 12px;border-radius:14px;background:var(--tint);border:1px solid var(--line)}
+#lv_overlay .jb-erg span{display:block;font-size:11.5px;color:var(--muted)}
+#lv_overlay .jb-erg b{font-size:15px;white-space:nowrap}
+#lv_overlay .jb-tbl input,#lv_overlay .jb-tbl select{min-width:0;padding:6px 8px}
+#lv_overlay .jb-tbl td{vertical-align:middle}
+@media (max-width:640px){#lv_overlay .jb-erg{grid-template-columns:repeat(2,minmax(0,1fr))}}

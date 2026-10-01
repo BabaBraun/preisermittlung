@@ -1,3 +1,9 @@
+# Zusammenfassung — Jahresbewertung der Liegenschaften (2026-10-01)
+
+Eigener Bereich „Jahresbewertung“: Objekte × Stichtage, je Objekt und Stichtag ein änderbarer Vordruck nach dem
+Excel-Vordruck der Bank (gleiche Rundungen, mehrere Gebäude mit eigener RND), Fortschreiben aller Objekte, Excel-
+Übersicht (D24). Echte Daten nur über die Sicherungsdatei auf dem Gerät.
+
 # Zusammenfassung — Bewertungen je Liegenschaft und Baupreisindex (2026-10-01)
 
 Reiter „Bewertungen“ in der Liegenschaftsverwaltung: Verlauf mit Veränderung, Übernahme aus der Preisermittlung,

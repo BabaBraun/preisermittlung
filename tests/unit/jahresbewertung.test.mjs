@@ -1,0 +1,84 @@
+/* Jahresbewertung nach dem Vordruck der Bank: Rechnung gegen die unabhängige Python-Rechnung (Dezimalarithmetik,
+   tests/referenz/jahresbewertung_ref.py) mit synthetischen Fällen, dazu Bereinigung, Fortschreibung und Speicherung
+   im Bewertungsverlauf der Liegenschaft. */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
+
+const require = createRequire(import.meta.url);
+const V = require('../../js/verwaltung.js');
+const J = require('../../js/jahresbewertung.js');
+const B = require('../../js/verwaltung-bew.js');
+const PY = pythonMit('json');
+const FAELLE = JSON.parse(readFileSync(new URL('../referenz/jahresbewertung_faelle.json', import.meta.url), 'utf8')).faelle;
+const nahe = (ist, soll, t) => assert.ok(Math.abs(ist - soll) < 0.005, t + ': ist ' + ist + ', soll ' + soll);
+
+test('Vordruck: Ergebnisse wie die unabhängige Python-Rechnung (4 synthetische Fälle)', { skip: !PY && !process.env.CI && 'Python fehlt' }, () => {
+  const soll = pythonJson(PY || 'python', ['tests/referenz/jahresbewertung_ref.py']);
+  for (const f of FAELLE) {
+    const r = J.rechnen(J.bereinigen(f.vordruck)), s = soll[f.name];
+    nahe(r.boden, s.boden, f.name + ' Boden'); nahe(r.ergebnis, s.ergebnis, f.name + ' Ergebnis'); nahe(r.pvWert, s.pv, f.name + ' PV');
+    if (s.substanz == null) assert.equal(r.substanz, null); else { nahe(r.substanz, s.substanz, f.name + ' Substanz'); nahe(r.ertrag, s.ertrag, f.name + ' Ertrag'); }
+    assert.deepEqual(r.gebaeude.map(g => g.preis), s.preise, f.name + ' Gebäudepreise');
+    assert.deepEqual(r.teile.map(t => t.vf), s.vf, f.name + ' Vervielfältiger');
+  }
+});
+
+test('Vordruck: Zwischenwerte von Hand (Rundungen wie im Excel-Vordruck)', () => {
+  const r = J.rechnen(J.bereinigen(FAELLE[0].vordruck)), g = r.gebaeude[0];
+  // Kostenkennwerte nur Zeile 1; Außenwände 0,23 × (0,4×730 + 0,4×930 + 0,2×1900) = 240,12 (wie im Vordruck der Bank)
+  assert.equal(Math.round(g.bauteile[0].kosten * 100) / 100, 240.12);
+  assert.equal(Math.round(g.nhk2010 * 100) / 100, 1120.43);
+  assert.equal(g.nhkBer, 1064);            // RUNDEN(1120,43 − RUNDEN(1120,43 × 5 %)) = RUNDEN(1120,43 − 56) = 1064
+  assert.equal(g.index2010, 197.1);        // RUNDEN(136,2 × 1,4472; 1) = 197,1
+  assert.equal(g.wm, 35);                  // RUNDEN((80 − 52) / 80 × 100) = 35
+  assert.equal(g.preis, 1363);             // RUNDEN(1064 × 1,971 × 0,65) = RUNDEN(1363,15)
+  assert.equal(r.bodenZeilen[0], 118800);  // 412,5 × 320 × 0,9
+  assert.equal(r.teile[0].abschlag, 570);  // 5 % von 950 × 12
+  assert.equal(r.teile[0].vf, 19.97);      // Rentenbarwertfaktor 4,5 % / 52 Jahre
+  // zweiter Fall: Bauteile ohne Anteil (Sanitär, Heizung im Lager) zählen 0; Boden nach Mietanteil verteilt
+  const z = J.rechnen(J.bereinigen(FAELLE[1].vordruck));
+  assert.deepEqual(z.gebaeude[1].bauteile.map(b => b.summeAnteile), [1, 1, 1, 1, 1, 1, 0, 0, 1]);
+  assert.deepEqual(z.gebaeude[0].anteileFehler, []);
+  assert.equal(z.gebaeude[1].rnd, 6);      // GND 60 − (2024 − 1970)
+  assert.equal(Math.round(z.teile[0].bodenAnteil), Math.round(274000 * 21600 / 31200));
+  assert.deepEqual(z.teile.map(t => t.abschlag), [400, 0]);
+  // ohne Gebäude: Boden + Zu-/Abschläge
+  assert.equal(J.rechnen(J.bereinigen(FAELLE[2].vordruck)).ergebnis, 600 * 250 * 0.85 + 30000 - 5000);
+  assert.equal(J.runden(2.5), 3); assert.equal(J.runden(-2.5), -3); assert.equal(J.runden(1.005, 2), 1.01);
+});
+
+test('Vordruck: Bereinigung, leerer Vordruck, Fortschreibung', () => {
+  const v = J.bereinigen(Object.assign({}, FAELLE[0].vordruck, { stichtag: '31.12.2025', boden: [{ flaeche: 'viel', brw: 300 }], fremd: 1,
+    gebaeude: [Object.assign({}, FAELLE[0].vordruck.gebaeude[0], { bpiArt: 'unbekannt', anteile: [[1]] })] }));
+  assert.equal(v.stichtag, null); assert.equal(v.boden[0].flaeche, null); assert.equal(v.fremd, undefined);
+  assert.equal(v.gebaeude[0].bpiArt, 'wohnen'); assert.equal(v.gebaeude[0].anteile.length, 9); assert.deepEqual(v.gebaeude[0].anteile[0], [1, 0, 0, 0, 0]);
+  assert.equal(J.bereinigen(null), null);
+  const leer = J.leer('2026-12-31');
+  assert.equal(leer.gebaeude.length, 1); assert.equal(J.rechnen(leer).ergebnis, 0);
+  const f = J.fortschreiben(FAELLE[0].vordruck, '2026-12-31');
+  assert.equal(f.jahre, 1);
+  assert.deepEqual([f.vordruck.stichtag, f.vordruck.gebaeude[0].bpi, f.vordruck.gebaeude[0].bpiFaktor, f.vordruck.gebaeude[0].rnd], ['2026-12-31', 143.1, 1.4472, 51]);
+  assert.match(f.vordruck.gebaeude[0].bpiText, /Bürogebäude Mai 2026 \(vorläufig\)/);
+  assert.equal(f.vordruck.boden[0].brw, 320);
+  assert.ok(f.hinweise.some(h => /Bodenrichtwert/.test(h)));
+  assert.equal(J.fortschreiben(FAELLE[0].vordruck, '2026-12-31', { rnd: false }).vordruck.gebaeude[0].rnd, 52);
+  const zwei = J.fortschreiben(FAELLE[1].vordruck, '2026-12-31');
+  assert.deepEqual(zwei.vordruck.gebaeude.map(g => [g.bpi, g.rnd]), [[143.1, 33], [140.6, null]]);   // Lager: Gewerbe-Index, RND bleibt rechnerisch
+  assert.ok(zwei.hinweise.some(h => /Fester Abschlag/.test(h)));
+  assert.throws(() => J.fortschreiben(FAELLE[0].vordruck, '2026'), /Stichtag/);
+});
+
+test('Vordruck im Bewertungsverlauf: Ergebnisse übernommen, Sicherung behält den Vordruck', () => {
+  const b = B.ausVordruck({ id: 'b1', status: 'final', vordruck: J.bereinigen(FAELLE[0].vordruck) });
+  const r = J.rechnen(b.vordruck);
+  assert.equal(b.stichtag, '2025-12-31'); assert.equal(b.ergebnis, Math.round(r.ergebnis * 100) / 100);
+  assert.equal(b.bpi, 136.2);
+  const l = V.bereinigen({ id: 'L', name: 'Filiale', eigentuemerArt: 'bank', bewertungen: [b, { id: 'b2', stichtag: '2024-12-31', ergebnis: 1 }] });
+  assert.ok(l.bewertungen[0].vordruck && l.bewertungen[0].vordruck.gebaeude.length === 1);
+  assert.equal(l.bewertungen[1].vordruck, null);
+  const sp = V.sicherungPruefen({ typ: 'immoapp-verwaltung', liegenschaften: [l] });
+  assert.equal(J.rechnen(sp.liegenschaften[0].bewertungen[0].vordruck).ergebnis, r.ergebnis);
+});

@@ -503,3 +503,21 @@ Stichtag mit aktuellem Baupreisindex erstellen.
 **Datenschutz:** Echte Bewertungen der Bank gehören nicht ins öffentliche Repository. Sie werden über die üblichen
 Sicherungsdateien (Projekte, Verwaltung) auf dem Gerät eingespielt; Tests verwenden nur synthetische Werte.
 
+---
+
+## D24 (2026-10-01) — Jahresbewertung als eigener Bereich, Vordruck der Bank änderbar
+
+**Wunsch des Auftraggebers:** Die Bewertungen 2023 und 2024 der Liegenschaften der Bank unter einem eigenen Punkt
+einpflegen, so dass die Angaben noch geändert werden können.
+
+**Entscheidung:** Neuer Bereich „Jahresbewertung“ (Ansicht der Liegenschaftsverwaltung, Kachel und Mehr-Menü). Je
+Objekt und Stichtag ein Vordruck (`l.bewertungen[].vordruck`) mit allen Eingaben des Excel-Vordrucks; Rechnung in
+`js/jahresbewertung.js` exakt nach dem Excel-Rechenweg einschließlich seiner Rundungen (nicht nach dem Rechenkern
+der Preisermittlung, der ohne diese Rundungen und mit einer gemeinsamen RND rechnet). Abgleich: alle 13 Excel-Dateien
+der Bank auf den Cent (lokal geprüft, Daten nicht im Repository; der Summenfehler einer Datei wird richtig gerechnet).
+Im Repository prüft eine unabhängige Python-Rechnung (Dezimalarithmetik) vier synthetische Fälle.
+Ergebnisse des Vordrucks werden beim Speichern in die Felder der Bewertung übernommen (Verlauf, Fristen, Rendite).
+
+**Datenschutz:** Die echten Vordrucke kommen über eine Sicherungsdatei der Verwaltung auf das Gerät; Mieter- und
+Mitarbeiternamen aus den Excel-Dateien werden nicht übernommen.
+

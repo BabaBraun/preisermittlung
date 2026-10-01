@@ -36,7 +36,7 @@ function lvBewertungenHtml(l){
     '<p class="hint">Es entsteht eine Kopie der gewählten Bewertung als Entwurf: neuer Stichtag, amtlicher Baupreisindex Baden-Württemberg (Stand '
     +lvH(ImmoBaupreisindex.monatText(ImmoBaupreisindex.STAND))+'), Restnutzungsdauer und PV-Laufzeit fortgeschrieben. Bodenrichtwert, Mieten und Zinssätze bleiben stehen — bitte in der Bewertung prüfen.</p>');
   const v=LVBW.verlauf(l), akt=LVBW.aktuell(l), naechst=['bank','eigen'].includes(l.eigentuemerArt)?LVBW.naechsterStichtag(l):null, st=lvHeute();
-  const mitProjekt=v.filter(b=>b.projektId&&lvBewProjekt(b.projektId));
+  const mitProjekt=v.filter(b=>(b.projektId&&lvBewProjekt(b.projektId))||b.vordruck);
   const kpis=v.length?'<div class="kpis">'+lvKpi('Letzte Bewertung',akt?lvEur0(akt.ergebnis):'–',akt?'Stichtag '+LVK.datumDE(akt.stichtag)+(akt.status==='entwurf'?' (Entwurf)':''):'')
     +lvKpi('Veränderung',akt&&akt.diffPct!=null?lvBewProzent(akt.diffPct):'–',akt&&akt.diff!=null?(akt.diff>0?'+':'')+lvEur0(akt.diff)+' ggü. '+LVK.datumDE(akt.vorStichtag):'',akt&&akt.diff<0?'lv-kpi-bad':'')
     +(naechst?lvKpi('Nächste Bewertung',LVK.datumDE(naechst),naechst<=st?'fällig':'jährlich zum Stichtag',naechst<=st?'lv-kpi-bad':''):'')+'</div>':'';
@@ -51,7 +51,8 @@ function lvBewertungenHtml(l){
       +'<td>'+(b.bpi?lvH(String(b.bpi).replace('.',','))+(b.bpiText?'<br><span class="lv-klein">'+lvH(b.bpiText)+'</span>':''):'')+'</td>'
       +'<td class="lv-aktionen">'+(p?'<button class="secondary" onclick="lvBewProjektOeffnen(\''+lvQ(p.id)+'\')" data-ic="folder-open">Öffnen</button>'
         +'<button class="secondary" onclick="lvBewNeuRechnen(\''+lvQ(b.id)+'\')" title="Ergebnis aus der verknüpften Bewertung neu übernehmen">Neu rechnen</button>':'')
-      +'<button class="secondary" onclick="LV.form={typ:\'bewertung\',id:\''+lvQ(b.id)+'\'};lvRender()">Bearbeiten</button>'
+      +(b.vordruck&&typeof jbOeffnen==='function'?'<button class="secondary" onclick="jbOeffnen(\''+lvQ(l.id)+'\',\''+lvQ(b.id)+'\')" data-ic="pen">Vordruck</button>'
+        :'<button class="secondary" onclick="LV.form={typ:\'bewertung\',id:\''+lvQ(b.id)+'\'};lvRender()">Bearbeiten</button>')
       +'<button class="secondary" onclick="lvBewLoeschen(\''+lvQ(b.id)+'\')" aria-label="Bewertung löschen" data-ic="trash"></button></td></tr>';
   });
   const knoepfe='<div class="mdb-actions"><button class="primary" onclick="LV.form={typ:\'bewertung\'};lvRender()" data-ic="plus">Bewertung eintragen</button>'
@@ -112,12 +113,12 @@ async function lvBewNeuRechnen(id){
     'Ergebnis neu übernommen: '+lvEur0(e.ergebnis)+'.');
 }
 function lvBewFortFelder(l){
-  const quellen=LVBW.verlauf(l).filter(b=>b.projektId&&lvBewProjekt(b.projektId)).reverse();
-  const q=quellen[0], p=q&&lvBewProjekt(q.projektId), fl=(p&&p.data&&p.data.fields)||{};
+  const quellen=LVBW.verlauf(l).filter(b=>(b.projektId&&lvBewProjekt(b.projektId))||b.vordruck).reverse();
+  const q=quellen[0], p=q&&q.projektId&&lvBewProjekt(q.projektId), fl=(p&&p.data&&p.data.fields)||{};
   const art=ImmoBaupreisindex.artAusFaktor(LVBW.zahl(fl.bpi_faktor))||ImmoBaupreisindex.artAusTyp(fl.ek_typ);
   const st=LVBW.stichtagVorschlag(q&&q.stichtag,lvHeute());
   const name=((p&&p.name)||l.name||'Bewertung').replace(/\s*[–-]\s*Stichtag\s+[\d.]+.*$/,'')+' – Stichtag '+LVK.datumDE(st);
-  return [{id:'bf_quelle',label:'Ausgangsbewertung',typ:'wahl',wert:q?q.id:'',optionen:quellen.map(b=>[b.id,LVK.datumDE(b.stichtag)+' · '+lvBewProjekt(b.projektId).name]),breit:true},
+  return [{id:'bf_quelle',label:'Ausgangsbewertung',typ:'wahl',wert:q?q.id:'',optionen:quellen.map(b=>[b.id,LVK.datumDE(b.stichtag)+' · '+(b.vordruck?'Vordruck Jahresbewertung':lvBewProjekt(b.projektId).name)]),breit:true},
     {id:'bf_stichtag',label:'Neuer Stichtag',typ:'datum',wert:st,pflicht:true},
     {id:'bf_art',label:'Baupreisindex für',typ:'wahl',wert:art,optionen:Object.keys(ImmoBaupreisindex.ARTEN).map(k=>[k,ImmoBaupreisindex.ARTEN[k].name])},
     {id:'bf_name',label:'Name der neuen Bewertung',wert:name,pflicht:true,breit:true},
@@ -125,7 +126,11 @@ function lvBewFortFelder(l){
 }
 async function lvBewFortschreiben(){
   const l=lvAktiv(), r=lvFormLesen(lvBewFortFelder(l)); if(!r.ok){ lvFehlerZeigen(r.fehler); return; }
-  const w=r.werte, q=(l.bewertungen||[]).find(b=>b.id===w.bf_quelle), p=q&&lvBewProjekt(q.projektId);
+  const w=r.werte, q=(l.bewertungen||[]).find(b=>b.id===w.bf_quelle), p=q&&q.projektId&&lvBewProjekt(q.projektId);
+  if(q&&q.vordruck&&!p&&typeof jbNeueFassung==='function'){ LV.form=null; let neu=null;
+    await lvAendern(x=>{ const qq=(x.bewertungen||[]).find(b=>b.id===q.id); try{ neu=jbNeueFassung(x,qq,w.bf_stichtag,w.bf_rnd); }catch(e){ return false; } },
+      'Entwurf zum '+LVK.datumDE(w.bf_stichtag)+' angelegt (Vordruck Jahresbewertung).');
+    return; }
   if(!p){ lvFehlerZeigen(['Die Ausgangsbewertung ist nicht (mehr) in der Preisermittlung gespeichert.']); return; }
   let voll=p;
   if(typeof IA_DB_BEREIT!=='undefined'&&IA_DB_BEREIT){ try{ voll=await iaGet('projekte',p.id)||p; }catch(e){ alert('Die Bewertung konnte nicht gelesen werden: '+iaFehlerText(e)+'.'); return; } }
