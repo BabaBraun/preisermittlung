@@ -74,3 +74,80 @@ test('Jahresbewertung: Übersicht, Vordruck ändern und speichern, fortschreiben
   await expect(lv(page).locator('#jb_editor [data-jb="stichtag"]')).toHaveValue('2026-12-31');
   await keineSkriptfehler(page);
 });
+
+test('Jahresbewertung ohne Liegenschaft: Vorlage wählen, Liegenschaft im Formular anlegen, Kopie zum nächsten Stichtag', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  await lv(page).getByRole('button', { name: 'Vordruck anlegen' }).click();
+  await expect(lv(page).locator('#lvf_jn_objekt')).toHaveValue('__neu');
+  await expect(lv(page).locator('input[name=jn_vorlage]:checked')).toHaveValue('bank');
+  // ohne Bezeichnung und Anschrift: Meldung und Feld sichtbar (nicht unter Kopfzeile und Reitern)
+  await lv(page).getByRole('button', { name: 'Vordruck öffnen', exact: true }).click();
+  await expect(lv(page).locator('#lv_formfehler')).toContainText('Bezeichnung der Liegenschaft fehlt');
+  await expect(lv(page).locator('#lvf_jn_name')).toHaveClass(/lv-fehler/);
+  expect(await sichtbarOben(page, '#lv_formfehler')).toBe(true);
+  await lv(page).locator('#lvf_jn_name').fill('Musterfiliale'); await lv(page).locator('#lvf_jn_ort').fill('Musterstadt');
+  await lv(page).locator('#jb_vorlagen label', { hasText: 'Bankgebäude mit Nebengebäude' }).click();
+  await lv(page).getByRole('button', { name: 'Vordruck öffnen', exact: true }).click();
+  const ed = lv(page).locator('#jb_editor');
+  await expect(ed.locator('h3').first()).toContainText('Musterfiliale (neue Liegenschaft)');
+  await expect(ed.locator('[data-jb="gebaeude.1.text"]')).toHaveValue('Nebengebäude (Lager / Scheune)');
+  await expect(ed.locator('[data-jb="gebaeude.0.bpi"]')).toHaveValue('143,1');
+  // Werte der Hand-Rechnung aus tests/unit/jahresbewertung.test.mjs (Nebengebäude ohne BGF und Miete)
+  for (const [p, w] of [['boden.0.flaeche', '800'], ['boden.0.brw', '400'], ['gebaeude.0.baujahr', '1975'], ['gebaeude.0.bgf', '900'], ['mieten.0.monat', '6000']]) await ed.locator('[data-jb="' + p + '"]').fill(w);
+  await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.012.202,00 €');
+  await ed.getByRole('button', { name: 'Speichern' }).click();
+  await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft „Musterfiliale“ angelegt. Vordruck zum 31.12.2026 gespeichert: Ergebnis 1.012.202 €');
+  const l = await page.evaluate(() => LV.liste.map(x => ({ name: x.name, ort: x.ort, art: x.art, eig: x.eigentuemerArt, n: x.bewertungen.length, status: x.bewertungen[0].status })));
+  expect(l).toEqual([{ name: 'Musterfiliale', ort: 'Musterstadt', art: 'gewerbe', eig: 'bank', n: 1, status: 'entwurf' }]);
+  // zweiter Vordruck: Vorschlag Kopie, Angaben übernommen
+  await lv(page).getByRole('button', { name: 'Vordruck anlegen für Musterfiliale' }).click();
+  await expect(lv(page).locator('input[name=jn_vorlage]:checked')).toHaveValue('kopie');
+  await lv(page).locator('#lvf_jn_stichtag').fill('2027-12-31');
+  await lv(page).getByRole('button', { name: 'Vordruck öffnen', exact: true }).click();
+  await expect(ed.locator('[data-jb="gebaeude.0.bgf"]')).toHaveValue('900');
+  await expect(ed.locator('[data-jb="@quelle"]')).toHaveValue('Kopie des Vordrucks zum 31.12.2026');
+  await ed.getByRole('button', { name: 'Speichern' }).click();
+  await expect(lv(page).locator('.lv-tbl thead')).toContainText('31.12.2027');
+  // neue Liegenschaft wählen blendet die Kopie aus
+  await lv(page).getByRole('button', { name: 'Vordruck anlegen', exact: true }).click();
+  await expect(lv(page).locator('#jb_neu_l')).toBeHidden();
+  await lv(page).locator('#lvf_jn_objekt').selectOption('__neu');
+  await expect(lv(page).locator('#jb_neu_l')).toBeVisible();
+  await expect(lv(page).locator('input[name=jn_vorlage][value=kopie]')).toHaveCount(0);
+  await keineSkriptfehler(page);
+});
+
+test('Jahresbewertung: Sicherung mit Vordrucken direkt einspielen; Liegenschaft ohne Bezeichnung', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  const b = await page.evaluate(v => ImmoLvBewertung.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) }), FALL);
+  const datei = { typ: 'immoapp-verwaltung', version: 1, liegenschaften: [{ id: 'LJB', name: 'Musterfiliale', ort: 'Musterstadt', art: 'gewerbe', eigentuemerArt: 'bank', einheiten: [], vertraege: [], zahlungen: [], mahnungen: [], einstellungen: {}, bewertungen: [b], geaendert: 1 }] };
+  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  const fc = page.waitForEvent('filechooser');
+  await lv(page).getByRole('button', { name: 'Sicherung einspielen' }).click();
+  await (await fc).setFiles({ name: 'sicherung.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(datei)) });
+  await expect(lv(page).locator('.lv-ok')).toContainText('Sicherung eingespielt: 1 neu');
+  await expect(lv(page).locator('#lvt_jahresbewertung')).toHaveClass(/on/);
+  await expect(lv(page).locator('.lv-tbl')).toContainText('1.220.052 €');
+  // Liegenschaft ohne Bezeichnung: Anschrift wird Bezeichnung; ganz leer: Meldung sichtbar
+  await lv(page).locator('#lvt_uebersicht').click();
+  await lv(page).getByRole('button', { name: 'Liegenschaft anlegen' }).last().click();
+  await lv(page).locator('#lvf_strasse').fill('Hauptstraße 1'); await lv(page).locator('#lvf_ort').fill('Musterstadt');
+  await lv(page).locator('.lv-formbox button.primary').click();
+  await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft angelegt');
+  expect(await page.evaluate(() => LV.liste.map(l => l.name).sort())).toEqual(['Hauptstraße 1, Musterstadt', 'Musterfiliale']);
+  await page.evaluate(() => lvNeueLiegenschaft());
+  await lv(page).locator('.lv-formbox button.primary').scrollIntoViewIfNeeded();
+  await lv(page).locator('.lv-formbox button.primary').click();
+  await expect(lv(page).locator('#lv_formfehler')).toContainText('Bezeichnung fehlt');
+  expect(await sichtbarOben(page, '#lv_formfehler')).toBe(true);
+  await keineSkriptfehler(page);
+});
+
+/* Element liegt im sichtbaren Bereich und nicht unter der festen Kopfzeile bzw. den Reitern */
+async function sichtbarOben(page, sel) {
+  return page.evaluate(s => { const e = document.querySelector(s); if (!e || e.hidden) return false; const r = e.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + 10, r.top + Math.min(r.height / 2, 12)); return !!hit && (hit === e || e.contains(hit)); }, sel);
+}

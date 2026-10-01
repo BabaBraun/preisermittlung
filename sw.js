@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-5b6dd58301d8';
+const CACHE = 'immoapp-4321a01c8383';
 const ASSETS = [
   './',
   './Wertermittlung.html',

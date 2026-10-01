@@ -107,6 +107,42 @@ function leer(stichtag){
     gebaeude:[{text:'Hauptgebäude',gnd:80,bpiArt:'wohnen',anteile:BAUTEILE.map(()=>[0,0,1,0,0])}],pauschal:[],objektspezifisch:[],mieten:[],bwk:20,lz:4,gewichtung:50});
 }
 
+/* Vorlagen für einen neuen Vordruck — Aufbau wie die Excel-Vordrucke der Bank; Flächen, Baujahr, Bodenrichtwert und
+   Mieten trägt man selbst ein, alle Werte bleiben änderbar. Kostenkennwerte NHK 2010 je Standardstufe 1–5 (€/m² BGF):
+   Stufen 3–5 amtlich (Anlage 4 ImmoWertV: Geschäftshäuser ohne Wohnungen 930/1.520/1.900, Wohnhäuser mit Mischnutzung
+   860/1.085/1.375), Stufen 1–2 und das Nebengebäude wie im Vordruck der Bank. Gesamtnutzungsdauer wie im Vordruck der
+   Bank (Prüfbericht: Anlage 1 ImmoWertV nennt für Bürogebäude und Banken 60 Jahre). Baupreisindex: amtlicher Wert
+   Baden-Württemberg zum Stichtag. Anteile je Bauteil zunächst ganz in Stufe 3. */
+const VORLAGEN={
+  bank:{name:'Bankgebäude / Filiale',text:'Ein Gebäude mit Bank- oder Büroräumen (Eigennutzung mit fiktiver Miete), Außenstellplätze'},
+  wgh:{name:'Wohn- und Geschäftshaus',text:'Laden, Bank oder Büro im Erdgeschoss, Wohnungen darüber'},
+  bank_lager:{name:'Bankgebäude mit Nebengebäude',text:'Zwei Gebäude (z. B. Lager oder Scheune), je mit eigener Restnutzungsdauer'},
+  grundstueck:{name:'Grundstück / Parkplatz',text:'Ohne Gebäude: Bodenwert, Abschlag, Außenanlagen'},
+  leer:{name:'Leerer Vordruck',text:'Ein Gebäude ohne Vorgaben, alles selbst eintragen'}
+};
+const KK={geschaeft:[655,730,930,1520,1900],misch:[605,675,860,1085,1375],lager:[245,275,350,490,640]};
+function vorlage(key,stichtag){
+  if(!VORLAGEN[key]||key==='leer') return leer(stichtag);
+  const geb=(text,art,kk,gnd)=>{ const g={text,baujahr:null,bgf:null,gnd,rnd:null,abschlagBauweise:0,bpiArt:art,kosten1:kk.slice(),kosten2:[0,0,0,0,0],anteile:BAUTEILE.map(()=>[0,0,1,0,0])};
+    const w=BPI&&datumOk(stichtag)?BPI.wertFuer(art,stichtag):null;
+    if(w){ g.bpi=w.wert; g.bpiFaktor=w.faktor; g.bpiText=w.name+' '+BPI.monatText(w.monat)+(w.vorlaeufig?' (vorläufig)':''); }
+    return g; };
+  const miete=(text,lage,gebaeude)=>({text,lage,flaeche:null,monat:0,gebaeude:gebaeude||0,abschlag:0});
+  const v={stichtag,boden:[{text:'Grundstück',flaeche:null,brw:null,abschlag:0}],gebaeude:[],pauschal:[{text:'Außenanlagen',betrag:0},{text:'Außenstellplätze',betrag:0}],
+    objektspezifisch:[],mieten:[],bwk:20,lz:4,gewichtung:50};
+  if(key==='bank'||key==='bank_lager'){
+    v.gebaeude.push(geb('Bankgebäude','buero',KK.geschaeft,80));
+    v.mieten.push(miete('Bankräume (Eigennutzung, fiktiv)','EG'),miete('Außenstellplätze (fiktiv)','außen'));
+  }
+  if(key==='bank_lager'){ v.gebaeude.push(geb('Nebengebäude (Lager / Scheune)','gewerbe',KK.lager,60)); v.mieten.push(miete('Nebengebäude (fiktiv)','EG',1)); }
+  if(key==='wgh'){
+    v.gebaeude.push(geb('Wohn- und Geschäftshaus','wohnen',KK.misch,80));
+    v.mieten.push(miete('Laden / Büro (vermietet)','EG'),miete('Wohnung (vermietet)','1. OG'),miete('Wohnung (vermietet)','DG'));
+  }
+  if(key==='grundstueck') v.pauschal=[{text:'Außenanlagen, Befestigung (Pflaster, Schotter)',betrag:0}];
+  return bereinigen(v);
+}
+
 /* Fortschreibung auf einen neuen Stichtag: amtlicher Baupreisindex je Gebäude (Gebäudeart), angepasste RND um die
    vergangenen Jahre verringert (wenn gesetzt); PV über den Stichtag automatisch. Übriges bleibt und ist zu prüfen. */
 function fortschreiben(v,stichtag,opt){
@@ -127,7 +163,7 @@ function fortschreiben(v,stichtag,opt){
   return {vordruck:n,hinweise,jahre};
 }
 
-const ImmoJahresbewertung={BAUTEILE,MAX,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,fortschreiben};
+const ImmoJahresbewertung={BAUTEILE,MAX,VORLAGEN,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,vorlage,fortschreiben};
 wurzel.ImmoJahresbewertung=ImmoJahresbewertung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoJahresbewertung;
 })(typeof globalThis!=='undefined'?globalThis:this);

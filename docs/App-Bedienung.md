@@ -51,6 +51,15 @@ Liegenschaftsverwaltung → Liegenschaft → Reiter „Bewertungen“:
 Startseite → Kachel „Jahresbewertung“ oder Mehr → „Jahresbewertung“ (in der Liegenschaftsverwaltung der Reiter
 „Jahresbewertung“ neben „Übersicht“):
 
+- **Vorhandene Bewertungen übernehmen:** „Sicherung einspielen“ (direkt in der Jahresbewertung oder unter
+  „Datensicherung“) und die Sicherungsdatei mit den Vordrucken wählen — die Liegenschaften erscheinen danach in der
+  Übersicht und hier mit allen Stichtagen. Die Datei muss dafür auf dem Gerät liegen (am iPhone z. B. in „Dateien“).
+- **Vordruck anlegen:** Liegenschaft wählen oder gleich im Formular neu anlegen (Bezeichnung, Anschrift; gespeichert
+  als „Objekt der Bank“ zusammen mit dem Vordruck), Stichtag und Vorlage wählen — wie bei „Neue Bewertung“:
+  Bankgebäude / Filiale, Wohn- und Geschäftshaus, Bankgebäude mit Nebengebäude, Grundstück / Parkplatz, leerer
+  Vordruck oder (wenn vorhanden) Kopie des letzten Vordrucks. Die Vorlagen sind wie die Excel-Vordrucke der Bank
+  aufgebaut (NHK 2010, amtlicher Baupreisindex zum Stichtag, Bewirtschaftung 20 %, Liegenschaftszins 4 %); Flächen,
+  Baujahr, Bodenrichtwert und Mieten trägt man im Vordruck ein.
 - **Übersicht:** je Objekt eine Zeile, je Stichtag eine Spalte mit Ergebnis, Veränderung zur Vorbewertung und
   „Entwurf“; darunter die Summe je Stichtag. „Übersicht als Excel“ lädt Übersicht und Einzelwerte herunter.
 - **Vordruck:** ein Tipp auf einen Wert öffnet ihn — Stichtag, Stand, Grund und Boden, je Gebäude Baujahr, BGF,

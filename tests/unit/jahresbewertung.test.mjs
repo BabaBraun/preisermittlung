@@ -71,6 +71,26 @@ test('Vordruck: Bereinigung, leerer Vordruck, Fortschreibung', () => {
   assert.throws(() => J.fortschreiben(FAELLE[0].vordruck, '2026'), /Stichtag/);
 });
 
+test('Vorlagen für neue Vordrucke: Aufbau, amtlicher Index zum Stichtag, Rechnung von Hand', () => {
+  assert.deepEqual(Object.keys(J.VORLAGEN), ['bank', 'wgh', 'bank_lager', 'grundstueck', 'leer']);
+  const aufbau = k => { const v = J.vorlage(k, '2026-12-31'); return [v.gebaeude.map(g => [g.bpiArt, g.gnd, g.bpi, g.kosten1[2]]), v.mieten.map(m => m.gebaeude), v.pauschal.length]; };
+  assert.deepEqual(aufbau('bank'), [[['buero', 80, 143.1, 930]], [0, 0], 2]);
+  assert.deepEqual(aufbau('wgh'), [[['wohnen', 80, 139.6, 860]], [0, 0, 0], 2]);
+  assert.deepEqual(aufbau('bank_lager'), [[['buero', 80, 143.1, 930], ['gewerbe', 60, 140.6, 350]], [0, 0, 1], 2]);
+  assert.deepEqual(aufbau('grundstueck'), [[], [], 1]);
+  assert.deepEqual(J.vorlage('leer', '2026-12-31'), J.leer('2026-12-31'));
+  assert.deepEqual(J.vorlage('unbekannt', '2026-12-31'), J.leer('2026-12-31'));
+  for (const k of Object.keys(J.VORLAGEN)) { const v = J.vorlage(k, '2026-12-31'); assert.deepEqual(J.bereinigen(v), v, k + ' bereinigt'); assert.equal(J.rechnen(v).ergebnis, 0, k + ' leer = 0'); }
+  // Bankgebäude 1975, BGF 900, alle Bauteile Stufe 3 (NHK 930), Grundstück 800 m² × 400 €, Miete 6.000 €/Monat:
+  // Index 143,1 × 1,4472 = 207,1; Alter 51, RND 29, WM 64 %; Preis RUNDEN(930 × 2,071 × 0,36) = 693 €/m²; Substanz 320.000 + 623.700;
+  // Ertrag (72.000 − 14.400 − 12.800) × 16,98 + 320.000 = 1.080.704; Mittel 1.012.202
+  const v = J.vorlage('bank', '2026-12-31');
+  Object.assign(v.boden[0], { flaeche: 800, brw: 400 }); Object.assign(v.gebaeude[0], { baujahr: 1975, bgf: 900 }); v.mieten[0].monat = 6000;
+  const r = J.rechnen(v);
+  assert.deepEqual([J.runden(r.gebaeude[0].nhk2010, 2), r.gebaeude[0].index2010, r.gebaeude[0].rnd, r.gebaeude[0].wm, r.gebaeude[0].preis, r.teile[0].vf], [930, 207.1, 29, 64, 693, 16.98]);
+  nahe(r.substanz, 943700, 'Substanz'); nahe(r.ertrag, 1080704, 'Ertrag'); nahe(r.ergebnis, 1012202, 'Ergebnis');
+});
+
 test('Vordruck im Bewertungsverlauf: Ergebnisse übernommen, Sicherung behält den Vordruck', () => {
   const b = B.ausVordruck({ id: 'b1', status: 'final', vordruck: J.bereinigen(FAELLE[0].vordruck) });
   const r = J.rechnen(b.vordruck);

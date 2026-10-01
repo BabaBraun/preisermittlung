@@ -521,3 +521,23 @@ Ergebnisse des Vordrucks werden beim Speichern in die Felder der Bewertung über
 **Datenschutz:** Die echten Vordrucke kommen über eine Sicherungsdatei der Verwaltung auf das Gerät; Mieter- und
 Mitarbeiternamen aus den Excel-Dateien werden nicht übernommen.
 
+---
+
+## D25 (2026-10-01) — Vordruck anlegen mit Vorlagen; Formularfehler sichtbar
+
+**Anlass:** Rückmeldung des Auftraggebers: Liegenschaft anlegen „funktioniert nicht“, „Vordruck anlegen“ führt zu nichts,
+die Bewertungen 2023/2024 sind nicht zu sehen.
+
+**Befund:** (1) Die Fehlermeldung eines Formulars wurde mit `scrollIntoView({block:'nearest'})` an den oberen Rand
+gescrollt und lag damit unter der festen Kopfzeile und den Reitern — am PC wie am iPhone; „Speichern“ wirkte, als
+passiere nichts (z. B. ohne Bezeichnung). (2) „Vordruck anlegen“ verlangte eine schon angelegte Liegenschaft; ohne
+Liegenschaft blieb nur eine Meldung. (3) Die Bewertungen kommen nur über die Sicherungsdatei auf das Gerät (echte Daten
+nicht im Repository); der Weg dorthin war in der Jahresbewertung nicht zu sehen.
+
+**Entscheidung:** Fehler werden oben und über den Knöpfen gezeigt, das erste rot markierte Feld wird unterhalb von
+Kopfzeile und Reitern in den sichtbaren Bereich geholt. Ohne Bezeichnung gilt die Anschrift. „Vordruck anlegen“ bietet
+Vorlagen wie „Neue Bewertung“ und legt bei Bedarf die Liegenschaft mit an (erst beim Speichern des Vordrucks, als
+„Objekt der Bank“). Vorlagen in `js/jahresbewertung.js` (`VORLAGEN`, `vorlage()`): Aufbau, Kostenkennwerte, GND,
+Bewirtschaftung und Zins wie in den Excel-Vordrucken der Bank (NHK 2010 Stufen 3–5 amtlich), amtlicher Baupreisindex
+zum Stichtag; alle Werte änderbar. „Sicherung einspielen“ steht direkt in der Jahresbewertung und auf der leeren Übersicht.
+

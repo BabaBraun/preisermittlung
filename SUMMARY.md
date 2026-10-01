@@ -1,3 +1,10 @@
+# Zusammenfassung — Jahresbewertung: Vordruck anlegen, Fehlermeldungen (2026-10-01)
+
+„Vordruck anlegen“ funktioniert jetzt auch ohne vorhandene Liegenschaft: Vorlage wählen (Bankgebäude, Wohn- und
+Geschäftshaus, Bankgebäude mit Nebengebäude, Grundstück, leer, Kopie) und die Liegenschaft im selben Formular anlegen.
+„Sicherung einspielen“ direkt in der Jahresbewertung und auf der leeren Übersicht. Behoben: Fehlermeldungen der
+Formulare lagen unter Kopfzeile und Reitern, Speichern wirkte wirkungslos; ohne Bezeichnung gilt jetzt die Anschrift (D25).
+
 # Zusammenfassung — Jahresbewertung der Liegenschaften (2026-10-01)
 
 Eigener Bereich „Jahresbewertung“: Objekte × Stichtage, je Objekt und Stichtag ein änderbarer Vordruck nach dem

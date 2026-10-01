@@ -88,14 +88,31 @@ function lvFormLesen(liste){
   });
   return {ok:!fehler.length,werte:w,fehler};
 }
+/* Fehler oben im Formular und direkt über den Knöpfen zeigen; das erste rot markierte Feld (sonst die Meldung) so in den
+   sichtbaren Bereich holen, dass es nicht unter der festen Kopfzeile und den Reitern liegt */
 function lvFehlerZeigen(fehler){
-  const el=document.getElementById('lv_formfehler');
-  if(el){ el.innerHTML=fehler.length?'<b>Bitte prüfen:</b> '+fehler.map(lvH).join(' · '):''; el.hidden=!fehler.length; if(fehler.length) el.scrollIntoView({block:'nearest'}); }
+  const el=document.getElementById('lv_formfehler'), unten=document.getElementById('lv_formfehler_unten');
+  const html=fehler.length?'<b>Bitte prüfen:</b> '+fehler.map(lvH).join(' · '):'';
+  if(unten){ unten.innerHTML=html; unten.hidden=!fehler.length; }
+  if(el){ el.innerHTML=html; el.hidden=!fehler.length;
+    if(fehler.length){ const box=el.closest('.lv-formbox'), feld=box&&box.querySelector('.lv-fehler');
+      // Meldung und erstes Feld zusammen zeigen, wenn beide hineinpassen; sonst das Feld
+      if(feld&&feld.getBoundingClientRect().bottom-el.getBoundingClientRect().top>lvSichtHoehe()-24) lvZeigen(feld); else lvZeigen(el,12);
+      if(feld){ try{ feld.focus({preventScroll:true}); }catch(e){} } } }
   else if(fehler.length) alert('Bitte prüfen:\n'+fehler.join('\n'));
 }
-function lvFormRahmen(titel,felderHtml,speichern,abbrechen,zusatz){
+function lvFestHoehe(){ const o=document.getElementById('lv_overlay'), kopf=o&&o.querySelector('.mdb-head'), tabs=document.getElementById('lv_tabs'); return (kopf?kopf.offsetHeight:0)+(tabs?tabs.offsetHeight:0); }
+function lvSichtHoehe(){ const o=document.getElementById('lv_overlay'); return o?o.clientHeight-lvFestHoehe():0; }
+function lvZeigen(el,rand){
+  const o=document.getElementById('lv_overlay'); if(!o||!el) return;
+  const fest=lvFestHoehe(), r=el.getBoundingClientRect(), ro=o.getBoundingClientRect();
+  if(rand==null) rand=Math.max(16,(o.clientHeight-fest-r.height)/3);
+  o.scrollTop=Math.max(0,o.scrollTop+(r.top-ro.top)-fest-rand);
+}
+function lvFormRahmen(titel,felderHtml,speichern,abbrechen,zusatz,knopf){
   return '<div class="mdb-box lv-formbox"><h3>'+lvH(titel)+'</h3><div id="lv_formfehler" class="lv-warn" hidden></div>'+felderHtml+(zusatz||'')
-    +'<div class="mdb-actions"><button class="primary" onclick="'+speichern+'" data-ic="check">Speichern</button><button class="secondary" onclick="'+(abbrechen||'lvFormZu()')+'">Abbrechen</button></div></div>';
+    +'<div id="lv_formfehler_unten" class="lv-warn" hidden></div>'
+    +'<div class="mdb-actions"><button class="primary" onclick="'+speichern+'" data-ic="check">'+lvH(knopf||'Speichern')+'</button><button class="secondary" onclick="'+(abbrechen||'lvFormZu()')+'">Abbrechen</button></div></div>';
 }
 function lvFormZu(){ LV.form=null; lvRender(); }
 
@@ -213,7 +230,9 @@ function lvUebersichtHtml(){
   if(!LV.liste.length) return lvBox('Liegenschaftsverwaltung',
     '<p>Hier verwaltest du Liegenschaften von Kunden, eigene Objekte und Objekte der Bank: Einheiten, Mieter und Verträge, Sollmieten und Zahlungseingänge mit Rückständen, Mahnungen und Kaution.</p>'
     +'<p class="hint">Alle Angaben bleiben auf diesem Gerät. Mieterdaten sind personenbezogene Daten — nur erfassen, was für die Verwaltung nötig ist, und regelmäßig über „Datensicherung“ sichern.</p>'
-    +'<div class="mdb-actions"><button class="primary" onclick="lvNeueLiegenschaft()" data-ic="plus">Erste Liegenschaft anlegen</button></div>');
+    +'<div class="mdb-actions"><button class="primary" onclick="lvNeueLiegenschaft()" data-ic="plus">Erste Liegenschaft anlegen</button>'
+    +'<button class="secondary" onclick="lvSicherungEinspielen()" data-ic="folder-open">Sicherung einspielen</button></div>'
+    +'<p class="hint">Liegenschaften der Bank mit ihren Jahresbewertungen: die Sicherungsdatei über „Sicherung einspielen“ laden — danach stehen sie hier und unter „Jahresbewertung“.</p>');
   let E=0,verm=0,eig=0,kalt=0,rueck=0,schwelle=0;
   const zeilen=LV.liste.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map(l=>{
     const k=LVK.kennzahlen(l,st); E+=k.einheiten; verm+=k.vermietet; eig+=k.eigen; kalt+=k.kaltMonat; rueck+=k.rueckstand; schwelle+=k.kuendigungsschwelle;
@@ -295,6 +314,9 @@ function lvSchnellLesen(){
   return {einheit:e,vertrag:v};
 }
 async function lvStammSpeichern(id){
+  // ohne Bezeichnung die Anschrift verwenden (Straße, Ort), statt das Speichern abzulehnen
+  const nm=document.getElementById('lvf_name');
+  if(nm&&!nm.value.trim()){ const t=['strasse','ort'].map(k=>((document.getElementById('lvf_'+k)||{}).value||'').trim()).filter(Boolean).join(', '); if(t) nm.value=t; }
   const r=lvFormLesen(lvStammFelder());
   if(r.werte.iban&&!LVK.ibanGueltig(r.werte.iban)){ r.ok=false; r.fehler.push('IBAN: Prüfziffer stimmt nicht'); const el=document.getElementById('lvf_iban'); if(el) el.classList.add('lv-fehler'); }
   if(!r.ok){ lvFehlerZeigen(r.fehler); return; }
@@ -307,7 +329,7 @@ async function lvStammSpeichern(id){
     const q=lvSchnellLesen(); if(!q) return;
     const l={id:LVK.neueId('L'),einheiten:[],vertraege:[],zahlungen:[],mahnungen:[],einstellungen:{}};
     setzen(l);
-    if(q.einheit){ l.einheiten.push(q.einheit); if(q.vertrag) l.vertraege.push(q.vertrag); }
+    if(q.einheit){ if(l.art==='gewerbe') q.einheit.art='gewerbe'; l.einheiten.push(q.einheit); if(q.vertrag) l.vertraege.push(q.vertrag); }
     try{ await lvSpeichern(l); }catch(e){ alert('Die Liegenschaft konnte nicht gespeichert werden ('+lvFehlerText(e)+').'); return; }
     LV.aktivId=l.id;
     if(q.einheit){ LV.reiter='ueberblick'; LV.form=null; lvMeldung('Liegenschaft angelegt'+(q.vertrag?' mit Einheit, Mieter und Miete':' mit Einheit')+'.'); }

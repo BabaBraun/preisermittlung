@@ -21,15 +21,17 @@ function jbAnsichtHtml(){
   let kopf='';
   if(f.typ==='jb_fort') kopf=lvFormRahmen('Auf einen neuen Stichtag fortschreiben',lvFelder(jbFortFelder(f.lId),'two'),'jbFortschreiben()',null,
     '<p class="hint">Je Objekt entsteht aus dem letzten Vordruck ein Entwurf: neuer Stichtag, amtlicher Baupreisindex Baden-Württemberg je Gebäudeart (Stand '
-    +lvH(ImmoBaupreisindex.monatText(ImmoBaupreisindex.STAND))+'), angepasste Restnutzungsdauer um die vergangenen Jahre verringert. Bodenrichtwerte, Mieten und Zinssätze bleiben stehen — im Vordruck prüfen.</p>');
-  if(f.typ==='jb_neu') kopf=lvFormRahmen('Vordruck anlegen',lvFelder(jbNeuFelder(f.lId),'two'),'jbNeuAnlegen()',null,
-    '<p class="hint">Leerer Vordruck oder Kopie des letzten Vordrucks dieses Objekts. Gespeichert wird erst mit „Speichern“ im Vordruck.</p>');
-  const knoepfe='<div class="mdb-actions">'+(obj.some(jbLetzter)?'<button class="primary" onclick="LV.form={typ:\'jb_fort\'};lvRender()" data-ic="calendar">Alle fortschreiben</button>':'')
-    +'<button class="secondary" onclick="LV.form={typ:\'jb_neu\'};lvRender()" data-ic="plus">Vordruck anlegen</button>'
-    +(obj.length?'<button class="secondary" onclick="jbExcel()" data-ic="download">Übersicht als Excel</button>':'')+'</div>';
+    +lvH(ImmoBaupreisindex.monatText(ImmoBaupreisindex.STAND))+'), angepasste Restnutzungsdauer um die vergangenen Jahre verringert. Bodenrichtwerte, Mieten und Zinssätze bleiben stehen — im Vordruck prüfen.</p>','Entwürfe anlegen');
+  if(f.typ==='jb_neu') kopf=jbNeuHtml(f.lId);
+  const offen=f.typ==='jb_neu'||f.typ==='jb_fort';
+  const knoepfe=offen?'':'<div class="mdb-actions">'+(obj.some(jbLetzter)?'<button class="primary" onclick="jbFormAuf(\'jb_fort\')" data-ic="calendar">Alle fortschreiben</button>':'')
+    +'<button class="'+(obj.length?'secondary':'primary')+'" onclick="jbFormAuf(\'jb_neu\')" data-ic="plus">Vordruck anlegen</button>'
+    +(obj.length?'<button class="secondary" onclick="jbExcel()" data-ic="download">Übersicht als Excel</button>':'')
+    +'<button class="secondary" onclick="lvSicherungEinspielen()" data-ic="folder-open">Sicherung einspielen</button></div>';
   if(!obj.length) return kopf+lvBox('Jahresbewertung',
     '<p>Hier stehen die jährlichen Preiseinschätzungen der Liegenschaften der Bank (und eigener Objekte) nebeneinander — je Objekt und Stichtag ein Vordruck mit allen Angaben wie im Excel-Vordruck: Boden, Gebäude mit NHK, Baupreisindex, Restnutzungsdauer, Mieten, PV-Anlage. Jede Zahl lässt sich ändern, das Ergebnis rechnet sofort neu.</p>'
-    +'<p class="hint">Zum Start eine Liegenschaft mit Eigentümer „Objekt der Bank“ anlegen und einen Vordruck dazu, oder eine Sicherung der Verwaltung mit Vordrucken einspielen (Datensicherung).</p>'+knoepfe);
+    +'<p class="hint"><b>Vorhandene Bewertungen übernehmen:</b> „Sicherung einspielen“ und die Datei mit den Vordrucken wählen (z. B. „ImmoApp Jahresbewertung – Liegenschaften der Bank.json“) — die Liegenschaften erscheinen dann hier und in der Übersicht. '
+    +'<b>Neu beginnen:</b> „Vordruck anlegen“, Vorlage wählen und die Liegenschaft gleich dort anlegen.</p>'+knoepfe);
   const stichtage=[...new Set(obj.flatMap(l=>(l.bewertungen||[]).map(b=>b.stichtag)))].sort();
   const summen={}, anzahl={};
   const zeilen=obj.map(l=>{
@@ -45,8 +47,8 @@ function jbAnsichtHtml(){
         +(b.status==='entwurf'?'<span class="lv-klein">Entwurf</span>':'')+(b.vordruck?'':'<span class="lv-klein">ohne Vordruck</span>')+'</button></td>'; });
     const letzter=jbLetzter(l);
     return '<tr><td class="strong">'+lvH(l.name)+'<br><span class="lv-klein">'+lvH(lvAdresse(l))+'</span></td>'+zellen.join('')
-      +'<td class="lv-aktionen">'+(letzter?'<button class="secondary" onclick="LV.form={typ:\'jb_fort\',lId:\''+lvQ(l.id)+'\'};lvRender()">Fortschreiben</button>':'')
-      +'<button class="secondary" onclick="LV.form={typ:\'jb_neu\',lId:\''+lvQ(l.id)+'\'};lvRender()" data-ic="plus" aria-label="Vordruck anlegen"></button></td></tr>';
+      +'<td class="lv-aktionen">'+(letzter?'<button class="secondary" onclick="jbFormAuf(\'jb_fort\',\''+lvQ(l.id)+'\')">Fortschreiben</button>':'')
+      +'<button class="secondary" onclick="jbFormAuf(\'jb_neu\',\''+lvQ(l.id)+'\')" data-ic="plus" aria-label="Vordruck anlegen für '+lvH(l.name)+'"></button></td></tr>';
   });
   zeilen.push('<tr class="lv-summe"><td class="strong">Summe</td>'+stichtage.map(st=>'<td class="r strong">'+(summen[st]?lvEur0(summen[st])+(anzahl[st]<obj.length?'<br><span class="lv-klein">'+anzahl[st]+' von '+obj.length+' Objekten</span>':''):'–')+'</td>').join('')+'<td></td></tr>');
   return kopf+lvBox('Jahresbewertung der Liegenschaften',lvTabelle(['Objekt'].concat(stichtage.map(st=>({t:LVK.datumDE(st),r:1})),['']),zeilen)
@@ -81,19 +83,58 @@ function jbNeueFassung(x,quelle,stichtag,rnd){
     notiz:'Zu prüfen:\n– '+f.hinweise.join('\n– '),vordruck:f.vordruck};
   LVBW.ausVordruck(b); x.bewertungen=(x.bewertungen||[]).concat([b]); return b;
 }
+function jbFormAuf(typ,lId){ LV.form={typ,lId:lId||null}; lvMeldung(''); lvRender(); jbNachOben(); }
+const JB_NEU_L='__neu';
+const JB_ART_AUS_VORLAGE={bank:'gewerbe',bank_lager:'gewerbe',wgh:'gemischt',grundstueck:'sonstig',leer:'gewerbe'};
 function jbNeuFelder(lId){
-  return [{id:'jn_objekt',label:'Liegenschaft',typ:'wahl',wert:lId||(LV.liste[0]||{}).id||'',optionen:LV.liste.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map(l=>[l.id,l.name]),breit:true},
-    {id:'jn_stichtag',label:'Stichtag',typ:'datum',wert:lvHeute().slice(0,4)+'-12-31',pflicht:true},
-    {id:'jn_basis',label:'Ausgangspunkt',typ:'wahl',wert:'kopie',optionen:[['kopie','Kopie des letzten Vordrucks (falls vorhanden)'],['leer','leerer Vordruck']]}];
+  const liste=LV.liste.slice().sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  const vor=lId||(jbObjekte()[0]||{}).id||JB_NEU_L;
+  return [{id:'jn_objekt',label:'Liegenschaft',typ:'wahl',wert:vor,optionen:[[JB_NEU_L,'＋ Neue Liegenschaft anlegen']].concat(liste.map(l=>[l.id,l.name])),breit:true},
+    {id:'jn_stichtag',label:'Wertermittlungsstichtag',typ:'datum',wert:lvHeute().slice(0,4)+'-12-31',pflicht:true}];
+}
+const JB_NEU_L_FELDER=[{id:'jn_name',label:'Bezeichnung der Liegenschaft',pflicht:true,platzhalter:'z. B. Filiale Musterstadt'},{id:'jn_strasse',label:'Straße und Hausnummer'},
+  {id:'jn_plz',label:'PLZ'},{id:'jn_ort',label:'Ort'}];
+function jbStandardVorlage(l){ return !l?'bank':l.art==='gemischt'?'wgh':l.art==='sonstig'?'grundstueck':'bank'; }
+function jbVorlagenHtml(lId,gewaehlt){
+  const l=LV.liste.find(x=>x.id===lId), q=l&&jbLetzter(l);
+  const wahl=[].concat(q?[['kopie','Kopie des letzten Vordrucks','Vordruck zum '+LVK.datumDE(q.stichtag)+' mit allen Angaben, Baupreisindex zum neuen Stichtag']]:[],
+    Object.entries(JBK.VORLAGEN).map(([k,x])=>[k,x.name,x.text]));
+  if(!wahl.some(w=>w[0]===gewaehlt)) gewaehlt=q?'kopie':jbStandardVorlage(l);
+  return wahl.map(([k,t,h])=>'<label class="jb-vorlage'+(k===gewaehlt?' on':'')+'"><input type="radio" name="jn_vorlage" value="'+k+'"'+(k===gewaehlt?' checked':'')
+    +' onchange="jbVorlageWahl()"> <span><b>'+lvH(t)+'</b><span class="lv-klein">'+lvH(h)+'</span></span></label>').join('');
+}
+function jbNeuHtml(lId){
+  const felder=jbNeuFelder(lId), vor=felder[0].wert;
+  return lvFormRahmen('Vordruck anlegen',lvFelder(felder,'two')
+    +'<div id="jb_neu_l"'+(vor===JB_NEU_L?'':' hidden')+'>'+lvFelder(JB_NEU_L_FELDER,'four')+'<p class="hint">Die Liegenschaft wird als „Objekt der Bank“ mit dem Vordruck gespeichert; Einheiten, Mieter und weitere Angaben lassen sich später in der Übersicht ergänzen.</p></div>'
+    +'<fieldset class="jb-vorlagen"><legend>Vordruck</legend><div id="jb_vorlagen">'+jbVorlagenHtml(vor===JB_NEU_L?null:vor,null)+'</div></fieldset>',
+    'jbNeuAnlegen()',null,'<p class="hint">Die Vorlagen sind wie die Excel-Vordrucke der Bank aufgebaut (NHK 2010, amtlicher Baupreisindex Baden-Württemberg zum Stichtag, Bewirtschaftung 20 %, Liegenschaftszins 4 %); Flächen, Baujahr, Bodenrichtwert und Mieten im Vordruck eintragen. Gespeichert wird erst mit „Speichern“ im Vordruck.</p>','Vordruck öffnen');
+}
+function jbVorlageWahl(){ document.querySelectorAll('#jb_vorlagen .jb-vorlage').forEach(x=>x.classList.toggle('on',!!x.querySelector('input:checked'))); }
+function jbNeuWahl(){
+  const sel=document.getElementById('lvf_jn_objekt'); if(!sel) return;
+  const neu=sel.value===JB_NEU_L, box=document.getElementById('jb_neu_l'), vl=document.getElementById('jb_vorlagen');
+  if(box) box.hidden=!neu;
+  const alt=(document.querySelector('input[name="jn_vorlage"]:checked')||{}).value;
+  if(vl) vl.innerHTML=jbVorlagenHtml(neu?null:sel.value,neu&&alt==='kopie'?null:alt);
 }
 function jbNeuAnlegen(){
   const r=lvFormLesen(jbNeuFelder()); if(!r.ok){ lvFehlerZeigen(r.fehler); return; }
-  const w=r.werte, l=LV.liste.find(x=>x.id===w.jn_objekt); if(!l){ lvFehlerZeigen(['Bitte eine Liegenschaft wählen (zuerst unter „Übersicht“ anlegen).']); return; }
-  const q=jbLetzter(l);
-  const v=w.jn_basis==='kopie'&&q?JBK.fortschreiben(q.vordruck,w.jn_stichtag,{rnd:false}).vordruck:JBK.leer(w.jn_stichtag);
-  if(!v.objekt) v.objekt=l.name;
-  JB_EDIT={lId:l.id,bId:null,v,status:'entwurf',quelle:q&&w.jn_basis==='kopie'?'Kopie des Vordrucks zum '+LVK.datumDE(q.stichtag):'',notiz:''};
-  LV.form={typ:'vordruck'}; lvRender(); jbNachOben();
+  const w=r.werte, vorlage=(document.querySelector('input[name="jn_vorlage"]:checked')||{}).value||'bank';
+  let l=null, neuL=null;
+  if(w.jn_objekt===JB_NEU_L){
+    const nm=document.getElementById('lvf_jn_name');
+    if(nm&&!nm.value.trim()){ const t=['strasse','ort'].map(k=>((document.getElementById('lvf_jn_'+k)||{}).value||'').trim()).filter(Boolean).join(', '); if(t) nm.value=t; }
+    const rl=lvFormLesen(JB_NEU_L_FELDER); if(!rl.ok){ lvFehlerZeigen(rl.fehler); return; }
+    neuL={name:rl.werte.jn_name,strasse:rl.werte.jn_strasse||'',plz:rl.werte.jn_plz||'',ort:rl.werte.jn_ort||'',art:JB_ART_AUS_VORLAGE[vorlage]||'gewerbe'};
+  } else {
+    l=LV.liste.find(x=>x.id===w.jn_objekt); if(!l){ lvFehlerZeigen(['Bitte eine Liegenschaft wählen.']); return; }
+  }
+  const q=l&&jbLetzter(l), kopie=vorlage==='kopie'&&q;
+  const v=kopie?JBK.fortschreiben(q.vordruck,w.jn_stichtag,{rnd:false}).vordruck:JBK.vorlage(vorlage,w.jn_stichtag);
+  if(!v.objekt) v.objekt=(l||neuL).name;
+  JB_EDIT={lId:l?l.id:null,neuL,bId:null,v,status:'entwurf',quelle:kopie?'Kopie des Vordrucks zum '+LVK.datumDE(q.stichtag):'',notiz:''};
+  LV.form={typ:'vordruck'}; lvMeldung(''); lvRender(); jbNachOben();
 }
 function jbOeffnen(lId,bId){
   const l=LV.liste.find(x=>x.id===lId), b=l&&(l.bewertungen||[]).find(x=>x.id===bId); if(!b||!b.vordruck) return;
@@ -116,7 +157,7 @@ function jbEntf(liste,i,text){ return '<button class="secondary jb-x" onclick="j
 function jbPlus(liste,text){ return '<button class="secondary" onclick="jbHinzu(\''+liste+'\')" data-ic="plus">'+lvH(text)+'</button>'; }
 function jbEditorHtml(){
   const E=JB_EDIT, v=E.v, l=LV.liste.find(x=>x.id===E.lId), mehrere=v.gebaeude.length>1;
-  let h='<div class="mdb-box lv-formbox jb-editor" id="jb_editor"><h3>'+lvH((E.bId?'Vordruck · ':'Neuer Vordruck · ')+(l?l.name:''))+'</h3><div id="lv_formfehler" class="lv-warn" hidden></div>';
+  let h='<div class="mdb-box lv-formbox jb-editor" id="jb_editor"><h3>'+lvH((E.bId?'Vordruck · ':'Neuer Vordruck · ')+(l?l.name:E.neuL?E.neuL.name+' (neue Liegenschaft)':''))+'</h3><div id="lv_formfehler" class="lv-warn" hidden></div>';
   h+='<div class="jb-erg">'+[['Bodenwert','boden'],['Substanz','substanz'],['Ertrag','ertrag'],['Ergebnis','ergebnis']].map(([t,k])=>'<div><span>'+t+'</span><b data-jbo="'+k+'"></b></div>').join('')+'</div>';
   h+='<div class="grid three lv-form">'+jbFeld('Wertermittlungsstichtag',jbIn('stichtag',v.stichtag,'datum'))
     +jbFeld('Stand','<select data-jb="@status" data-art="text">'+LVBW.STATUS.map(([k,t])=>'<option value="'+k+'"'+(E.status===k?' selected':'')+'>'+t+'</option>').join('')+'</select>')
@@ -172,7 +213,7 @@ function jbEditorHtml(){
   } else h+='<p class="hint">Ohne Gebäude: Ergebnis = Bodenwert + Pauschalansätze und objektspezifische Merkmale (z. B. befestigter Parkplatz).</p>';
   h+='<div class="grid lv-form">'+jbFeld('Zustand, Modernisierungen, Eindruck','<textarea data-jb="hinweise" data-art="text" rows="4">'+lvH(v.hinweise||'')+'</textarea>',true)
     +jbFeld('Notiz zur Bewertung','<textarea data-jb="@notiz" data-art="text" rows="3">'+lvH(E.notiz||'')+'</textarea>',true)+'</div>';
-  h+='<div class="mdb-actions"><button class="primary" onclick="jbSpeichern()" data-ic="check">Speichern</button><button class="secondary" onclick="jbAbbrechen()">Abbrechen</button>'
+  h+='<div id="lv_formfehler_unten" class="lv-warn" hidden></div><div class="mdb-actions"><button class="primary" onclick="jbSpeichern()" data-ic="check">Speichern</button><button class="secondary" onclick="jbAbbrechen()">Abbrechen</button>'
     +(E.bId?'<button class="danger" onclick="jbLoeschen()" data-ic="trash">Vordruck löschen</button>':'')+'</div></div>';
   return h;
 }
@@ -242,12 +283,19 @@ async function jbSpeichern(){
   if(document.querySelector('#jb_editor .lv-fehler')) fehler.push('Ungültige Zahl in einem rot markierten Feld');
   if(fehler.length){ lvFehlerZeigen(fehler); return; }
   const vordruck=JBK.bereinigen(E.v), r=JBK.rechnen(vordruck);
+  const meldung='Vordruck zum '+LVK.datumDE(vordruck.stichtag)+' gespeichert: Ergebnis '+lvEur0(r.ergebnis)+'.';
+  if(E.neuL){
+    const b={id:LVK.neueId('BW'),art:'preiseinschaetzung',status:E.status||'entwurf',quelle:E.quelle||'',notiz:E.notiz||'',vordruck}; LVBW.ausVordruck(b);
+    const l=Object.assign({id:LVK.neueId('L'),eigentuemerArt:'bank',eigentuemerName:'',kundeId:null,projektId:null,notiz:'',einheiten:[],vertraege:[],zahlungen:[],mahnungen:[],einstellungen:{},bewertungen:[b]},E.neuL);
+    try{ await lvSpeichern(l); }catch(e){ alert('Die Liegenschaft konnte nicht gespeichert werden ('+lvFehlerText(e)+'). Der Vordruck bleibt offen.'); return; }
+    JB_EDIT=null; LV.form=null; lvMeldung('Liegenschaft „'+l.name+'“ angelegt. '+meldung); lvRender(); lvStartHinweis(); return;
+  }
   JB_EDIT=null; LV.form=null;
   await lvAendern(x=>{ x.bewertungen=x.bewertungen||[];
     let b=E.bId?x.bewertungen.find(y=>y.id===E.bId):null;
     if(!b){ b={id:LVK.neueId('BW'),art:'preiseinschaetzung'}; x.bewertungen.push(b); }
     Object.assign(b,{status:E.status||'final',quelle:E.quelle||'',notiz:E.notiz||'',vordruck}); LVBW.ausVordruck(b); },
-    'Vordruck zum '+LVK.datumDE(vordruck.stichtag)+' gespeichert: Ergebnis '+lvEur0(r.ergebnis)+'.',E.lId);
+    meldung,E.lId);
 }
 function jbAbbrechen(){ JB_EDIT=null; LV.form=null; lvRender(); }
 async function jbLoeschen(){
@@ -279,6 +327,7 @@ lvAnsichtRegistrieren('jahresbewertung','Jahresbewertung',()=>jbAnsichtHtml(),'f
   const einrichten=()=>{
     const o=document.getElementById('lv_overlay'), body=document.getElementById('lv_body'); if(!o||!body) return;
     ['input','change'].forEach(ev=>o.addEventListener(ev,e=>{ if(e.target&&e.target.closest&&e.target.closest('#jb_editor')) jbEingabe(e.target); }));
+    o.addEventListener('change',e=>{ if(e.target&&e.target.id==='lvf_jn_objekt') jbNeuWahl(); });
     new MutationObserver(()=>{ if(document.getElementById('jb_editor')) jbAusgaben(); }).observe(body,{childList:true});
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',einrichten); else einrichten();

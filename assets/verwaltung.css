@@ -74,3 +74,13 @@
 #lv_overlay .jb-tbl input,#lv_overlay .jb-tbl select{min-width:0;padding:6px 8px}
 #lv_overlay .jb-tbl td{vertical-align:middle}
 @media (max-width:640px){#lv_overlay .jb-erg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#lv_overlay .jb-vorlagen{border:0;padding:0;margin:16px 0 4px;min-width:0}
+#lv_overlay .jb-vorlagen legend{font-weight:600;font-size:13px;color:var(--text-2);padding:0;margin-bottom:8px}
+#lv_overlay #jb_vorlagen{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+#lv_overlay .jb-vorlage{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;font-size:13.5px;color:var(--text)}
+#lv_overlay .jb-vorlage:hover{border-color:var(--accent)}
+#lv_overlay .jb-vorlage.on{border-color:var(--accent);background:var(--tint)}
+#lv_overlay .jb-vorlage input{margin:3px 0 0;accent-color:var(--accent);flex:0 0 auto}
+#lv_overlay .jb-vorlage b{display:block;font-weight:600}
+#lv_overlay .jb-vorlage .lv-klein{display:block;margin-top:2px}
+#lv_overlay #lv_formfehler_unten{margin:12px 0 0}
