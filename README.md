@@ -33,7 +33,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   und Stichtag ein Vordruck im Aufbau der Excel-Mappe der Bank (Deckblatt, 1. Objektdaten, 2. Bodenrichtwert,
   3. Bautechnische Daten, PV-Anlage, Grund und Boden, Bausubstanz, Mietertrag, Zusammenfassung) — jede Angabe änderbar
   und sofort neu gerechnet, mit den Rundungen des Vordrucks; Vorlagen für neue Vordrucke, alle Liegenschaften auf
-  einen neuen Stichtag fortschreiben, Dokument (Drucken, PDF, Word), Übersicht als Excel.
+  einen neuen Stichtag fortschreiben, Dokument (Drucken, PDF, Word), Übersicht als Excel; historischer Vergleich
+  zweier Stichtage mit Veränderung je Kennzahl (jede Zahl änderbar, ohne Namen und Anschrift).
 
 ## Aufbau
 
@@ -55,6 +56,7 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/pdf.js` | Seitenaufteilung für den PDF-Download |
 | `js/liegenschaften.js`, `js/liegenschaften-ui.js` | Liegenschaften: Kern (Bewertungsverlauf, Sicherung) und Fenster mit Speicher (Datenbank `ia_verwaltung`), Formularen, Ansprechpartner, Datensicherung |
 | `js/jahresbewertung.js`, `js/jahresbewertung-ui.js`, `js/jahresbewertung-editor.js`, `js/jahresbewertung-dok.js` | Preiseinschätzung nach dem Vordruck der Bank: Rechnung und Modell, Übersicht, Vordruck (Deckblatt, Kapitel wie die Excel-Mappe), Dokument (Drucken, PDF, Word), Fortschreibung |
+| `js/liegenschaften-vergleich.js` | Historischer Vergleich zweier Stichtage einer Liegenschaft (Rechnung: `vergleich`, `vergleichSetzen`, `vergleichText` in `js/jahresbewertung.js`) |
 | `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |

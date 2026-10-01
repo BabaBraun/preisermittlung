@@ -73,6 +73,15 @@ Startseite → Kachel „Liegenschaften“ oder Mehr → „Liegenschaften“ (R
   Rundungen (Alterswertminderung volle %, Gebäudepreis volle €, Vervielfältiger zwei Stellen). Mehrere Gebäude
   bekommen je eigene Restnutzungsdauer im Ertrag; der Boden wird nach dem Mietanteil verteilt. Bauteile ohne Anteil
   (z. B. keine Heizung im Lager) zählen 0.
+- **Historischer Vergleich:** „Vergleich“ in der Zeile einer Liegenschaft (oder „Stichtage vergleichen“) stellt zwei
+  Stichtage nebeneinander — vorgewählt der älteste und der neueste Vordruck, beide frei wählbar. Gezeigt werden die
+  Eckdaten (Grundstücksfläche, Bodenrichtwert, Abschlag, BGF, Baujahr, Restnutzungsdauer, Baupreisindex auf Basis 2010,
+  Gebäudepreis je m², Monatsmiete — bei mehreren Gebäuden je Gebäude) und die Preisansätze (Grund und Boden,
+  Bausubstanz, Mietertrag, Mittelwert) mit Veränderung in € und %: gestiegen grün, gesunken rot; Bausubstanz und
+  Mittelwert sind hervorgehoben, darunter ein kurzer Hinweistext. Jede Zahl ist änderbar: Die Änderung gilt für den
+  Vordruck des jeweiligen Stichtags, genau wie dort eingetragen (gerechnete Werte gelb überschrieben, „↺“ rechnet
+  wieder), und wird mit „Speichern“ übernommen. Ohne Namen, ohne Anschrift (nur Objektart und Ort) und ohne Angabe, woher
+  eine Miete stammt — auch im Dokument (Drucken, PDF, Word).
 - **Fortschreiben:** „Alle fortschreiben“ (oder je Liegenschaft) legt aus dem letzten Vordruck einen Entwurf zum neuen
   Stichtag an: amtlicher Baupreisindex je Gebäudeart, angepasste RND um die vergangenen Jahre verringert.
 - **Ansprechpartner:** Name, Anschrift, Telefon und E-Mail für das Deckblatt.

@@ -130,6 +130,9 @@ window.iaSelbsttest=function(){
     pruef('Liegenschaften','Vordruck: Mittel',r.ergebnis,1220052.49,0.005);
     pruef('Liegenschaften','Kapitel wie die Excel-Mappe (mit PV: 8 Kapitel)',J.kapitel(v).summe,8);
     pruef('Liegenschaften','Eingabe „1.419“ = 1.419 m²',L.zahlEingabe('1.419'),1419);
+    // Historischer Vergleich: Monatsmiete +100 € → Rohertrag +1.200 € − 20 % Bewirtschaftung, × 19,97 = +19.171,20 €
+    const w=J.bereinigen(JSON.parse(JSON.stringify(v))); J.vergleichSetzen(w,'m.monat',7450);
+    pruef('Liegenschaften','Vergleich: Monatsmiete +100 € → Mietertrag +19.171,20 €',J.vergleich(v,w).find(z=>z.key==='ertrag').diff,19171.2,0.005);
   });
 
   sicher('Bausteine','Aufruf',()=>{

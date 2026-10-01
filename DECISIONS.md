@@ -614,3 +614,23 @@ eingetragenen Wert in der Zeile „- Abschlag für gewerbliche Vermietung“ (wi
 Kopie übernehmen eingetragene Werte wie eine kopierte Excel-Datei und listen sie zum Prüfen auf. Einheiten in der Eingabe
 (€/m², Jahre, kWh, kWp) werden überlesen.
 
+---
+
+## D29 (2026-10-01) — Historischer Vergleich zweier Stichtage
+
+**Wunsch des Auftraggebers:** Ein „Historischer Vergleich“ nach seiner Vorlage (Kennzahlen zweier Stichtage, Veränderung
+grün/rot, Bausubstanz und Mittelwert hervorgehoben). Eckdaten wie Gebäudegröße dürfen genannt werden; keine Namen, keine
+Angabe, woher eine Miete stammt, keine genaue Anschrift — und die Felder müssen bearbeitbar bleiben.
+
+**Entscheidung:** Kein fest eingebauter Datensatz einer echten Liegenschaft (die Vorlage sah eine Datei mit Anschrift
+und Werten vor), sondern ein allgemeiner Vergleich je Liegenschaft aus den eigenen Vordrucken — die echten Zahlen
+kommen nur aus der Sicherungsdatei auf dem Gerät; im Repository stehen weiter nur synthetische Testdaten. Gezeigt werden
+Eckdaten (Fläche, Bodenrichtwert, Abschlag, BGF, Baujahr, Restnutzungsdauer, Baupreisindex, Gebäudepreis je m²,
+Monatsmiete als Summe, bei mehreren Gebäuden je Gebäude) und Preisansätze mit Veränderung in € und %. Der
+Baupreisindex steht auf Basis 2010 (Index × Faktor wie im Vordruck), weil die Vordrucke verschiedene Basisjahre nutzen
+(2015 bzw. 2021) — sonst sähe ein Basiswechsel wie ein Rückgang aus. Jede Zahl ist ein Feld; eine Änderung geht in den
+Vordruck des Stichtags (Eingabe bzw. eingetragener Wert wie in D28) und wird erst mit „Speichern“ übernommen — so gibt
+es keine zweite, abweichende Zahl neben dem Vordruck. Die Monatsmiete je Gebäude geht als Jahresrohertrag des Gebäudes
+(× 12) in den Vordruck. Ein kurzer Hinweistext nennt nur die Zahlen (keine Begründungen). Anzeige und Dokument nennen
+Objektart und Ort, aber weder Straße noch Hausnummer, Namen oder Mietzeilen.
+

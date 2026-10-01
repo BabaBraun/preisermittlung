@@ -165,3 +165,46 @@ test('Eingetragene Werte (wie überschriebene Excel-Zellen): gelten an ihrer Ste
   assert.deepEqual(f.vordruck.manuell, s.manuell); assert.ok(f.hinweise.some(h => /Von Hand eingetragene Werte .gelb. übernommen.*g.0.preis, e.0.vf/.test(h)));
 });
 
+
+test('Historischer Vergleich: Kennzahlen zweier Stichtage, Veränderung, Änderung geht in den Vordruck', () => {
+  const a = J.bereinigen(FAELLE[0].vordruck), b = J.fortschreiben(FAELLE[0].vordruck, '2026-12-31').vordruck;
+  const ra = J.rechnen(a), rb = J.rechnen(b), z = J.vergleich(a, b), k = x => z.find(r => r.key === x);
+  assert.deepEqual(z.map(r => r.key), ['boden.0.flaeche', 'boden.0.brw', 'boden.0.abschlag', 'boden', 'gebaeude.0.bgf', 'gebaeude.0.baujahr', 'gebaeude.0.rnd',
+    'g.0.index', 'g.0.preis', 's.gebAussen', 'pv.wert', 'substanz', 'm.monat', 'ertrag', 'ergebnis']);
+  // Werte = Rechnung des Vordrucks; Baupreisindex auf Basis 2010 (Index × Faktor)
+  assert.deepEqual(k('substanz').werte, [ra.substanz, rb.substanz]); assert.deepEqual(k('ergebnis').werte, [ra.ergebnis, rb.ergebnis]);
+  assert.deepEqual(k('g.0.index').werte, [ra.gebaeude[0].index2010, rb.gebaeude[0].index2010]);
+  assert.deepEqual(k('gebaeude.0.rnd').werte, [52, 51]); assert.equal(k('gebaeude.0.rnd').richtung, 'ab');
+  assert.equal(k('boden.0.brw').richtung, 'gleich'); assert.equal(k('boden.0.brw').pct, 0);
+  assert.equal(k('ergebnis').richtung, 'auf'); assert.equal(k('ergebnis').pct, (rb.ergebnis - ra.ergebnis) / ra.ergebnis * 100);
+  assert.deepEqual([k('substanz').hervor, k('ergebnis').hervor, k('ertrag').hervor], ['ja', 'stark', null]);
+  assert.equal(k('ergebnis').label, 'Mittelwert (Preisempfehlung)');
+  // nur Zahlen: keine Mietzeilen, keine Anschrift
+  assert.ok(!z.some(r => /Büro|Laden|Anschrift|Straße/.test(r.label)));
+  const text = J.vergleichText(z).join(' ');
+  assert.match(text, /^Der Mittelwert stieg von 1\.220\.052 € auf /);
+  assert.match(text, /Restnutzungsdauer 52 → 51 Jahre/); assert.match(text, /Unverändert: .*Bodenrichtwert.*Monatsmiete\./);
+  // Monatsmiete +100 €: Rohertrag +1.200 € − 20 % Bewirtschaftung, × Vervielfältiger 19,87 (RND 51 J., 4,5 %: (1,045^51 − 1) / (1,045^51 × 0,045) = 19,868) → Ertrag +19.075,20 €
+  assert.equal(J.vergleichSetzen(b, 'm.monat', 7450), true); assert.deepEqual(b.manuell, { 'm.monat': 7450 });
+  const z2 = J.vergleich(a, b), e2 = z2.find(r => r.key === 'ertrag').werte[1];
+  assert.equal(rb.teile[0].vf, 19.87); assert.ok(Math.abs(e2 - rb.ertrag - 19075.2) < 0.005); assert.deepEqual(z2.find(r => r.key === 'm.monat').manuell, [false, true]);
+  // Eingaben gehen in die Felder des Vordrucks; leer = wieder rechnen; unbekannte Schlüssel nicht
+  J.vergleichSetzen(b, 'boden.0.brw', 340); assert.equal(b.boden[0].brw, 340);
+  J.vergleichSetzen(b, 'boden.0.abschlag', null); assert.equal(b.boden[0].abschlag, 0);
+  J.vergleichSetzen(b, 'm.monat', null); assert.deepEqual(b.manuell, {});
+  assert.equal(J.vergleichSetzen(b, 'gebaeude.0.kosten1', 1), false); assert.equal(J.vergleichSetzen(b, 'gebaeude.5.bgf', 1), false);
+  assert.equal(J.vergleichSetzen(b, 'x y', 1), false);
+  // zwei Gebäude: Monatsmiete je Gebäude (Jahresrohertrag ÷ 12), Änderung als Jahresrohertrag des Gebäudes
+  const c = J.bereinigen(FAELLE[1].vordruck), zc = J.vergleich(c, J.bereinigen(FAELLE[1].vordruck));
+  assert.deepEqual(zc.filter(r => /^e\.\d\.roh$/.test(r.key)).map(r => [r.label, r.werte[0]]), [['Monatsmiete Hauptgebäude', 1800], ['Monatsmiete Lager', 800]]);
+  assert.equal(zc.find(r => r.key === 'm.monat').label, 'Monatsmiete gesamt');
+  J.vergleichSetzen(c, 'e.1.roh', 1000, 12); assert.equal(c.manuell['e.1.roh'], 12000); assert.equal(J.rechnen(c).teile[1].roh, 12000);
+  // verschieden viele Gebäude: Zeilen des zweiten Gebäudes nur auf einer Seite
+  const gem = J.vergleich(a, J.bereinigen(FAELLE[1].vordruck)).find(r => r.key === 'gebaeude.1.bgf');
+  assert.deepEqual([gem.da, gem.werte[0], gem.richtung], [[false, true], null, null]);
+  // ohne Gebäude: Grundstück mit Zu- und Abschlägen
+  const g = J.bereinigen(FAELLE[2].vordruck), zg = J.vergleich(g, g);
+  assert.ok(!zg.some(r => r.gruppe === 'Bausubstanz' || r.gruppe === 'Mietertrag'));
+  assert.equal(zg[zg.length - 1].label, 'Preisansatz Grundstück inkl. Außenanlagen'); assert.equal(zg[zg.length - 1].werte[0], 152500);
+  assert.match(J.vergleichText(zg)[0], /^Der Preisansatz für das Grundstück blieb mit 152\.500 € gleich\.$/);
+});

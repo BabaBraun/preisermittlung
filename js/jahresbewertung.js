@@ -285,7 +285,93 @@ function fortschreiben(v,stichtag,opt){
   return {vordruck:n,hinweise,jahre};
 }
 
-const ImmoJahresbewertung={BAUTEILE,MAX,VORLAGEN,MERKMALE,TEXTE,TEXT_ARTEN,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,vorlage,fortschreiben,kapitel,modell};
+/* ---------- Historischer Vergleich: zwei Vordrucke (Stichtage) einer Liegenschaft nebeneinander ----------
+   Eckdaten und Preisansätze mit Veränderung — bewusst ohne Namen, Anschrift und Herkunft der Mieten (nur Summen). Jede
+   Zeile nennt den Schlüssel, unter dem eine Änderung in den Vordruck geht (vergleichSetzen): Eingaben wie im Vordruck
+   (boden.<i>.flaeche|brw|abschlag, gebaeude.<i>.bgf|baujahr|rnd), gerechnete Werte als eingetragener Wert in v.manuell
+   wie eine überschriebene Excel-Zelle. Der Baupreisindex steht auf Basis 2010 (Index × Faktor wie im Vordruck), damit
+   Stichtage mit verschiedenem Basisjahr vergleichbar sind. Die Monatsmiete je Gebäude geht als Jahresrohertrag (× 12)
+   in die Zeile des Gebäudes (e.<i>.roh). */
+const ROEM=['I','II','III','IV'];
+function vergleich(va,vb){
+  const vs=[va,vb], rs=vs.map(rechnen), zeilen=[];
+  const nB=Math.max(va.boden.length,vb.boden.length), nG=Math.max(va.gebaeude.length,vb.gebaeude.length);
+  const gebName=g=>((vb.gebaeude[g]||va.gebaeude[g]||{}).text||'Gebäude '+(g+1));
+  const Z=(gruppe,key,label,einheit,st,hol,o)=>{
+    o=o||{};
+    const da=vs.map(v=>o.da?!!o.da(v):true); if(!da.some(Boolean)) return;
+    const werte=vs.map((v,j)=>{ if(!da[j]) return null; const x=hol(v,rs[j]); return istWert(x)?x:null; });
+    const [a,b]=werte, d=a!=null&&b!=null?b-a:null;
+    const richtung=d==null?null:Math.abs(d)<0.5*Math.pow(10,-st)?'gleich':d>0?'auf':'ab';
+    const eingabe=/^(boden|gebaeude)\./.test(key);
+    zeilen.push({gruppe,key,label,einheit,st,werte,da,eingabe,faktor:o.faktor||1,fest:!!o.fest,jahr:!!o.jahr,hervor:o.hervor||null,bezug:o.bezug||'',
+      eckdatum:!!o.eckdatum,satz:o.satz||'',diff:richtung==='gleich'?0:d,pct:richtung==='gleich'?0:d!=null&&a!==0?d/Math.abs(a)*100:null,richtung,
+      manuell:vs.map(v=>!eingabe&&istWert((v.manuell||{})[key]))});
+  };
+  const anteil=i=>nB>1?' (Anteil '+ROEM[i]+')':'';
+  for(let i=0;i<nB;i++){ const da=v=>i<v.boden.length;
+    Z('Grund und Boden','boden.'+i+'.flaeche','Grundstücksfläche'+anteil(i),'m²',2,v=>v.boden[i].flaeche,{da,eckdatum:true});
+    Z('Grund und Boden','boden.'+i+'.brw','Bodenrichtwert'+anteil(i),'€/m²',2,v=>v.boden[i].brw,{da,eckdatum:true});
+    Z('Grund und Boden','boden.'+i+'.abschlag','Abschlag Grund und Boden'+anteil(i),'%',2,v=>v.boden[i].abschlag,{da,eckdatum:true}); }
+  Z('Grund und Boden','boden','Preisansatz Grund und Boden','€',2,(v,r)=>r.boden,{fest:true,satz:'Preisansatz Grund und Boden'});
+  for(let g=0;g<nG;g++){ const da=v=>g<v.gebaeude.length, gr='Gebäude: '+gebName(g), bezug=nG>1?gebName(g):'';
+    Z(gr,'gebaeude.'+g+'.bgf','Brutto-Grundfläche (BGF)','m²',2,v=>v.gebaeude[g].bgf,{da,eckdatum:true,bezug});
+    Z(gr,'gebaeude.'+g+'.baujahr','Baujahr','',0,v=>v.gebaeude[g].baujahr,{da,eckdatum:true,jahr:true,bezug});
+    Z(gr,'gebaeude.'+g+'.rnd','Restnutzungsdauer','Jahre',0,(v,r)=>r.gebaeude[g].rnd,{da,eckdatum:true,bezug});
+    Z(gr,'g.'+g+'.index','Baupreisindex (Basis 2010)','',1,(v,r)=>r.gebaeude[g].index2010,{da,eckdatum:true,bezug});
+    Z(gr,'g.'+g+'.preis','Gebäudepreis je m² BGF','€/m²',2,(v,r)=>r.gebaeude[g].preis,{da,eckdatum:true,bezug}); }
+  const mitGeb=v=>v.gebaeude.length>0;
+  if(nG){
+    Z('Bausubstanz','s.gebAussen','Preisansatz Gebäude und Außenanlagen','€',2,(v,r)=>r.gebAussen,{da:mitGeb,fest:true});
+    if(va.pv||vb.pv) Z('Bausubstanz','pv.wert','Barwert PV-Anlage','€',2,(v,r)=>r.pv?r.pv.wert:null,{da:v=>!!v.pv,fest:true,satz:'Barwert PV-Anlage'});
+    Z('Bausubstanz','substanz','Preisansatz Bausubstanz','€',2,(v,r)=>r.substanz,{da:mitGeb,fest:true,hervor:'ja',satz:'Preisansatz Bausubstanz'});
+    if(nG>1) for(let g=0;g<nG;g++) Z('Mietertrag','e.'+g+'.roh','Monatsmiete '+gebName(g),'€',2,
+      (v,r)=>{ const t=r.teile.find(x=>x.gebaeude===g); return (t?t.roh:0)/12; },{da:v=>g<v.gebaeude.length,fest:true,faktor:12,eckdatum:true});
+    Z('Mietertrag','m.monat',nG>1?'Monatsmiete gesamt':'Monatsmiete','€',2,(v,r)=>r.mMonat,{da:mitGeb,fest:true,eckdatum:true});
+    Z('Mietertrag','ertrag','Preisansatz Mietertrag','€',2,(v,r)=>r.ertrag,{da:mitGeb,fest:true,satz:'Preisansatz Mietertrag'});
+    const gew=vs.every(v=>!mitGeb(v)||(v.gewichtung==null?50:v.gewichtung)===50);
+    Z('Ergebnis','ergebnis',gew?'Mittelwert (Preisempfehlung)':'Preisempfehlung (gewichtetes Mittel)','€',2,(v,r)=>r.ergebnis,{fest:true,hervor:'stark',satz:gew?'Der Mittelwert':'Die Preisempfehlung'});
+  } else {
+    if(va.pv||vb.pv) Z('Grund und Boden','pv.wert','Barwert PV-Anlage','€',2,(v,r)=>r.pv?r.pv.wert:null,{da:v=>!!v.pv,fest:true,satz:'Barwert PV-Anlage'});
+    Z('Grund und Boden','s.objektLand','Zu- und Abschläge (Außenanlagen, objektspezifisch)','€',2,(v,r)=>r.objektLand,{fest:true});
+    Z('Ergebnis','ergebnis','Preisansatz Grundstück inkl. Außenanlagen','€',2,(v,r)=>r.ergebnis,{fest:true,hervor:'stark',satz:'Der Preisansatz für das Grundstück'});
+  }
+  return zeilen;
+}
+/* Änderung aus dem Vergleich in den Vordruck schreiben; x = Zahl oder null (leer: Eingabe leeren bzw. wieder rechnen) */
+function vergleichSetzen(v,key,x,faktor){
+  const t=String(key).split('.'), wert=istWert(x)?x*(faktor||1):null;
+  if(t[0]==='boden'||t[0]==='gebaeude'){
+    const o=(v[t[0]]||[])[+t[1]]; if(!o||!['flaeche','brw','abschlag','bgf','baujahr','rnd'].includes(t[2])) return false;
+    o[t[2]]=t[2]==='abschlag'?(wert||0):wert; return true;
+  }
+  if(!/^[a-z]+(\.[a-zA-Z0-9]+){0,3}$/.test(key)) return false;
+  if(!v.manuell||typeof v.manuell!=='object'||Array.isArray(v.manuell)) v.manuell={};
+  if(wert==null) delete v.manuell[key]; else v.manuell[key]=wert;
+  return true;
+}
+/* Kurzer Text zum Vergleich: Ergebnis, Preisansätze, geänderte und gleich gebliebene Eckdaten (nur Zahlen, keine Namen) */
+function vergleichZahl(z,x){ return z.jahr?String(x):z.einheit==='€'?Math.round(x).toLocaleString('de-DE'):x.toLocaleString('de-DE',{maximumFractionDigits:z.st}); }
+function vergleichProzent(p){ return (p>0?'+':p<0?'−':'±')+Math.abs(p).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %'; }
+function vergleichText(zeilen){
+  const s=[], beide=z=>z.werte[0]!=null&&z.werte[1]!=null, eh=z=>z.einheit?' '+z.einheit:'';
+  const name=z=>z.label+(z.bezug?' '+z.bezug:'');
+  const erg=zeilen.find(z=>z.key==='ergebnis');
+  if(erg&&beide(erg)){ const [a,b]=erg.werte;
+    s.push(erg.richtung==='gleich'?erg.satz+' blieb mit '+vergleichZahl(erg,b)+' € gleich.'
+      :erg.satz+(erg.richtung==='auf'?' stieg':' sank')+' von '+vergleichZahl(erg,a)+' € auf '+vergleichZahl(erg,b)+' €'+(erg.pct!=null?' ('+vergleichProzent(erg.pct)+')':'')+'.'); }
+  const ansaetze=zeilen.filter(z=>z.satz&&z.key!=='ergebnis'&&beide(z));
+  if(ansaetze.length) s.push(ansaetze.map(z=>z.satz+' '+(z.richtung==='gleich'?'unverändert':z.pct!=null?vergleichProzent(z.pct):(z.diff>0?'gestiegen':'gesunken'))).join(', ')+'.');
+  const eck=zeilen.filter(z=>z.eckdatum&&beide(z)), anders=eck.filter(z=>z.richtung!=='gleich'), gleich=eck.filter(z=>z.richtung==='gleich');
+  if(anders.length) s.push('Geänderte Eckdaten: '+anders.map(z=>name(z)+' '+vergleichZahl(z,z.werte[0])+' → '+vergleichZahl(z,z.werte[1])+eh(z)).join('; ')+'.');
+  // gleich gebliebene Eckdaten: Bezeichnung einmal, wenn sie überall gleich blieb (z. B. Baujahr beider Gebäude)
+  const kurz=z=>z.label.replace(/ \(Anteil [IV]+\)$/,''), ganz=k=>eck.every(z=>kurz(z)!==k||z.richtung==='gleich');
+  if(gleich.length) s.push('Unverändert: '+[...new Set(gleich.map(z=>ganz(kurz(z))?kurz(z):name(z)))].join(', ')+'.');
+  return s;
+}
+
+const ImmoJahresbewertung={BAUTEILE,MAX,VORLAGEN,MERKMALE,TEXTE,TEXT_ARTEN,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,vorlage,fortschreiben,kapitel,modell,
+  vergleich,vergleichSetzen,vergleichText,vergleichZahl,vergleichProzent};
 wurzel.ImmoJahresbewertung=ImmoJahresbewertung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoJahresbewertung;
 })(typeof globalThis!=='undefined'?globalThis:this);

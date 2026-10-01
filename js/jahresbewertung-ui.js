@@ -17,6 +17,7 @@ function jbLetzter(l){ return (l.bewertungen||[]).filter(b=>b.vordruck).sort((a,
 function jbAnsichtHtml(){
   const f=LV.form||{};
   if(f.typ==='vordruck'&&JB_EDIT) return jbEditorHtml();
+  if(f.typ==='vergleich'&&JB_VG) return jbVergleichHtml();
   const obj=jbObjekte();
   let kopf='';
   if(f.typ==='jb_fort') kopf=lvFormRahmen('Auf einen neuen Stichtag fortschreiben',lvFelder(jbFortFelder(f.lId),'two'),'jbFortschreiben()',null,
@@ -28,6 +29,7 @@ function jbAnsichtHtml(){
   const knoepfe=offen?'':'<div class="mdb-actions">'+(obj.some(jbLetzter)?'<button class="primary" onclick="jbFormAuf(\'jb_fort\')" data-ic="calendar">Alle fortschreiben</button>':'')
     +'<button class="'+(obj.length?'secondary':'primary')+'" onclick="jbFormAuf(\'jb_neu\')" data-ic="plus">Vordruck anlegen</button>'
     +'<button class="secondary" onclick="lvNeueLiegenschaft()" data-ic="building">Liegenschaft anlegen</button>'
+    +(obj.some(jbVgMoeglich)?'<button class="secondary" onclick="jbVergleichAuf()" data-ic="chart">Stichtage vergleichen</button>':'')
     +(obj.length?'<button class="secondary" onclick="jbExcel()" data-ic="download">Übersicht als Excel</button>':'')
     +'<button class="secondary" onclick="lvSicherungEinspielen()" data-ic="folder-open">Sicherung einspielen</button></div>';
   if(!obj.length) return kopf+lvBox('Liegenschaften',
@@ -51,12 +53,13 @@ function jbAnsichtHtml(){
     return '<tr><td class="strong">'+lvH(l.name)+'<br><span class="lv-klein">'+lvH(lvAdresse(l))+'</span></td>'+zellen.join('')
       +'<td class="lv-aktionen"><button class="secondary" onclick="lvLiegenschaftBearbeiten(\''+lvQ(l.id)+'\')" aria-label="Liegenschaft '+lvH(l.name)+' bearbeiten" data-ic="pen"></button>'
       +(letzter?'<button class="secondary" onclick="jbFormAuf(\'jb_fort\',\''+lvQ(l.id)+'\')">Fortschreiben</button>':'')
+      +(jbVgMoeglich(l)?'<button class="secondary" onclick="jbVergleichAuf(\''+lvQ(l.id)+'\')" data-ic="chart" aria-label="Stichtage vergleichen für '+lvH(l.name)+'">Vergleich</button>':'')
       +'<button class="secondary" onclick="jbFormAuf(\'jb_neu\',\''+lvQ(l.id)+'\')" data-ic="plus" aria-label="Vordruck anlegen für '+lvH(l.name)+'"></button></td></tr>';
   });
   if(stichtage.length) zeilen.push('<tr class="lv-summe"><td class="strong">Summe</td>'+stichtage.map(st=>'<td class="r strong">'+(summen[st]?lvEur0(summen[st])+(anzahl[st]<obj.length?'<br><span class="lv-klein">'+anzahl[st]+' von '+obj.length+' Liegenschaften</span>':''):'–')+'</td>').join('')+'<td></td></tr>');
   return kopf+lvBox('Liegenschaften',lvTabelle(['Liegenschaft'].concat(stichtage.map(st=>({t:LVK.datumDE(st),r:1})),['']),zeilen)
     +knoepfe+'<p class="hint">Ergebnis = Mittel aus Substanz- und Ertragsansatz nach dem Vordruck der Bank (ohne Gebäude: Grund und Boden mit Zu- und Abschlägen); Veränderung gegenüber der vorigen abgeschlossenen Bewertung. '
-    +'Ein Tipp auf einen Wert öffnet den Vordruck — alle Angaben sind änderbar. Rechnerische Preiseinschätzung, kein Verkehrswertgutachten.</p>');
+    +'Ein Tipp auf einen Wert öffnet den Vordruck — alle Angaben sind änderbar. „Vergleich“ stellt zwei Stichtage einer Liegenschaft nebeneinander. Rechnerische Preiseinschätzung, kein Verkehrswertgutachten.</p>');
 }
 function jbFortFelder(lId){
   const finale=jbObjekte().flatMap(l=>(l.bewertungen||[]).filter(b=>b.vordruck).map(b=>b.stichtag)).sort();

@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-20c5ca3f4b05';
+const CACHE = 'immoapp-040a837a0b5f';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -25,6 +25,7 @@ const ASSETS = [
   './js/jahresbewertung.js',
   './js/kern.js',
   './js/liegenschaften-ui.js',
+  './js/liegenschaften-vergleich.js',
   './js/liegenschaften.js',
   './js/modell.js',
   './js/office.js',

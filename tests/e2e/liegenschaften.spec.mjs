@@ -281,3 +281,59 @@ test('Vordruck: jede Zahl änderbar — gerechnete Felder überschreiben (gelb),
   await keineSkriptfehler(page);
 });
 
+
+test('Historischer Vergleich: zwei Stichtage nebeneinander, Veränderung farbig, Zahl ändern geht in den Vordruck, Dokument ohne Anschrift', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
+  await page.evaluate(async v => {
+    await lvStart();
+    const J = ImmoJahresbewertung, L = ImmoLiegenschaften;
+    const a = L.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: J.bereinigen(v) });
+    const b = L.ausVordruck({ id: 'BW2', art: 'preiseinschaetzung', status: 'entwurf', quelle: '', notiz: '', vordruck: J.fortschreiben(v, '2026-12-31').vordruck });
+    await lvSpeichern({ id: 'LJB', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [a, b] });
+    lvRender();
+  }, FALL);
+  await lv(page).getByRole('button', { name: 'Stichtage vergleichen für Musterfiliale' }).click();
+  const tab = lv(page).locator('#jb_vergleich');
+  await expect(tab.locator('thead')).toContainText('31.12.2025'); await expect(tab.locator('thead')).toContainText('31.12.2026 (Entwurf)');
+  const zeile = t => tab.locator('tr.jb-vg-z', { has: page.locator('td.jb-vg-l', { hasText: t }) });
+  const mittel = zeile('Mittelwert (Preisempfehlung)');
+  // Werte wie im Vordruck: Mittelwert 1.220.052,49 € (Python-Rechnung) → 1.230.554,00 € (fortgeschrieben, Index Mai 2026; 1.230.553,997)
+  await expect(mittel.locator('input').first()).toHaveValue('1.220.052,49');
+  await expect(mittel.locator('input').nth(1)).toHaveValue('1.230.554,00');
+  await expect(mittel).toHaveClass(/jb-vg-hervor/); await expect(zeile('Preisansatz Bausubstanz')).toHaveClass(/jb-vg-hervor/);
+  await expect(mittel.locator('.jb-vg-d')).toHaveClass(/jb-vg-auf/);
+  await expect(mittel.locator('.jb-vg-d')).toHaveText('+10.501,51 € (+0,9 %)');
+  await expect(zeile('Restnutzungsdauer').locator('.jb-vg-d')).toHaveClass(/jb-vg-ab/);
+  await expect(zeile('Bodenrichtwert').locator('.jb-vg-d')).toHaveText('unverändert');
+  await expect(lv(page).locator('#jb_vg_text')).toContainText('Der Mittelwert stieg von 1.220.052 € auf 1.230.554 € (+0,9 %).');
+  // keine Namen, keine Anschrift, keine Mietzeilen („Büro“, „Laden“) — nur Objektart, Gebäudeart und Ort
+  expect(await lv(page).locator('.jb-vg').innerText()).not.toMatch(/Musterweg|74000|\bBüro\b|\bLaden\b/);
+  // jede Zahl ein Feld: Monatsmiete 2026 +100 € → Ertrag + 1.200 × 0,8 × 19,87 = +19.075,20 €, Mittelwert + 9.537,60 € = 1.240.091,60 €
+  const miete = zeile('Monatsmiete').locator('input').nth(1);
+  await miete.fill('7.450'); await miete.blur();
+  await expect(miete).toHaveClass(/jb-manuell/);
+  await expect(mittel.locator('input').nth(1)).toHaveValue('1.240.091,60');
+  await expect(zeile('Monatsmiete').locator('.jb-vg-d')).toHaveText('+100,00 € (+1,4 %)');
+  // Eingabe (Bodenrichtwert) und Zurücksetzen
+  const brw = zeile('Bodenrichtwert').locator('input').nth(1); await brw.fill('330 €/m²'); await brw.blur();
+  await expect(zeile('Bodenrichtwert').locator('.jb-vg-d')).toHaveClass(/jb-vg-auf/);
+  await zeile('Monatsmiete').locator('[data-vgreset="1"]').click();
+  await expect(miete).toHaveValue('7.350,00'); await expect(miete).not.toHaveClass(/jb-manuell/);
+  await miete.fill('7.450'); await miete.blur();
+  // Speichern: Änderungen stehen im Vordruck des Stichtags, der frühere bleibt unverändert
+  await lv(page).getByRole('button', { name: 'Speichern', exact: true }).click();
+  await expect(lv(page).locator('.lv-ok')).toContainText('Vordruck zum 31.12.2026 geändert');
+  const gesp = await page.evaluate(() => LV.liste.find(l => l.id === 'LJB').bewertungen.map(b => [b.id, b.vordruck.boden[0].brw, b.vordruck.manuell]));
+  expect(gesp).toEqual([['BW1', 320, {}], ['BW2', 330, { 'm.monat': 7450 }]]);
+  // Dokument: Objektart und Ort, keine Anschrift
+  await lv(page).getByRole('button', { name: /Als Dokument/ }).click();
+  const dok = page.locator('#report .jbd-vg');
+  await expect(dok).toContainText('Historischer Vergleich'); await expect(dok).toContainText('Musterstadt');
+  expect(await dok.innerText()).not.toMatch(/Musterweg|74000|\bBüro\b|\bLaden\b/);
+  await expect(page.locator('#report')).toHaveAttribute('data-pdfname', /^Historischer Vergleich .*Musterstadt 31\.12\.2025 und 31\.12\.2026$/);
+  await page.locator('#report').getByRole('button', { name: 'zurück' }).click();
+  await expect(lv(page).locator('#jb_vergleich')).toBeVisible();
+  await keineSkriptfehler(page);
+});

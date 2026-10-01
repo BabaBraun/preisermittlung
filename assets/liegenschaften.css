@@ -132,3 +132,43 @@
 #lv_overlay .jb-mw .jb-reset{min-height:0;height:28px;width:28px;padding:0;border-radius:50%;font-size:15px;line-height:1;border:1px solid #C9A227;background:#FFF1B8;color:#5a4a0a;cursor:pointer}
 #lv_overlay .jb-hinweis-manuell{margin:0 0 8px}
 #lv_overlay .jb-tbl .jb-mw input{padding:6px 8px}
+/* Historischer Vergleich: zwei Stichtage nebeneinander; gestiegen grün, gesunken rot; Bausubstanz und Mittelwert hervorgehoben */
+#lv_overlay .jb-vg-wahl{margin-bottom:10px}
+#lv_overlay .jb-vg-objekt{margin:4px 0 10px;font-size:14px}
+#lv_overlay .jb-vg-tab td{vertical-align:middle}
+#lv_overlay .jb-vg-tab tr.jb-vg-gruppe th{background:var(--surface-2);color:var(--text-2);font-size:12.5px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+#lv_overlay .jb-vg-tab tr.jb-vg-hervor td{background:var(--tint)}
+#lv_overlay .jb-vg-tab tr.jb-vg-stark td{font-weight:700;border-top:2px solid var(--accent)}
+#lv_overlay .jb-vg-tab .jb-mw input{width:8.5em}
+#lv_overlay .jb-vg-tab .jb-vg-ein input{background:var(--field);border-style:solid}
+#lv_overlay .jb-vg-tab .jb-vg-ein input.jb-manuell{background:var(--field)}
+#lv_overlay .jb-vg-d{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:13px}
+#lv_overlay .jb-vg-auf{color:var(--ok);font-weight:600}
+#lv_overlay .jb-vg-ab{color:var(--bad);font-weight:600}
+#lv_overlay .jb-vg-gleich{color:var(--muted)}
+#lv_overlay .jb-vg-text{margin:12px 0 4px;padding:10px 14px;border-radius:var(--rs);background:var(--surface-2);border:1px solid var(--line);font-size:13px;line-height:1.5}
+#lv_overlay .jb-vg-text:empty{display:none}
+@media (max-width:640px){
+  #lv_overlay .jb-vg-tab thead{display:none}
+  #lv_overlay .jb-vg-tab,#lv_overlay .jb-vg-tab tbody,#lv_overlay .jb-vg-tab tr.jb-vg-gruppe,#lv_overlay .jb-vg-tab tr.jb-vg-gruppe th{display:block;width:100%}
+  #lv_overlay .jb-vg-tab tr.jb-vg-z{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px 10px;padding:8px 6px;border-bottom:1px solid var(--line)}
+  #lv_overlay .jb-vg-tab tr.jb-vg-z td{display:block;border:none;padding:0;background:none;white-space:normal}
+  #lv_overlay .jb-vg-tab tr.jb-vg-hervor{background:var(--tint)}
+  #lv_overlay .jb-vg-tab td.jb-vg-l,#lv_overlay .jb-vg-tab td.jb-vg-d{grid-column:1/-1}
+  #lv_overlay .jb-vg-tab td[data-stichtag]::before{content:attr(data-stichtag);display:block;font-size:11px;font-weight:400;color:var(--muted);text-align:left}
+  #lv_overlay .jb-vg-tab .jb-mw{display:flex;width:100%}
+  #lv_overlay .jb-vg-tab .jb-mw input{width:auto;flex:1 1 auto;min-width:0}
+}
+#report.jb-dok table.jbd-vg-t{margin-top:16px}
+#report.jb-dok table.jbd-vg-t th{font-weight:700;text-align:right;border-bottom:2px solid #0F2D5C;padding:4px 6px;background:none;color:#111}
+#report.jb-dok table.jbd-vg-t th.l{text-align:left}
+#report.jb-dok table.jbd-vg-t td{border-bottom:1px solid #ddd;padding:4px 6px}
+#report.jb-dok table.jbd-vg-t td.l{width:40%}
+#report.jb-dok table.jbd-vg-t td.b{width:20%}
+#report.jb-dok table.jbd-vg-t tr.jbd-vg-gruppe td{padding-top:12px;border-bottom:1px solid #111}
+#report.jb-dok table.jbd-vg-t tr.jbd-vg-hervor td{background:#E6EFFD!important}
+#report.jb-dok table.jbd-vg-t tr.jbd-vg-hervor.total td{background:#FCD5B4!important;font-weight:700}
+#report.jb-dok .jb-vg-auf{color:#1E7B45;font-weight:700}
+#report.jb-dok .jb-vg-ab{color:#B0303A;font-weight:700}
+#report.jb-dok .jb-vg-gleich{color:#666}
+#report.jb-dok table.jbd-vg-t tr.total td{color:#111}

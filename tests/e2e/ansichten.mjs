@@ -56,12 +56,14 @@ export async function alleAnsichten(page, geraet) {
   const fall = JSON.parse(readFileSync('tests/referenz/jahresbewertung_faelle.json', 'utf8')).faelle[0].vordruck;
   await page.evaluate(async v => { await lvStart();
     const b = ImmoLiegenschaften.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
-    await lvSpeichern({ id: 'Ltest1', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [b] }); }, fall);
+    const b2 = ImmoLiegenschaften.ausVordruck({ id: 'BW2', art: 'preiseinschaetzung', status: 'entwurf', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.fortschreiben(v, '2026-12-31').vordruck });
+    await lvSpeichern({ id: 'Ltest1', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [b, b2] }); }, fall);
   await pruefe('16a_liegenschaften_uebersicht', () => lvOeffnen('uebersicht'));
   await pruefe('16b_liegenschaften_vordruck', () => jbOeffnen('Ltest1', 'BW1'));
   await pruefe('16c_liegenschaften_vordruck_anlegen', () => jbFormAuf('jb_neu'));
   await pruefe('16d_liegenschaften_neu', () => lvNeueLiegenschaft());
   await pruefe('16e_liegenschaften_sicherung', () => lvAnsicht('sicherung'));
+  await pruefe('16f_liegenschaften_vergleich', () => jbVergleichAuf('Ltest1'));
   await page.evaluate(() => lvSchliessen());
   await pruefe('17_suche', () => sucheOeffnen());
   await page.keyboard.press('Escape');

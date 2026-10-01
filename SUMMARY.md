@@ -1,3 +1,9 @@
+# Zusammenfassung — historischer Vergleich zweier Stichtage (2026-10-01)
+
+„Vergleich“ je Liegenschaft: Eckdaten und Preisansätze zweier Stichtage nebeneinander, Veränderung grün/rot, Bausubstanz
+und Mittelwert hervorgehoben, Hinweistext, Dokument. Jede Zahl änderbar (geht in den Vordruck); ohne Namen,
+Anschrift und Herkunft der Mieten (D29).
+
 # Zusammenfassung — jede Zahl im Vordruck änderbar (2026-10-01)
 
 Alle Zahlen des Vordrucks sind Eingabefelder, auch die gerechneten (überschreiben wie eine Excel-Zelle, gelb, „↺“).
