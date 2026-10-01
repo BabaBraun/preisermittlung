@@ -214,17 +214,17 @@ function lvUebersichtHtml(){
     '<p>Hier verwaltest du Liegenschaften von Kunden, eigene Objekte und Objekte der Bank: Einheiten, Mieter und Verträge, Sollmieten und Zahlungseingänge mit Rückständen, Mahnungen und Kaution.</p>'
     +'<p class="hint">Alle Angaben bleiben auf diesem Gerät. Mieterdaten sind personenbezogene Daten — nur erfassen, was für die Verwaltung nötig ist, und regelmäßig über „Datensicherung“ sichern.</p>'
     +'<div class="mdb-actions"><button class="primary" onclick="lvNeueLiegenschaft()" data-ic="plus">Erste Liegenschaft anlegen</button></div>');
-  let E=0,verm=0,kalt=0,rueck=0,schwelle=0;
+  let E=0,verm=0,eig=0,kalt=0,rueck=0,schwelle=0;
   const zeilen=LV.liste.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map(l=>{
-    const k=LVK.kennzahlen(l,st); E+=k.einheiten; verm+=k.vermietet; kalt+=k.kaltMonat; rueck+=k.rueckstand; schwelle+=k.kuendigungsschwelle;
+    const k=LVK.kennzahlen(l,st); E+=k.einheiten; verm+=k.vermietet; eig+=k.eigen; kalt+=k.kaltMonat; rueck+=k.rueckstand; schwelle+=k.kuendigungsschwelle;
     return '<tr class="lv-klick" onclick="lvLiegenschaftOeffnen(\''+lvQ(l.id)+'\')"><td class="strong">'+lvH(l.name)+'<br><span class="lv-klein">'+lvH(lvAdresse(l))+'</span></td>'
       +'<td>'+lvH(LV_ART_L[l.art]||'')+'<br><span class="lv-klein">'+lvH(lvEigentuemer(l))+'</span></td>'
-      +'<td class="r">'+k.einheiten+'</td><td class="r">'+k.vermietet+(k.leer?' '+lvBadge(k.leer+' leer','warn'):'')+'</td>'
+      +'<td class="r">'+k.einheiten+'</td><td class="r">'+k.vermietet+(k.eigen?' '+lvBadge(k.eigen+' eigen'):'')+(k.leer?' '+lvBadge(k.leer+' leer','warn'):'')+'</td>'
       +'<td class="r">'+lvEur(k.kaltMonat)+(k.gesamtMonat>k.kaltMonat?'<br><span class="lv-klein">gesamt '+lvEur(k.gesamtMonat)+'</span>':'')+'</td><td class="r">'+(k.rueckstand>0?lvBadge(lvEur(k.rueckstand),'bad'):'–')+'</td></tr>';
   });
   const fr=lvAlleFristen(st,30), faellig=fr.filter(f=>f.faellig).length;
   return '<div class="kpis">'+lvKpi('Liegenschaften',String(LV.liste.length),E+' Einheiten')
-    +lvKpi('Vermietet',verm+' von '+E,(E-verm)?(E-verm)+' leer':'kein Leerstand')
+    +lvKpi('Vermietet',verm+' von '+E,[(E-verm-eig)?(E-verm-eig)+' leer':'kein Leerstand'].concat(eig?[eig+' in Eigennutzung']:[]).join(' · '))
     +lvKpi('Sollmiete kalt / Monat',lvEur0(kalt),lvEur0(kalt*12)+' im Jahr')
     +lvKpi('Mietrückstände',lvEur(rueck),schwelle?schwelle+'× Kündigungsvoraussetzungen prüfen':'',rueck>0?'lv-kpi-bad':'')+'</div>'
     +lvBox('Liegenschaften',lvTabelle(['Liegenschaft','Art / Eigentümer',{t:'Einheiten',r:1},{t:'Vermietet',r:1},{t:'Miete / Monat',r:1},{t:'Rückstand',r:1}],zeilen)
@@ -266,7 +266,7 @@ function lvStammFelder(l){
     {id:'kundeId',label:'Kunde aus der Kundenakte',typ:'wahl',wert:l.kundeId||'',optionen:[['','– keiner –']].concat(kunden),hinweis:kunden.length?'':'Noch keine Kunden in der Kundenakte.'},
     {id:'eigentuemerName',label:'Eigentümer (Name, falls nicht in der Kundenakte)',wert:l.eigentuemerName},
     {id:'baujahr',label:'Baujahr',typ:'zahl',wert:l.baujahr,min:1000},
-    {id:'wert',label:'Verkehrswert oder Kaufpreis (€)',typ:'betrag',wert:l.wert,min:0,hinweis:'für die Rendite; leer = Wert aus verknüpfter Bewertung'},
+    {id:'wert',label:'Verkehrswert oder Kaufpreis (€)',typ:'betrag',wert:l.wert,min:0,hinweis:'für die Rendite; leer = letzte Bewertung (Reiter „Bewertungen“) bzw. verknüpfte Bewertung'},
     {id:'projektId',label:'Verknüpfte Bewertung',typ:'wahl',wert:l.projektId||'',optionen:[['','– keine –']].concat(projekte)},
     {id:'kappung15',label:'Gemeinde mit abgesenkter Kappungsgrenze (15 %)',typ:'check',wert:l.einstellungen&&l.einstellungen.kappung15,breit:true,hinweis:'Baden-Württemberg: Gemeinden der KappVO BW erkennt die App am Ort automatisch (Verordnung gültig bis 31.12.2026). Häkchen nur für andere Bundesländer oder eine abweichende Schreibweise des Orts (§ 558 Abs. 3 BGB).'},
     {id:'kontoInhaber',label:'Mietkonto: Kontoinhaber',wert:l.kontoInhaber},{id:'iban',label:'Mietkonto: IBAN',wert:LVK.ibanLesbar(l.iban||'')},{id:'bank',label:'Mietkonto: Bank',wert:l.bank},
@@ -328,6 +328,7 @@ async function lvLiegenschaftLoeschen(id){
 }
 function lvWert(l){
   if(l.wert>0) return l.wert;
+  if(typeof ImmoLvBewertung!=='undefined'){ const b=ImmoLvBewertung.aktuell(l); if(b&&b.ergebnis>0) return b.ergebnis; }
   if(l.projektId&&typeof pjLoad==='function'){ const p=pjLoad().find(x=>x.id===l.projektId); if(p&&p.empf){ const w=LVK.zahlEingabe(String(p.empf).replace(/[^\d.,-]/g,'')); if(w>0) return w; } }
   return null;
 }
@@ -337,6 +338,8 @@ function lvMietenHtml(l,st){
   const z=[], s={kalt:0,nk:0,hk:0,zuschlag:0,gesamt:0,flaeche:0};
   (l.einheiten||[]).forEach(e=>{
     const v=LVK.aktiverVertrag(l,e.id,st), f=+e.flaeche||0;
+    if(!v&&e.eigennutzung){ z.push('<tr><td class="strong">'+lvH(lvEinheitName(e))+'</td><td>'+lvBadge('Eigennutzung')+(+e.sollmiete>0?' <span class="lv-klein">fiktiv '+lvEur(e.sollmiete)+'</span>':'')+'</td><td class="r">'+(f?lvH(String(f).replace('.',','))+' m²':'–')+'</td>'
+      +'<td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="r">–</td><td></td></tr>'); return; }
     if(!v){ z.push('<tr><td class="strong">'+lvH(lvEinheitName(e))+'</td><td>'+lvBadge('leer','warn')+(+e.sollmiete>0?' <span class="lv-klein">Ziel '+lvEur(e.sollmiete)+'</span>':'')+'</td><td class="r">'+(f?lvH(String(f).replace('.',','))+' m²':'–')+'</td>'
       +'<td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="r">–</td><td class="lv-aktionen"><button class="secondary" onclick="lvReiter(\'vertraege\',{typ:\'vertrag\',id:null,einheitId:\''+lvQ(e.id)+'\'})" data-ic="plus">Vermieten</button></td></tr>'); return; }
     const m=LVK.mieteAm(v,st); ['kalt','nk','hk','zuschlag','gesamt'].forEach(t=>s[t]+=m[t]); s.flaeche+=f;
@@ -364,7 +367,7 @@ function lvUeberblickHtml(l){
   const angaben=[['Art',LV_ART_L[l.art]],['Eigentümer',lvEigentuemer(l)],['Baujahr',l.baujahr||''],['Wert für die Rendite',wert?lvEur0(wert)+(l.wert>0?'':' (aus Bewertung)'):''],
     ['Mietkonto',l.iban?LVK.ibanLesbar(l.iban)+(l.bank?' · '+l.bank:'')+(l.kontoInhaber?' · '+l.kontoInhaber:''):''],['Notiz',l.notiz]].filter(x=>x[1]);
   return '<div class="kpis">'+lvKpi('Einheiten',String(k.einheiten),k.flaeche?String(k.flaeche).replace('.',',')+' m²':'')
-    +lvKpi('Vermietet',k.vermietet+' von '+k.einheiten,k.leer?'Leerstand '+String(k.leerquoteFlaeche).replace('.',',')+' % der Fläche':'kein Leerstand',k.leer?'lv-kpi-warn':'')
+    +lvKpi('Vermietet',k.vermietet+' von '+k.einheiten,(k.leer?'Leerstand '+String(k.leerquoteFlaeche).replace('.',',')+' % der Fläche':'kein Leerstand')+(k.eigen?' · '+k.eigen+' in Eigennutzung':''),k.leer?'lv-kpi-warn':'')
     +lvKpi('Sollmiete kalt / Monat',lvEur(k.kaltMonat),'gesamt '+lvEur(k.gesamtMonat)+(k.rendite!=null?' · Rendite '+String(k.rendite).replace('.',',')+' %':''))
     +lvKpi('Mietrückstände',lvEur(k.rueckstand),k.kuendigungsschwelle?'Kündigungsvoraussetzungen prüfen':(k.kautionOffen?'Kaution offen: '+lvEur(k.kautionOffen):''),k.rueckstand>0?'lv-kpi-bad':'')+'</div>'
     +(!k.einheiten?'<div class="lv-warn">Noch keine Einheiten erfasst. <button class="secondary" onclick="lvReiter(\'einheiten\')">Einheiten anlegen</button></div>':lvMietenHtml(l,st))
@@ -386,7 +389,8 @@ function lvEinheitFelder(e){
     {id:'flaeche',label:'Wohn-/Nutzfläche (m²)',typ:'zahl',wert:e.flaeche,min:0},
     {id:'zimmer',label:'Zimmer',typ:'zahl',wert:e.zimmer,min:0},
     {id:'mea',label:'Miteigentumsanteil (MEA)',typ:'zahl',wert:e.mea,min:0,hinweis:'für WEG und Umlage nach MEA'},
-    {id:'sollmiete',label:'Zielmiete kalt / Monat (€)',typ:'betrag',wert:e.sollmiete,min:0,hinweis:'für entgangene Miete bei Leerstand'},
+    {id:'sollmiete',label:'Zielmiete kalt / Monat (€)',typ:'betrag',wert:e.sollmiete,min:0,hinweis:'für entgangene Miete bei Leerstand; bei Eigennutzung die fiktive Miete'},
+    {id:'eigennutzung',label:'Eigennutzung (z. B. eigene Filiale) — kein Leerstand, keine Vermietung',typ:'check',wert:e.eigennutzung,breit:true},
     {id:'notiz',label:'Notiz',typ:'textarea',wert:e.notiz,breit:true,zeilen:2}];
 }
 function lvEinheitenHtml(l){
@@ -401,10 +405,10 @@ function lvEinheitenHtml(l){
     if(m){ sKalt+=m.kalt; sGes+=m.gesamt; }
     return '<tr><td class="strong">'+lvH(e.nr)+(e.lage?'<br><span class="lv-klein">'+lvH(e.lage)+'</span>':'')+'</td><td>'+lvH(LV_ART_E[e.art])+'</td>'
       +'<td class="r">'+(e.flaeche!=null?lvH(String(e.flaeche).replace('.',','))+' m²':'–')+'</td>'+(mitMea?'<td class="r">'+(e.mea!=null?lvH(String(e.mea).replace('.',',')):'–')+'</td>':'')
-      +'<td>'+(v?lvH(lvMieterName(v))+'<br><span class="lv-klein">seit '+lvH(LVK.datumDE(v.beginn))+'</span>':lvBadge('leer','warn'))+'</td>'
-      +'<td class="r">'+(m?lvEur(m.kalt)+(f?'<br><span class="lv-klein">'+lvH(lvQm(m.kalt/f))+' €/m²</span>':''):(+e.sollmiete>0?'<span class="lv-klein">Ziel '+lvEur(e.sollmiete)+'</span>':'–'))+'</td>'
+      +'<td>'+(v?lvH(lvMieterName(v))+'<br><span class="lv-klein">seit '+lvH(LVK.datumDE(v.beginn))+'</span>':e.eigennutzung?lvBadge('Eigennutzung'):lvBadge('leer','warn'))+'</td>'
+      +'<td class="r">'+(m?lvEur(m.kalt)+(f?'<br><span class="lv-klein">'+lvH(lvQm(m.kalt/f))+' €/m²</span>':''):(+e.sollmiete>0?'<span class="lv-klein">'+(e.eigennutzung?'fiktiv ':'Ziel ')+lvEur(e.sollmiete)+'</span>':'–'))+'</td>'
       +'<td class="r">'+(m?lvEur(m.gesamt):'–')+'</td>'
-      +'<td class="lv-aktionen">'+(v?'':'<button class="secondary" onclick="lvReiter(\'vertraege\',{typ:\'vertrag\',id:null,einheitId:\''+lvQ(e.id)+'\'})" data-ic="plus">Vermieten</button>')
+      +'<td class="lv-aktionen">'+(v||e.eigennutzung?'':'<button class="secondary" onclick="lvReiter(\'vertraege\',{typ:\'vertrag\',id:null,einheitId:\''+lvQ(e.id)+'\'})" data-ic="plus">Vermieten</button>')
       +'<button class="secondary" onclick="LV.form={typ:\'einheit\',id:\''+lvQ(e.id)+'\'};lvRender()">Bearbeiten</button>'
       +'<button class="secondary" onclick="lvEinheitLoeschen(\''+lvQ(e.id)+'\')" aria-label="Einheit löschen" data-ic="trash"></button></td></tr>';
   });
@@ -423,7 +427,7 @@ async function lvEinheitSpeichern(id){
   await lvAendern(l=>{
     let e=id?lvEinheit(l,id):null;
     if(!e){ e={id:LVK.neueId('E')}; l.einheiten.push(e); }
-    Object.assign(e,{nr:w.nr,lage:w.lage,art:w.art,flaeche:w.flaeche,zimmer:w.zimmer,mea:w.mea,sollmiete:w.sollmiete,notiz:w.notiz});
+    Object.assign(e,{nr:w.nr,lage:w.lage,art:w.art,flaeche:w.flaeche,zimmer:w.zimmer,mea:w.mea,sollmiete:w.sollmiete,eigennutzung:w.eigennutzung===true,notiz:w.notiz});
   },neu?'Einheit „'+w.nr+'“ angelegt.':'Einheit gespeichert.');
   if(neu) { LV.form={typ:'einheit',id:null}; lvRender(); }
 }
@@ -629,7 +633,7 @@ function lvMieterlisteExcel(){
   const zeilen=[[{v:'Mieterliste '+l.name,s:'titel'}],[lvAdresse(l)+' · Stand '+LVK.datumDE(st)],[],kopf];
   (l.einheiten||[]).forEach(e=>{
     const vv=LVK.vertraegeDerEinheit(l,e.id);
-    if(!vv.length) zeilen.push([e.nr,e.lage,LV_ART_E[e.art],e.flaeche!=null?{v:e.flaeche,s:'dez'}:'','leer']);
+    if(!vv.length) zeilen.push([e.nr,e.lage,LV_ART_E[e.art],e.flaeche!=null?{v:e.flaeche,s:'dez'}:'',e.eigennutzung?'Eigennutzung':'leer']);
     vv.forEach(v=>{ const m=LVK.mieteAm(v,v.ende&&v.ende<st?v.ende:st), kt=LVK.kaution(v,l.zahlungen,st), op=lvOp(l,v,st);
       zeilen.push([e.nr,e.lage,LV_ART_E[e.art],e.flaeche!=null?{v:e.flaeche,s:'dez'}:'',lvMieterName(v),(v.mieter[0]||{}).telefon||'',(v.mieter[0]||{}).email||'',v.personen!=null?v.personen:'',
         LVK.datumDE(v.beginn),v.ende?LVK.datumDE(v.ende):'',LV_MIETART[v.mietart],{v:m.kalt,s:'eurc'},{v:m.nk,s:'eurc'},{v:m.hk,s:'eurc'},{v:m.zuschlag,s:'eurc'},m.ust||0,{v:LVK.r2(m.gesamt),s:'eurc'},

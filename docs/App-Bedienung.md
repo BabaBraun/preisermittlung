@@ -23,6 +23,29 @@ Preisempfehlung, Gewichtung, Vollständigkeit und Prüfhinweisen. Am Handy ist d
 der Kopfzeile, das Ergebnis steht als Karte über der Liste. Ein Sprung oder Prüfhinweis öffnet zugeklappte Abschnitte
 und Blöcke automatisch. Beim Drucken wird alles aufgeklappt. Die Eingaben und Rechnungen sind unverändert.
 
+## Baupreisindex
+
+Im Abschnitt „Hauptgebäude“ (2.3 Gebäudepreis) die Gebäudeart wählen (Wohngebäude; Bürogebäude, auch für Bank- und
+Geschäftshäuser; gewerbliche Betriebsgebäude) und „Wert zum Stichtag übernehmen“ tippen: Die App trägt den
+Quartalswert des Statistischen Landesamts Baden-Württemberg zum Wertermittlungsstichtag ein, dazu den
+Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle. Liegt der Stichtag nach dem neuesten
+eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus dem Statistischen Bericht selbst eintragen.
+
+## Bewertungen einer Liegenschaft
+
+Liegenschaftsverwaltung → Liegenschaft → Reiter „Bewertungen“:
+
+- **Bewertung eintragen:** Ergebnisse früherer Preiseinschätzungen oder Gutachten (z. B. aus Excel) mit Stichtag,
+  Bodenwert, Substanz, Ertrag, Ergebnis, Baupreisindex und Quelle.
+- **Aus Preisermittlung übernehmen:** eine gespeicherte Bewertung wählen; die App rechnet sie und trägt die Werte ein.
+  Die Bewertung bleibt verknüpft („Öffnen“, „Neu rechnen“).
+- **Auf neuen Stichtag fortschreiben:** legt eine Kopie der verknüpften Bewertung als Entwurf an — neuer Stichtag,
+  amtlicher Baupreisindex, angepasste Restnutzungsdauer und PV-Laufzeit fortgeschrieben. Bodenrichtwert, Mieten und
+  Zinssätze bleiben stehen und sind zu prüfen (die Liste steht in der Notiz).
+- Für Objekte der Bank und eigene Objekte erscheint die jährliche Bewertung (ein Jahr nach der letzten
+  abgeschlossenen) in den Fristen. Einheiten können als „Eigennutzung“ markiert werden; sie zählen nicht als
+  Leerstand, die Zielmiete gilt dann als fiktive Miete.
+
 ## Prüfung
 
 42 Unit-Tests und 39 Browsertests im vollständigen Lauf bestanden. Zusätzlich ist der tatsächliche Textkontrast der aktiven Navigation, Arbeitsschritte und des Exportbuttons im iPhone-Dunkelmodus geprüft (mindestens 4,5:1). Fotos, Sicherungen, ältere Formate, Rechenwerte und Office-/PDF-Dateien wurden erneut geprüft.

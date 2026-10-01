@@ -476,3 +476,30 @@ berechnet, wenn Abschnitte je nach Vordruck ein- oder ausgeblendet werden); Verw
 beim Namen statt mit Nummer. Fehler behoben: Der Titel „Preisansatz nach Vergleichswert“ wurde bei jeder Berechnung
 neu geschrieben und verlor dabei Pfeil und Nummer — der Abschnitt ließ sich nicht mehr zuklappen.
 
+---
+
+## D23 (2026-10-01) — Bewertungen je Liegenschaft, amtlicher Baupreisindex BW, Eigennutzung
+
+**Anlass:** Die Liegenschaften der Bank werden jährlich zum 31.12. rechnerisch bewertet (Excel-Vordrucke, Substanz-
+und Ertragsansatz im Mittel). Gewünscht: die Bewertungen bei den Liegenschaften führen und daraus den nächsten
+Stichtag mit aktuellem Baupreisindex erstellen.
+
+**Entscheidung:**
+- Baupreisindex: Die Quartalswerte des Statistischen Landesamts BW (Statistischer Bericht M I 4 – vj 2/26, Basis
+  2021 = 100, Wohn-, Büro- und gewerbliche Betriebsgebäude, ab 2016) liegen in `js/baupreisindex.js`. Maßgeblich ist
+  das letzte Quartal, dessen Berichtsmonat nicht nach dem Stichtag liegt; danach „vorläufig“. Umrechnung auf NHK 2010
+  = 100 / Jahresdurchschnitt 2010 (1,4164 / 1,4472 / 1,4368 — dieselben Faktoren wie in den Vordrucken der Bank).
+  Der Test prüft die Abschrift (Jahresdurchschnitt = Mittel der Quartale). Die Rechnung selbst ist unverändert
+  (Index × Faktor wie bisher), es wird nur der Wert vorgeschlagen.
+- Bewertungen je Liegenschaft (`l.bewertungen`): Stichtag, Art, Stand (abgeschlossen/Entwurf), Bodenwert, Substanz,
+  Ertrag, Ergebnis, Baupreisindex, Quelle, Notiz, optional verknüpfte Bewertung der Preisermittlung. Ergebnisse
+  verknüpfter Bewertungen rechnet der Rechenkern aus den gespeicherten Feldern; der PV-Barwert steht wie in den
+  Vordrucken der Bank in Substanz und Ertrag. Fortschreibung = Kopie als Entwurf mit neuem Stichtag, amtlichem Index,
+  um die vergangenen Jahre verringerter angepasster Restnutzungsdauer und PV-Laufzeit; alles Übrige bleibt und ist zu
+  prüfen.
+- Einheiten in Eigennutzung (`eigennutzung`) zählen weder als Leerstand noch als entgangene Miete (auch in der
+  Python-Gegenrechnung); ohne Markierung bleibt alles wie bisher.
+
+**Datenschutz:** Echte Bewertungen der Bank gehören nicht ins öffentliche Repository. Sie werden über die üblichen
+Sicherungsdateien (Projekte, Verwaltung) auf dem Gerät eingespielt; Tests verwenden nur synthetische Werte.
+

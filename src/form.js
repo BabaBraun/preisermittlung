@@ -163,6 +163,7 @@ function typWechsel(){
     $(p+'_gnd').value = t.gnd;
   });
   $('gewichtung').value = t.gew;
+  if($('bpi_art')&&typeof ImmoBaupreisindex!=='undefined') $('bpi_art').value=ImmoBaupreisindex.artAusTyp($('ek_typ').value);
   compute();
 }
 function buildRefTable(){

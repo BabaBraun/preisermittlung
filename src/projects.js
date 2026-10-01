@@ -143,9 +143,9 @@ async function projektSichern(){
   catch(e){ alert('Das Projekt konnte nicht gesichert werden: '+iaFehlerText(e)+'.\nBitte den Stand zusätzlich über „Als Datei sichern“ ablegen.'); return; }
   pjCacheSetzen(eintrag); renderProjekte(); speicherStatus(); alert(meldung);
 }
-async function projektLaden(id){
+async function projektLaden(id,bestaetigt){
   let p=pjLoad().find(x=>x.id===id); if(!p)return;
-  if(!confirm('Projekt „'+p.name+'“ öffnen? Der aktuelle Stand wird ersetzt.'))return;
+  if(!bestaetigt&&!confirm('Projekt „'+p.name+'“ öffnen? Der aktuelle Stand wird ersetzt.'))return;
   let r=p;
   if(IA_DB_BEREIT){ try{ r=await iaGet('projekte',id)||p; }catch(e){ alert('Das Projekt konnte nicht gelesen werden: '+iaFehlerText(e)+'.'); return; } }
   restore(r.data);$('pj_name').value=r.name;

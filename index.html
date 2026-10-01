@@ -526,11 +526,15 @@
       <h3>2.3 · Gebäudepreis €/m² (NHK-Verfahren)</h3>
       <p class="hint">Standardstufe je Bauteil 1–5 eintragen (Kommawerte erlaubt, z.B. 3,5). Die Restnutzungsdauer aus 2.2 fließt als Alterswertminderung ein. Orientierung: Referenztabellen unten aufklappen.</p>
       <div class="grid three" style="margin-bottom:10px">
-        <div class="field"><label>Baupreisindex Wohngebäude <span class="u">(Basis 2021=100) — rechnet NHK 2010 auf Stichtag hoch</span></label><input id="bpi" type="text" value=""></div>
+        <div class="field"><label>Baupreisindex <span class="u">(Basis 2021=100) — rechnet NHK 2010 auf Stichtag hoch</span></label><input id="bpi" type="text" value=""></div>
         <div class="field"><label>Umrechnungsfaktor 2010→2021</label><input id="bpi_faktor" type="text" value=""></div>
         <div class="field"><label>Regionalfaktor <span class="u">(1,0 = Bundesdurchschnitt)</span></label><input id="nhk_regional" type="text" value="1,0"></div>
       </div>
-      <div class="flag" style="margin-top:0">⚠ <b>Baupreisindex 131</b> (Basis 2021=100) = nicht automatisch geprüfte Beispiel-Näherung, keine voreingestellte Berechnungsgrundlage (Anker: 2022 = 114,5 · Q1 2026 ≈ +4,1 % ggü. Vorjahr). Seit Mai 2024 veröffentlicht das <b>Statistische Landesamt BW</b> auf Basis 2021=100 — den aktuellen Quartalswert dort abrufen und hier eintragen.</div>
+      <div class="grid three bpi-amtlich" style="margin-bottom:10px">
+        <div class="field"><label>Amtlicher Index BW für <span class="u">Gebäudeart</span></label><select id="bpi_art"><option value="wohnen">Wohngebäude</option><option value="buero">Bürogebäude (auch Bank-, Geschäftshaus)</option><option value="gewerbe">Gewerbliche Betriebsgebäude</option></select></div>
+        <div class="field full"><label>&nbsp;</label><div class="bpi-zeile"><button type="button" class="secondary" onclick="bpiAmtlichUebernehmen()">Wert zum Stichtag übernehmen</button> <span id="bpi_amtlich_info" class="u"></span></div></div>
+      </div>
+      <div class="flag" style="margin-top:0">ⓘ Eingebaut: <b>Preisindex für Bauwerke des Statistischen Landesamts Baden-Württemberg</b> (Basis 2021 = 100, Quartale seit 2016, Stand <span id="bpi_stand">Mai 2026</span>). „Wert zum Stichtag übernehmen“ trägt den Quartalswert zum Wertermittlungsstichtag, den Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle ein. Liegt der Stichtag nach dem neuesten Quartal, ist der Wert vorläufig — den neueren Wert aus dem Statistischen Bericht „Preisindex für Bauwerke“ selbst eintragen.</div>
       <div id="nhk_hg"></div>
 
       <details class="info">
@@ -1698,6 +1702,7 @@
 
 <script src="js/sterbetafel.js"></script>
 <script src="js/modell.js"></script>
+<script src="js/baupreisindex.js"></script>
 <script src="js/kern.js"></script>
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
@@ -1711,6 +1716,7 @@
 <script src="js/verwaltung-bank.js"></script>
 <script src="js/verwaltung-bericht.js"></script>
 <script src="js/verwaltung-dok.js"></script>
+<script src="js/verwaltung-bew.js"></script>
 <script src="src/base.js"></script>
 <script src="src/pwa.js"></script>
 <script src="src/projects.js"></script>
@@ -1748,6 +1754,7 @@
 <script src="js/verwaltung-bank-ui.js"></script>
 <script src="js/verwaltung-bericht-ui.js"></script>
 <script src="js/verwaltung-dok-ui.js"></script>
+<script src="js/verwaltung-bew-ui.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>

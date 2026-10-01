@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-2440b8a3c423';
+const CACHE = 'immoapp-cc59ea3bbbe0';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -17,6 +17,7 @@ const ASSETS = [
   './icons/icon-512-maskable.png',
   './icons/icon-512.png',
   './index.html',
+  './js/baupreisindex.js',
   './js/daten.js',
   './js/kern.js',
   './js/modell.js',
@@ -28,6 +29,8 @@ const ASSETS = [
   './js/verwaltung-bank.js',
   './js/verwaltung-bericht-ui.js',
   './js/verwaltung-bericht.js',
+  './js/verwaltung-bew-ui.js',
+  './js/verwaltung-bew.js',
   './js/verwaltung-dok-ui.js',
   './js/verwaltung-dok.js',
   './js/verwaltung-ih-ui.js',

@@ -208,6 +208,9 @@ def kaution(v, zahlungen, stichtag):
 def leerstand(l, von, bis):
     aus = []
     for e in l['einheiten']:
+        if e.get('eigennutzung'):                     # eigene Nutzung (z. B. Filiale): kein Leerstand
+            aus.append({'einheitId': e['id'], 'leerTage': 0, 'entgangen': 0.0})
+            continue
         vv = [v for v in l['vertraege'] if v['einheitId'] == e['id']]
         leer, entgangen, d = 0, F(0), von
         while d <= bis:

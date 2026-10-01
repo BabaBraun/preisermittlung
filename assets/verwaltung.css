@@ -63,3 +63,4 @@
 #lv_overlay .lv-import tr.lv-doppelt td{opacity:.55}
 #lv_overlay .lv-zweck{font-size:12px;color:var(--text-2);max-width:340px;overflow-wrap:anywhere}
 @media(max-width:640px){ #lv_overlay .lv-dl{grid-template-columns:1fr} #lv_overlay .lv-aktionen{white-space:normal} }
+#lv_overlay .lv-bew-notiz{display:inline-block;max-width:52ch;margin-top:3px;color:var(--text-2);line-height:1.45}

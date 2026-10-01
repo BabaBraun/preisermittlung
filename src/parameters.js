@@ -54,6 +54,7 @@ function pqKonformitaet(){
 }
 /* Abschnitt ④b im Formular */
 function pqRender(){
+  try{ bpiAmtlichInfo(); }catch(e){}
   let box=$('pq_tabelle'); if(!box) return;
   let s=pqSatz(), R=window._R||{}, w=modus()==='wohnung', kat=pqKategorie();
   let chip=$('pq_chip'); if(chip) chip.innerHTML=s?'<b>'+sEsc(s.titel||'Marktbericht')+'</b><span>'+sEsc([s.gebiet,'Stand '+pqStandText(s)].filter(Boolean).join(' · '))+'</span>'
@@ -72,7 +73,9 @@ function pqRender(){
     lz&&!lzGleich?'<button class="secondary" onclick="pqUebernehmen(\'lz\')">übernehmen</button>':(lz?'<span class="pq-ok">✓</span>':''));
   zeile('brw','Bodenrichtwert',num('ek_brw')>0?eur(num('ek_brw')).replace(' €',' €/m²'):'–','','pq_brw_quelle','z. B. BORIS-BW, Bodenrichtwert zum 01.01.2025, Zone …',
     typeof lageOeffnen==='function'?'<button class="secondary" onclick="lageOeffnen(\'brw\')">BORIS-BW</button>':'',!w);
-  zeile('bpi','Baupreisindex',num2(num('bpi'))+'<small>Basis 2021 = 100</small>','','pq_bpi_quelle','z. B. Statistisches Landesamt BW, Wohngebäude, Mai 2026','',!w);
+  let ba=bpiAmtlich(), baGleich=ba&&Math.abs(num('bpi')-ba.wert)<0.05&&Math.abs(num('bpi_faktor')-ba.faktor)<0.0006;
+  zeile('bpi','Baupreisindex',num2(num('bpi'))+'<small>Basis 2021 = 100</small>',ba?num2(ba.wert)+'<small>'+sEsc(ba.name+', '+ImmoBaupreisindex.monatText(ba.monat))+(ba.vorlaeufig?' — vorläufig':'')+', Stat. Landesamt BW</small>':'','pq_bpi_quelle','z. B. Statistisches Landesamt BW, Wohngebäude, Mai 2026',
+    ba&&!baGleich?'<button class="secondary" onclick="bpiAmtlichUebernehmen()">übernehmen</button>':(ba?'<span class="pq-ok">✓</span>':''),!w);
   let gnd=num('nhkhg_gnd'), mg=s&&s.modell&&s.modell.gnd;
   zeile('gnd','Gesamtnutzungsdauer',gnd+' Jahre',mg?mg+' Jahre<small>Modell des Gutachterausschusses</small>':'','pq_gnd_quelle','Anlage 1 ImmoWertV bzw. Modell des Gutachterausschusses',
     mg&&mg!==gnd?'<button class="secondary" onclick="pqUebernehmen(\'gnd\')">übernehmen</button>':(mg?'<span class="pq-ok">✓</span>':''),!w);
@@ -96,6 +99,24 @@ function pqUebernehmen(was){
     $('pq_lz_quelle').value=pqQuelleText(s)+', '+pqKatName(kat)+(lz.spanne?', Spanne '+lz.spanne:''); }
   if(was==='gnd'){ let g=s.modell&&s.modell.gnd; if(!(g>0)) return; $('nhkhg_gnd').value=g; $('pq_gnd_quelle').value='Modell '+pqQuelleText(s); }
   compute(); autosave();
+}
+/* Amtlicher Baupreisindex BW (js/baupreisindex.js) zum Wertermittlungsstichtag für die gewählte Gebäudeart */
+function bpiAmtlich(){
+  if(typeof ImmoBaupreisindex==='undefined') return null;
+  let art=($('bpi_art')||{}).value||ImmoBaupreisindex.artAusTyp(($('ek_typ')||{}).value);
+  return ImmoBaupreisindex.wertFuer(art,exV('ek_stichtag')||new Date().toISOString().slice(0,10));
+}
+function bpiAmtlichUebernehmen(){
+  let r=bpiAmtlich(); if(!r) return;
+  $('bpi').value=(''+r.wert).replace('.',',');
+  $('bpi_faktor').value=(''+r.faktor).replace('.',',');
+  if($('pq_bpi_quelle')) $('pq_bpi_quelle').value=ImmoBaupreisindex.quelleText(r);
+  compute(); autosave(); bpiAmtlichInfo();
+}
+function bpiAmtlichInfo(){
+  let el=$('bpi_amtlich_info'), r=bpiAmtlich(); if(!el) return;
+  el.textContent=r?r.name+', '+ImmoBaupreisindex.monatText(r.monat)+': '+(''+r.wert).replace('.',',')+' × '+(''+r.faktor).replace('.',',')+(r.vorlaeufig?' (vorläufig — neueres Quartal noch nicht eingebaut)':''):'';
+  let s=$('bpi_stand'); if(s&&typeof ImmoBaupreisindex!=='undefined') s.textContent=ImmoBaupreisindex.monatText(ImmoBaupreisindex.STAND);
 }
 /* Bericht: Datengrundlagen und Modellkonformität */
 function pqBericht(esc){

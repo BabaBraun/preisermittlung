@@ -256,9 +256,11 @@ function kaution(v,zahlungen,stichtag){
 function vertraegeDerEinheit(l,eid){ return (l.vertraege||[]).filter(v=>v.einheitId===eid&&datumGueltig(v.beginn)); }
 function aktiverVertrag(l,eid,iso){ return vertraegeDerEinheit(l,eid).find(v=>vertragAktiv(v,iso))||null; }
 /* Leerstand je Einheit im Zeitraum: Tage ohne laufenden Vertrag; entgangene Nettokaltmiete nach Zielmiete
-   (sonst letzte vereinbarte Kaltmiete), monatsgenau anteilig nach Kalendertagen */
+   (sonst letzte vereinbarte Kaltmiete), monatsgenau anteilig nach Kalendertagen. Einheiten in Eigennutzung
+   (z. B. eigene Filiale) stehen nicht leer. */
 function leerstand(l,von,bis){
   return (l.einheiten||[]).map(e=>{
+    if(e.eigennutzung) return {einheitId:e.id,leerTage:0,entgangen:0};
     const vv=vertraegeDerEinheit(l,e.id);
     let leer=0, entgangen=0;
     monatsliste(monatVon(von),monatVon(bis)).forEach(ym=>{
@@ -278,15 +280,15 @@ function leerstand(l,von,bis){
 function kennzahlen(l,stichtag,opt){
   opt=opt||{};
   const E=l.einheiten||[], tab=basiszinsTabelle(l.einstellungen&&l.einstellungen.basiszins);
-  let vermietet=0,flaeche=0,flaecheLeer=0,kalt=0,gesamt=0,rueckstand=0,zinsen=0,kautionOffen=0,schwelle=0;
+  let vermietet=0,eigen=0,flaeche=0,flaecheLeer=0,kalt=0,gesamt=0,rueckstand=0,zinsen=0,kautionOffen=0,schwelle=0;
   E.forEach(e=>{ const f=+e.flaeche||0; flaeche+=f; const v=aktiverVertrag(l,e.id,stichtag);
-    if(v){ vermietet++; const m=mieteAm(v,stichtag); kalt+=m.kalt; gesamt+=m.gesamt; } else flaecheLeer+=f; });
+    if(v){ vermietet++; const m=mieteAm(v,stichtag); kalt+=m.kalt; gesamt+=m.gesamt; } else if(e.eigennutzung) eigen++; else flaecheLeer+=f; });
   (l.vertraege||[]).forEach(v=>{ if(!datumGueltig(v.beginn)) return;
     const op=offenePosten(v,l.zahlungen,stichtag,{aufschlag:istWohnraum(v,l)?5:9,basiszins:tab});
     rueckstand+=op.summe.rueckstand; zinsen+=op.summe.zinsen;
     if(kuendigungsschwelle(op,v,stichtag).erreicht) schwelle++;
     kautionOffen+=kaution(v,l.zahlungen,stichtag).faelligOffen; });
-  return {einheiten:E.length,vermietet,leer:E.length-vermietet,flaeche:r2(flaeche),leerquoteFlaeche:flaeche?r2(flaecheLeer/flaeche*100):0,
+  return {einheiten:E.length,vermietet,eigen,leer:E.length-vermietet-eigen,flaeche:r2(flaeche),leerquoteFlaeche:flaeche?r2(flaecheLeer/flaeche*100):0,
     kaltMonat:r2(kalt),gesamtMonat:r2(gesamt),kaltJahr:r2(kalt*12),rueckstand:r2(rueckstand),zinsen:r2(zinsen),
     kautionOffen:r2(kautionOffen),kuendigungsschwelle:schwelle,
     rendite:opt.wert>0?r2(kalt*12/opt.wert*100):null};
@@ -352,7 +354,7 @@ function bereinigen(roh,zaehler){
     einstellungen:{kappung15:e0.kappung15===true,basiszins:(Array.isArray(e0.basiszins)?e0.basiszins:[]).filter(x=>Array.isArray(x)&&datumGueltig(x[0])&&typeof x[1]==='number'&&isFinite(x[1])).slice(0,100).map(x=>[x[0],x[1]])},
     angelegt:zahl(roh.angelegt)||0,geaendert:zahl(roh.geaendert)||0};
   l.einheiten=liste(roh.einheiten,e=>({id:e.id,nr:text(e.nr,40),lage:text(e.lage),art:wahl(e.art,ARTEN_E,'wohnung'),flaeche:zahl(e.flaeche),
-    zimmer:zahl(e.zimmer),mea:zahl(e.mea),sollmiete:zahl(e.sollmiete),notiz:text(e.notiz,2000)}));
+    zimmer:zahl(e.zimmer),mea:zahl(e.mea),sollmiete:zahl(e.sollmiete),eigennutzung:e.eigennutzung===true,notiz:text(e.notiz,2000)}));
   const eids=new Set(l.einheiten.map(e=>e.id));
   l.vertraege=liste(roh.vertraege,v=>{
     if(!eids.has(v.einheitId)||!datumGueltig(v.beginn)) return null;

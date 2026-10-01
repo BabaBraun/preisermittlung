@@ -15,7 +15,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
 ## Funktionsumfang
 
 - **Bewertung:** 9 Vordrucke (Wohnung, Wohnhaus, Gewerbe); Sachwert über NHK 2010 mit Standardstufen,
-  Baupreisindex und Regionalfaktor; Restnutzungsdauer nach Modernisierungspunkten (Anlage 2 ImmoWertV,
+  Baupreisindex (amtliche Quartalswerte Baden-Württemberg für Wohn-, Büro- und gewerbliche Betriebsgebäude
+  eingebaut, Übernahme zum Stichtag mit Umrechnung auf NHK 2010) und Regionalfaktor; Restnutzungsdauer nach Modernisierungspunkten (Anlage 2 ImmoWertV,
   Alter bezogen auf das Stichtagsjahr); Ertragswert mit Mietrolle und Bewirtschaftungskosten; Vergleichswert;
   Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht; Wertkorrekturen § 8 Abs. 3; PV-Anlage; energetische
   Qualität; Sanierungsweg mit Förderung; Beleihungswert nach BelWertV; Datengrundlagen und
@@ -54,6 +55,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Jahresbericht: Einnahmen nach Zufluss (§ 11 EStG mit Zehn-Tage-Regel), Ausgaben nach Gruppen, Überschuss,
   Eigentümerbericht (Word) und Zusammenstellung für die Anlage V (Excel). Dokumente je Liegenschaft mit Zuordnung
   zu Einheit oder Vertrag und Ablauffristen (Energieausweis zehn Jahre).
+  Bewertungen je Liegenschaft: Verlauf der Preiseinschätzungen und Gutachten mit Veränderung zur Vorbewertung,
+  Übernahme des Ergebnisses aus der Preisermittlung, Fortschreibung auf einen neuen Stichtag (amtlicher Baupreisindex,
+  Restnutzungsdauer, PV-Laufzeit) als Entwurf, jährliche Bewertung von Objekten der Bank in den Fristen. Einheiten in
+  Eigennutzung (z. B. eigene Filiale) zählen nicht als Leerstand.
 
 ## Aufbau
 
@@ -85,6 +90,8 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/verwaltung-bank.js`, `js/verwaltung-bank-ui.js` | Kontoauszug-Import (CAMT, CSV), Zuordnungsvorschläge, Doppelte |
 | `js/verwaltung-bericht.js`, `js/verwaltung-bericht-ui.js` | Jahresbericht, Eigentümerbericht (Word), Anlage V (Excel) |
 | `js/verwaltung-dok.js`, `js/verwaltung-dok-ui.js` | Dokumente je Liegenschaft mit Fristen |
+| `js/verwaltung-bew.js`, `js/verwaltung-bew-ui.js` | Bewertungen je Liegenschaft: Verlauf, Übernahme aus der Preisermittlung, Fortschreibung |
+| `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb — erzeugt von `npm run build` (`scripts/build.mjs`), nicht von Hand ändern |

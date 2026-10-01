@@ -1,3 +1,10 @@
+# Zusammenfassung — Bewertungen je Liegenschaft und Baupreisindex (2026-10-01)
+
+Reiter „Bewertungen“ in der Liegenschaftsverwaltung: Verlauf mit Veränderung, Übernahme aus der Preisermittlung,
+Fortschreibung auf einen neuen Stichtag als Entwurf, jährliche Frist für Objekte der Bank. Amtlicher Baupreisindex
+Baden-Württemberg (Quartale 2016 bis Mai 2026) per Knopfdruck in der Bewertung. Einheiten in Eigennutzung zählen nicht
+als Leerstand (D23).
+
 # Zusammenfassung — Darstellung der Bewertung wie früher (2026-09-30)
 
 Alle Abschnitte der Preisermittlung stehen wieder untereinander (① … ⑬), jeder Abschnitt und jeder Block ist auf- und
