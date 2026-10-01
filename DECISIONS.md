@@ -634,3 +634,19 @@ es keine zweite, abweichende Zahl neben dem Vordruck. Die Monatsmiete je Gebäud
 (× 12) in den Vordruck. Ein kurzer Hinweistext nennt nur die Zahlen (keine Begründungen). Anzeige und Dokument nennen
 Objektart und Ort, aber weder Straße noch Hausnummer, Namen oder Mietzeilen.
 
+---
+
+## D30 (2026-10-01) — Neue Bewertung: nur die Objektart wählen
+
+**Wunsch des Auftraggebers:** Am Anfang nur grob nach Objektart unterteilen (Eigentumswohnung, Wohnhaus, Gewerbe,
+Büro …); die zweite Unterteilung (Wohnhaus mit PV, mit Anbau und Nießbrauch, ETW mit Nießbrauch …) ist unnötig, weil
+das in der Bewertung ohnehin enthalten ist.
+
+**Entscheidung:** Der Startbildschirm hat nur noch eine Stufe mit vier Kacheln, die direkt die Bewertung öffnen:
+Eigentumswohnung (Vergleichs- + Ertragswert), Wohnhaus (Substanz + Ertrag), Laden / Büro / Praxis (Geschäftshaus) und
+Gewerbe / Betrieb (Betriebs- und Werkstattgebäude) — die beiden früheren Gewerbe-Vordrucke unterscheiden sich in
+Gebäudeart und NHK und sind deshalb eigene Objektarten. Die früheren Untervarianten setzten nur Schalter (PV-Anlage,
+Anbau, Nießbrauch) und in einem Fall die Gewichtung 40 : 60; diese Schalter stehen in den Abschnitten der Bewertung,
+die Gewichtung in der Preisempfehlung. Rechnung, Felder und gespeicherte Bewertungen bleiben unverändert (ältere
+Bewertungen behalten ihre Vordruck-Bezeichnung).
+

@@ -177,8 +177,7 @@ function appScrollIntoView(el,options){appReveal(el);el?.scrollIntoView(options)
 function appBack(){
  if(APP_STATE.tab==='object'){
   appSetTab('objects');
- }else if(APP_STATE.tab==='home'&&$('start-step2').style.display!=='none'){startBack();appRenderTabs();}
- else if(APP_STATE.tab==='home'&&$('start-step1').style.display!=='none'){startStep0();appRenderTabs();}
+ }else if(APP_STATE.tab==='home'&&$('start-step1').style.display!=='none'){startStep0();appRenderTabs();}
  else appSetTab('home');
 }
 let APP_ORIGINAL={};
@@ -208,7 +207,6 @@ function appShellInit(){
  // Neue Eingabeschritte sollen weder Fotos noch Berechnungen aus dem Formular entfernen.
  document.querySelectorAll('.tile[onclick]').forEach(tile=>{if(tile.tagName==='BUTTON')return;tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});
  document.addEventListener('keydown',event=>{const tile=event.target.closest('.tile[role="button"]');if(tile&&(event.key==='Enter'||event.key===' ')){event.preventDefault();tile.click();}});
- const tileObserver=new MutationObserver(()=>{document.querySelectorAll('.tile[onclick]:not([role]):not(button)').forEach(tile=>{tile.setAttribute('role','button');tile.tabIndex=0;tile.setAttribute('aria-label',tile.querySelector('.t')?.textContent||tile.textContent.trim());});});tileObserver.observe($('start-tiles'),{childList:true});
  appFormDisclosure();appAbschnitteKlappbar();appNummerieren();
  let navRaf=0;window.addEventListener('scroll',()=>{if(navRaf)return;navRaf=requestAnimationFrame(()=>{navRaf=0;appNavAktuell();});},{passive:true});
  // Drucken (Aufnahmebogen, Druckansicht): zugeklappte Blöcke vorher öffnen, danach wiederherstellen

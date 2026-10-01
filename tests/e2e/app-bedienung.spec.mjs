@@ -7,7 +7,7 @@ test('vier klare Hauptbereiche sind mit der Tastatur erreichbar',async({page})=>
  await nav.getByRole('button',{name:'Übersicht',exact:true}).click();await expect(page.locator('#start-step0')).toBeVisible();
 });
 test('Bewertung: alle Abschnitte untereinander wie früher, Abschnitte und Blöcke auf- und zuklappbar, Eingaben bleiben',async({page})=>{
- await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus nach BGF',exact:true}).click();
+ await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus',exact:true}).click();
  // Reihenfolge wie früher (Eckdaten, Aufnahmebogen, Hauptgebäude …), Nummern fortlaufend 1, 2, 3 …
  const ids=await page.locator('main>section.card:visible').evaluateAll(l=>l.map(s=>s.id));
  expect(ids.slice(0,6)).toEqual(['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen']);expect(ids.length).toBeGreaterThanOrEqual(20);
@@ -50,4 +50,20 @@ test('globale Suche öffnet gespeicherte Projekte auch aus Mehr',async({page})=>
 test('globale Suche zeigt die aktuelle Bewertung aus der Objektliste',async({page})=>{
  await appOeffnen(page);await page.evaluate(()=>{apply({ek_anschrift:'Aktuelle Talstraße'});appSetTab('objects');});
  await page.getByRole('button',{name:'Objekt suchen',exact:true}).click();await page.locator('#suche_q').fill('Aktuelle Talstraße');await page.locator('#suche_liste .suche-row').filter({hasText:'Aktuelle Talstraße'}).click();await expect(page.locator('#s-eck')).toBeVisible();
+});
+test('Neue Bewertung: nur die Objektart wählen, danach öffnet sich gleich die Bewertung; Zusätze schaltet man dort zu',async({page})=>{
+ await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();
+ await expect(page.locator('#start-step1 .tile')).toHaveText([/Eigentumswohnung/,/Wohnhaus/,/Laden \/ Büro \/ Praxis/,/Gewerbe \/ Betrieb/]);
+ await expect(page.locator('#start-step2')).toHaveCount(0);
+ await page.getByRole('button',{name:'Eigentumswohnung',exact:true}).click();
+ await expect(page.locator('body')).toHaveClass(/started/);await expect(page.locator('#app_object_type')).toHaveText('Eigentumswohnung');
+ expect(await page.evaluate(()=>[$('ek_modus').value,$('ek_wtyp').value,$('niess_aktiv').checked,$('pv_aktiv').checked])).toEqual(['wohnung','Etagenwohnung',false,false]);
+ // Nießbrauch und PV-Anlage in der Bewertung zuschalten
+ await page.locator('#niess_aktiv').check();await page.locator('#pv_aktiv').check();
+ expect(await page.evaluate(()=>[$('niess_aktiv').checked,$('pv_aktiv').checked])).toEqual([true,true]);
+ // Gewerbe: Gebäudeart passend vorbelegt, Anbau im Abschnitt „Anbau / Nebengebäude“
+ await page.getByRole('navigation',{name:'Hauptbereiche'}).getByRole('button',{name:'Übersicht',exact:true}).click();
+ await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();await page.getByRole('button',{name:'Gewerbe / Betrieb',exact:true}).click();
+ expect(await page.evaluate(()=>[$('ek_modus').value,$('ek_typ').value,$('gewichtung').value])).toEqual(['haus','Betriebs-/Werkstattgebäude · eingeschossig','0.3']);
+ await expect(page.locator('#s-anbau')).toBeVisible();
 });

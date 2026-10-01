@@ -416,7 +416,7 @@ function startFoot(){
   try{ vmStartRender(); }catch(e){}
 }
 function startStep0(){
-  $('start-step0').style.display=''; $('start-step1').style.display='none'; $('start-step2').style.display='none';
+  $('start-step0').style.display=''; $('start-step1').style.display='none';
   setT('start_greet', startGreeting());
   let n=0; try{ n=pjLoad().length; }catch(e){}
   setT('start-lead', new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})+(n?' · '+n+' gesicherte Projekt'+(n===1?'':'e'):''));
@@ -425,7 +425,7 @@ function startStep0(){
   window.scrollTo(0,0);
 }
 function startPreisermittlung(){
-  $('start-step0').style.display='none'; $('start-step1').style.display=''; $('start-step2').style.display='none';
+  $('start-step0').style.display='none'; $('start-step1').style.display='';
   window.scrollTo(0,0);
 }
 function showStart(){ document.body.classList.remove('started'); document.body.classList.remove('cp-open'); startStep0(); }

@@ -36,11 +36,14 @@ async function pruefeUeberall(page, wo) {
 test('nach jedem Vorlagenwechsel stimmen Empfehlung, Gewichtung und Spanne überall überein', async ({ page }) => {
   await appOeffnen(page); await arbeitsflaeche(page);
   const vordrucke = await page.evaluate(() => VORDRUCKE.map(v => ({ id: v.id, modus: v.modus })));
-  expect(vordrucke.length).toBe(9);
-  for (const v of vordrucke) {
+  expect(vordrucke.map(v => v.id)).toEqual(['etw_vergleich', 'wh_bgf', 'laden_buero_praxis', 'gewerbe_bgf']);
+  // die früheren Untervarianten (ETW mit Nießbrauch, Wohnhaus mit PV, mit Anbau und Nießbrauch, Gewichtung 40 : 60)
+  // sind jetzt Schalter in der Bewertung (D30) — dieselben Fälle werden so geprüft
+  const zusaetze = [{}, { niess_aktiv: true }, { pv_aktiv: true }, { anbau_aktiv: true, niess_aktiv: true }, { anbau_aktiv: true, niess_aktiv: true, gewichtung: '0.4' }];
+  for (const v of vordrucke) for (const z of v.modus === 'wohnung' ? zusaetze.slice(0, 2) : v.id === 'wh_bgf' ? zusaetze : zusaetze.slice(0, 1)) {
     await fallAnwenden(page, { felder: v.modus === 'wohnung' ? FALL_ETW : FALL_HAUS });
-    await page.evaluate(id=>{applyVordruck(VORDRUCKE.find(x=>x.id===id));apply({ni_leben:'12',ni_miete:'6000',ni_umfang:'teil'});},v.id);
-    await pruefeUeberall(page, v.id);
+    await page.evaluate(([id, z])=>{applyVordruck(VORDRUCKE.find(x=>x.id===id));apply(Object.assign({ni_leben:'12',ni_miete:'6000',ni_umfang:'teil'},z));},[v.id, z]);
+    await pruefeUeberall(page, v.id + ' ' + JSON.stringify(z));
   }
   await keineSkriptfehler(page);
 });

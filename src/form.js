@@ -75,62 +75,34 @@ function modusWechsel(){
   compute();
 }
 
-/* ---------- Startbildschirm: Vordruck-Presets (je Vordruck ein Objekttyp) ---------- */
+/* ---------- Startbildschirm: Objektart wählen, danach öffnet sich gleich die Bewertung ----------
+   Nur die Objektart wird am Anfang gewählt. Anbau / Nebengebäude, Wohnrecht / Nießbrauch und PV-Anlage sind Schalter in
+   den Abschnitten der Bewertung (③, ⑦, ⑦b) und werden dort zugeschaltet — keine zweite Auswahl mehr (D30). */
 const VORDRUCKE = [
-  // Eigentumswohnung
-  {id:'etw_vergleich', kat:'wohnung', icon:'🏢', label:'ETW · Ertrags- + Vergleichswert',
-   sub:'Standard-Eigentumswohnung', modus:'wohnung', wtyp:'Etagenwohnung', gew:'0.5'},
-  {id:'etw_niess', kat:'wohnung', icon:'🏢', label:'ETW · mit Nießbrauch',
-   sub:'Wohnung mit Nießbrauchsbelastung', modus:'wohnung', wtyp:'Etagenwohnung', niess:true, gew:'0.5'},
-  // Wohnhaus
-  {id:'wh_bgf', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus nach BGF',
-   sub:'Substanz (NHK) + Ertrag', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', gew:'0.5'},
-  {id:'wh_pv', kat:'wohnhaus', icon:'☀️', label:'Wohnhaus mit PV-Anlage',
-   sub:'Substanz + Ertrag + PV-Barwert', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', pv:true, gew:'0.5'},
-  {id:'wh_anbau_niess_haupt', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus + Anbau · Nießbrauch Hauptwohnung',
-   sub:'Nießbrauch auf Hauptgebäude', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.5'},
-  {id:'wh_anbau_niess_neben', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus + Anbau · Nießbrauch Einliegerwohnung',
-   sub:'Nießbrauch auf Nebengebäude', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.5'},
-  {id:'wh_bgf_ertrag_anbau_niess', kat:'wohnhaus', icon:'🏠', label:'Wohnhaus BGF + Ertrag · Anbau + Nießbrauch',
-   sub:'Nebengebäude / Einliegerwohnung', modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', anbau:true, niess:true, gew:'0.4'},
-  // Gewerbe
-  {id:'laden_buero_praxis', kat:'gewerbe', icon:'🏬', label:'Laden / Büro / Praxis',
-   sub:'Gewerbeobjekt · Ertragsschwerpunkt', modus:'haus', typ:'Geschäftshaus ohne Wohnungen', gew:'0.3'},
-  {id:'gewerbe_bgf', kat:'gewerbe', icon:'🏭', label:'Gewerbliche Objekte nach BGF',
-   sub:'Betriebs- / Werkstatt- / Bürogebäude', modus:'haus', typ:'Betriebs-/Werkstattgebäude · eingeschossig', gew:'0.3'}
+  {id:'etw_vergleich', icon:'building', label:'Eigentumswohnung', sub:'Vergleichs- + Ertragswert',
+   modus:'wohnung', wtyp:'Etagenwohnung', gew:'0.5'},
+  {id:'wh_bgf', icon:'home', label:'Wohnhaus', sub:'Substanz (NHK) + Ertrag',
+   modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', gew:'0.5'},
+  {id:'laden_buero_praxis', icon:'store', label:'Laden / Büro / Praxis', sub:'Geschäftshaus · Substanz + Ertrag',
+   modus:'haus', typ:'Geschäftshaus ohne Wohnungen', gew:'0.3'},
+  {id:'gewerbe_bgf', icon:'factory', label:'Gewerbe / Betrieb', sub:'Betriebs- und Werkstattgebäude · Substanz + Ertrag',
+   modus:'haus', typ:'Betriebs-/Werkstattgebäude · eingeschossig', gew:'0.3'}
 ];
-const KAT_TITEL = {wohnung:'Eigentumswohnung – Vordruck wählen', wohnhaus:'Wohnhaus – Vordruck wählen', gewerbe:'Gewerbe – Vordruck wählen'};
 function showStart(){
   document.body.classList.remove('started');
   startStep0();
   window.scrollTo(0,0);
 }
-/* Stufe 0 = Marktüberblick oder Preisermittlung, Stufe 1 = Kategorie, Stufe 2 = Vordruck */
+/* Stufe 0 = Arbeitsplatz, Stufe 1 = Objektart (öffnet die Bewertung) */
 function startStep0(){
   $('start-step0').style.display='';
   $('start-step1').style.display='none';
-  $('start-step2').style.display='none';
   setT('start-lead','Womit möchtest du arbeiten?');
   window.scrollTo(0,0);
 }
 function startPreisermittlung(){
   $('start-step0').style.display='none';
   $('start-step1').style.display='';
-  $('start-step2').style.display='none';
-  setT('start-lead','Wähle die Art des Vordrucks – anschließend öffnet sich das passende Formular.');
-  window.scrollTo(0,0);
-}
-function startBack(){ $('start-step1').style.display=''; $('start-step2').style.display='none'; }
-function pickKategorie(kat){
-  let tiles=$('start-tiles'); tiles.innerHTML='';
-  $('start-step2-title').textContent=KAT_TITEL[kat]||'Vordruck wählen';
-  VORDRUCKE.filter(v=>v.kat===kat).forEach(v=>{
-    tiles.insertAdjacentHTML('beforeend',
-      `<div class="tile" onclick="pickVordruck('${v.id}')"><div class="ic">${v.icon}</div><div class="t">${v.label}</div><div class="d">${v.sub||'&nbsp;'}</div></div>`);
-  });
-  $('start-step0').style.display='none';
-  $('start-step1').style.display='none';
-  $('start-step2').style.display='';
   window.scrollTo(0,0);
 }
 function pickVordruck(id){

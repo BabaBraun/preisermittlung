@@ -1,3 +1,8 @@
+# Zusammenfassung — Neue Bewertung: nur Objektart wählen (2026-10-01)
+
+Vier Kacheln (Eigentumswohnung, Wohnhaus, Laden / Büro / Praxis, Gewerbe / Betrieb) öffnen direkt die Bewertung;
+PV-Anlage, Anbau und Nießbrauch schaltet man dort zu (D30).
+
 # Zusammenfassung — historischer Vergleich zweier Stichtage (2026-10-01)
 
 „Vergleich“ je Liegenschaft: Eckdaten und Preisansätze zweier Stichtage nebeneinander, Veränderung grün/rot, Bausubstanz

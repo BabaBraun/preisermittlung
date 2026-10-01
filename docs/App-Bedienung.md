@@ -9,6 +9,13 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Darstellung, Datensicherung, Datenschutz und App-Sperre.
 
+## Neue Bewertung beginnen
+
+„Neue Bewertung“ → Objektart wählen: **Eigentumswohnung**, **Wohnhaus**, **Laden / Büro / Praxis** oder
+**Gewerbe / Betrieb**. Danach öffnet sich gleich die Bewertung — Verfahren, Gebäudeart und Gewichtung sind passend
+vorbelegt und bleiben änderbar. Eine zweite Auswahl (mit PV-Anlage, mit Anbau, mit Nießbrauch …) gibt es nicht mehr:
+Anbau / Nebengebäude, Wohnrecht / Nießbrauch und PV-Anlage schaltet man in der Bewertung im jeweiligen Abschnitt zu.
+
 ## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
 
 Alle Abschnitte stehen untereinander in der bekannten Reihenfolge (Eckdaten, Aufnahmebogen, Hauptgebäude, Anbau,

@@ -58,7 +58,7 @@
         <div class="tile q" onclick="startPreisermittlung()">
           <span class="qi fill" data-ic="plus"></span>
           <div class="t">Neue Bewertung</div>
-          <div class="d">Wohnhaus, Wohnung oder Gewerbe — Vordruck wählen und loslegen.</div>
+          <div class="d">Objektart wählen — Wohnung, Wohnhaus, Büro oder Gewerbe — und loslegen.</div>
         </div>
         <div class="tile q" onclick="mdbOeffnen().then(function(){mdbTab('erf');mdbNeu();})">
           <span class="qi" data-ic="camera"></span>
@@ -97,15 +97,12 @@
       <button class="back-btn" onclick="startStep0()" data-ic="arrow-left">Zurück</button>
       <p class="step-label"><span class="num">1</span> Was möchtest du bewerten?</p>
       <div class="big-choice">
-        <div class="tile" onclick="pickKategorie('wohnung')"><div class="ic" data-ic="building"></div><div class="t">Eigentumswohnung</div><div class="d">Vergleichs- + Ertragswert</div></div>
-        <div class="tile" onclick="pickKategorie('wohnhaus')"><div class="ic" data-ic="home"></div><div class="t">Wohnhaus</div><div class="d">Substanz (NHK) + Ertrag</div></div>
-        <div class="tile" onclick="pickKategorie('gewerbe')"><div class="ic" data-ic="store"></div><div class="t">Gewerbe</div><div class="d">Laden · Büro · Betrieb</div></div>
+        <div class="tile" onclick="pickVordruck('etw_vergleich')"><div class="ic" data-ic="building"></div><div class="t">Eigentumswohnung</div><div class="d">Vergleichs- + Ertragswert</div></div>
+        <div class="tile" onclick="pickVordruck('wh_bgf')"><div class="ic" data-ic="home"></div><div class="t">Wohnhaus</div><div class="d">Substanz (NHK) + Ertrag</div></div>
+        <div class="tile" onclick="pickVordruck('laden_buero_praxis')"><div class="ic" data-ic="store"></div><div class="t">Laden / Büro / Praxis</div><div class="d">Geschäftshaus · Substanz + Ertrag</div></div>
+        <div class="tile" onclick="pickVordruck('gewerbe_bgf')"><div class="ic" data-ic="factory"></div><div class="t">Gewerbe / Betrieb</div><div class="d">Betriebs- und Werkstattgebäude</div></div>
       </div>
-    </div>
-    <div id="start-step2" style="display:none">
-      <button class="back-btn" onclick="startBack()" data-ic="arrow-left">Zurück</button>
-      <p class="step-label"><span class="num">2</span> <span id="start-step2-title">Objekttyp wählen</span></p>
-      <div class="tiles" id="start-tiles"></div>
+      <p class="hint start-hinweis">Anbau oder Nebengebäude, Wohnrecht oder Nießbrauch und eine PV-Anlage schaltest du in der Bewertung im jeweiligen Abschnitt zu.</p>
     </div>
   </div>
 </div>
