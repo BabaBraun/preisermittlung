@@ -8,9 +8,9 @@ import { createRequire } from 'node:module';
 import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
 const require = createRequire(import.meta.url);
-const V = require('../../js/verwaltung.js');
+const V = require('../../js/liegenschaften.js');
 const J = require('../../js/jahresbewertung.js');
-const B = require('../../js/verwaltung-bew.js');
+const B = V;
 const PY = pythonMit('json');
 const FAELLE = JSON.parse(readFileSync(new URL('../referenz/jahresbewertung_faelle.json', import.meta.url), 'utf8')).faelle;
 const nahe = (ist, soll, t) => assert.ok(Math.abs(ist - soll) < 0.005, t + ': ist ' + ist + ', soll ' + soll);
@@ -97,10 +97,10 @@ test('Vordruck im Bewertungsverlauf: Ergebnisse übernommen, Sicherung behält d
   const r = J.rechnen(b.vordruck);
   assert.equal(b.stichtag, '2025-12-31'); assert.equal(b.ergebnis, Math.round(r.ergebnis * 100) / 100);
   assert.equal(b.bpi, 136.2);
-  const l = V.bereinigen({ id: 'L', name: 'Filiale', eigentuemerArt: 'bank', bewertungen: [b, { id: 'b2', stichtag: '2024-12-31', ergebnis: 1 }] });
+  const l = V.bereinigen({ id: 'L', name: 'Filiale', bewertungen: [b, { id: 'b2', stichtag: '2024-12-31', ergebnis: 1 }] });
   assert.ok(l.bewertungen[0].vordruck && l.bewertungen[0].vordruck.gebaeude.length === 1);
   assert.equal(l.bewertungen[1].vordruck, null);
-  const sp = V.sicherungPruefen({ typ: 'immoapp-verwaltung', liegenschaften: [l] });
+  const sp = V.sicherungPruefen({ typ: 'immoapp-liegenschaften', liegenschaften: [l] });
   assert.equal(J.rechnen(sp.liegenschaften[0].bewertungen[0].vordruck).ergebnis, r.ergebnis);
 });
 

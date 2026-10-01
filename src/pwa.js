@@ -21,8 +21,30 @@ const APP_ICONS={i192:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAI
 })();
 if(!ImmoNative.isNative() && 'serviceWorker' in navigator && location.protocol!=='file:'){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js').catch(()=>{ /* z.B. ohne HTTPS – App läuft trotzdem */ });
+    navigator.serviceWorker.register('./sw.js').then(swUpdateBeobachten).catch(()=>{ /* z.B. ohne HTTPS – App läuft trotzdem */ });
   });
+}
+/* Neue Version: Hinweis mit „Jetzt aktualisieren“ (übernimmt die wartende Fassung und lädt neu). Ohne Tipp gilt sie
+   wie bisher, sobald alle Fenster geschlossen waren. Beim Zurückkehren in die App wird nach Updates gesucht. */
+let SW_NEU_LADEN=false;
+function swUpdateBeobachten(reg){
+  if(!reg) return;
+  // nur wenn beim Laden schon eine (ältere) Fassung lief — nicht bei der ersten Installation
+  const warKontrolliert=!!navigator.serviceWorker.controller;
+  const zeigen=()=>{ if(warKontrolliert&&reg.waiting&&reg.active&&reg.waiting!==reg.active) swHinweis(reg); };
+  zeigen();
+  reg.addEventListener('updatefound',()=>{ const w=reg.installing; if(w) w.addEventListener('statechange',()=>{ if(w.state==='installed') zeigen(); }); });
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') reg.update().catch(()=>{}); });
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(SW_NEU_LADEN){ SW_NEU_LADEN=false; location.reload(); } });
+}
+function swHinweis(reg){
+  if(document.getElementById('sw_neu')) return;
+  const d=document.createElement('div'); d.id='sw_neu'; d.className='sw-neu no-print'; d.setAttribute('role','status');
+  d.innerHTML='<span>Eine neue Version der ImmoApp ist da.</span><button class="primary" type="button">Jetzt aktualisieren</button><button class="secondary" type="button" aria-label="Später">Später</button>';
+  const [, jetzt, spaeter]=d.children;
+  jetzt.onclick=()=>{ if(!reg.waiting){ location.reload(); return; } SW_NEU_LADEN=true; jetzt.disabled=true; jetzt.textContent='Wird geladen …'; reg.waiting.postMessage({typ:'aktualisieren'}); };
+  spaeter.onclick=()=>d.remove();
+  document.body.appendChild(d);
 }
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault(); DEFERRED_PROMPT=e;

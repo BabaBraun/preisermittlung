@@ -110,46 +110,26 @@ window.iaSelbsttest=function(){
     pruef('Investition','Vermögenszuwachs nach Steuern',M.zuwachs,180510.82,0.5);
   });
 
-  sicher('Liegenschaftsverwaltung','Aufruf',()=>{
-    const V=window.ImmoVerwaltung;
-    pruef('Liegenschaftsverwaltung','Ostersonntag 2026',V.ostersonntag(2026),'2026-04-05');
-    pruef('Liegenschaftsverwaltung','Miete fällig April 2026 (Karfreitag, Ostermontag)',V.dritterWerktag('2026-04'),'2026-04-07');
-    pruef('Liegenschaftsverwaltung','Miete fällig Januar 2026 (Heilige Drei Könige)',V.dritterWerktag('2026-01'),'2026-01-07');
-    pruef('Liegenschaftsverwaltung','Verzugszinsen 1.000 € für 30 Tage (1,27 % + 5 Pp.)',V.r2(V.verzugszinsen(1000,'2026-03-03','2026-04-02',5)),5.15,0.001);
-    // Sollwerte aus der unabhängigen Vergleichsrechnung tests/referenz/verwaltung_sollwerte.py
-    const zD=[['2026-01-05',1090],['2026-02-03',1090],['2026-03-03',1090],['2026-04-07',1090],['2026-05-05',1090],['2026-06-03',1090],['2026-07-03',1090],['2026-08-20',500],['2026-09-25',490]]
-      .map((z,i)=>({id:'d'+i,vertragId:'vD',datum:z[0],betrag:z[1],art:'miete'}));
-    const vD={id:'vD',einheitId:'e',beginn:'2026-01-01',miete:{kalt:820,nk:160,hk:110,zuschlag:0,ust:0}};
-    const opD=V.offenePosten(vD,zD,'2026-09-29',{aufschlag:5}), ks=V.kuendigungsschwelle(opD,vD,'2026-09-29');
-    pruef('Liegenschaftsverwaltung','Mietkonto: Rückstand aus zwei Teilzahlungen',opD.summe.rueckstand,1190,0.001);
-    pruef('Liegenschaftsverwaltung','Mietkonto: Verzugszinsen',opD.summe.zinsen,11.85,0.001);
-    pruef('Liegenschaftsverwaltung','Kündigungsschwelle a erreicht, b nicht (§ 543 BGB)',(ks.a?'a':'-')+(ks.b?'b':'-'),'a-');
-    const vC={id:'vC',einheitId:'e',beginn:'2024-06-01',ende:'2026-02-14',miete:{kalt:600,nk:120},aenderungen:[{id:'c1',ab:'2025-06-01',kalt:640}]};
-    const opC=V.offenePosten(vC,[['2024-06-03',8640],['2025-06-02',7600],['2026-02-02',900]].map((z,i)=>({id:'c'+i,vertragId:'vC',datum:z[0],betrag:z[1],art:'miete'})),'2026-09-29',{aufschlag:5});
-    pruef('Liegenschaftsverwaltung','Vertragsende Mitte Februar: Soll und Guthaben',opC.summe.soll+' / '+opC.summe.guthaben,'15100 / 2040');
-    // Nebenkosten: Grundsteuer nach Fläche, Wasser nach Personen, verbundene Heizung (§ 9: 5.000 von 30.000 kWh),
-    // Mieterwechsel W2 zum 01.04. (Heizung nach Gradtagszahlen), CO2 30 kg/m² → Stufe 5, Vermieter 40 %
-    const N=window.ImmoNebenkosten;
-    pruef('Nebenkosten','CO2-Stufe bei 30 kg je m² und Jahr: Anteil Vermieter',N.co2Stufe(30).vermieter,40);
-    const lN={id:'L',einheiten:[{id:'e1',nr:'W1',art:'wohnung',flaeche:60},{id:'e2',nr:'W2',art:'wohnung',flaeche:40}],
-      vertraege:[{id:'v1',einheitId:'e1',beginn:'2025-01-01',personen:2,miete:{kalt:600,nk:150,hk:80}},{id:'v2',einheitId:'e2',beginn:'2025-04-01',personen:1,miete:{kalt:400,nk:100,hk:60}}],
-      kosten:[{id:'k1',kategorie:'grundsteuer',betrag:1000,datum:'2025-05-15'},{id:'k2',kategorie:'wasser',betrag:900,datum:'2025-12-01'},{id:'k3',kategorie:'heizung_ww',betrag:3000,datum:'2025-12-31'}]};
-    const rN=N.abrechnen(lN,{von:'2025-01-01',bis:'2025-12-31',heiz:{modus:'verteilen',wwModus:'messung',energieKwh:30000,wwVolumen:40,wwTemp:60,einheiten:{e1:{heiz:600,ww:25},e2:{heiz:300,ww:15}}},co2:{aktiv:true,kosten:400,kg:3000}});
-    const e1=rN.ergebnisse.find(e=>e.vertragId==='v1'), e2=rN.ergebnisse.find(e=>e.vertragId==='v2');
-    pruef('Nebenkosten','W1: Betriebskosten / Heizung / CO2-Erstattung',e1.kosten+' / '+e1.heiz+' / '+e1.co2Erstattung,'1200 / 1925.42 / 102.69');
-    pruef('Nebenkosten','W1: Nachzahlung nach 2.760 € Vorauszahlungen',e1.saldo,262.73,0.001);
-    pruef('Nebenkosten','W2 (ab April): Guthaben',e2.saldo,-316.27,0.001);
-    const I=window.ImmoInstandhaltung;
-    pruef('Instandhaltung','Nächste Prüfung: 31.01.2024 + 1 Monat (Schaltjahr)',I.naechste({letzte:'2024-01-31',monate:1}),'2024-02-29');
-    pruef('Instandhaltung','Abgerechnete Reparatur: nicht umlagefähig',I.kostenAusVorgang({id:'x',titel:'Rohrbruch',rechnung:1200,erledigtAm:'2026-05-05'}).kategorie,'instandhaltung');
-    const MH=window.ImmoMieterhoehung, BI=window.ImmoBankimport, JB=window.ImmoBericht;
-    pruef('Mieterhöhung','Kappungsgrenze Heilbronn 2026 (KappVO BW): 15 %',MH.kappung({ort:'Heilbronn',einstellungen:{}},'2026-06-01').prozent,15);
-    pruef('Mieterhöhung','Kappungsgrenze Ilsfeld: 20 %',MH.kappung({ort:'Ilsfeld',einstellungen:{}},'2026-06-01').prozent,20);
-    const mhl={id:'L',ort:'Ilsfeld',einstellungen:{},einheiten:[{id:'e1',art:'wohnung',flaeche:60}]}, mhv={id:'v1',einheitId:'e1',beginn:'2023-01-01',mietart:'index',miete:{kalt:700},index:{basisMonat:'2022-10',basisWert:122.2},
-      aenderungen:[{id:'i1',ab:'2024-03-01',kalt:720,grund:'index',indexMonat:'2023-12',indexWert:117.4}]};
-    pruef('Mieterhöhung','Indexmiete: 720 € × 123,1 / 117,4',MH.indexAnpassung(mhl,mhv,{zugang:'2026-08-15',vpiNeu:123.1,monatNeu:'2026-07'}).neu,754.96,0.001);
-    pruef('Kontoauszug','CSV: Betrag „1.090,00“ und Datum „02.03.2026“',BI.lesen('Buchungstag;Betrag;Verwendungszweck\n02.03.2026;1.090,00;Miete\n').umsaetze[0].betrag,1090);
-    pruef('Jahresbericht','Zehn-Tage-Regel: Januarmiete am 29.12. gehört ins Folgejahr',JB.steuerjahr('2025-12-29',{art:'miete',faellig:'2026-01-07'}),2026);
+  sicher('Liegenschaften','Aufruf',()=>{
+    // Vordruck der Preiseinschätzung (synthetischer Fall „buero_mit_pv“); Sollwerte aus der unabhängigen
+    // Python-Rechnung tests/referenz/jahresbewertung_ref.py (Dezimalarithmetik, Rundungen wie im Excel-Vordruck)
+    const J=window.ImmoJahresbewertung, L=window.ImmoLiegenschaften;
+    const v=J.bereinigen({stichtag:'2025-12-31',boden:[{flaeche:412.5,brw:320,abschlag:10}],
+      gebaeude:[{text:'Bürogebäude',baujahr:1995,bgf:640,gnd:80,rnd:52,abschlagBauweise:5,bpiArt:'buero',bpi:136.2,bpiFaktor:1.4472,kosten1:[655,730,930,1520,1900],
+        anteile:[[0,0.4,0.4,0,0.2],[0,0,0.7,0.3,0],[0,0,0.6,0.4,0],[0,0,0.5,0.5,0],[0,0,0.5,0.5,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,0,0.5,0.5]]}],
+      pauschal:[{text:'Außenanlagen',betrag:25000}],objektspezifisch:[{text:'Instandhaltungsstau',betrag:-8000}],
+      pv:{kwp:9.9,kwh:9500,eurKwh:0.2311,bwk:15,lz:5,inbetrieb:'2013-04-01',eegEnde:'2033-04-01'},
+      mieten:[{text:'Büro',monat:6400},{text:'Laden',monat:950,abschlag:5}],bwk:20,lz:4.5,gewichtung:50});
+    const r=J.rechnen(v);
+    pruef('Liegenschaften','Vordruck: Bodenwert',r.boden,118800,0.005);
+    pruef('Liegenschaften','Vordruck: Gebäudepreis €/m² (gerundet wie im Vordruck)',r.gebaeude[0].preis,1363);
+    pruef('Liegenschaften','Vordruck: Vervielfältiger (zwei Stellen)',r.teile[0].vf,19.97);
+    pruef('Liegenschaften','Vordruck: Barwert PV-Anlage',r.pvWert,11122.15,0.005);
+    pruef('Liegenschaften','Vordruck: Bausubstanz',r.substanz,1019242.15,0.005);
+    pruef('Liegenschaften','Vordruck: Mietertrag',r.ertrag,1420862.83,0.005);
+    pruef('Liegenschaften','Vordruck: Mittel',r.ergebnis,1220052.49,0.005);
+    pruef('Liegenschaften','Kapitel wie die Excel-Mappe (mit PV: 8 Kapitel)',J.kapitel(v).summe,8);
+    pruef('Liegenschaften','Eingabe „1.419“ = 1.419 m²',L.zahlEingabe('1.419'),1419);
   });
 
   sicher('Bausteine','Aufruf',()=>{

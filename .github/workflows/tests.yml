@@ -52,8 +52,7 @@ jobs:
       - name: Sollwerte der Vergleichsrechnung sind aktuell
         run: |
           python tests/referenz/sollwerte.py
-          python tests/referenz/verwaltung_sollwerte.py
-          git diff --exit-code tests/referenz/sollwerte.json tests/referenz/verwaltung_sollwerte.json
+          git diff --exit-code tests/referenz/sollwerte.json
 
       - name: Rechenkern (Node)
         run: |

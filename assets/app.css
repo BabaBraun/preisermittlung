@@ -1090,3 +1090,6 @@
 
 /* Auch die Startseite bleibt unter der iOS-Statusleiste bedienbar. */
 .start-head{height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}
+  /* Hinweis „Neue Version“ (src/pwa.js) */
+  .sw-neu{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:900;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 32px);padding:10px 14px;border-radius:18px;background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 30px rgba(0,0,0,.18));font-size:14px}
+  .sw-neu button{min-height:40px}

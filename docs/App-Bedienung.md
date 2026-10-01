@@ -7,7 +7,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 - **Übersicht:** neue Bewertung beginnen, Objekte suchen, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
-- **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaftsverwaltung, Darstellung, Datensicherung, Datenschutz und App-Sperre.
+- **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Darstellung, Datensicherung, Datenschutz und App-Sperre.
 
 ## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
 
@@ -31,36 +31,24 @@ Quartalswert des Statistischen Landesamts Baden-Württemberg zum Wertermittlungs
 Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle. Liegt der Stichtag nach dem neuesten
 eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus dem Statistischen Bericht selbst eintragen.
 
-## Bewertungen einer Liegenschaft
+## Liegenschaften
 
-Liegenschaftsverwaltung → Liegenschaft → Reiter „Bewertungen“:
+Startseite → Kachel „Liegenschaften“ oder Mehr → „Liegenschaften“ (Reiter Übersicht, Ansprechpartner, Datensicherung):
 
-- **Bewertung eintragen:** Ergebnisse früherer Preiseinschätzungen oder Gutachten (z. B. aus Excel) mit Stichtag,
-  Bodenwert, Substanz, Ertrag, Ergebnis, Baupreisindex und Quelle.
-- **Aus Preisermittlung übernehmen:** eine gespeicherte Bewertung wählen; die App rechnet sie und trägt die Werte ein.
-  Die Bewertung bleibt verknüpft („Öffnen“, „Neu rechnen“).
-- **Auf neuen Stichtag fortschreiben:** legt eine Kopie der verknüpften Bewertung als Entwurf an — neuer Stichtag,
-  amtlicher Baupreisindex, angepasste Restnutzungsdauer und PV-Laufzeit fortgeschrieben. Bodenrichtwert, Mieten und
-  Zinssätze bleiben stehen und sind zu prüfen (die Liste steht in der Notiz).
-- Für Objekte der Bank und eigene Objekte erscheint die jährliche Bewertung (ein Jahr nach der letzten
-  abgeschlossenen) in den Fristen. Einheiten können als „Eigennutzung“ markiert werden; sie zählen nicht als
-  Leerstand, die Zielmiete gilt dann als fiktive Miete.
-
-## Jahresbewertung (Liegenschaften der Bank)
-
-Startseite → Kachel „Jahresbewertung“ oder Mehr → „Jahresbewertung“ (in der Liegenschaftsverwaltung der Reiter
-„Jahresbewertung“ neben „Übersicht“):
-
-- **Vorhandene Bewertungen übernehmen:** „Sicherung einspielen“ (direkt in der Jahresbewertung oder unter
-  „Datensicherung“) und die Sicherungsdatei mit den Vordrucken wählen — die Liegenschaften erscheinen danach in der
-  Übersicht und hier mit allen Stichtagen. Die Datei muss dafür auf dem Gerät liegen (am iPhone z. B. in „Dateien“).
-- **Vordruck anlegen:** Liegenschaft wählen oder gleich im Formular neu anlegen (Bezeichnung, Anschrift; gespeichert
-  als „Objekt der Bank“ zusammen mit dem Vordruck), Stichtag und Vorlage wählen — wie bei „Neue Bewertung“:
-  Bankgebäude / Filiale, Wohn- und Geschäftshaus, Bankgebäude mit Nebengebäude, Grundstück / Parkplatz, leerer
-  Vordruck oder (wenn vorhanden) Kopie des letzten Vordrucks. Die Vorlagen sind wie die Excel-Vordrucke der Bank
+- **Vorhandene Bewertungen übernehmen:** „Sicherung einspielen“ (in der Übersicht oder unter „Datensicherung“) und
+  die Sicherungsdatei mit den Vordrucken wählen — die Liegenschaften erscheinen danach mit allen Stichtagen. Die Datei
+  muss dafür auf dem Gerät liegen (am iPhone z. B. in „Dateien“). Sicherungen der früheren Liegenschaftsverwaltung
+  lassen sich ebenso einspielen.
+- **Liegenschaft anlegen:** Bezeichnung, Anschrift, Art, Notiz — danach geht es gleich zum ersten Vordruck. Der Stift
+  in der Übersicht öffnet die Angaben zum Ändern oder Löschen.
+- **Vordruck anlegen:** Liegenschaft wählen oder gleich im Formular neu anlegen, Stichtag und Vorlage wählen — wie bei
+  „Neue Bewertung“: Bankgebäude / Filiale, Wohn- und Geschäftshaus, Bankgebäude mit Nebengebäude, Grundstück /
+  Parkplatz oder (wenn vorhanden) Kopie des letzten Vordrucks. Unter dem Ergebnis steht, was noch fehlt
+  („Noch offen: …“ mit der Ziffer im Vordruck); der Preisansatz unter 2.1 übernimmt den Richtwert, solange dort nichts
+  anderes eingetragen ist. Die Vorlagen sind wie die Excel-Vordrucke der Bank
   aufgebaut (NHK 2010, amtlicher Baupreisindex zum Stichtag, Bewirtschaftung 20 %, Liegenschaftszins 4 %); Flächen,
   Baujahr, Bodenrichtwert und Mieten trägt man im Vordruck ein.
-- **Übersicht:** je Objekt eine Zeile, je Stichtag eine Spalte mit Ergebnis, Veränderung zur Vorbewertung und
+- **Übersicht:** je Liegenschaft eine Zeile, je Stichtag eine Spalte mit Ergebnis, Veränderung zur Vorbewertung und
   „Entwurf“; darunter die Summe je Stichtag. „Übersicht als Excel“ lädt Übersicht und Einzelwerte herunter.
 - **Vordruck:** ein Tipp auf einen Wert öffnet ihn. Aufbau wie die Excel-Mappe der Bank, mit denselben Nummern,
   Beschriftungen und Zwischenzeilen: Deckblatt (Auftraggeber, Auftragsinhalt, Verwendungszweck, Objekt, Anschrift,
@@ -76,10 +64,10 @@ Startseite → Kachel „Jahresbewertung“ oder Mehr → „Jahresbewertung“ 
   Rundungen (Alterswertminderung volle %, Gebäudepreis volle €, Vervielfältiger zwei Stellen). Mehrere Gebäude
   bekommen je eigene Restnutzungsdauer im Ertrag; der Boden wird nach dem Mietanteil verteilt. Bauteile ohne Anteil
   (z. B. keine Heizung im Lager) zählen 0.
-- **Fortschreiben:** „Alle fortschreiben“ (oder je Objekt) legt aus dem letzten Vordruck einen Entwurf zum neuen
+- **Fortschreiben:** „Alle fortschreiben“ (oder je Liegenschaft) legt aus dem letzten Vordruck einen Entwurf zum neuen
   Stichtag an: amtlicher Baupreisindex je Gebäudeart, angepasste RND um die vergangenen Jahre verringert.
-- Die Vordrucke gehören zur Liegenschaft (Reiter „Bewertungen“, Knopf „Vordruck“) und sind in der Datensicherung
-  der Verwaltung enthalten.
+- **Ansprechpartner:** Name, Anschrift, Telefon und E-Mail für das Deckblatt.
+- Die Vordrucke gehören zur Liegenschaft und sind in der Datensicherung der Liegenschaften enthalten.
 
 ## Prüfung
 

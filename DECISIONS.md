@@ -568,3 +568,29 @@ Dokument steht im Bericht (#report) mit Drucken, PDF, Word und Teilen. Bei zwei 
 Sicherungsdatei auf das Gerät, und neue Vordrucke übernehmen die Texte des zuletzt bearbeiteten Vordrucks. Kein Logo,
 kein Foto des Ansprechpartners — der Ansprechpartner auf dem Deckblatt kommt aus „Absender“.
 
+---
+
+## D27 (2026-10-01) — Bereich „Liegenschaften“; Liegenschaftsverwaltung entfernt; Update auf Tipp
+
+**Wunsch des Auftraggebers:** Den Bereich nicht „Jahresbewertung“ nennen, sondern „Liegenschaften“; die
+Liegenschaftsverwaltung ganz aus der App entfernen. Außerdem: Am Schluss kam als Ergebnis 0 heraus, und der Vordruck
+folgte nicht der Reihenfolge der Excel-Mappe.
+
+**Entscheidung:**
+- Die Liegenschaftsverwaltung (Mietverwaltung, Nebenkosten, Instandhaltung, WEG, Mieterhöhung, Kontoauszug, Berichte,
+  Dokumente, Fristen, Dienstleister; D15–D18, D21) ist entfernt — Module, Tests und Vergleichsrechnungen. Geblieben
+  ist ein eigener, kleiner Bereich „Liegenschaften“: Liegenschaften mit ihren Preiseinschätzungen je Stichtag
+  (Vordruck, D24–D26), Ansprechpartner fürs Deckblatt, Datensicherung. Kern `js/liegenschaften.js`, Fenster
+  `js/liegenschaften-ui.js`.
+- **Daten bleiben erhalten:** Speicher ist weiter die Datenbank `ia_verwaltung`; Angaben früherer Fassungen (Einheiten,
+  Verträge …) bleiben beim Bereinigen unverändert im Dokument stehen, werden aber nicht mehr angezeigt. Sicherungen der
+  früheren Verwaltung lassen sich einspielen.
+- **Ergebnis 0:** nachgestellt — wer den Bodenrichtwert wie in der Mappe unter 2.1 „Richtwert“ einträgt, ließ den
+  „Preisansatz“ leer (Bodenwert 0); der „Leere Vordruck“ hatte weder NHK noch Baupreisindex noch Mietzeilen (alles 0).
+  Jetzt übernimmt der Preisansatz den Richtwert, solange er nicht abweichend eingetragen ist; die leere Vorlage ist
+  entfallen; unter dem Ergebnis steht „Noch offen: …“ mit der Ziffer im Vordruck.
+- **Reihenfolge:** Die NHK-Tabelle steht wie im Blatt „Preis m² BGF“ vor 6.1.
+- **Updates:** Eine neue Version wartete bisher, bis alle Fenster geschlossen waren — am iPhone sind Home-Bildschirm-Apps
+  selten ganz geschlossen, Änderungen kamen daher nicht an. Jetzt erscheint „Neue Version — Jetzt aktualisieren“; ein
+  Tipp übernimmt die wartende Fassung (skipWaiting) und lädt neu. Beim Zurückkehren in die App wird nach Updates gesucht.
+

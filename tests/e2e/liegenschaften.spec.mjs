@@ -1,5 +1,5 @@
-/* Jahresbewertung im Browser: Übersicht Objekte × Stichtage, Vordruck öffnen, Zahl ändern (sofort neu gerechnet),
-   speichern, alle fortschreiben, Excel-Übersicht, Sprung aus dem Reiter „Bewertungen“. Nur synthetische Daten
+/* Liegenschaften im Browser: Übersicht Liegenschaften × Stichtage, Vordruck öffnen, Zahl ändern (sofort neu gerechnet),
+   speichern, alle fortschreiben, Excel-Übersicht, Liegenschaft bearbeiten. Nur synthetische Daten
    (Fall „buero_mit_pv“ aus tests/referenz/jahresbewertung_faelle.json; Ergebnis 1.220.052,49 € laut Python-Rechnung).
    Bodenrichtwert 320 → 340: Boden + 412,5 × 20 × 0,9 = +7.425 €; Ertrag +7.425 − 7.425 × 4,5 % × 19,97 = +752,52 €;
    Ergebnis + (7.425 + 752,52) / 2 = 1.224.141,25 €. */
@@ -13,15 +13,17 @@ const J = require('../../js/jahresbewertung.js');
 const FALL = JSON.parse(readFileSync('tests/referenz/jahresbewertung_faelle.json', 'utf8')).faelle[0].vordruck;
 const lv = page => page.locator('#lv_overlay');
 
-test('Jahresbewertung: Übersicht, Vordruck ändern und speichern, fortschreiben, Excel', async ({ page }) => {
+test('Liegenschaften: Übersicht, Vordruck ändern und speichern, fortschreiben, Excel', async ({ page }) => {
   page.on('dialog', d => d.accept());
   await appOeffnen(page);
-  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
-  await expect(lv(page).locator('#lvt_jahresbewertung')).toHaveClass(/on/);
-  await expect(lv(page)).toContainText('Hier stehen die jährlichen Preiseinschätzungen');
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
+  await expect(lv(page).locator('#lvt_uebersicht')).toHaveClass(/on/);
+  await expect(lv(page)).toContainText('Hier stehen die Liegenschaften mit ihren Preiseinschätzungen');
+  await expect(lv(page).locator('#lv_titel_t')).toHaveText('Liegenschaften');
+  await expect(page.locator('.tile.q', { hasText: 'Liegenschaftsverwaltung' })).toHaveCount(0);
   await page.evaluate(async v => {
     await lvStart();
-    const b = ImmoLvBewertung.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: 'Muster.xls', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
+    const b = ImmoLiegenschaften.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: 'Muster.xls', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
     await lvSpeichern({ id: 'LJB', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', eigentuemerArt: 'bank', bewertungen: [b] });
     lvRender();
   }, FALL);
@@ -66,19 +68,21 @@ test('Jahresbewertung: Übersicht, Vordruck ändern und speichern, fortschreiben
   // Excel-Übersicht
   const dl = page.waitForEvent('download');
   await lv(page).getByRole('button', { name: 'Übersicht als Excel' }).click();
-  expect((await dl).suggestedFilename()).toMatch(/^Jahresbewertung Liegenschaften \d{4}-\d{2}-\d{2}\.xlsx$/);
-  // aus dem Reiter „Bewertungen“ in den Vordruck
-  await page.evaluate(() => lvLiegenschaftOeffnen('LJB', 'bewertungen'));
-  await lv(page).locator('.lv-tbl tbody tr').first().getByRole('button', { name: 'Vordruck' }).click();
-  await expect(lv(page).locator('#jb_editor h3').first()).toContainText('Vordruck · Musterfiliale');
-  await expect(lv(page).locator('#jb_editor [data-jb="stichtag"]')).toHaveValue('2026-12-31');
+  expect((await dl).suggestedFilename()).toMatch(/^Liegenschaften Bewertungen \d{4}-\d{2}-\d{2}\.xlsx$/);
+  // Liegenschaft bearbeiten (Stammdaten)
+  await lv(page).getByRole('button', { name: 'Liegenschaft Musterfiliale bearbeiten' }).click();
+  await expect(lv(page).locator('#lvf_name')).toHaveValue('Musterfiliale');
+  await lv(page).locator('#lvf_ort').fill('Neustadt');
+  await lv(page).locator('.lv-formbox button.primary').click();
+  await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft gespeichert');
+  await expect(tab).toContainText('Musterweg 1, 74000 Neustadt');
   await keineSkriptfehler(page);
 });
 
-test('Jahresbewertung ohne Liegenschaft: Vorlage wählen, Liegenschaft im Formular anlegen, Kopie zum nächsten Stichtag', async ({ page }) => {
+test('Liegenschaften: Vordruck ohne vorhandene Liegenschaft — Vorlage wählen, Liegenschaft im Formular anlegen, Kopie zum nächsten Stichtag', async ({ page }) => {
   page.on('dialog', d => d.accept());
   await appOeffnen(page);
-  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
   await lv(page).getByRole('button', { name: 'Vordruck anlegen' }).click();
   await expect(lv(page).locator('#lvf_jn_objekt')).toHaveValue('__neu');
   await expect(lv(page).locator('input[name=jn_vorlage]:checked')).toHaveValue('bank');
@@ -88,19 +92,27 @@ test('Jahresbewertung ohne Liegenschaft: Vorlage wählen, Liegenschaft im Formul
   await expect(lv(page).locator('#lvf_jn_name')).toHaveClass(/lv-fehler/);
   expect(await sichtbarOben(page, '#lv_formfehler')).toBe(true);
   await lv(page).locator('#lvf_jn_name').fill('Musterfiliale'); await lv(page).locator('#lvf_jn_ort').fill('Musterstadt');
+  await expect(lv(page).locator('#jb_vorlagen label', { hasText: 'Leerer Vordruck' })).toHaveCount(0);   // ergab ohne NHK, Index und Mieten 0
   await lv(page).locator('#jb_vorlagen label', { hasText: 'Bankgebäude mit Nebengebäude' }).click();
   await lv(page).getByRole('button', { name: 'Vordruck öffnen', exact: true }).click();
   const ed = lv(page).locator('#jb_editor');
   await expect(ed.locator('h3').first()).toContainText('Musterfiliale (neue Liegenschaft)');
+  await expect(ed.locator('#jb_offen')).toContainText('Grundstücksanteil I m² (1.2)');
+  await expect(ed.locator('#jb_offen')).toContainText('Mieterträge (1.3)');
+  // Bodenrichtwert wie in der Mappe unter 2.1 „Richtwert“: der Preisansatz übernimmt ihn
+  await ed.locator('[data-jb="boden.0.richtwert"]').fill('400');
+  await expect(ed.locator('[data-jb="boden.0.brw"]')).toHaveValue('400');
+  await expect(ed.locator('#jb_offen')).not.toContainText('Bodenrichtwert');
   await expect(ed.locator('[data-jb="gebaeude.1.text"]')).toHaveValue('Nebengebäude (Lager / Scheune)');
   await expect(ed.locator('[data-jb="gebaeude.0.bpi"]')).toHaveValue('143,1');
   // Werte der Hand-Rechnung aus tests/unit/jahresbewertung.test.mjs (Nebengebäude ohne BGF und Miete)
-  for (const [p, w] of [['boden.0.flaeche', '800'], ['boden.0.brw', '400'], ['gebaeude.0.baujahr', '1975'], ['gebaeude.0.bgf', '900'], ['mieten.0.monat', '6000']]) await ed.locator('[data-jb="' + p + '"]').fill(w);
+  for (const [p, w] of [['boden.0.flaeche', '800'], ['gebaeude.0.baujahr', '1975'], ['gebaeude.0.bgf', '900'], ['mieten.0.monat', '6000']]) await ed.locator('[data-jb="' + p + '"]').fill(w);
   await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.012.202,00 €');
+  await expect(ed.locator('#jb_offen')).toHaveText('Noch offen: Baujahr Nebengebäude (Lager / Scheune) (1.3) · BGF Nebengebäude (Lager / Scheune) (1.3)');
   await ed.getByRole('button', { name: 'Speichern' }).click();
   await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft „Musterfiliale“ angelegt. Vordruck zum 31.12.2026 gespeichert: Ergebnis 1.012.202 €');
-  const l = await page.evaluate(() => LV.liste.map(x => ({ name: x.name, ort: x.ort, art: x.art, eig: x.eigentuemerArt, n: x.bewertungen.length, status: x.bewertungen[0].status })));
-  expect(l).toEqual([{ name: 'Musterfiliale', ort: 'Musterstadt', art: 'gewerbe', eig: 'bank', n: 1, status: 'entwurf' }]);
+  const l = await page.evaluate(() => LV.liste.map(x => ({ name: x.name, ort: x.ort, art: x.art, n: x.bewertungen.length, status: x.bewertungen[0].status })));
+  expect(l).toEqual([{ name: 'Musterfiliale', ort: 'Musterstadt', art: 'gewerbe', n: 1, status: 'entwurf' }]);
   // zweiter Vordruck: Vorschlag Kopie, Angaben übernommen
   await lv(page).getByRole('button', { name: 'Vordruck anlegen für Musterfiliale' }).click();
   await expect(lv(page).locator('input[name=jn_vorlage]:checked')).toHaveValue('kopie');
@@ -119,25 +131,26 @@ test('Jahresbewertung ohne Liegenschaft: Vorlage wählen, Liegenschaft im Formul
   await keineSkriptfehler(page);
 });
 
-test('Jahresbewertung: Sicherung mit Vordrucken direkt einspielen; Liegenschaft ohne Bezeichnung', async ({ page }) => {
+test('Liegenschaften: Sicherung mit Vordrucken direkt einspielen; Liegenschaft ohne Bezeichnung', async ({ page }) => {
   page.on('dialog', d => d.accept());
   await appOeffnen(page);
-  const b = await page.evaluate(v => ImmoLvBewertung.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) }), FALL);
+  const b = await page.evaluate(v => ImmoLiegenschaften.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) }), FALL);
   const datei = { typ: 'immoapp-verwaltung', version: 1, liegenschaften: [{ id: 'LJB', name: 'Musterfiliale', ort: 'Musterstadt', art: 'gewerbe', eigentuemerArt: 'bank', einheiten: [], vertraege: [], zahlungen: [], mahnungen: [], einstellungen: {}, bewertungen: [b], geaendert: 1 }] };
-  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
   const fc = page.waitForEvent('filechooser');
   await lv(page).getByRole('button', { name: 'Sicherung einspielen' }).click();
   await (await fc).setFiles({ name: 'sicherung.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(datei)) });
   await expect(lv(page).locator('.lv-ok')).toContainText('Sicherung eingespielt: 1 neu');
-  await expect(lv(page).locator('#lvt_jahresbewertung')).toHaveClass(/on/);
+  await expect(lv(page).locator('#lvt_uebersicht')).toHaveClass(/on/);
   await expect(lv(page).locator('.lv-tbl')).toContainText('1.220.052 €');
   // Liegenschaft ohne Bezeichnung: Anschrift wird Bezeichnung; ganz leer: Meldung sichtbar
-  await lv(page).locator('#lvt_uebersicht').click();
-  await lv(page).getByRole('button', { name: 'Liegenschaft anlegen' }).last().click();
+  await lv(page).getByRole('button', { name: 'Liegenschaft anlegen' }).click();
   await lv(page).locator('#lvf_strasse').fill('Hauptstraße 1'); await lv(page).locator('#lvf_ort').fill('Musterstadt');
   await lv(page).locator('.lv-formbox button.primary').click();
-  await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft angelegt');
+  await expect(lv(page).locator('.lv-ok')).toContainText('Liegenschaft „Hauptstraße 1, Musterstadt“ angelegt. Jetzt den ersten Vordruck anlegen.');
+  await expect(lv(page).locator('#lvf_jn_objekt')).toHaveValue(/^L/);   // gleich weiter zum Vordruck dieser Liegenschaft
   expect(await page.evaluate(() => LV.liste.map(l => l.name).sort())).toEqual(['Hauptstraße 1, Musterstadt', 'Musterfiliale']);
+  await lv(page).getByRole('button', { name: 'Abbrechen' }).click();
   await page.evaluate(() => lvNeueLiegenschaft());
   await lv(page).locator('.lv-formbox button.primary').scrollIntoViewIfNeeded();
   await lv(page).locator('.lv-formbox button.primary').click();
@@ -155,10 +168,10 @@ async function sichtbarOben(page, sel) {
 test('Vordruck wie die Excel-Mappe: Kapitel 1–8, Angaben des Dokuments, Kartenbild, Dokument mit PDF/Word', async ({ page }) => {
   page.on('dialog', d => d.accept());
   await appOeffnen(page);
-  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
   await page.evaluate(async v => {
     await lvStart();
-    const b = ImmoLvBewertung.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
+    const b = ImmoLiegenschaften.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
     await lvSpeichern({ id: 'LJB', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', eigentuemerArt: 'bank', bewertungen: [b] });
     jbOeffnen('LJB', 'BW1');
   }, FALL);

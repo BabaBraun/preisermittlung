@@ -1,3 +1,9 @@
+# Zusammenfassung — Bereich „Liegenschaften“, Verwaltung entfernt (2026-10-01)
+
+Liegenschaftsverwaltung entfernt; eigener Bereich „Liegenschaften“ mit den Preiseinschätzungen je Stichtag nach dem
+Vordruck. Ergebnis 0 behoben (Preisansatz übernimmt den Richtwert, keine leere Vorlage, Hinweis „Noch offen“).
+Hinweis „Neue Version — Jetzt aktualisieren“ (D27).
+
 # Zusammenfassung — Vordruck der Jahresbewertung wie die Excel-Mappe (2026-10-01)
 
 Vordruck und Dokument folgen der Excel-Preiseinschätzung der Bank: Deckblatt, 1. Objektdaten, 2. Bodenrichtwert,

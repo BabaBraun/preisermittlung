@@ -24,14 +24,14 @@ test('Offline-Start nach dem ersten Besuch: App, Rechenkern, Exporte und PDF-Bau
   await context.setOffline(true);
   await page.reload();
   await page.waitForFunction(() => typeof compute === 'function' && !!window.ImmoKern && !!window.ImmoOffice && !!window.ImmoPdf && !!window.ImmoDaten
-    && !!window.ImmoVerwaltung && typeof lvOeffnen === 'function');
+    && !!window.ImmoLiegenschaften && typeof lvOeffnen === 'function');
   await page.evaluate(() => window.IA_BEREIT_P);
   await arbeitsflaeche(page);
   await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz'));
   await expect(page.locator('#r_empfehlung')).toHaveText('472.970 €');
   expect(await page.evaluate(async () => { await html2pdfLaden(); return typeof html2pdf; })).toBe('function');
-  await page.evaluate(() => lvOeffnen('uebersicht'));   // Liegenschaftsverwaltung offline
-  await expect(page.locator('#lv_body')).toContainText('Erste Liegenschaft anlegen');
+  await page.evaluate(() => lvOeffnen('uebersicht'));   // Liegenschaften offline
+  await expect(page.locator('#lv_body')).toContainText('Vordruck anlegen');
   await page.evaluate(() => lvSchliessen());
   const st = await page.evaluate(async () => { const r = await fetch('selbsttest.js'); return r.status; });
   expect(st).toBe(200);
@@ -62,6 +62,28 @@ test('Update: eine neue Fassung übernimmt die Kontrolle und räumt den alten Ca
     expect(await updated.evaluate(async c => (await (await caches.open(c)).keys()).length, NEU)).toBeGreaterThanOrEqual(ASSETS.length);
     expect(await updated.evaluate(() => navigator.serviceWorker.controller && navigator.serviceWorker.controller.state)).toBe('activated');
     await updated.close();
+  } finally {
+    await context.request.get('/__test/sw');
+  }
+});
+
+test('Update auf Tipp: Hinweis „Neue Version“ übernimmt die wartende Fassung und lädt neu', async ({ page, context }) => {
+  test.setTimeout(90_000);
+  await erstbesuch(page);
+  await page.reload(); await page.waitForFunction(() => typeof compute === 'function' && !!navigator.serviceWorker.controller);   // zweites Öffnen: ältere Fassung läuft
+  const NEU = CACHE + '-tippupdate';
+  const st = await page.request.get('/__test/sw?cache=' + encodeURIComponent(NEU));
+  expect(st.ok()).toBe(true);
+  try {
+    await page.evaluate(async () => { const reg = await navigator.serviceWorker.getRegistration(); await reg.update(); });
+    await expect(page.locator('#sw_neu')).toBeVisible({ timeout: 30000 });
+    await expect(page.locator('#sw_neu')).toContainText('Eine neue Version der ImmoApp ist da.');
+    const neuGeladen = page.waitForEvent('load', { timeout: 30000 });
+    await page.locator('#sw_neu').getByRole('button', { name: 'Jetzt aktualisieren' }).click();
+    await neuGeladen;
+    await page.waitForFunction(() => typeof compute === 'function');
+    await expect.poll(() => page.evaluate(() => caches.keys()), { timeout: 30000 }).toEqual([NEU]);
+    await expect(page.locator('#sw_neu')).toHaveCount(0);
   } finally {
     await context.request.get('/__test/sw');
   }

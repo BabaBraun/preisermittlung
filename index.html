@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="assets/app.css">
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/app-shell.css">
-<link rel="stylesheet" href="assets/verwaltung.css">
+<link rel="stylesheet" href="assets/liegenschaften.css">
 </head>
 <body>
 <div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:radial-gradient(120% 80% at 50% 0%,#16284A 0%,#0B1422 60%);color:#E6EEF9;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
@@ -77,13 +77,8 @@
         </div>
         <div class="tile q" onclick="lvOeffnen('uebersicht')">
           <span class="qi" data-ic="building"></span>
-          <div class="t">Liegenschaftsverwaltung</div>
-          <div class="d">Miet- und WEG-Verwaltung: Mieten, Nebenkosten, Hausgeld, Versammlungen, Instandhaltung — für Kunden, eigene und Bankobjekte.</div>
-        </div>
-        <div class="tile q" onclick="lvOeffnen('jahresbewertung')">
-          <span class="qi" data-ic="chart"></span>
-          <div class="t">Jahresbewertung</div>
-          <div class="d">Liegenschaften der Bank je Stichtag: Vordrucke mit allen Angaben, änderbar, fortschreiben auf das nächste Jahr.</div>
+          <div class="t">Liegenschaften</div>
+          <div class="d">Liegenschaften der Bank: Preiseinschätzung je Stichtag nach dem Vordruck, fortschreiben, als Dokument und Excel.</div>
         </div>
       </div>
       <div id="start_auf_block" style="display:none">
@@ -97,7 +92,6 @@
       <button class="start-foot" onclick="dsgvoOeffnen()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit"><span data-ic="shield"></span><span id="start_foot_t">Alle Daten bleiben auf diesem Gerät.</span><span style="text-decoration:underline;margin-left:4px">Details</span></button>
       <button class="start-foot start-pj-backup" id="start_pj_backup" hidden onclick="oeffneProjekte()"><span data-ic="download"></span><span></span></button>
       <button class="start-foot start-vm" id="start_vm" hidden onclick="vmUebersicht()"><span data-ic="chart"></span><span></span></button>
-      <button class="start-foot start-lv" id="start_lv" hidden onclick="lvOeffnen('fristen')"><span data-ic="building"></span><span></span></button>
     </div>
     <div id="start-step1" style="display:none">
       <button class="back-btn" onclick="startStep0()" data-ic="arrow-left">Zurück</button>
@@ -316,10 +310,10 @@
     </div>
   </div>
 </div>
-<div id="lv_overlay" class="overlay" role="dialog" aria-label="Liegenschaftsverwaltung">
+<div id="lv_overlay" class="overlay" role="dialog" aria-label="Liegenschaften">
   <div class="mdbwrap">
     <div class="mdb-head">
-      <h2 data-ic="building"><span id="lv_titel_t">Liegenschaftsverwaltung</span></h2>
+      <h2 data-ic="building"><span id="lv_titel_t">Liegenschaften</span></h2>
       <span class="sub" id="lv_headinfo"></span>
       <div class="sp">
         <button class="secondary" onclick="lvNeueLiegenschaft()" data-ic="plus"><span class="lbl">Liegenschaft</span></button>
@@ -1453,15 +1447,12 @@
       erzeugt die Auskunft über alles Gespeicherte, „Kunde löschen“ entfernt die Akte vollständig. Empfohlen: die
       App-Sperre mit Face ID einschalten — sie ist ein Sichtschutz; verschlüsselt werden die Daten dadurch nicht. Das leisten
       Gerätesperre und Geräteverschlüsselung des Betriebssystems.</p>
-    <h3>Liegenschaftsverwaltung</h3>
-    <p style="font-size:13px;line-height:1.6">Die Verwaltung speichert Einheiten, Mietverträge mit Namen und Kontaktdaten der
-      Mieter, Sollmieten, Zahlungseingänge, Mahnungen, Eigentümer von Wohnungseigentum, Vorgänge mit Fotos und
-      Dienstleister, abgelegte Dokumente (z. B. Mietverträge, Protokolle) und aus Kontoauszügen übernommene Zahlungen
-      (mit der IBAN des Zahlers, damit spätere Zahlungen wiedererkannt werden) in einer eigenen lokalen Datenbank auf
-      diesem Gerät. Kontoauszüge werden nur im Browser gelesen — nichts wird übertragen, gespeichert werden nur die
-      bestätigten Buchungen. Erfasse nur, was für die Verwaltung nötig ist (keine Ausweis- oder Gesundheitsdaten).
-      Ihre Sicherungsdatei ist wie alle Sicherungen <b>nicht verschlüsselt</b>. Löschen: Dokument, Vertrag, Einheit oder
-      ganze Liegenschaft direkt in der Verwaltung — mit der Liegenschaft werden auch ihre Dokumente und Fotos gelöscht.</p>
+    <h3>Liegenschaften</h3>
+    <p style="font-size:13px;line-height:1.6">Unter „Liegenschaften“ liegen die Preiseinschätzungen der Liegenschaften (Vordrucke
+      mit Objektdaten, Mieterträgen, Bodenrichtwert und Bildern der Bodenrichtwertkarte) in einer eigenen lokalen Datenbank auf
+      diesem Gerät. Mieter- oder Mitarbeiternamen gehören nicht hinein — Mietzeilen neutral benennen (z. B. „Laden EG“).
+      Die Sicherungsdatei ist wie alle Sicherungen <b>nicht verschlüsselt</b>. Löschen: Vordruck oder ganze Liegenschaft direkt
+      unter „Liegenschaften“ — mit der Liegenschaft werden auch ihre Bilder gelöscht.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -1713,16 +1704,8 @@
 <script src="js/pdf.js"></script>
 <script src="js/daten.js"></script>
 <script src="js/speicher.js"></script>
-<script src="js/verwaltung.js"></script>
-<script src="js/verwaltung-nk.js"></script>
-<script src="js/verwaltung-ih.js"></script>
-<script src="js/verwaltung-weg.js"></script>
-<script src="js/verwaltung-mh.js"></script>
-<script src="js/verwaltung-bank.js"></script>
-<script src="js/verwaltung-bericht.js"></script>
-<script src="js/verwaltung-dok.js"></script>
 <script src="js/jahresbewertung.js"></script>
-<script src="js/verwaltung-bew.js"></script>
+<script src="js/liegenschaften.js"></script>
 <script src="src/base.js"></script>
 <script src="src/pwa.js"></script>
 <script src="src/projects.js"></script>
@@ -1752,15 +1735,7 @@
 <script src="src/ui.js"></script>
 <script src="src/app-shell.js"></script>
 <script src="src/modell-ui.js"></script>
-<script src="js/verwaltung-ui.js"></script>
-<script src="js/verwaltung-nk-ui.js"></script>
-<script src="js/verwaltung-ih-ui.js"></script>
-<script src="js/verwaltung-weg-ui.js"></script>
-<script src="js/verwaltung-mh-ui.js"></script>
-<script src="js/verwaltung-bank-ui.js"></script>
-<script src="js/verwaltung-bericht-ui.js"></script>
-<script src="js/verwaltung-dok-ui.js"></script>
-<script src="js/verwaltung-bew-ui.js"></script>
+<script src="js/liegenschaften-ui.js"></script>
 <script src="js/jahresbewertung-ui.js"></script>
 <script src="js/jahresbewertung-editor.js"></script>
 <script src="js/jahresbewertung-dok.js"></script>

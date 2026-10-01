@@ -2,7 +2,7 @@
   "name": "immoapp",
   "private": true,
   "version": "1.0.0",
-  "description": "ImmoApp – rechnerische Preisermittlung und Liegenschaftsverwaltung als statische PWA (Build nur für den Service Worker)",
+  "description": "ImmoApp – rechnerische Preisermittlung und Liegenschaften (Preiseinschätzung nach Vordruck) als statische PWA (Build nur für den Service Worker)",
   "scripts": {
     "test": "npm run test:unit && npm run test:browser",
     "test:e2e": "playwright test",

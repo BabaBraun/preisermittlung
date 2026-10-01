@@ -44,7 +44,8 @@ function jbEditorHtml(){
   const E=JB_EDIT, v=E.v, l=LV.liste.find(x=>x.id===E.lId), kap=JBK.kapitel(v), G=v.gebaeude, mehrere=G.length>1, ohneGeb=!G.length;
   const name=l?l.name:E.neuL?E.neuL.name+' (neue Liegenschaft)':'';
   let h='<div class="mdb-box lv-formbox jb-editor" id="jb_editor"><h3>'+lvH((E.bId?'Vordruck · ':'Neuer Vordruck · ')+name)+'</h3><div id="lv_formfehler" class="lv-warn" hidden></div>';
-  h+='<div class="jb-erg">'+[['Bodenwert','boden'],['Substanz','substanz'],['Ertrag','ertrag'],['Ergebnis','ergebnis']].map(([t,k])=>'<div><span>'+t+'</span><b data-jbo="'+k+'"></b></div>').join('')+'</div>';
+  h+='<div class="jb-erg">'+[['Bodenwert','boden'],['Substanz','substanz'],['Ertrag','ertrag'],['Ergebnis','ergebnis']].map(([t,k])=>'<div><span>'+t+'</span><b data-jbo="'+k+'"></b></div>').join('')
+    +'<p class="jb-offen" id="jb_offen" hidden></p></div>';
   h+='<div class="grid three lv-form jb-verw">'
     +jbFeld('Stand','<select data-jb="@status" data-art="text">'+LVBW.STATUS.map(([k,t])=>'<option value="'+k+'"'+(E.status===k?' selected':'')+'>'+t+'</option>').join('')+'</select>')
     +jbFeld('Quelle / Datei',jbIn('@quelle',E.quelle,'text'))
@@ -97,7 +98,7 @@ function jbEditorHtml(){
     w+=jbU('2.'+(i+1),i?'Merkmale Grundstücksanteil '+JB_ROEM[i]:'Grundstücksmerkmale')
       +jbZeile('Flst.-Nr.:',jbIn(p+'flst',b.flst,'text','9em'))+jbZeile('Nutzbarkeit:',jbIn(p+'nutzbarkeit',b.nutzbarkeit,'text'),'','breit')
       +jbZeile('Zone Nr.:',jbIn(p+'zone',b.zone,'text','9em'))+jbZeile('Richtwert:',jbIn(p+'richtwert',b.richtwert,'zahl','6em')+' €/m²')
-      +jbZeile('Preisansatz:',jbIn(p+'brw',b.brw,'zahl','6em')+' €/m²','<span class="lv-klein">geht in die Rechnung ein</span>'); });
+      +jbZeile('Preisansatz:',jbIn(p+'brw',b.brw,'zahl','6em')+' €/m²','<span class="lv-klein">geht in die Rechnung ein; übernimmt den Richtwert, solange hier nichts anderes steht</span>'); });
   w+=jbU('','Bodenrichtwertkarte')+'<div class="jb-bilder">'+v.bilder.karte.map((id,i)=>'<figure data-anhang="'+lvH(id)+'"><img alt="Bodenrichtwertkarte '+(i+1)+'"><button class="secondary jb-x" onclick="jbBildWeg('+i+')" aria-label="Bild entfernen" data-ic="trash"></button></figure>').join('')
     +(v.bilder.karte.length<8?'<label class="secondary lv-datei jb-bild-neu">'+(typeof iaSvg==='function'?iaSvg('upload'):'')+' Bild hinzufügen<input type="file" accept="image/*" multiple onchange="jbBildHinzu(this.files);this.value=\'\'"></label>':'')+'</div>'
     +'<p class="hint">Ausschnitt der Bodenrichtwertkarte und Auszug aus BORIS-BW (Bildschirmfoto) — erscheinen im Vordruck unter Ziffer 2.</p>';
@@ -152,8 +153,16 @@ function jbEditorHtml(){
     const arten=Object.keys(ImmoBaupreisindex.ARTEN);
     G.forEach((g,i)=>{ const p='gebaeude.'+i+'.', zu=mehrere?' – '+jbGebName(v,i):'';
       s+=(mehrere?'<div class="jb-geb-kopf"><b>Gebäude '+(i+1)+'</b>'+jbEntf('gebaeude',i,'Gebäude entfernen').replace('></button>','>Gebäude entfernen</button>')+'</div>':'')
-        +jbU(N.rnd[i],'Berechnung der Restnutzungsdauer und Alterswertminderung'+zu)
-        +jbZeile('Bezeichnung des Gebäudes:',jbIn(p+'text',g.text,'text'),'','breit')
+        +jbZeile('Bezeichnung des Gebäudes:',jbIn(p+'text',g.text,'text'),'','breit');
+      const st=[1,2,3,4,5];
+      const nhk=[['NHK 2010 nach Standard','',st.map(x=>jbIn(p+'kosten1.'+(x-1),g.kosten1[x-1],'zahl','5em')),'',''],
+        ['NHK 2010 nach Standard (2. Zeile, gemittelt)','',st.map(x=>jbIn(p+'kosten2.'+(x-1),g.kosten2[x-1],'zahl','5em')),'',''],
+        ['Kostenkennwerte','',st.map(x=>jbOut('g.'+i+'.kk.'+(x-1))),'','']]
+        .concat(JBK.BAUTEILE.map(([nm,wt],r)=>[nm,jbZ(wt,2),st.map(x=>jbIn(p+'anteile.'+r+'.'+(x-1),g.anteile[r][x-1],'zahl','3.6em')),jbOut('g.'+i+'.b.'+r+'.summe'),jbOut('g.'+i+'.b.'+r+'.kosten')]),
+          [['NHK 2010 (Summe)','',st.map(()=>''),'',jbOut('g.'+i+'.nhkSumme','strong')]]);
+      s+='<div class="jb-nhk"><p class="jb-nhk-t">NHK 2010 nach Standardstufen'+lvH(zu)+' — Anteil je Stufe (Summe je Bauteil 1; 0 = Bauteil fehlt)</p>'
+        +jbTab(['Bauteil',{t:'Wägungsanteil',r:1},{t:'Stufe 1',r:1},{t:'2',r:1},{t:'3',r:1},{t:'4',r:1},{t:'5',r:1},{t:'Summe',r:1},{t:'€/m²',r:1}],nhk.map(z=>[lvH(z[0]),z[1]].concat(z[2],[z[3],z[4]])))+'</div>';
+      s+=jbU(N.rnd[i],'Berechnung der Restnutzungsdauer und Alterswertminderung'+zu)
         +jbZeile('Baujahr des Gebäudes:',jbOut('g.'+i+'.baujahr'),jbOut('g.'+i+'.baujahrText'))
         +jbZeile('Gesamtnutzungsdauer:',jbIn(p+'gnd',g.gnd,'zahl','4em')+' Jahre')
         +jbZeile('Gebäudealter',jbOut('g.'+i+'.alter'))+jbZeile('Restnutzungsdauer (RND):',jbOut('g.'+i+'.rndRech'))
@@ -163,21 +172,13 @@ function jbEditorHtml(){
         +jbZeile('',' ','<select data-jb="'+p+'bpiArt" data-art="text" aria-label="Amtlicher Index für">'+arten.map(a=>'<option value="'+a+'"'+(g.bpiArt===a?' selected':'')+'>'+lvH(ImmoBaupreisindex.ARTEN[a].name)+'</option>').join('')+'</select>'
           +' <button class="secondary" onclick="jbIndexAmtlich('+i+')">Amtlichen Wert zum Stichtag übernehmen</button>')
         +jbU(N.preis[i],'Berechnung des Gebäudepreis in Abhängigkeit der Restnutzungsdauer'+zu)
-        +jbZeile('Normalherstellungskosten',jbOut('g.'+i+'.nhk'),'(lt. NHK 2010, Tabelle unten)')
+        +jbZeile('Normalherstellungskosten',jbOut('g.'+i+'.nhk'),'(lt. NHK 2010, Tabelle oben)')
         +jbZeile('./. Abschlag für Bauweise',jbIn(p+'abschlagBauweise',g.abschlagBauweise,'zahl','4em')+' %',jbOut('g.'+i+'.abEur'))
         +jbZeile('Bereinigte NHK',jbOut('g.'+i+'.nhkBer'),'(gerundet)','summe')
         +jbZeile('Baupreisindex (umgerechnet)',jbOut('g.'+i+'.index'),'Umrechnungsfaktor '+jbIn(p+'bpiFaktor',g.bpiFaktor,'zahl','5.5em'))
         +jbZeile('Normalherstellungskosten',jbOut('g.'+i+'.heute'),'zum heutigen Stichtag')
         +jbZeile('./. Technische Wertminderung',jbOut('g.'+i+'.wmEur'),jbOut('g.'+i+'.wmText'))
         +jbZeile('Gebäudepreis'+lvH(mehrere?' '+jbGebName(v,i):''),jbOut('g.'+i+'.preis','strong'),'zum heutigen Stichtag','gesamt');
-      const st=[1,2,3,4,5];
-      const nhk=[['NHK 2010 nach Standard','',st.map(x=>jbIn(p+'kosten1.'+(x-1),g.kosten1[x-1],'zahl','5em')),'',''],
-        ['NHK 2010 nach Standard (2. Zeile, gemittelt)','',st.map(x=>jbIn(p+'kosten2.'+(x-1),g.kosten2[x-1],'zahl','5em')),'',''],
-        ['Kostenkennwerte','',st.map(x=>jbOut('g.'+i+'.kk.'+(x-1))),'','']]
-        .concat(JBK.BAUTEILE.map(([nm,wt],r)=>[nm,jbZ(wt,2),st.map(x=>jbIn(p+'anteile.'+r+'.'+(x-1),g.anteile[r][x-1],'zahl','3.6em')),jbOut('g.'+i+'.b.'+r+'.summe'),jbOut('g.'+i+'.b.'+r+'.kosten')]),
-          [['NHK 2010 (Summe)','',st.map(()=>''),'',jbOut('g.'+i+'.nhkSumme','strong')]]);
-      s+='<details class="jb-nhk" open><summary>NHK 2010 nach Standardstufen'+lvH(zu)+' — Anteil je Stufe (Summe je Bauteil 1; 0 = Bauteil fehlt)</summary>'
-        +jbTab(['Bauteil',{t:'Wägungsanteil',r:1},{t:'Stufe 1',r:1},{t:'2',r:1},{t:'3',r:1},{t:'4',r:1},{t:'5',r:1},{t:'Summe',r:1},{t:'€/m²',r:1}],nhk.map(z=>[lvH(z[0]),z[1]].concat(z[2],[z[3],z[4]])))+'</details>';
     });
     if(G.length<JBK.MAX.gebaeude) s+='<div class="mdb-actions">'+jbPlus('gebaeude','Weiteres Gebäude (z. B. Lager, Scheune)')+'</div>';
     s+=jbU(N.boden,'Preisansatz Grund und Boden');
@@ -294,9 +295,23 @@ function jbAusgaben(){
   const ed=document.getElementById('jb_editor'); if(!ed||!JB_EDIT) return;
   const erg=ed.querySelector('.jb-erg'), kopf=document.querySelector('#lv_overlay .mdb-head'), tabs=document.getElementById('lv_tabs');
   if(erg) erg.style.top=((kopf?kopf.offsetHeight:0)+(tabs?tabs.offsetHeight:0))+'px';   // unter Kopfzeile und Reitern kleben
-  const {o}=jbWerte(JB_EDIT.v);
+  const {o,M}=jbWerte(JB_EDIT.v);
   ed.querySelectorAll('[data-jbo]').forEach(el=>{ const t=o[el.dataset.jbo]; if(t!=null&&el.textContent!==t) el.textContent=t; });
+  const off=document.getElementById('jb_offen'), fehlt=jbFehlt(JB_EDIT.v,M);
+  if(off){ off.hidden=!fehlt.length; off.textContent=fehlt.length?'Noch offen: '+fehlt.join(' · '):''; }
   jbBilderLaden(ed);
+}
+/* Angaben, ohne die ein Teil des Ergebnisses 0 bleibt — mit der Ziffer im Vordruck */
+function jbFehlt(v,M){
+  const k=M.kap, f=[], G=v.gebaeude;
+  v.boden.forEach((b,i)=>{ if(!(b.flaeche>0)) f.push('Grundstücksanteil '+JB_ROEM[i]+' m² (1.2)'); if(!(b.brw>0)) f.push('Bodenrichtwert / Preisansatz (2.'+(i+1)+')'); });
+  const N=G.length?jbSubstanzNummern(k.substanz,G.length):null;
+  G.forEach((g,i)=>{ const zu=G.length>1?' '+jbGebName(v,i):'';
+    if(!(g.baujahr>0)) f.push('Baujahr'+zu+' (1.3)'); if(!(g.bgf>0)) f.push('BGF'+zu+' (1.3)');
+    if(!(M.geb[i].nhk2010>0)) f.push('NHK-Tabelle'+zu+' ('+k.substanz+')'); if(!(g.bpi>0)||!(g.bpiFaktor>0)) f.push('Baupreisindex'+zu+' ('+N.rnd[i]+')'); });
+  if(G.length&&!(M.miete.monat>0)) f.push('Mieterträge (1.3)');
+  if(G.length&&v.lz==null) f.push('Bodenwertverzinsung ('+k.ertrag+')');
+  return f;
 }
 function jbSetzen(obj,pfad,wert){
   const t=pfad.split('.'); let o=obj;
@@ -310,6 +325,9 @@ function jbEingabe(el){
   if(art==='zahl'){ const z=LVK.zahlEingabe(el.value); if(Number.isNaN(z)){ el.classList.add('lv-fehler'); return; } el.classList.remove('lv-fehler'); wert=z; }
   if(art==='datum') wert=el.value||null;
   if(art==='check') wert=!!el.checked;
+  const rw=/^boden\.(\d+)\.richtwert$/.exec(pfad);
+  if(rw){ const b=JB_EDIT.v.boden[+rw[1]];   // Preisansatz folgt dem Richtwert, solange er nicht abweichend eingetragen ist
+    if(b&&(!(b.brw>0)||b.brw===b.richtwert)){ b.brw=wert; const f=document.querySelector('#jb_editor [data-jb="boden.'+rw[1]+'.brw"]'); if(f) f.value=jbW(wert); } }
   if(pfad[0]==='@') JB_EDIT[pfad.slice(1)]=wert; else jbSetzen(JB_EDIT.v,pfad,wert);
   jbAusgaben();
 }

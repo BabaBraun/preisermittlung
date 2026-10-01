@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-99f6743ee573';
+const CACHE = 'immoapp-1139d3d3d0dc';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -11,7 +11,7 @@ const ASSETS = [
   './assets/fonts/ibm-plex-sans-latin-500-normal.woff2',
   './assets/fonts/ibm-plex-sans-latin-600-normal.woff2',
   './assets/fonts/ibm-plex-serif-latin-600-normal.woff2',
-  './assets/verwaltung.css',
+  './assets/liegenschaften.css',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512-maskable.png',
@@ -24,29 +24,13 @@ const ASSETS = [
   './js/jahresbewertung-ui.js',
   './js/jahresbewertung.js',
   './js/kern.js',
+  './js/liegenschaften-ui.js',
+  './js/liegenschaften.js',
   './js/modell.js',
   './js/office.js',
   './js/pdf.js',
   './js/speicher.js',
   './js/sterbetafel.js',
-  './js/verwaltung-bank-ui.js',
-  './js/verwaltung-bank.js',
-  './js/verwaltung-bericht-ui.js',
-  './js/verwaltung-bericht.js',
-  './js/verwaltung-bew-ui.js',
-  './js/verwaltung-bew.js',
-  './js/verwaltung-dok-ui.js',
-  './js/verwaltung-dok.js',
-  './js/verwaltung-ih-ui.js',
-  './js/verwaltung-ih.js',
-  './js/verwaltung-mh-ui.js',
-  './js/verwaltung-mh.js',
-  './js/verwaltung-nk-ui.js',
-  './js/verwaltung-nk.js',
-  './js/verwaltung-ui.js',
-  './js/verwaltung-weg-ui.js',
-  './js/verwaltung-weg.js',
-  './js/verwaltung.js',
   './manifest.webmanifest',
   './selbsttest.js',
   './src/app-shell.js',
@@ -84,7 +68,9 @@ const ASSETS = [
 // Fehlende Dateien dürfen keine unvollständige neue Version aktivieren. Frisch vom Server laden (cache: 'reload'):
 // sonst könnte der Browser-Cache (GitHub Pages erlaubt 10 Minuten) alte Dateien in die neue Version legen.
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS.map(u=>new Request(u,{cache:'reload'}))))));
-// Eine neue Version wartet bis alle alten Fenster geschlossen sind.
+// Eine neue Version wartet, bis alle alten Fenster geschlossen sind — oder bis die App sie auf Tipp übernimmt
+// (Hinweis „Neue Version“, src/pwa.js): Am iPhone werden Home-Bildschirm-Apps selten ganz geschlossen.
+self.addEventListener('message',e=>{ if(e.data&&e.data.typ==='aktualisieren') self.skipWaiting(); });
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>(k.startsWith('preisermittlung-')||k.startsWith('immoapp-'))&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
  const req=e.request,url=new URL(req.url);if(req.method!=='GET'||url.origin!==self.location.origin)return;
