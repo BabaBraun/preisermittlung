@@ -1,3 +1,9 @@
+# Zusammenfassung — Vordruck der Jahresbewertung wie die Excel-Mappe (2026-10-01)
+
+Vordruck und Dokument folgen der Excel-Preiseinschätzung der Bank: Deckblatt, 1. Objektdaten, 2. Bodenrichtwert,
+3. Bautechnische Daten, (4. PV-Anlage), Grund und Boden, Bausubstanz, Mietertrag, Zusammenfassung — gleiche Nummern,
+Beschriftungen und Zwischenzeilen; „Vordruck ansehen“ mit Drucken, PDF, Word. Rechnung unverändert (D26).
+
 # Zusammenfassung — Jahresbewertung: Vordruck anlegen, Fehlermeldungen (2026-10-01)
 
 „Vordruck anlegen“ funktioniert jetzt auch ohne vorhandene Liegenschaft: Vorlage wählen (Bankgebäude, Wohn- und

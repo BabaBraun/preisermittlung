@@ -541,3 +541,30 @@ Vorlagen wie „Neue Bewertung“ und legt bei Bedarf die Liegenschaft mit an (e
 Bewirtschaftung und Zins wie in den Excel-Vordrucken der Bank (NHK 2010 Stufen 3–5 amtlich), amtlicher Baupreisindex
 zum Stichtag; alle Werte änderbar. „Sicherung einspielen“ steht direkt in der Jahresbewertung und auf der leeren Übersicht.
 
+---
+
+## D26 (2026-10-01) — Vordruck der Jahresbewertung im Aufbau der Excel-Mappe, mit Dokument
+
+**Anlass:** Rückmeldung des Auftraggebers: Der Vordruck in der App stimmt nicht mit den Excel-Preiseinschätzungen überein;
+die Bewertung der Liegenschaften soll nach diesem Beispiel als Vordruck in der App folgen.
+
+**Befund (alle 13 Mappen, als Seiten gerendert und Zelle für Zelle gelesen):** Die Mappe ist ein Dokument — Deckblatt,
+1. Objektdaten (1.1 Allgemein, 1.2 Grundstück, 1.3 Gebäude bzw. Bebauung, Aufstellung der Mieterträge mit Bemerkung),
+2. Bodenrichtwert (Erläuterung, 2.1 Grundstücksmerkmale, Karte und BORIS-Auszug), 3. Bautechnische Daten (3.1–3.4),
+4. PV-Anlage (nur wenn vorhanden), Preisansatz Grund und Boden, Bausubstanz (RND und Wertminderung, Gebäudepreis,
+Grund und Boden, Gebäude und Außenanlagen, Summe), Mietertrag (RND, Daten, Preisansatz je Gebäude, Summe),
+Zusammenfassung / Sonstiges (Überblick, Hinweise, Ort und Datum). Die Nummern verschieben sich ohne PV-Kapitel; ohne
+Gebäude folgt auf den Grund und Boden gleich die Zusammenfassung. Die App kannte nur die Zahlen, in eigener Gliederung.
+
+**Entscheidung:** Vordruck und Dokument folgen der Mappe: gleiche Kapitel, Nummern (`kapitel()`), Beschriftungen und
+Zwischenzeilen (`modell()`, aus derselben Rechnung wie bisher — die Ergebnisse aller 13 Mappen stimmen weiter auf den
+Cent). Neue Angaben im Vordruck: Deckblatt, Objektdaten mit frei benennbaren Merkmalszeilen, Bodenrichtwert-Merkmale,
+Bautechnik 3.1–3.4, Erläuterungstexte, Ort, Bemerkung je Mietzeile, „gewerblich“ (Anteil gewerbliche Kaltmiete),
+Bemerkung zum Gewerbeabschlag, PV-Nutzungsgrad, Bilder der Bodenrichtwertkarte (Anhänge der Liegenschaft). Das
+Dokument steht im Bericht (#report) mit Drucken, PDF, Word und Teilen. Bei zwei Gebäuden ist die Nummerierung durchgehend
+(die Mappe vergibt dort 5.2 doppelt).
+
+**Texte:** Die Erläuterungstexte im Repository sind eigene Formulierungen; die Texte der Bank kommen mit der
+Sicherungsdatei auf das Gerät, und neue Vordrucke übernehmen die Texte des zuletzt bearbeiteten Vordrucks. Kein Logo,
+kein Foto des Ansprechpartners — der Ansprechpartner auf dem Deckblatt kommt aus „Absender“.
+

@@ -95,7 +95,7 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/verwaltung-bericht.js`, `js/verwaltung-bericht-ui.js` | Jahresbericht, Eigentümerbericht (Word), Anlage V (Excel) |
 | `js/verwaltung-dok.js`, `js/verwaltung-dok-ui.js` | Dokumente je Liegenschaft mit Fristen |
 | `js/verwaltung-bew.js`, `js/verwaltung-bew-ui.js` | Bewertungen je Liegenschaft: Verlauf, Übernahme aus der Preisermittlung, Fortschreibung |
-| `js/jahresbewertung.js`, `js/jahresbewertung-ui.js` | Jahresbewertung nach dem Vordruck der Bank: Rechnung, Übersicht, Vordruck-Editor, Fortschreibung |
+| `js/jahresbewertung.js`, `js/jahresbewertung-ui.js`, `js/jahresbewertung-editor.js`, `js/jahresbewertung-dok.js` | Jahresbewertung nach dem Vordruck der Bank: Rechnung und Modell, Übersicht, Vordruck (Deckblatt, Kapitel 1–8 wie die Excel-Mappe), Dokument (Drucken, PDF, Word), Fortschreibung |
 | `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |

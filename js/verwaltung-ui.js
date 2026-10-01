@@ -222,6 +222,7 @@ function lvRender(){
   document.getElementById('lv_body').innerHTML=warn+(LV.meldung?'<div class="lv-ok" role="status">'+lvH(LV.meldung)+'</div>':'')+html;
   if(typeof iconify==='function') iconify(o);
   if(typeof a11yLabels==='function') a11yLabels(o);
+  const kopf=o.querySelector('.mdb-head'); if(kopf) o.style.setProperty('--lv-kopf',kopf.offsetHeight+'px');   // Reiter kleben unter der (am Handy höheren) Kopfzeile
 }
 
 /* ---------- Übersicht aller Liegenschaften ---------- */

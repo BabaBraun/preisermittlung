@@ -84,3 +84,84 @@
 #lv_overlay .jb-vorlage b{display:block;font-weight:600}
 #lv_overlay .jb-vorlage .lv-klein{display:block;margin-top:2px}
 #lv_overlay #lv_formfehler_unten{margin:12px 0 0}
+/* Jahresbewertung: Vordruck wie die Excel-Mappe (Kapitelbalken, Zeilen Bezeichnung | Angabe | Betrag, Summenstriche) */
+#lv_overlay .jb-verw{margin-bottom:6px}
+#lv_overlay .jb-kap{margin:26px 0 6px}
+#lv_overlay .jb-kap-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:10px 16px;border-radius:12px;background:#0F2D5C;color:#fff;font-family:var(--serif);font-size:16px}
+#lv_overlay .jb-kap-t .jb-nr{font-weight:700}
+#lv_overlay .jb-u{margin:18px 0 6px;font-size:13.5px;font-weight:700;color:var(--text);text-decoration:underline;text-underline-offset:3px}
+#lv_overlay .jb-z{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1.35fr);gap:4px 12px;align-items:center;padding:4px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+#lv_overlay .jb-z>span{min-width:0}
+#lv_overlay .jb-z.breit .jb-m{grid-column:2/4}
+#lv_overlay .jb-z.breit .jb-b{display:none}
+#lv_overlay .jb-z.rechn .jb-b,#lv_overlay .jb-z.rechn .jb-m{text-align:right;font-variant-numeric:tabular-nums}
+#lv_overlay .jb-z.summe{border-top:1.5px solid var(--text-2)}
+#lv_overlay .jb-z.gesamt{font-weight:700;border-top:1.5px solid var(--text);border-bottom:3px double var(--text)}
+#lv_overlay .jb-z input,#lv_overlay .jb-z select{max-width:100%;padding:6px 8px}
+#lv_overlay .jb-z input[type=text]:not([style]),#lv_overlay .jb-z select{width:100%}
+#lv_overlay .jb-z .jb-b .jb-x,#lv_overlay .jb-z .jb-m .jb-x{margin-left:6px}
+#lv_overlay .jb-z.merkmal .jb-l input{font-weight:600}
+#lv_overlay .jb-z.rechn.merkmal .jb-b{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+#lv_overlay .jb-editor textarea{width:100%}
+#lv_overlay .jb-erl{margin:2px 0 12px;font-size:13px}
+#lv_overlay .jb-erl summary{cursor:pointer;color:var(--accent);padding:4px 0}
+#lv_overlay .jb-ueberblick{border:2px solid var(--text);border-radius:12px;padding:4px 12px;margin:8px 0 10px}
+#lv_overlay .jb-ueberblick .jb-z:last-child{border-bottom:none}
+#lv_overlay .jb-ueberblick .jb-z.gesamt{background:var(--warn-bg);border-bottom:none;margin:0 -12px;padding:6px 14px;border-radius:0 0 10px 10px}
+#lv_overlay .jb-bilder{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;margin:6px 0}
+#lv_overlay .jb-bilder figure{position:relative;margin:0;width:220px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+#lv_overlay .jb-bilder img{display:block;width:100%;height:auto;min-height:60px}
+#lv_overlay .jb-bilder figure .jb-x{position:absolute;top:6px;right:6px}
+#lv_overlay .jb-bilder figure.jb-fehlt{padding:20px 10px;font-size:12px;color:var(--muted)}
+#lv_overlay .jb-bild-neu{align-self:center}
+#lv_overlay .jb-geb-kopf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:20px 0 0;padding:8px 12px;border-radius:10px;background:var(--surface-2)}
+#lv_overlay .jb-nhk{margin:10px 0 4px}
+#lv_overlay .jb-nhk summary{cursor:pointer;font-size:13px;font-weight:600;padding:6px 0}
+#lv_overlay .jb-check{min-height:0;align-self:center}
+#lv_overlay .jb-pv-schalter{margin-top:14px}
+@media (max-width:640px){
+  #lv_overlay .jb-z{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #lv_overlay .jb-z .jb-l{grid-column:1/-1;font-weight:600}
+  #lv_overlay .jb-z.breit .jb-m{grid-column:1/-1}
+  #lv_overlay .jb-bilder figure{width:100%}
+}
+/* Jahresbewertung als Dokument (#report): Seiten wie die Excel-Mappe, immer hell */
+#report.jb-dok{max-width:820px;font-family:Arial,Helvetica,sans-serif;font-size:12.5px;color:#111}
+#report.jb-dok .ex-leiste{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+#report.jb-dok .jbd-band,#report.jb-dok h2.jbd-titel{display:inline-block;margin:6px 0 28px;padding:10px 22px;background:#0F2D5C;color:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:700;border:none;transform:rotate(-2deg);box-shadow:0 2px 0 #0B2246}
+#report.jb-dok .jbd-band{font-size:24px;margin:20px 0 48px}
+#report.jb-dok h2.jbd-titel{font-size:19px}
+#report.jb-dok h3{font-family:Arial,Helvetica,sans-serif;font-size:12.5px;font-weight:700;color:#111;text-decoration:underline;margin:16px 0 4px}
+#report.jb-dok table.jbd-t{width:100%;border-collapse:collapse;margin:0 0 6px;font-size:12.5px}
+#report.jb-dok table.jbd-t td{padding:2px 6px 2px 0;border:none;background:none!important;vertical-align:top;text-align:left;white-space:normal}
+#report.jb-dok table.jbd-t td.l{width:48%}
+#report.jb-dok table.jbd-t td.m{width:24%;text-align:right;white-space:nowrap}
+#report.jb-dok table.jbd-t td.b{width:28%;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#report.jb-dok table.jbd-daten td.l{width:36%}
+#report.jb-dok table.jbd-daten td.m{width:22%;text-align:left}
+#report.jb-dok table.jbd-daten td.b{width:42%;text-align:left;white-space:normal}
+#report.jb-dok table.jbd-kv td.l{width:36%}
+#report.jb-dok table.jbd-kv td.w{width:64%}
+#report.jb-dok table.jbd-deck-t{font-size:14px;margin-top:10px}
+#report.jb-dok table.jbd-deck-t td{padding:8px 0}
+#report.jb-dok table.jbd-deck-t td.l{font-weight:700;width:30%}
+#report.jb-dok table.jbd-mieten td.l{width:44%}
+#report.jb-dok table.jbd-mieten td.m{width:18%}
+#report.jb-dok table.jbd-mieten td.b{width:38%;text-align:left;white-space:normal;padding-left:10px}
+#report.jb-dok tr.summe td{border-top:1px solid #111}
+#report.jb-dok tr.gesamt td{border-top:1px solid #111;border-bottom:3px double #111;font-weight:700}
+#report.jb-dok table.jbd-box{border:2px solid #111;margin:6px 0 14px}
+#report.jb-dok table.jbd-box td{padding:4px 8px;border-bottom:1px solid #111}
+#report.jb-dok table.jbd-box tr.jbd-mittel td{background:#FCD5B4!important;font-weight:700}
+#report.jb-dok .jbd-text{white-space:pre-wrap;margin:4px 0 10px;line-height:1.45}
+#report.jb-dok .jbd-fett{font-weight:700;margin:16px 0 4px}
+#report.jb-dok .jbd-fuss{font-size:10.5px;margin-top:10px;color:#333}
+#report.jb-dok .jbd-bilder{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+#report.jb-dok .jbd-bilder figure{margin:0;flex:1 1 300px;max-width:100%}
+#report.jb-dok .jbd-bilder img{max-width:100%;height:auto;border:1px solid #bbb}
+#report.jb-dok .jbd-kontakt{margin-top:90px;font-size:12px;line-height:1.5}
+#report.jb-dok .jbd-ort{margin-top:44px}
+@media print{ #report.jb-dok .ex-leiste{display:none} }
+#report.jb-dok table.jbd-daten td.m{white-space:normal}
+#report.jb-dok table.jbd-daten td.w{white-space:normal}
+#lv_overlay #lv_tabs{top:var(--lv-kopf,56px)}

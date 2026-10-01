@@ -62,11 +62,17 @@ Startseite → Kachel „Jahresbewertung“ oder Mehr → „Jahresbewertung“ 
   Baujahr, Bodenrichtwert und Mieten trägt man im Vordruck ein.
 - **Übersicht:** je Objekt eine Zeile, je Stichtag eine Spalte mit Ergebnis, Veränderung zur Vorbewertung und
   „Entwurf“; darunter die Summe je Stichtag. „Übersicht als Excel“ lädt Übersicht und Einzelwerte herunter.
-- **Vordruck:** ein Tipp auf einen Wert öffnet ihn — Stichtag, Stand, Grund und Boden, je Gebäude Baujahr, BGF,
-  Nutzungsdauer, angepasste RND, Baupreisindex (amtlich per Knopf), NHK-Kostenkennwerte und Anteile je Standardstufe,
-  Pauschalansätze, objektspezifische Merkmale, PV-Anlage, Mieten je Einheit und Gebäude, Bewirtschaftung,
-  Liegenschaftszins, Abschlag für gewerbliche Vermietung. Jede Zahl ist änderbar; Bodenwert, Substanz, Ertrag und
-  Ergebnis oben rechnen beim Tippen mit. Gerechnet wird wie im Excel-Vordruck der Bank, einschließlich seiner
+- **Vordruck:** ein Tipp auf einen Wert öffnet ihn. Aufbau wie die Excel-Mappe der Bank, mit denselben Nummern,
+  Beschriftungen und Zwischenzeilen: Deckblatt (Auftraggeber, Auftragsinhalt, Verwendungszweck, Objekt, Anschrift,
+  Stichtag), 1. Objektdaten (Allgemein, Grundstück, Gebäude mit Merkmalszeilen, Aufstellung der Mieterträge mit
+  Bemerkung und Kennzeichen „gewerblich“), 2. Bodenrichtwert (Flst.-Nr., Nutzbarkeit, Zone, Richtwert, Preisansatz,
+  Bilder von Bodenrichtwertkarte und BORIS-Auszug), 3. Bautechnische Daten (3.1–3.4), 4. PV-Anlage (falls vorhanden),
+  dann Preisansatz Grund und Boden, Preisansatz (Bausubstanz als Grundlage) mit RND, Gebäudepreis und NHK-Tabelle,
+  Preisansatz (Mietertrag als Grundlage) und Zusammenfassung / Sonstiges mit Hinweisen, Ort und Datum. Ohne PV-Anlage
+  rücken die Kapitel auf, ohne Gebäude endet der Vordruck nach dem Grund und Boden (wie in der Mappe). Jede Zahl und
+  jeder Text ist änderbar; Bodenwert, Substanz, Ertrag und Ergebnis oben rechnen beim Tippen mit.
+- **Vordruck ansehen:** zeigt den Vordruck als Dokument wie die Excel-Mappe (jedes Kapitel auf einer neuen Seite) —
+  Drucken, PDF, Word, Teilen; „zurück“ führt in den Vordruck, auch ungespeicherte Eingaben bleiben. Gerechnet wird wie im Excel-Vordruck der Bank, einschließlich seiner
   Rundungen (Alterswertminderung volle %, Gebäudepreis volle €, Vervielfältiger zwei Stellen). Mehrere Gebäude
   bekommen je eigene Restnutzungsdauer im Ertrag; der Boden wird nach dem Mietanteil verteilt. Bauteile ohne Anteil
   (z. B. keine Heizung im Lager) zählen 0.

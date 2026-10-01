@@ -77,7 +77,8 @@ test('Vorlagen für neue Vordrucke: Aufbau, amtlicher Index zum Stichtag, Rechnu
   assert.deepEqual(aufbau('bank'), [[['buero', 80, 143.1, 930]], [0, 0], 2]);
   assert.deepEqual(aufbau('wgh'), [[['wohnen', 80, 139.6, 860]], [0, 0, 0], 2]);
   assert.deepEqual(aufbau('bank_lager'), [[['buero', 80, 143.1, 930], ['gewerbe', 60, 140.6, 350]], [0, 0, 1], 2]);
-  assert.deepEqual(aufbau('grundstueck'), [[], [], 1]);
+  assert.deepEqual(aufbau('grundstueck'), [[], [], 0]);   // Außenanlagen wie im Vordruck als objektspezifisches Merkmal
+  assert.equal(J.vorlage('grundstueck', '2026-12-31').objektspezifisch.length, 1);
   assert.deepEqual(J.vorlage('leer', '2026-12-31'), J.leer('2026-12-31'));
   assert.deepEqual(J.vorlage('unbekannt', '2026-12-31'), J.leer('2026-12-31'));
   for (const k of Object.keys(J.VORLAGEN)) { const v = J.vorlage(k, '2026-12-31'); assert.deepEqual(J.bereinigen(v), v, k + ' bereinigt'); assert.equal(J.rechnen(v).ergebnis, 0, k + ' leer = 0'); }
@@ -102,3 +103,38 @@ test('Vordruck im Bewertungsverlauf: Ergebnisse übernommen, Sicherung behält d
   const sp = V.sicherungPruefen({ typ: 'immoapp-verwaltung', liegenschaften: [l] });
   assert.equal(J.rechnen(sp.liegenschaften[0].bewertungen[0].vordruck).ergebnis, r.ergebnis);
 });
+
+test('Vordruck wie die Excel-Mappe: Kapitelnummern, Zwischenzeilen, Gewerbeanteil, ältere Vordrucke', () => {
+  const [pv, zwei, grund] = FAELLE.map(f => J.bereinigen(f.vordruck));
+  // mit PV-Anlage: 4 PV, 5 Grund und Boden, 6 Bausubstanz, 7 Mietertrag, 8 Zusammenfassung (wie Mappe „Bankgebäude … mit PV“)
+  assert.deepEqual(J.kapitel(pv), { objekt: 1, brw: 2, bau: 3, pv: 4, boden: 5, substanz: 6, ertrag: 7, summe: 8 });
+  assert.deepEqual(J.kapitel(zwei), { objekt: 1, brw: 2, bau: 3, pv: null, boden: 4, substanz: 5, ertrag: 6, summe: 7 });
+  assert.deepEqual(J.kapitel(grund), { objekt: 1, brw: 2, bau: 3, pv: null, boden: 4, substanz: null, ertrag: null, summe: 5 });
+  // Zwischenzeilen 6.2 und 7.3 aus dem Modell = Rechnung; Summen wie im Vordruck
+  const M = J.modell(pv), r = J.rechnen(pv), g = M.geb[0];
+  assert.equal(g.abschlagEur, J.runden(-g.nhk2010 * pv.gebaeude[0].abschlagBauweise / 100));
+  assert.equal(g.nhkBer, J.runden(g.nhk2010 + g.abschlagEur));
+  nahe(g.nhkHeute + g.wmEur, g.nhkHeute * (1 - g.wm / 100), 'NHK abzüglich Wertminderung');
+  nahe(M.vorlaeufig + M.pvWert + M.objektSumme, r.substanz, 'Bausubstanz 6.5');
+  nahe(M.teile.reduce((s, t) => s + t.wert + t.bodenAnteil, 0) + M.pvWert, r.ertrag, 'Mietertrag 7.4');
+  const t = M.teile[0]; nahe(t.zw - t.abschlag - t.bodenZins, t.gebRein, 'Gebäudereinertrag 7.3');
+  // Anteil gewerbliche Kaltmiete = Mietzeilen mit „gewerblich“ × 12 (Mappe: Summe ausgewählter Zeilen)
+  assert.equal(M.miete.gewerblich, 0);
+  const v2 = J.bereinigen(Object.assign({}, FAELLE[0].vordruck, { mieten: FAELLE[0].vordruck.mieten.map((m, i) => Object.assign({}, m, { gewerblich: i === 1 })) }));
+  assert.equal(J.modell(v2).miete.gewerblich, 950 * 12); assert.equal(J.modell(v2).teile[0].gewerblich, 950 * 12);
+  assert.equal(J.rechnen(v2).ergebnis, r.ergebnis);   // die Markierung ändert die Rechnung nicht
+  // ältere Vordrucke (ohne Angaben des Dokuments): Standardangaben, „hinweise“ wird 3.4 Allgemeiner Eindruck
+  const alt = J.bereinigen({ stichtag: '2024-12-31', hinweise: 'Zustand gut', boden: [{ flaeche: 100, brw: 100 }] });
+  assert.equal(alt.bautechnik.eindruck, 'Zustand gut'); assert.equal(alt.hinweise, undefined);
+  assert.deepEqual(alt.objektdaten.merkmale.map(m => m.label), J.MERKMALE);
+  assert.equal(alt.deckblatt.auftragsinhalt, 'Rechnerische Preisermittlung'); assert.equal(alt.texte.hinweise, J.TEXTE.hinweise);
+  assert.deepEqual(J.bereinigen(alt), alt);
+  // eigene Texte und leere Texte bleiben; Bilder nur gültige Kennungen
+  const eigen = J.bereinigen(Object.assign({}, alt, { texte: { hinweise: '' , pv: 'Eigener Text' }, bilder: { karte: ['A-1', '../x', 7, 'A-2'] } }));
+  assert.equal(eigen.texte.hinweise, ''); assert.equal(eigen.texte.pv, 'Eigener Text'); assert.equal(eigen.texte.bodenrichtwert, J.TEXTE.bodenrichtwert);
+  assert.deepEqual(eigen.bilder.karte, ['A-1', 'A-2']);
+  // Fortschreibung behält die Angaben des Dokuments
+  const f = J.fortschreiben(Object.assign({}, FAELLE[0].vordruck, { deckblatt: { auftraggeber: 'Muster AG' }, ort: 'Musterstadt' }), '2026-12-31').vordruck;
+  assert.equal(f.deckblatt.auftraggeber, 'Muster AG'); assert.equal(f.ort, 'Musterstadt');
+});
+

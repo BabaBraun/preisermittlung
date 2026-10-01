@@ -151,3 +151,72 @@ async function sichtbarOben(page, sel) {
   return page.evaluate(s => { const e = document.querySelector(s); if (!e || e.hidden) return false; const r = e.getBoundingClientRect();
     const hit = document.elementFromPoint(r.left + 10, r.top + Math.min(r.height / 2, 12)); return !!hit && (hit === e || e.contains(hit)); }, sel);
 }
+
+test('Vordruck wie die Excel-Mappe: Kapitel 1–8, Angaben des Dokuments, Kartenbild, Dokument mit PDF/Word', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  await page.locator('.tile.q', { hasText: 'Jahresbewertung' }).click();
+  await page.evaluate(async v => {
+    await lvStart();
+    const b = ImmoLvBewertung.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
+    await lvSpeichern({ id: 'LJB', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', eigentuemerArt: 'bank', bewertungen: [b] });
+    jbOeffnen('LJB', 'BW1');
+  }, FALL);
+  const ed = lv(page).locator('#jb_editor');
+  const KAP = ['Deckblatt', '1. Objektdaten', '2. Bodenrichtwert', '3. Bautechnische Daten', '4. PV-Anlage', '5. Preisansatz Grund und Boden',
+    '6. Preisansatz (Bausubstanz als Grundlage)', '7. Preisansatz (Mietertrag als Grundlage)', '8. Zusammenfassung / Sonstiges'];
+  await expect(ed.locator('.jb-kap-t')).toHaveText(KAP);
+  for (const u of ['1.3 Gebäude', '2.1 Grundstücksmerkmale', '3.4 Allgemeiner Eindruck / Erläuterungen', '4.1 Preisansatz PV-Anlage', '6.1 Berechnung der Restnutzungsdauer und Alterswertminderung',
+    '6.2 Berechnung des Gebäudepreis in Abhängigkeit der Restnutzungsdauer', '6.5 Preisansatz (Bausubstanz als Grundlage)', '7.2 Daten für die Preisermittlung auf Grundlage des Gebäudeertrags',
+    '7.3 Preisansatz Gebäude (Mietertrag als Grundlage)', '7.4 Preisansatz (Mietertrag als Grundlage)', '8.1 Die einzelnen Preiskomponenten für Sie im Überblick'])
+    await expect(ed.locator('.jb-u', { hasText: u })).toHaveCount(1);
+  await expect(ed.locator('[data-jbo="s.substanz"]')).toHaveText(/€$/);
+  // Angaben des Dokuments; Gewerbeanteil aus markierten Mietzeilen (Laden 950 € × 12)
+  await ed.locator('[data-jb="deckblatt.auftraggeber"]').fill('Muster AG');
+  await ed.locator('[data-jb="objekt"]').fill('Bürogebäude mit Laden');
+  await expect(ed.locator('[data-jbo="t.objekt"]')).toHaveText('Bürogebäude mit Laden');
+  await ed.locator('[data-jb="objektdaten.merkmale.0.wert"]').fill('massiv');
+  await ed.locator('[data-jb="boden.0.flst"]').fill('123/4');
+  await ed.locator('[data-jb="mieten.1.gewerblich"]').check();
+  await expect(ed.locator('[data-jbo="e.0.gew"]')).toHaveText('11.400,00 €');
+  await ed.locator('[data-jb="ort"]').fill('Musterstadt');
+  // ohne PV-Anlage rücken die Kapitel auf (wie in der Mappe ohne PV), mit PV wieder zurück
+  await ed.locator('.jb-pv-schalter input').uncheck();
+  await expect(ed.locator('.jb-kap-t').nth(4)).toHaveText('4. Preisansatz Grund und Boden');
+  await expect(ed.locator('[data-jb="deckblatt.auftraggeber"]')).toHaveValue('Muster AG');
+  await ed.locator('.jb-pv-schalter input').check();
+  await expect(ed.locator('.jb-kap-t').nth(4)).toHaveText('4. PV-Anlage');
+  // Bild der Bodenrichtwertkarte
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+  await ed.locator('.jb-bild-neu input').setInputFiles({ name: 'karte.png', mimeType: 'image/png', buffer: png });
+  await expect(ed.locator('.jb-bilder figure img')).toHaveAttribute('src', /^data:image\/png;base64,/);
+  // Dokument: Deckblatt und Kapitel wie die Mappe, Mittel 8.1, Bild; Word; zurück ohne Verlust
+  await ed.getByRole('button', { name: 'Vordruck ansehen' }).last().click();
+  const r = page.locator('#report.jb-dok');
+  await expect(r).toBeVisible();
+  await expect(r.locator('h2.jbd-titel')).toHaveText(KAP.slice(1));
+  await expect(r.locator('.jbd-deck')).toContainText('Muster AG');
+  await expect(r.locator('.jbd-deck')).toContainText('Bürogebäude mit Laden');
+  await expect(r.locator('table.jbd-box')).toContainText('Mittel aus den o.g. Preisansätzen');
+  await expect(r.locator('table.jbd-box tr.jbd-mittel')).toContainText('1.220.052 €');
+  await expect(r).toContainText('Anteil gewerbliche Kaltmiete');
+  await expect(r).toContainText('123/4');
+  await expect(r.locator('.jbd-ort')).toHaveText('Musterstadt, 31.12.2025');
+  await expect(r.locator('.jbd-bilder img')).toHaveCount(1);
+  expect(await page.evaluate(() => document.getElementById('report').dataset.pdfname)).toMatch(/^Preiseinschätzung Bürogebäude mit Laden .*Stichtag 31\.12\.2025$/);
+  const dl = page.waitForEvent('download');
+  await r.getByRole('button', { name: 'Word' }).click();
+  expect((await dl).suggestedFilename()).toMatch(/^Preiseinschätzung Bürogebäude mit Laden.*\.docx$/);
+  await r.getByRole('button', { name: 'zurück', exact: true }).click();
+  await expect(lv(page)).toBeVisible();
+  await expect(ed.locator('[data-jb="deckblatt.auftraggeber"]')).toHaveValue('Muster AG');
+  await ed.getByRole('button', { name: 'Speichern' }).click();
+  const v = await page.evaluate(() => LV.liste.find(l => l.id === 'LJB').bewertungen[0].vordruck);
+  expect([v.deckblatt.auftraggeber, v.objekt, v.objektdaten.merkmale[0].wert, v.boden[0].flst, v.mieten[1].gewerblich, v.ort, v.bilder.karte.length])
+    .toEqual(['Muster AG', 'Bürogebäude mit Laden', 'massiv', '123/4', true, 'Musterstadt', 1]);
+  // gespeicherter Vordruck ohne Editor als Dokument
+  await page.evaluate(() => jbDokAnsehen('LJB', 'BW1'));
+  await expect(page.locator('#report.jb-dok h2.jbd-titel').first()).toHaveText('1. Objektdaten');
+  await page.locator('#report').getByRole('button', { name: 'zurück', exact: true }).click();
+  await keineSkriptfehler(page);
+});

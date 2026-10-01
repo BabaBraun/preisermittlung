@@ -81,30 +81,108 @@ function rechnen(v){
   return r;
 }
 
+/* ---------- Angaben des Dokuments (Deckblatt, Objektdaten, Bodenrichtwert, Bautechnik, Texte) ----------
+   Gliederung wie die Excel-Mappe: Deckblatt, 1. Objektdaten, 2. Bodenrichtwert, 3. Bautechnische Daten, (4. PV-Anlage),
+   Preisansatz Grund und Boden, Bausubstanz, Mietertrag, Zusammenfassung. Die Erläuterungstexte unten sind eigene
+   Formulierungen der App (keine Texte der Bank); eingespielte Vordrucke bringen ihre Texte mit, und neue Vordrucke
+   übernehmen die Texte des zuletzt bearbeiteten Vordrucks (js/jahresbewertung-ui.js). */
+const MERKMALE=['Bauweise','Abgeschlossene Einheiten','Denkmalschutz','Unterkellerung','Heizung Energieart','Fenster','Wärmedämmung Fassade',
+  'Wärmedämmung Dach','Tageslichtbad / WC','Außenanlagen','Garage','Außenstellplatz','Besondere Bauteile'];
+const TEXTE={
+  schaeden:'Eine Prüfung auf Bauschäden wurde nicht vorgenommen; berücksichtigt sind nur augenscheinliche Merkmale. Es wird vorausgesetzt, '
+    +'dass bei Bau und Instandsetzung die anerkannten Regeln des Bauhandwerks eingehalten wurden. Kleinere Schäden und gewöhnliche Abnutzung '
+    +'sind in der technischen Wertminderung enthalten.',
+  bodenrichtwert:'Bodenrichtwerte sind durchschnittliche Lagewerte für den Boden. Der zuständige Gutachterausschuss leitet sie aus Kaufpreisen ab '
+    +'und veröffentlicht sie regelmäßig; sie gelten für unbebaute Grundstücke mit den für die Richtwertzone typischen Merkmalen und sind nicht '
+    +'bindend. Weicht das Grundstück in Lage, Entwicklungszustand, Art und Maß der baulichen Nutzung, Größe, Zuschnitt, Bodenbeschaffenheit oder '
+    +'Erschließung davon ab, wird der Bodenrichtwert angepasst. Der Preisansatz für Grund und Boden geht in beide Berechnungsmethoden ein.',
+  pv:'Der Barwert der PV-Anlage ergibt sich aus dem jährlichen Reinertrag (durchschnittliche Stromerzeugung × Vergütung bzw. Wert des selbst '
+    +'genutzten Stroms, abzüglich Bewirtschaftungskosten) und der Restlaufzeit bis zum Ende der EEG-Vergütung. Er fließt als objektspezifisches '
+    +'Merkmal in beide Berechnungsmethoden ein. Die Bewirtschaftungskosten umfassen u. a. Versicherung, Wartung, Ausfallrisiko und anteilige '
+    +'Kosten für den Rückbau.',
+  bausubstanz:'Der Gebäudepreis wird vereinfacht aus dem fiktiven Neubauwert abzüglich der technischen Wertminderung abgeleitet. Grundlage des '
+    +'Neubauwerts sind die Normalherstellungskosten 2010 (NHK) nach Ausstattungsstandard, umgerechnet mit dem aktuellen Baupreisindex für '
+    +'Baden-Württemberg; die Wertminderung folgt aus Gesamt- und Restnutzungsdauer. Bauteile und Schäden außerhalb der technischen Wertminderung '
+    +'werden gesondert angesetzt; Einbauküchen, Möbel und sonstiges Inventar sind nicht enthalten.',
+  mietertrag:'Bei dieser Methode wird der Preis der Gebäude aus den tatsächlich erzielten oder – bei Eigennutzung oder Leerstand – aus '
+    +'marktüblichen (fiktiven) Mieterträgen abgeleitet. Damit beide Methoden vergleichbar sind, werden dieselben Gebäudeteile betrachtet '
+    +'(einschließlich Garagen, Nebengebäuden, Stellplätzen und PV-Anlage); was im Mietertrag nicht enthalten ist, wird gesondert aufgeführt.',
+  hinweise:'Diese rechnerische Preisermittlung ist kein Verkehrswertgutachten. Sie dient der Orientierung am aktuellen Immobilienmarkt. '
+    +'Grundlage sind die zur Verfügung gestellten Angaben und Unterlagen; für deren Richtigkeit und Vollständigkeit wird keine Haftung übernommen. '
+    +'Inventar ist nur enthalten, wenn es ausdrücklich genannt ist. Die Bausubstanz sowie bau- und gewerberechtliche Belange wurden nicht geprüft; '
+    +'augenscheinliche Schäden sind im Preisansatz oder durch einen Abschlag berücksichtigt, die Kosten ihrer Beseitigung können im Einzelfall '
+    +'deutlich höher sein. Veränderungen nach dem Stichtag sind nicht berücksichtigt.'
+};
+const TEXT_ARTEN=['bodenrichtwert','pv','bausubstanz','mietertrag','hinweise'];
+
 /* ---------- Prüfen und Bereinigen (Laden, Import) ---------- */
 function bereinigen(roh){
   if(!roh||typeof roh!=='object'||Array.isArray(roh)) return null;
   const t=(x,n)=>typeof x==='string'?x.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').slice(0,n||200):'';
   const z=x=>typeof x==='number'&&isFinite(x)?x:null;
+  const obj=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:null;
   const liste=(a,max,f)=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x==='object').slice(0,max).map(f);
   const fuenf=a=>[0,1,2,3,4].map(i=>z((a||[])[i])||0);
+  const db=obj(roh.deckblatt), od=obj(roh.objektdaten), bt=obj(roh.bautechnik), tx=obj(roh.texte), bi=obj(roh.bilder);
   return {version:1,stichtag:datumOk(roh.stichtag)?roh.stichtag:null,objekt:t(roh.objekt),
-    boden:liste(roh.boden,MAX.boden,b=>({text:t(b.text,120),flaeche:z(b.flaeche),brw:z(b.brw),abschlag:z(b.abschlag)||0})),
-    gebaeude:liste(roh.gebaeude,MAX.gebaeude,g=>({text:t(g.text,120),baujahr:z(g.baujahr),bgf:z(g.bgf),gnd:z(g.gnd),rnd:z(g.rnd),abschlagBauweise:z(g.abschlagBauweise)||0,
+    deckblatt:db?{auftraggeber:t(db.auftraggeber,160),auftraggeberAnschrift:t(db.auftraggeberAnschrift,200),auftragsinhalt:t(db.auftragsinhalt,120),
+      verwendungszweck:t(db.verwendungszweck,120),anschrift:t(db.anschrift,200)}
+      :{auftraggeber:'',auftraggeberAnschrift:'',auftragsinhalt:'Rechnerische Preisermittlung',verwendungszweck:'intern',anschrift:''},
+    objektdaten:od?{rechtsform:t(od.rechtsform,120),bebauung:t(od.bebauung,4000),merkmale:liste(od.merkmale,40,m=>({label:t(m.label,80),wert:t(m.wert,400)}))}
+      :{rechtsform:'bebautes Grundstück',bebauung:'',merkmale:MERKMALE.map(label=>({label,wert:''}))},
+    boden:liste(roh.boden,MAX.boden,b=>({text:t(b.text,120),flaeche:z(b.flaeche),brw:z(b.brw),abschlag:z(b.abschlag)||0,
+      flst:t(b.flst,60),nutzbarkeit:t(b.nutzbarkeit,80),zone:t(b.zone,40),richtwert:z(b.richtwert)})),
+    gebaeude:liste(roh.gebaeude,MAX.gebaeude,g=>({text:t(g.text,120),baujahr:z(g.baujahr),baujahrText:t(g.baujahrText,200),bgf:z(g.bgf),bgfText:t(g.bgfText,200),
+      gnd:z(g.gnd),rnd:z(g.rnd),rndText:t(g.rndText,200),abschlagBauweise:z(g.abschlagBauweise)||0,
       bpiArt:BPI&&BPI.ARTEN[g.bpiArt]?g.bpiArt:'wohnen',bpiText:t(g.bpiText,120),bpi:z(g.bpi),bpiFaktor:z(g.bpiFaktor),
       kosten1:fuenf(g.kosten1),kosten2:fuenf(g.kosten2),anteile:BAUTEILE.map((_,i)=>fuenf((g.anteile||[])[i]))})),
     pauschal:liste(roh.pauschal,MAX.pauschal,p=>({text:t(p.text,160),betrag:z(p.betrag)||0})),
     objektspezifisch:liste(roh.objektspezifisch,MAX.objektspezifisch,p=>({text:t(p.text,160),betrag:z(p.betrag)||0})),
     pv:roh.pv&&typeof roh.pv==='object'?{kwp:z(roh.pv.kwp),kwh:z(roh.pv.kwh),eurKwh:z(roh.pv.eurKwh),bwk:z(roh.pv.bwk),lz:z(roh.pv.lz),
-      inbetrieb:datumOk(roh.pv.inbetrieb)?roh.pv.inbetrieb:null,eegEnde:datumOk(roh.pv.eegEnde)?roh.pv.eegEnde:null}:null,
-    mieten:liste(roh.mieten,MAX.mieten,m=>({text:t(m.text,120),lage:t(m.lage,40),flaeche:z(m.flaeche),monat:z(m.monat)||0,gebaeude:z(m.gebaeude)||0,abschlag:z(m.abschlag)||0,hinweis:t(m.hinweis,200)})),
-    bwk:z(roh.bwk),lz:z(roh.lz),abschlagFest:z(roh.abschlagFest),gewichtung:z(roh.gewichtung)!=null?roh.gewichtung:50,
-    hinweise:t(roh.hinweise,4000)};
+      inbetrieb:datumOk(roh.pv.inbetrieb)?roh.pv.inbetrieb:null,eegEnde:datumOk(roh.pv.eegEnde)?roh.pv.eegEnde:null,
+      einspeisung:z(roh.pv.einspeisung),eigen:z(roh.pv.eigen)}:null,
+    mieten:liste(roh.mieten,MAX.mieten,m=>({text:t(m.text,120),lage:t(m.lage,40),flaeche:z(m.flaeche),monat:z(m.monat)||0,gebaeude:z(m.gebaeude)||0,
+      abschlag:z(m.abschlag)||0,gewerblich:m.gewerblich===true,hinweis:t(m.hinweis,200)})),
+    bwk:z(roh.bwk),lz:z(roh.lz),abschlagFest:z(roh.abschlagFest),abschlagText:t(roh.abschlagText,200),gewichtung:z(roh.gewichtung)!=null?roh.gewichtung:50,
+    // ältere Vordrucke: ein Feld „hinweise“ (Zustand, Modernisierungen, Eindruck) → 3.4 Allgemeiner Eindruck
+    bautechnik:bt?{schaeden:t(bt.schaeden,4000),zustand:t(bt.zustand,4000),modernisierung:t(bt.modernisierung,4000),eindruck:t(bt.eindruck,4000)}
+      :{schaeden:TEXTE.schaeden,zustand:'',modernisierung:'',eindruck:t(roh.hinweise,4000)},
+    texte:Object.fromEntries(TEXT_ARTEN.map(k=>[k,tx&&typeof tx[k]==='string'?t(tx[k],6000):TEXTE[k]])),
+    ort:t(roh.ort,80),
+    bilder:{karte:(bi&&Array.isArray(bi.karte)?bi.karte:[]).filter(x=>typeof x==='string'&&/^[\w-]{1,80}$/.test(x)).slice(0,8)}};
 }
 /* Leerer Vordruck (ein Gebäude, NHK-Zeilen leer) */
 function leer(stichtag){
   return bereinigen({stichtag,boden:[{text:'Grundstück',flaeche:0,brw:0,abschlag:0}],
     gebaeude:[{text:'Hauptgebäude',gnd:80,bpiArt:'wohnen',anteile:BAUTEILE.map(()=>[0,0,1,0,0])}],pauschal:[],objektspezifisch:[],mieten:[],bwk:20,lz:4,gewichtung:50});
+}
+
+/* Kapitelnummern wie in der Excel-Mappe: PV-Anlage nur, wenn vorhanden; ohne Gebäude kein Substanz- und Ertragskapitel */
+function kapitel(v){
+  const k={objekt:1,brw:2,bau:3,pv:null,boden:0,substanz:null,ertrag:null,summe:0}; let n=4;
+  if(v&&v.pv) k.pv=n++;
+  k.boden=n++;
+  if(v&&(v.gebaeude||[]).length){ k.substanz=n++; k.ertrag=n++; }
+  k.summe=n;
+  return k;
+}
+/* Alle Zahlen für Vordruck und Dokument (Zwischenzeilen wie in der Excel-Mappe); v ist bereinigt */
+function modell(v){
+  const r=rechnen(v), kap=kapitel(v);
+  const boden=v.boden.map(b=>{ const zw=zahl(b.flaeche)*zahl(b.brw), ab=zw*zahl(b.abschlag)/100; return {flaeche:zahl(b.flaeche),brw:zahl(b.brw),zw,abschlagPct:zahl(b.abschlag),abschlagEur:-ab,wert:zw-ab}; });
+  const geb=r.gebaeude.map((g,i)=>{ const q=v.gebaeude[i], abschlagEur=runden(-g.nhk2010*zahl(q.abschlagBauweise)/100);
+    return Object.assign({},g,{name:q.text||('Gebäude '+(i+1)),baujahr:q.baujahr,gnd:zahl(q.gnd),angepasst:zahl(q.rnd)>0,bgf:zahl(q.bgf),bpi:zahl(q.bpi),bpiFaktor:zahl(q.bpiFaktor),
+      bpiArt:q.bpiArt,abschlagPct:zahl(q.abschlagBauweise),abschlagEur,wmEur:-g.nhkHeute*g.wm/100}); });
+  const monat=summe(v.mieten,m=>m.monat), gewerblich=summe(v.mieten.filter(m=>m.gewerblich),m=>m.monat)*12;
+  const teile=r.teile.map(t=>Object.assign({},t,{name:(v.gebaeude[t.gebaeude]||{}).text||'Gebäude',zw:t.roh-t.bew,bwkPct:zahl(v.bwk),lzPct:zahl(v.lz),
+    gewerblich:summe(v.mieten.filter(m=>m.gewerblich&&Math.min(Math.max(Math.round(zahl(m.gebaeude)),0),geb.length-1)===t.gebaeude),m=>m.monat)*12}));
+  const pauschal=v.pauschal.map(p=>({text:p.text,betrag:zahl(p.betrag)})), objekt=v.objektspezifisch.map(p=>({text:p.text,betrag:zahl(p.betrag)}));
+  let pv=null;
+  if(r.pv){ const roh=r.pv.roh; pv=Object.assign({},r.pv,{laufzeit:v.pv.inbetrieb&&r.stichtag?Math.max(0,tage(v.pv.inbetrieb,r.stichtag)/365):null,bewEur:-(roh-r.pv.rein)}); }
+  const gebSumme=r.gebaeudeWert, pauschalSumme=summe(pauschal,p=>p.betrag);
+  return {r,kap,boden,bodenSumme:r.boden,flaecheSumme:summe(boden,b=>b.flaeche),geb,gebSumme,pauschal,pauschalSumme,gebAussen:gebSumme+pauschalSumme,
+    vorlaeufig:r.boden+gebSumme+pauschalSumme,objekt,objektSumme:summe(objekt,p=>p.betrag),pv,pvWert:r.pvWert,
+    miete:{monat,jahr:monat*12,gewerblich},teile,substanz:r.substanz,ertrag:r.ertrag,ergebnis:r.ergebnis,gewichtung:r.gewichtung==null?50:r.gewichtung};
 }
 
 /* Vorlagen für einen neuen Vordruck — Aufbau wie die Excel-Vordrucke der Bank; Flächen, Baujahr, Bodenrichtwert und
@@ -127,19 +205,21 @@ function vorlage(key,stichtag){
     const w=BPI&&datumOk(stichtag)?BPI.wertFuer(art,stichtag):null;
     if(w){ g.bpi=w.wert; g.bpiFaktor=w.faktor; g.bpiText=w.name+' '+BPI.monatText(w.monat)+(w.vorlaeufig?' (vorläufig)':''); }
     return g; };
-  const miete=(text,lage,gebaeude)=>({text,lage,flaeche:null,monat:0,gebaeude:gebaeude||0,abschlag:0});
-  const v={stichtag,boden:[{text:'Grundstück',flaeche:null,brw:null,abschlag:0}],gebaeude:[],pauschal:[{text:'Außenanlagen',betrag:0},{text:'Außenstellplätze',betrag:0}],
+  const miete=(text,lage,gebaeude,gewerblich)=>({text,lage,flaeche:null,monat:0,gebaeude:gebaeude||0,abschlag:0,gewerblich:!!gewerblich});
+  const v={stichtag,objekt:{bank:'Bankgebäude',bank_lager:'Bank- und Lagergebäude',wgh:'Wohn- und Geschäftshaus',grundstueck:'Grundstück'}[key],
+    boden:[{text:'Grundstück',flaeche:null,brw:null,abschlag:0}],gebaeude:[],pauschal:[{text:'Außenanlagen',betrag:0},{text:'Außenstellplätze',betrag:0}],
     objektspezifisch:[],mieten:[],bwk:20,lz:4,gewichtung:50};
   if(key==='bank'||key==='bank_lager'){
     v.gebaeude.push(geb('Bankgebäude','buero',KK.geschaeft,80));
-    v.mieten.push(miete('Bankräume (Eigennutzung, fiktiv)','EG'),miete('Außenstellplätze (fiktiv)','außen'));
+    v.mieten.push(miete('Bankräume (Eigennutzung, fiktiv)','EG',0,true),miete('Außenstellplätze (fiktiv)','außen'));
   }
-  if(key==='bank_lager'){ v.gebaeude.push(geb('Nebengebäude (Lager / Scheune)','gewerbe',KK.lager,60)); v.mieten.push(miete('Nebengebäude (fiktiv)','EG',1)); }
+  if(key==='bank_lager'){ v.gebaeude.push(geb('Nebengebäude (Lager / Scheune)','gewerbe',KK.lager,60)); v.mieten.push(miete('Nebengebäude (fiktiv)','EG',1,true)); }
   if(key==='wgh'){
     v.gebaeude.push(geb('Wohn- und Geschäftshaus','wohnen',KK.misch,80));
-    v.mieten.push(miete('Laden / Büro (vermietet)','EG'),miete('Wohnung (vermietet)','1. OG'),miete('Wohnung (vermietet)','DG'));
+    v.mieten.push(miete('Laden / Büro (vermietet)','EG',0,true),miete('Wohnung (vermietet)','1. OG'),miete('Wohnung (vermietet)','DG'));
   }
-  if(key==='grundstueck') v.pauschal=[{text:'Außenanlagen, Befestigung (Pflaster, Schotter)',betrag:0}];
+  // ohne Gebäude wie im Vordruck „Preis Boden“: Außenanlagen als objektspezifisches Merkmal
+  if(key==='grundstueck'){ v.pauschal=[]; v.objektspezifisch=[{text:'objektspezifische Merkmale (z. B. Außenanlagen, Parkplätze)',betrag:0}]; }
   return bereinigen(v);
 }
 
@@ -163,7 +243,7 @@ function fortschreiben(v,stichtag,opt){
   return {vordruck:n,hinweise,jahre};
 }
 
-const ImmoJahresbewertung={BAUTEILE,MAX,VORLAGEN,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,vorlage,fortschreiben};
+const ImmoJahresbewertung={BAUTEILE,MAX,VORLAGEN,MERKMALE,TEXTE,TEXT_ARTEN,runden,rbf,rechnen,gebaeudeRechnen,pvRechnen,bereinigen,leer,vorlage,fortschreiben,kapitel,modell};
 wurzel.ImmoJahresbewertung=ImmoJahresbewertung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoJahresbewertung;
 })(typeof globalThis!=='undefined'?globalThis:this);
