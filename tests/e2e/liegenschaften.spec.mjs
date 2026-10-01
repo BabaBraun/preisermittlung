@@ -34,17 +34,17 @@ test('Liegenschaften: Übersicht, Vordruck ändern und speichern, fortschreiben,
   await tab.getByRole('button', { name: /1\.220\.052 €/ }).click();
   const ed = lv(page).locator('#jb_editor');
   await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.220.052,49 €');
-  await expect(ed.locator('[data-jbo="g.0.preis"]')).toHaveText('1.363 €/m²');
-  await expect(ed.locator('[data-jbo="g.0.b.0.kosten"]')).toHaveText('240,12');
-  await ed.locator('[data-jb="boden.0.brw"]').fill('340');
+  await expect(ed.locator('[data-jbm="g.0.preis"]').first()).toHaveValue('1.363');
+  await expect(ed.locator('[data-jbm="g.0.b.0"]')).toHaveValue('240,12');
+  await ed.locator('[data-jb="boden.0.brw"]').first().fill('340');
   await expect(ed.locator('[data-jbo="boden"]')).toHaveText('126.225,00 €');
   await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.224.141,25 €');
-  await ed.locator('[data-jb="boden.0.brw"]').fill('3x');
-  await expect(ed.locator('[data-jb="boden.0.brw"]')).toHaveClass(/lv-fehler/);
-  await ed.locator('[data-jb="boden.0.brw"]').fill('340');
+  await ed.locator('[data-jb="boden.0.brw"]').first().fill('3x');
+  await expect(ed.locator('[data-jb="boden.0.brw"]').first()).toHaveClass(/lv-fehler/);
+  await ed.locator('[data-jb="boden.0.brw"]').first().fill('340');
   // Mietzeile hinzufügen (Struktur ändert sich, Eingaben bleiben)
   await ed.getByRole('button', { name: 'Mietzeile' }).click();
-  await expect(ed.locator('[data-jb="boden.0.brw"]')).toHaveValue('340');
+  await expect(ed.locator('[data-jb="boden.0.brw"]').first()).toHaveValue('340');
   await expect(ed.locator('[data-jb="mieten.2.monat"]')).toHaveValue('0');
   await ed.getByRole('button', { name: 'Speichern' }).click();
   await expect(lv(page).locator('.lv-ok')).toContainText('Vordruck zum 31.12.2025 gespeichert: Ergebnis 1.224.141 €');
@@ -101,12 +101,13 @@ test('Liegenschaften: Vordruck ohne vorhandene Liegenschaft — Vorlage wählen,
   await expect(ed.locator('#jb_offen')).toContainText('Mieterträge (1.3)');
   // Bodenrichtwert wie in der Mappe unter 2.1 „Richtwert“: der Preisansatz übernimmt ihn
   await ed.locator('[data-jb="boden.0.richtwert"]').fill('400');
-  await expect(ed.locator('[data-jb="boden.0.brw"]')).toHaveValue('400');
+  await expect(ed.locator('[data-jb="boden.0.brw"]')).toHaveCount(4);   // 1.2, 2.1, 4.1, 5.5 — überall dieselbe Angabe
+  for (const f of await ed.locator('[data-jb="boden.0.brw"]').all()) await expect(f).toHaveValue('400');
   await expect(ed.locator('#jb_offen')).not.toContainText('Bodenrichtwert');
   await expect(ed.locator('[data-jb="gebaeude.1.text"]')).toHaveValue('Nebengebäude (Lager / Scheune)');
   await expect(ed.locator('[data-jb="gebaeude.0.bpi"]')).toHaveValue('143,1');
   // Werte der Hand-Rechnung aus tests/unit/jahresbewertung.test.mjs (Nebengebäude ohne BGF und Miete)
-  for (const [p, w] of [['boden.0.flaeche', '800'], ['gebaeude.0.baujahr', '1975'], ['gebaeude.0.bgf', '900'], ['mieten.0.monat', '6000']]) await ed.locator('[data-jb="' + p + '"]').fill(w);
+  for (const [p, w] of [['boden.0.flaeche', '800'], ['gebaeude.0.baujahr', '1975'], ['gebaeude.0.bgf', '900'], ['mieten.0.monat', '6000']]) await ed.locator('[data-jb="' + p + '"]').first().fill(w);
   await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.012.202,00 €');
   await expect(ed.locator('#jb_offen')).toHaveText('Noch offen: Baujahr Nebengebäude (Lager / Scheune) (1.3) · BGF Nebengebäude (Lager / Scheune) (1.3)');
   await ed.getByRole('button', { name: 'Speichern' }).click();
@@ -118,7 +119,7 @@ test('Liegenschaften: Vordruck ohne vorhandene Liegenschaft — Vorlage wählen,
   await expect(lv(page).locator('input[name=jn_vorlage]:checked')).toHaveValue('kopie');
   await lv(page).locator('#lvf_jn_stichtag').fill('2027-12-31');
   await lv(page).getByRole('button', { name: 'Vordruck öffnen', exact: true }).click();
-  await expect(ed.locator('[data-jb="gebaeude.0.bgf"]')).toHaveValue('900');
+  await expect(ed.locator('[data-jb="gebaeude.0.bgf"]').first()).toHaveValue('900');
   await expect(ed.locator('[data-jb="@quelle"]')).toHaveValue('Kopie des Vordrucks zum 31.12.2026');
   await ed.getByRole('button', { name: 'Speichern' }).click();
   await expect(lv(page).locator('.lv-tbl thead')).toContainText('31.12.2027');
@@ -183,15 +184,15 @@ test('Vordruck wie die Excel-Mappe: Kapitel 1–8, Angaben des Dokuments, Karten
     '6.2 Berechnung des Gebäudepreis in Abhängigkeit der Restnutzungsdauer', '6.5 Preisansatz (Bausubstanz als Grundlage)', '7.2 Daten für die Preisermittlung auf Grundlage des Gebäudeertrags',
     '7.3 Preisansatz Gebäude (Mietertrag als Grundlage)', '7.4 Preisansatz (Mietertrag als Grundlage)', '8.1 Die einzelnen Preiskomponenten für Sie im Überblick'])
     await expect(ed.locator('.jb-u', { hasText: u })).toHaveCount(1);
-  await expect(ed.locator('[data-jbo="s.substanz"]')).toHaveText(/€$/);
+  await expect(ed.locator('[data-jbm="substanz"]').first()).toHaveValue(/^[\d.]+,\d\d$/);
   // Angaben des Dokuments; Gewerbeanteil aus markierten Mietzeilen (Laden 950 € × 12)
   await ed.locator('[data-jb="deckblatt.auftraggeber"]').fill('Muster AG');
-  await ed.locator('[data-jb="objekt"]').fill('Bürogebäude mit Laden');
-  await expect(ed.locator('[data-jbo="t.objekt"]')).toHaveText('Bürogebäude mit Laden');
+  await ed.locator('[data-jb="objekt"]').first().fill('Bürogebäude mit Laden');
+  await expect(ed.locator('[data-jb="objekt"]').nth(1)).toHaveValue('Bürogebäude mit Laden');   // 1.1 Art der Bebauung = Objekt
   await ed.locator('[data-jb="objektdaten.merkmale.0.wert"]').fill('massiv');
   await ed.locator('[data-jb="boden.0.flst"]').fill('123/4');
   await ed.locator('[data-jb="mieten.1.gewerblich"]').check();
-  await expect(ed.locator('[data-jbo="e.0.gew"]')).toHaveText('11.400,00 €');
+  await expect(ed.locator('[data-jbm="e.0.gew"]')).toHaveValue('11.400,00');
   await ed.locator('[data-jb="ort"]').fill('Musterstadt');
   // ohne PV-Anlage rücken die Kapitel auf (wie in der Mappe ohne PV), mit PV wieder zurück
   await ed.locator('.jb-pv-schalter input').uncheck();
@@ -233,3 +234,50 @@ test('Vordruck wie die Excel-Mappe: Kapitel 1–8, Angaben des Dokuments, Karten
   await page.locator('#report').getByRole('button', { name: 'zurück', exact: true }).click();
   await keineSkriptfehler(page);
 });
+
+test('Vordruck: jede Zahl änderbar — gerechnete Felder überschreiben (gelb), weiterrechnen, zurücksetzen, speichern', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  await page.locator('.tile.q', { hasText: 'Liegenschaften' }).click();
+  await page.evaluate(async v => {
+    await lvStart();
+    const b = ImmoLiegenschaften.ausVordruck({ id: 'BW1', art: 'preiseinschaetzung', status: 'final', quelle: '', notiz: '', vordruck: ImmoJahresbewertung.bereinigen(v) });
+    await lvSpeichern({ id: 'LJB', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [b] });
+    jbOeffnen('LJB', 'BW1');
+  }, FALL);
+  const ed = lv(page).locator('#jb_editor');
+  // keine Zahl nur als Text: außerhalb von Eingabefeldern stehen höchstens Beschriftungen und Hinweise
+  const reineZahlen = await ed.evaluate(el => { const a = []; const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) { const n = tw.currentNode, t = n.textContent.trim();
+      if (/\d/.test(t) && !n.parentElement.closest('h3,h4,label,.hint,.lv-klein,summary,option,th,.jb-erg,.jb-l,button,textarea,.jb-geb-kopf,.jb-nhk-t,.jb-b,td:first-child')) a.push(t); }
+    return a; });
+  expect(reineZahlen).toEqual([]);
+  expect(await ed.locator('[data-jbm]').count()).toBeGreaterThan(60);
+  // Gebäudepreis 1.363 → 1.400 €/m²: Gebäudewert 640 × 1.400, Substanz und Ergebnis rechnen mit
+  const preis = ed.locator('[data-jbm="g.0.preis"]').first();
+  await preis.fill('1.400'); await preis.blur();
+  await expect(preis).toHaveClass(/jb-manuell/);
+  await expect(ed.locator('[data-jbm="g.0.wert"]').first()).toHaveValue('896.000,00');
+  await expect(ed.locator('[data-jbm="g.0.preis"]').nth(1)).toHaveValue('1.400');          // 6.4 zeigt denselben Wert
+  await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.231.892,49 €');          // + 37 × 640 / 2 = 11.840
+  // Vervielfältiger 19,97 → 20 von Hand: Ertrag steigt um Gebäudereinertrag × 0,03
+  const rein = await page.evaluate(() => ImmoJahresbewertung.rechnen(JB_EDIT.v).teile[0].gebRein);
+  const vf = ed.locator('[data-jbm="e.0.vf"]').first(); await vf.fill('20'); await vf.blur();
+  const r = await page.evaluate(() => ImmoJahresbewertung.rechnen(JB_EDIT.v));
+  expect(Math.abs(r.teile[0].wert - rein * 20)).toBeLessThan(0.005);
+  // zurücksetzen: Rechnung gilt wieder
+  await ed.locator('[data-reset="g.0.preis"]').first().click();
+  await expect(preis).toHaveValue('1.363'); await expect(preis).not.toHaveClass(/jb-manuell/);
+  await ed.locator('[data-reset="e.0.vf"]').first().click();
+  await expect(ed.locator('[data-jbo="ergebnis"]')).toHaveText('1.220.052,49 €');
+  // Ergebnis von Hand, Einheiten beim Eintippen: wird gespeichert und in der Übersicht gezeigt
+  await ed.locator('[data-jb="boden.0.richtwert"]').fill('320 €/m²');
+  await expect(ed.locator('[data-jb="boden.0.richtwert"]')).not.toHaveClass(/lv-fehler/);
+  const erg = ed.locator('[data-jbm="ergebnis"]').first(); await erg.fill('1.250.000 €'); await erg.blur();
+  await ed.getByRole('button', { name: 'Speichern' }).click();
+  await expect(lv(page).locator('.lv-ok')).toContainText('Ergebnis 1.250.000 €');
+  const v = await page.evaluate(() => LV.liste.find(l => l.id === 'LJB').bewertungen[0]);
+  expect(v.ergebnis).toBe(1250000); expect(v.vordruck.manuell).toEqual({ ergebnis: 1250000 });
+  await keineSkriptfehler(page);
+});
+

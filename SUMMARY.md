@@ -1,3 +1,8 @@
+# Zusammenfassung — jede Zahl im Vordruck änderbar (2026-10-01)
+
+Alle Zahlen des Vordrucks sind Eingabefelder, auch die gerechneten (überschreiben wie eine Excel-Zelle, gelb, „↺“).
+Bodenrichtwert, Baujahr, RND und Sätze lassen sich überall eintragen, wo sie in der Mappe stehen (D28).
+
 # Zusammenfassung — Bereich „Liegenschaften“, Verwaltung entfernt (2026-10-01)
 
 Liegenschaftsverwaltung entfernt; eigener Bereich „Liegenschaften“ mit den Preiseinschätzungen je Stichtag nach dem

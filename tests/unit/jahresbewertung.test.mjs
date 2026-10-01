@@ -67,7 +67,7 @@ test('Vordruck: Bereinigung, leerer Vordruck, Fortschreibung', () => {
   assert.equal(J.fortschreiben(FAELLE[0].vordruck, '2026-12-31', { rnd: false }).vordruck.gebaeude[0].rnd, 52);
   const zwei = J.fortschreiben(FAELLE[1].vordruck, '2026-12-31');
   assert.deepEqual(zwei.vordruck.gebaeude.map(g => [g.bpi, g.rnd]), [[143.1, 33], [140.6, null]]);   // Lager: Gewerbe-Index, RND bleibt rechnerisch
-  assert.ok(zwei.hinweise.some(h => /Fester Abschlag/.test(h)));
+  assert.ok(zwei.hinweise.some(h => /Von Hand eingetragene Werte.*e.0.ab/.test(h)));   // fester Abschlag 400 € = eingetragener Wert in 7.2
   assert.throws(() => J.fortschreiben(FAELLE[0].vordruck, '2026'), /Stichtag/);
 });
 
@@ -136,5 +136,32 @@ test('Vordruck wie die Excel-Mappe: Kapitelnummern, Zwischenzeilen, Gewerbeantei
   // Fortschreibung behält die Angaben des Dokuments
   const f = J.fortschreiben(Object.assign({}, FAELLE[0].vordruck, { deckblatt: { auftraggeber: 'Muster AG' }, ort: 'Musterstadt' }), '2026-12-31').vordruck;
   assert.equal(f.deckblatt.auftraggeber, 'Muster AG'); assert.equal(f.ort, 'Musterstadt');
+});
+
+test('Eingetragene Werte (wie überschriebene Excel-Zellen): gelten an ihrer Stelle, Folgezeilen rechnen weiter', () => {
+  const v = J.bereinigen(FAELLE[0].vordruck), r0 = J.rechnen(v);
+  const mit = m => J.rechnen(Object.assign({}, v, { manuell: m }));
+  // Gebäudepreis von Hand: Wert = BGF × Preis, Substanz entsprechend; Ertrag unverändert
+  const a = mit({ 'g.0.preis': 1400 });
+  assert.equal(a.gebaeude[0].wert, 640 * 1400); nahe(a.substanz - r0.substanz, 640 * 37, 'Substanz'); nahe(a.ertrag, r0.ertrag, 'Ertrag');
+  // Alterswertminderung von Hand → Gebäudepreis neu gerundet
+  const b = mit({ 'g.0.wm': 30 }); assert.equal(b.gebaeude[0].preis, J.runden(r0.gebaeude[0].nhkHeute * 0.7));
+  // Abzüge negativ wie im Vordruck: Bewirtschaftung −20.000 → Reinertrag
+  const c = mit({ 'e.0.bew': -20000 }); assert.equal(c.teile[0].bew, 20000); nahe(c.teile[0].zw, c.teile[0].roh - 20000, 'Zwischensumme');
+  // Bodenwert von Hand: Substanz und Bodenverzinsung rechnen mit
+  const d = mit({ boden: 100000 }); assert.equal(d.boden, 100000); nahe(d.teile[0].bodenZins, 100000 * 0.045, 'Bodenzins');
+  // Summen und Ergebnis direkt
+  assert.equal(mit({ ergebnis: 1 }).ergebnis, 1); assert.equal(mit({ substanz: 2 }).substanz, 2);
+  // Rohertrag eines Gebäudes ohne Mietzeilen von Hand → eigener Ertragsteil
+  const z = J.bereinigen(FAELLE[1].vordruck); z.mieten = z.mieten.filter(m => m.gebaeude === 0);
+  assert.equal(J.rechnen(z).teile.length, 1); assert.equal(J.rechnen(Object.assign({}, z, { manuell: { 'e.1.roh': 12000 } })).teile.length, 2);
+  // Wägungsanteil je Gebäude änderbar
+  const w = J.bereinigen(Object.assign({}, FAELLE[0].vordruck)); w.gebaeude[0].waegung[0] = 0.33;
+  assert.ok(J.rechnen(w).gebaeude[0].nhk2010 > r0.gebaeude[0].nhk2010);
+  // Bereinigung: nur Zahlen mit gültigem Schlüssel; Fortschreiben rechnet neu
+  const s = J.bereinigen(Object.assign({}, FAELLE[0].vordruck, { manuell: { 'g.0.preis': 1400, 'x y': 1, ergebnis: 'viel', 'e.0.vf': 20 } }));
+  assert.deepEqual(s.manuell, { 'g.0.preis': 1400, 'e.0.vf': 20 });
+  const f = J.fortschreiben(s, '2026-12-31');
+  assert.deepEqual(f.vordruck.manuell, s.manuell); assert.ok(f.hinweise.some(h => /Von Hand eingetragene Werte .gelb. übernommen.*g.0.preis, e.0.vf/.test(h)));
 });
 

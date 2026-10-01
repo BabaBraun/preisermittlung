@@ -594,3 +594,23 @@ folgte nicht der Reihenfolge der Excel-Mappe.
   selten ganz geschlossen, Änderungen kamen daher nicht an. Jetzt erscheint „Neue Version — Jetzt aktualisieren“; ein
   Tipp übernimmt die wartende Fassung (skipWaiting) und lädt neu. Beim Zurückkehren in die App wird nach Updates gesucht.
 
+---
+
+## D28 (2026-10-01) — Jede Zahl im Vordruck änderbar (wie eine Excel-Zelle)
+
+**Wunsch des Auftraggebers:** Alles, was eine Zahl ist, muss sich bearbeiten lassen; es darf keine Felder geben, deren
+Zahlen man nicht ändern kann. Dazu der Hinweis, die Reihenfolge der Excel-Mappe genau einzuhalten und „Ergebnis 0“ zu prüfen.
+
+**Befund:** Der Bodenrichtwert stand in 1.2 nur als Anzeige — wer der Mappe folgend dort eintragen wollte, konnte es
+nicht, und der Bodenwert blieb 0. Ebenso waren Baujahr, Restnutzungsdauer und Sätze in 6.1/7.1–7.3 nur Anzeige, alle
+gerechneten Zwischenwerte (Alter, Wertminderung, NHK, Index, Gebäudepreis, Vervielfältiger, Summen, Ergebnis) ebenfalls.
+
+**Entscheidung:** Jede Zahl ist ein Eingabefeld. Eingaben, die an mehreren Stellen stehen, sind dieselbe Angabe. Jede
+gerechnete Zahl hat einen Schlüssel in `v.manuell`; der Rechenkern (`rechnen`) nimmt an jeder Zwischenstufe den
+eingetragenen Wert, die folgenden Zeilen rechnen damit weiter — wie eine überschriebene Formelzelle in Excel. Ohne
+Einträge bleibt die Rechnung unverändert (alle 13 Mappen weiter auf den Cent). Überschriebene Felder sind gelb, „↺“
+setzt zurück. Die Wägungsanteile der NHK-Tabelle sind je Gebäude änderbar. Der frühere „feste Abschlag“ wird zum
+eingetragenen Wert in der Zeile „- Abschlag für gewerbliche Vermietung“ (wie Zelle C33 der Mappe). Fortschreiben und
+Kopie übernehmen eingetragene Werte wie eine kopierte Excel-Datei und listen sie zum Prüfen auf. Einheiten in der Eingabe
+(€/m², Jahre, kWh, kWp) werden überlesen.
+

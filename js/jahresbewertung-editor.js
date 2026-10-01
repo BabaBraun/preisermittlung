@@ -1,20 +1,30 @@
-/* ImmoApp — Jahresbewertung: Vordruck wie die Excel-Mappe der Bank
+/* ImmoApp — Liegenschaften: Vordruck wie die Excel-Mappe der Bank
    Deckblatt, 1. Objektdaten, 2. Bodenrichtwert, 3. Bautechnische Daten, (4. PV-Anlage), Preisansatz Grund und Boden,
    Preisansatz (Bausubstanz als Grundlage), Preisansatz (Mietertrag als Grundlage), Zusammenfassung / Sonstiges — mit den
-   Nummern, Beschriftungen und Zwischenzeilen der Mappe. Eingaben stehen dort, wo sie in der Mappe stehen; was die Mappe
-   rechnet, rechnet jbAusgaben() beim Tippen neu (ohne die Eingaben neu aufzubauen — der Cursor bleibt im Feld).
-   Zahlen: ImmoJahresbewertung.modell() (js/jahresbewertung.js), dieselben wie im Dokument (js/jahresbewertung-dok.js). */
+   Nummern, Beschriftungen und Zwischenzeilen der Mappe. Jede Zahl ist ein Eingabefeld, auch jede gerechnete: Gerechnete
+   Felder sind mit dem Ergebnis vorbelegt; wer etwas einträgt, überschreibt es wie eine Excel-Zelle (gelb, „↺“ stellt die
+   Rechnung wieder her), und alle folgenden Zeilen rechnen mit dem eingetragenen Wert weiter (v.manuell, js/jahresbewertung.js).
+   Eine Angabe, die an mehreren Stellen steht (z. B. Bodenrichtwert in 1.2, 2.1, 5.1), ist überall dieselbe. jbAusgaben()
+   aktualisiert beim Tippen alle anderen Felder, ohne das Feld zu stören, in dem gerade geschrieben wird. */
 'use strict';
 
 const JB_ROEM=['I','II','III','IV'];
 function jbN(x,max){ if(x==null||!isFinite(x)) return '–'; x=+x; const st=max==null?2:max; if(Math.abs(x)<0.5*Math.pow(10,-st)) x=0; return x.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:st}); }
 function jbProz(x){ return jbN(x,2)+' %'; }
+/* Anzeige gerechneter Felder mit festen Nachkommastellen und Tausenderpunkten (liest zahlEingabe wieder richtig) */
+function jbFmt(x,st){ if(x==null||!isFinite(x)) return ''; x=+x; if(Math.abs(x)<0.5*Math.pow(10,-st)) x=0; return x.toLocaleString('de-DE',{minimumFractionDigits:st,maximumFractionDigits:st}); }
 
 /* ---------- Bausteine ---------- */
 function jbIn(pfad,wert,art,breite,platz){
   art=art||'zahl';
   return '<input data-jb="'+pfad+'" data-art="'+art+'" type="'+(art==='datum'?'date':'text')+'"'+(art==='zahl'?' inputmode="decimal"':'')+(breite?' style="width:'+breite+'"':'')
     +(platz?' placeholder="'+lvH(platz)+'"':'')+' value="'+lvH(art==='zahl'?jbW(wert):(wert==null?'':wert))+'" aria-label="'+lvH(pfad)+'">';
+}
+/* gerechnetes, überschreibbares Feld: k = Schlüssel in v.manuell, st = Nachkommastellen */
+function jbM(k,einheit,st,breite){
+  return '<span class="jb-mw"><input data-jbm="'+k+'" data-st="'+(st==null?2:st)+'" type="text" inputmode="decimal"'+(breite?' style="width:'+breite+'"':'')+' aria-label="'+lvH(k)+'">'
+    +(einheit?'<span class="jb-eh">'+einheit+'</span>':'')
+    +'<button type="button" class="jb-reset" data-reset="'+k+'" hidden title="Gerechneten Wert wieder verwenden" aria-label="Gerechneten Wert wieder verwenden">↺</button></span>';
 }
 function jbTx(pfad,wert,zeilen,platz){ return '<textarea data-jb="'+pfad+'" data-art="text" rows="'+(zeilen||3)+'" aria-label="'+lvH(pfad)+'"'+(platz?' placeholder="'+lvH(platz)+'"':'')+'>'+lvH(wert||'')+'</textarea>'; }
 function jbCheck(pfad,an,text){ return '<label class="lv-check jb-check"><input type="checkbox" data-jb="'+pfad+'" data-art="check"'+(an?' checked':'')+' aria-label="'+lvH(text||pfad)+'">'+(text?' <span>'+lvH(text)+'</span>':'')+'</label>'; }
@@ -46,6 +56,7 @@ function jbEditorHtml(){
   let h='<div class="mdb-box lv-formbox jb-editor" id="jb_editor"><h3>'+lvH((E.bId?'Vordruck · ':'Neuer Vordruck · ')+name)+'</h3><div id="lv_formfehler" class="lv-warn" hidden></div>';
   h+='<div class="jb-erg">'+[['Bodenwert','boden'],['Substanz','substanz'],['Ertrag','ertrag'],['Ergebnis','ergebnis']].map(([t,k])=>'<div><span>'+t+'</span><b data-jbo="'+k+'"></b></div>').join('')
     +'<p class="jb-offen" id="jb_offen" hidden></p></div>';
+  h+='<p class="hint jb-hinweis-manuell">Jede Zahl ist änderbar. Gerechnete Felder lassen sich überschreiben (dann gelb); „↺“ stellt die Rechnung wieder her.</p>';
   h+='<div class="grid three lv-form jb-verw">'
     +jbFeld('Stand','<select data-jb="@status" data-art="text">'+LVBW.STATUS.map(([k,t])=>'<option value="'+k+'"'+(E.status===k?' selected':'')+'>'+t+'</option>').join('')+'</select>')
     +jbFeld('Quelle / Datei',jbIn('@quelle',E.quelle,'text'))
@@ -64,13 +75,13 @@ function jbEditorHtml(){
   // 1. Objektdaten
   let o=jbU('1.1','Allgemein')
     +jbZeile('Rechtsform:',jbIn('objektdaten.rechtsform',v.objektdaten.rechtsform,'text'),'','breit')
-    +jbZeile('Art der Bebauung:',jbOut('t.objekt'),'','breit')+jbZeile('Objektanschrift:',jbOut('t.anschrift'),'','breit')
-    +jbZeile('Nutzung:',jbOut('t.nutzung'),'<span class="lv-klein">= Nutzbarkeit unter 2.1</span>');
+    +jbZeile('Art der Bebauung:',jbIn('objekt',v.objekt,'text'),'','breit')+jbZeile('Objektanschrift:',jbIn('deckblatt.anschrift',v.deckblatt.anschrift,'text'),'','breit')
+    +(v.boden.length?jbZeile('Nutzung:',jbIn('boden.0.nutzbarkeit',v.boden[0].nutzbarkeit,'text'),'','breit'):'');
   o+=jbU('1.2','Grundstück');
   v.boden.forEach((b,i)=>{ o+=jbZeile((i?'Ggf. ':'')+'Grundstücksanteil '+JB_ROEM[i],jbIn('boden.'+i+'.flaeche',b.flaeche,'zahl','7em')+' m²',i?jbEntf('boden',i,'Grundstücksanteil entfernen'):'')
-    +jbZeile('Aktueller Bodenrichtwert:',jbOut('b.'+i+'.brw'),'(Ableitung aus öffentlicher Bodenrichtwerttabelle, Preisansatz unter 2.'+(i+1)+')'); });
+    +jbZeile('Aktueller Bodenrichtwert:',jbIn('boden.'+i+'.brw',b.brw,'zahl','6em')+' €/m²','(Ableitung aus öffentlicher Bodenrichtwerttabelle)'); });
   if(v.boden.length<JBK.MAX.boden) o+=jbZeile('Ggf. Grundstücksanteil '+JB_ROEM[v.boden.length],jbPlus('boden','Grundstücksanteil '+JB_ROEM[v.boden.length]));
-  o+=jbZeile('Gesamtgrundstück',jbOut('b.flaeche'),'','summe');
+  o+=jbZeile('Gesamtgrundstück',jbM('b.flaeche','m²',2),'','summe');
   if(!ohneGeb){
     o+=jbU('1.3','Gebäude');
     G.forEach((g,i)=>{ const zu=mehrere?' '+jbGebName(v,i):'';
@@ -80,20 +91,20 @@ function jbEditorHtml(){
   v.objektdaten.merkmale.forEach((m,k)=>{ o+=jbZeile(jbIn('objektdaten.merkmale.'+k+'.label',m.label,'text',null,'Bezeichnung'),jbIn('objektdaten.merkmale.'+k+'.wert',m.wert,'text'),jbEntf('merkmale',k),'merkmal'); });
   o+='<div class="mdb-actions">'+jbPlus('merkmale','Zeile')+'</div>';
   if(!ohneGeb){
-    o+=jbZeile('Mietertrag / Jahr:',jbOut('m.jahr'),'(ansetzbare Nettokaltmiete, s. Ziffer '+kap.ertrag+')');
+    o+=jbZeile('Mietertrag / Jahr:',jbM('m.jahr','€',2),'(ansetzbare Nettokaltmiete, s. Ziffer '+kap.ertrag+')');
     o+=jbU('','Aufstellung der monatlichen Mieterträge (netto, ohne Nebenkosten):')
       +jbTab(['Einheit / Mieter',{t:'€ / Monat',r:1},'Bemerkung'].concat(mehrere?['Gebäude']:[],[{t:'gewerblich'},{t:'Abschlag %',r:1},'']),
         v.mieten.map((m,i)=>[jbIn('mieten.'+i+'.text',m.text,'text'),jbIn('mieten.'+i+'.monat',m.monat,'zahl','7em'),jbIn('mieten.'+i+'.hinweis',m.hinweis,'text',null,'(lt. Mietvertrag)')].concat(
           mehrere?['<select data-jb="mieten.'+i+'.gebaeude" data-art="zahl">'+G.map((g,k)=>'<option value="'+k+'"'+(m.gebaeude===k?' selected':'')+'>'+lvH(jbGebName(v,k))+'</option>').join('')+'</select>']:[],
           [jbCheck('mieten.'+i+'.gewerblich',m.gewerblich,''),jbIn('mieten.'+i+'.abschlag',m.abschlag,'zahl','4em'),jbEntf('mieten',i)])))
-      +jbZeile('Summe monatlich',jbOut('m.monat'),'','summe')+jbZeile('Summe jährlich',jbOut('m.jahr'),'','gesamt')
+      +jbZeile('Summe monatlich',jbM('m.monat','€',2),'','summe')+jbZeile('Summe jährlich',jbM('m.jahr','€',2),'','gesamt')
       +'<div class="mdb-actions">'+jbPlus('mieten','Mietzeile')+'</div>'
-      +'<p class="hint">„gewerblich“ zählt zum Anteil gewerbliche Kaltmiete (Ziffer '+kap.ertrag+'); „Abschlag %“ ergibt den Abschlag für gewerbliche Vermietung, wenn dort kein fester Betrag steht.</p>';
+      +'<p class="hint">„gewerblich“ zählt zum Anteil gewerbliche Kaltmiete (Ziffer '+kap.ertrag+'); „Abschlag %“ ergibt den Abschlag für gewerbliche Vermietung — oder den Betrag dort direkt eintragen.</p>';
   }
   h+=jbKap(1,'Objektdaten',o);
 
   // 2. Bodenrichtwert
-  let w=jbErl('bodenrichtwert')+jbZeile('Grundstückslage:',jbOut('t.anschrift'),'','breit');
+  let w=jbErl('bodenrichtwert')+jbZeile('Grundstückslage:',jbIn('deckblatt.anschrift',v.deckblatt.anschrift,'text'),'','breit');
   v.boden.forEach((b,i)=>{ const p='boden.'+i+'.';
     w+=jbU('2.'+(i+1),i?'Merkmale Grundstücksanteil '+JB_ROEM[i]:'Grundstücksmerkmale')
       +jbZeile('Flst.-Nr.:',jbIn(p+'flst',b.flst,'text','9em'))+jbZeile('Nutzbarkeit:',jbIn(p+'nutzbarkeit',b.nutzbarkeit,'text'),'','breit')
@@ -119,30 +130,32 @@ function jbEditorHtml(){
       +jbZeile('Durchschnittlicher Stromertrag (in Abhängigkeit des Nutzungsgrades, der Höhe des durchschnittlichen Strompreises und der Einspeisevergütung)',jbIn('pv.eurKwh',P.eurKwh,'zahl','6em')+' €/kWh')
       +jbZeile('EEG-Einspeisevergütung bis:',jbIn('pv.eegEnde',P.eegEnde,'datum'))+jbZeile('Durchschnittliche Stromerzeugung / Jahr:',jbIn('pv.kwh',P.kwh,'zahl','7em')+' kWh')
       +jbZeile('Liegenschaftszins:',jbIn('pv.lz',P.lz,'zahl','5em')+' %')+jbZeile('Bewirtschaftungskosten (Pauschalansatz):',jbIn('pv.bwk',P.bwk,'zahl','5em')+' %')
-      +jbZeile('Laufzeit seit Inbetriebnahme (ca.):',jbOut('pv.laufzeit'))+jbZeile('Restnutzungsdauer (ca.):',jbOut('pv.rest'))
-      +jbZeile('Barwertfaktor (in Relation Restnutzungsdauer und Liegenschaftszins):',jbOut('pv.vf'))
+      +jbZeile('Laufzeit seit Inbetriebnahme (ca.):',jbM('pv.laufzeit','Jahre',1))+jbZeile('Restnutzungsdauer (ca.):',jbM('pv.rest','Jahre',1))
+      +jbZeile('Barwertfaktor (in Relation Restnutzungsdauer und Liegenschaftszins):',jbM('pv.vf','',2))
       +jbU('','Barwertermittlung des Solarertrags')
-      +jbZeile('Rohertrag',jbOut('pv.rohText'),jbOut('pv.roh'),'rechn')+jbZeile('./. Bewirtschaftungskosten',jbOut('pv.bewText'),jbOut('pv.bew'),'rechn')
-      +jbZeile('Zwischensumme Reinertrag','',jbOut('pv.rein'),'rechn summe')+jbZeile('x Barwertfaktor',jbOut('pv.vf2'),'','rechn')
-      +jbZeile('= Barwert der PV-Anlage zum Stichtag','',jbOut('pv.wert'),'rechn gesamt'));
+      +jbZeile('Rohertrag',jbIn('pv.kwh',P.kwh,'zahl','6em')+' kWh × '+jbIn('pv.eurKwh',P.eurKwh,'zahl','5.5em')+' € =',jbM('pv.roh','€',2),'rechn')
+      +jbZeile('./. Bewirtschaftungskosten',jbIn('pv.bwk',P.bwk,'zahl','4em')+' % aus Rohertrag =',jbM('pv.bew','€',2),'rechn')
+      +jbZeile('Zwischensumme Reinertrag','',jbM('pv.rein','€',2),'rechn summe')+jbZeile('x Barwertfaktor',jbM('pv.vf','',2),'','rechn')
+      +jbZeile('= Barwert der PV-Anlage zum Stichtag','',jbM('pv.wert','€',2),'rechn gesamt'));
   }
 
   // Preisansatz Grund und Boden
   { const n=kap.boden; let b='';
     v.boden.forEach((x,i)=>{ b+=jbU(n+'.'+(i+1),'Preisansatz Grundstücksanteil '+JB_ROEM[i])
-      +jbZeile('Grundstücksanteil '+JB_ROEM[i],jbOut('b.'+i+'.flaeche'),'','rechn')+jbZeile('x Aktueller Bodenrichtwert:',jbOut('b.'+i+'.brw'),'','rechn')
-      +jbZeile('Zwischensumme','',jbOut('b.'+i+'.zw'),'rechn summe')
-      +jbZeile('- Abschlag (z. B. Beschaffenheit, Lage, etc.):',jbIn('boden.'+i+'.abschlag',x.abschlag,'zahl','4em')+' %',jbOut('b.'+i+'.ab'),'rechn')
-      +jbZeile(v.boden.length>1?'Preisansatz Grundstücksanteil '+JB_ROEM[i]:'Preisansatz Grund und Boden','',jbOut('b.'+i+'.wert'),'rechn gesamt'); });
+      +jbZeile('Grundstücksanteil '+JB_ROEM[i],jbIn('boden.'+i+'.flaeche',x.flaeche,'zahl','7em')+' m²','','rechn')
+      +jbZeile('x Aktueller Bodenrichtwert:',jbIn('boden.'+i+'.brw',x.brw,'zahl','6em')+' €/m²','','rechn')
+      +jbZeile('Zwischensumme','',jbM('b.'+i+'.zw','€',2),'rechn summe')
+      +jbZeile('- Abschlag (z. B. Beschaffenheit, Lage, etc.):',jbIn('boden.'+i+'.abschlag',x.abschlag,'zahl','4em')+' %',jbM('b.'+i+'.ab','€',2),'rechn')
+      +jbZeile(v.boden.length>1?'Preisansatz Grundstücksanteil '+JB_ROEM[i]:'Preisansatz Grund und Boden','',jbM('b.'+i+'.wert','€',2),'rechn gesamt'); });
     if(v.boden.length>1||ohneGeb){
-      b+=jbU(n+'.'+(v.boden.length+1),'Preisansatz Grund und Boden')+v.boden.map((x,i)=>jbZeile('Preisansatz Grundstücksanteil '+JB_ROEM[i],'',jbOut('b.'+i+'.wert'),'rechn')).join('')
-        +jbZeile('Preisansatz Grund und Boden',jbOut('b.flaeche'),jbOut('b.summe'),'rechn summe');
+      b+=jbU(n+'.'+(v.boden.length+1),'Preisansatz Grund und Boden')+v.boden.map((x,i)=>jbZeile('Preisansatz Grundstücksanteil '+JB_ROEM[i],'',jbM('b.'+i+'.wert','€',2),'rechn')).join('')
+        +jbZeile('Preisansatz Grund und Boden',jbM('b.flaeche','m²',2),jbM('boden','€',2),'rechn summe');
       if(ohneGeb){
         b+=v.pauschal.map((p,i)=>jbZeile('+ '+jbIn('pauschal.'+i+'.text',p.text,'text'),'',jbIn('pauschal.'+i+'.betrag',p.betrag,'zahl','8em')+' €'+jbEntf('pauschal',i),'rechn merkmal')).join('')
           +v.objektspezifisch.map((p,i)=>jbZeile('± '+jbIn('objektspezifisch.'+i+'.text',p.text,'text'),'',jbIn('objektspezifisch.'+i+'.betrag',p.betrag,'zahl','8em')+' €'+jbEntf('objektspezifisch',i),'rechn merkmal')).join('')
           +'<div class="mdb-actions">'+jbPlus('objektspezifisch','objektspezifisches Merkmal (+ / −)')+'</div>'
-          +(v.pv?jbZeile('+ objektspezifische Merkmale (PV-Anlage)','',jbOut('s.pv'),'rechn'):'')
-          +jbZeile('Preisansatz Grundstück inkl. Außenanlagen','',jbOut('ergebnis2'),'rechn gesamt');
+          +(v.pv?jbZeile('+ objektspezifische Merkmale (PV-Anlage)','',jbM('pv.wert','€',2),'rechn'):'')
+          +jbZeile('Preisansatz Grundstück inkl. Außenanlagen','',jbM('ergebnis','€',2),'rechn gesamt');
       }
     }
     h+=jbKap(n,'Preisansatz Grund und Boden',b);
@@ -154,94 +167,99 @@ function jbEditorHtml(){
     G.forEach((g,i)=>{ const p='gebaeude.'+i+'.', zu=mehrere?' – '+jbGebName(v,i):'';
       s+=(mehrere?'<div class="jb-geb-kopf"><b>Gebäude '+(i+1)+'</b>'+jbEntf('gebaeude',i,'Gebäude entfernen').replace('></button>','>Gebäude entfernen</button>')+'</div>':'')
         +jbZeile('Bezeichnung des Gebäudes:',jbIn(p+'text',g.text,'text'),'','breit');
+      // NHK 2010 nach Standardstufen — wie im Blatt „Preis m² BGF“ oben, vor 6.1
       const st=[1,2,3,4,5];
       const nhk=[['NHK 2010 nach Standard','',st.map(x=>jbIn(p+'kosten1.'+(x-1),g.kosten1[x-1],'zahl','5em')),'',''],
         ['NHK 2010 nach Standard (2. Zeile, gemittelt)','',st.map(x=>jbIn(p+'kosten2.'+(x-1),g.kosten2[x-1],'zahl','5em')),'',''],
-        ['Kostenkennwerte','',st.map(x=>jbOut('g.'+i+'.kk.'+(x-1))),'','']]
-        .concat(JBK.BAUTEILE.map(([nm,wt],r)=>[nm,jbZ(wt,2),st.map(x=>jbIn(p+'anteile.'+r+'.'+(x-1),g.anteile[r][x-1],'zahl','3.6em')),jbOut('g.'+i+'.b.'+r+'.summe'),jbOut('g.'+i+'.b.'+r+'.kosten')]),
-          [['NHK 2010 (Summe)','',st.map(()=>''),'',jbOut('g.'+i+'.nhkSumme','strong')]]);
+        ['Kostenkennwerte','',st.map(x=>jbM('g.'+i+'.kk.'+(x-1),'',2,'5.5em')),'','']]
+        .concat(JBK.BAUTEILE.map(([nm,wt],r)=>[nm,jbIn(p+'waegung.'+r,(g.waegung||[])[r]!=null?g.waegung[r]:wt,'zahl','4.2em'),st.map(x=>jbIn(p+'anteile.'+r+'.'+(x-1),g.anteile[r][x-1],'zahl','3.6em')),jbOut('g.'+i+'.b.'+r+'.summe','jb-pruef'),jbM('g.'+i+'.b.'+r,'',2,'6em')]),
+          [['NHK 2010 (Summe)','',st.map(()=>''),'',jbM('g.'+i+'.nhk2010','',2,'6em')]]);
       s+='<div class="jb-nhk"><p class="jb-nhk-t">NHK 2010 nach Standardstufen'+lvH(zu)+' — Anteil je Stufe (Summe je Bauteil 1; 0 = Bauteil fehlt)</p>'
-        +jbTab(['Bauteil',{t:'Wägungsanteil',r:1},{t:'Stufe 1',r:1},{t:'2',r:1},{t:'3',r:1},{t:'4',r:1},{t:'5',r:1},{t:'Summe',r:1},{t:'€/m²',r:1}],nhk.map(z=>[lvH(z[0]),z[1]].concat(z[2],[z[3],z[4]])))+'</div>';
+        +jbTab(['Bauteil',{t:'Wägungsanteil',r:1},{t:'Stufe 1',r:1},{t:'2',r:1},{t:'3',r:1},{t:'4',r:1},{t:'5',r:1},{t:'Anteile',r:1},{t:'€/m²',r:1}],nhk.map(z=>[lvH(z[0]),z[1]].concat(z[2],[z[3],z[4]])))+'</div>';
       s+=jbU(N.rnd[i],'Berechnung der Restnutzungsdauer und Alterswertminderung'+zu)
-        +jbZeile('Baujahr des Gebäudes:',jbOut('g.'+i+'.baujahr'),jbOut('g.'+i+'.baujahrText'))
+        +jbZeile('Baujahr des Gebäudes:',jbIn(p+'baujahr',g.baujahr,'zahl','5em'),jbIn(p+'baujahrText',g.baujahrText,'text',null,'(fiktives Baujahr …)'))
         +jbZeile('Gesamtnutzungsdauer:',jbIn(p+'gnd',g.gnd,'zahl','4em')+' Jahre')
-        +jbZeile('Gebäudealter',jbOut('g.'+i+'.alter'))+jbZeile('Restnutzungsdauer (RND):',jbOut('g.'+i+'.rndRech'))
+        +jbZeile('Gebäudealter',jbM('g.'+i+'.alter','Jahre',0,'5em'))+jbZeile('Restnutzungsdauer (RND):',jbM('g.'+i+'.rndRech','Jahre',0,'5em'))
         +jbZeile('Angepasste RND:',jbIn(p+'rnd',g.rnd,'zahl','4em','= RND')+' Jahre',jbIn(p+'rndText',g.rndText,'text',null,'(auf Grundlage des aktuellen Zustands)'))
-        +jbZeile('Technische Wertminderung ca.',jbOut('g.'+i+'.wm'),'(lt. Sachwertrichtlinie)')
+        +jbZeile('Technische Wertminderung ca.',jbM('g.'+i+'.wm','%',0,'5em'),'(lt. Sachwertrichtlinie)')
         +jbZeile('Baupreisindex',jbIn(p+'bpi',g.bpi,'zahl','5em'),jbIn(p+'bpiText',g.bpiText,'text',null,'z. B. Bürogebäude November 2024'))
         +jbZeile('',' ','<select data-jb="'+p+'bpiArt" data-art="text" aria-label="Amtlicher Index für">'+arten.map(a=>'<option value="'+a+'"'+(g.bpiArt===a?' selected':'')+'>'+lvH(ImmoBaupreisindex.ARTEN[a].name)+'</option>').join('')+'</select>'
           +' <button class="secondary" onclick="jbIndexAmtlich('+i+')">Amtlichen Wert zum Stichtag übernehmen</button>')
         +jbU(N.preis[i],'Berechnung des Gebäudepreis in Abhängigkeit der Restnutzungsdauer'+zu)
-        +jbZeile('Normalherstellungskosten',jbOut('g.'+i+'.nhk'),'(lt. NHK 2010, Tabelle oben)')
-        +jbZeile('./. Abschlag für Bauweise',jbIn(p+'abschlagBauweise',g.abschlagBauweise,'zahl','4em')+' %',jbOut('g.'+i+'.abEur'))
-        +jbZeile('Bereinigte NHK',jbOut('g.'+i+'.nhkBer'),'(gerundet)','summe')
-        +jbZeile('Baupreisindex (umgerechnet)',jbOut('g.'+i+'.index'),'Umrechnungsfaktor '+jbIn(p+'bpiFaktor',g.bpiFaktor,'zahl','5.5em'))
-        +jbZeile('Normalherstellungskosten',jbOut('g.'+i+'.heute'),'zum heutigen Stichtag')
-        +jbZeile('./. Technische Wertminderung',jbOut('g.'+i+'.wmEur'),jbOut('g.'+i+'.wmText'))
-        +jbZeile('Gebäudepreis'+lvH(mehrere?' '+jbGebName(v,i):''),jbOut('g.'+i+'.preis','strong'),'zum heutigen Stichtag','gesamt');
+        +jbZeile('Normalherstellungskosten',jbM('g.'+i+'.nhk2010','€/m²',2),'(lt. NHK 2010, Tabelle oben)')
+        +jbZeile('./. Abschlag für Bauweise',jbIn(p+'abschlagBauweise',g.abschlagBauweise,'zahl','4em')+' %',jbM('g.'+i+'.abEur','€/m²',0)+' <span class="lv-klein">(z. B. Holzständerbauweise 1960–1972 bis zu 20 %)</span>')
+        +jbZeile('Bereinigte NHK',jbM('g.'+i+'.nhkBer','€/m²',0),'(gerundet)','summe')
+        +jbZeile('Baupreisindex (umgerechnet)',jbM('g.'+i+'.index','',1),'Umrechnungsfaktor '+jbIn(p+'bpiFaktor',g.bpiFaktor,'zahl','5.5em'))
+        +jbZeile('Normalherstellungskosten',jbM('g.'+i+'.heute','€/m²',2),'zum heutigen Stichtag')
+        +jbZeile('./. Technische Wertminderung',jbM('g.'+i+'.wmEur','€/m²',2),jbOut('g.'+i+'.wmText','lv-klein'))
+        +jbZeile('Gebäudepreis'+lvH(mehrere?' '+jbGebName(v,i):''),jbM('g.'+i+'.preis','€/m²',0),'zum heutigen Stichtag','gesamt');
     });
     if(G.length<JBK.MAX.gebaeude) s+='<div class="mdb-actions">'+jbPlus('gebaeude','Weiteres Gebäude (z. B. Lager, Scheune)')+'</div>';
     s+=jbU(N.boden,'Preisansatz Grund und Boden');
-    v.boden.forEach((x,i)=>{ s+=jbZeile('Grundstücksanteil '+JB_ROEM[i],jbOut('b.'+i+'.flaeche'),'','rechn')+jbZeile('x Aktueller Bodenrichtwert:',jbOut('b.'+i+'.brw'),'','rechn')
-      +jbZeile('Zwischensumme Grundstücksanteil '+JB_ROEM[i],'',jbOut('b.'+i+'.zw'),'rechn summe')+jbZeile('- Abschlag (z. B. Beschaffenheit, Lage, etc.):',jbOut('b.'+i+'.abPct'),jbOut('b.'+i+'.ab'),'rechn'); });
-    s+=jbZeile('Preisansatz Grund und Boden','',jbOut('b.summe'),'rechn gesamt');
+    v.boden.forEach((x,i)=>{ s+=jbZeile('Grundstücksanteil '+JB_ROEM[i],jbIn('boden.'+i+'.flaeche',x.flaeche,'zahl','7em')+' m²','','rechn')
+      +jbZeile('x Aktueller Bodenrichtwert:',jbIn('boden.'+i+'.brw',x.brw,'zahl','6em')+' €/m²','','rechn')
+      +jbZeile('Zwischensumme Grundstücksanteil '+JB_ROEM[i],'',jbM('b.'+i+'.zw','€',2),'rechn summe')
+      +jbZeile('- Abschlag (z. B. Beschaffenheit, Lage, etc.):',jbIn('boden.'+i+'.abschlag',x.abschlag,'zahl','4em')+' %',jbM('b.'+i+'.ab','€',2),'rechn'); });
+    s+=jbZeile('Preisansatz Grund und Boden','',jbM('boden','€',2),'rechn gesamt');
     s+=jbU(N.geb,'Preisansatz Gebäude und Außenanlagen (Bausubstanz als Grundlage)');
-    G.forEach((g,i)=>{ const zu=mehrere?' '+jbGebName(v,i):''; s+=jbZeile('Bruttogrundfläche'+lvH(zu)+' (BGF)',jbOut('g.'+i+'.bgf'),'','rechn')
-      +jbZeile('x Preis / m² in Abhängigkeit der RND',jbOut('g.'+i+'.preis2'),'','rechn')+jbZeile('Zwischensumme'+lvH(mehrere?zu:' Gebäude'),'',jbOut('g.'+i+'.wert'),'rechn summe'); });
-    if(mehrere) s+=jbZeile('Zwischensumme '+lvH(G.map((g,i)=>jbGebName(v,i)).join(' und ')),'',jbOut('s.geb'),'rechn summe');
+    G.forEach((g,i)=>{ const zu=mehrere?' '+jbGebName(v,i):''; s+=jbZeile('Bruttogrundfläche'+lvH(zu)+' (BGF)',jbIn('gebaeude.'+i+'.bgf',g.bgf,'zahl','6em')+' m²','','rechn')
+      +jbZeile('x Preis / m² in Abhängigkeit der RND',jbM('g.'+i+'.preis','€/m²',0),'','rechn')+jbZeile('Zwischensumme'+lvH(mehrere?zu:' Gebäude'),'',jbM('g.'+i+'.wert','€',2),'rechn summe'); });
+    if(mehrere) s+=jbZeile('Zwischensumme '+lvH(G.map((g,i)=>jbGebName(v,i)).join(' und ')),'',jbM('s.geb','€',2),'rechn summe');
     s+=v.pauschal.map((p,i)=>jbZeile('+ '+jbIn('pauschal.'+i+'.text',p.text,'text')+' (Pauschalansatz)','',jbIn('pauschal.'+i+'.betrag',p.betrag,'zahl','8em')+' €'+jbEntf('pauschal',i),'rechn merkmal')).join('')
       +'<div class="mdb-actions">'+jbPlus('pauschal','Pauschalansatz')+'</div>'
-      +jbZeile('Preisansatz Gebäude und Außenanlagen','',jbOut('s.gebAussen'),'rechn gesamt');
+      +jbZeile('Preisansatz Gebäude und Außenanlagen','',jbM('s.gebAussen','€',2),'rechn gesamt');
     s+=jbU(N.summe,'Preisansatz (Bausubstanz als Grundlage)')
-      +jbZeile('Preisansatz Grund und Boden','',jbOut('b.summe2'),'rechn')+jbZeile('Preisansatz Gebäude und Außenanlagen','',jbOut('s.gebAussen2'),'rechn')
-      +jbZeile('Vorläufiger Preisansatz','',jbOut('s.vorlaeufig'),'rechn summe')
-      +(v.pv?jbZeile('+ objektspezifische Merkmale (PV-Anlage)','',jbOut('s.pv'),'rechn'):'')
+      +jbZeile('Preisansatz Grund und Boden','',jbM('boden','€',2),'rechn')+jbZeile('Preisansatz Gebäude und Außenanlagen','',jbM('s.gebAussen','€',2),'rechn')
+      +jbZeile('Vorläufiger Preisansatz','',jbM('s.vorlaeufig','€',2),'rechn summe')
+      +(v.pv?jbZeile('+ objektspezifische Merkmale (PV-Anlage)','',jbM('pv.wert','€',2),'rechn'):'')
       +v.objektspezifisch.map((p,i)=>jbZeile('± '+jbIn('objektspezifisch.'+i+'.text',p.text,'text',null,'objektspezifische Merkmale (z. B. Grundstückslasten)'),'',jbIn('objektspezifisch.'+i+'.betrag',p.betrag,'zahl','8em')+' €'+jbEntf('objektspezifisch',i),'rechn merkmal')).join('')
       +'<div class="mdb-actions">'+jbPlus('objektspezifisch','objektspezifisches Merkmal (+ / −)')+'</div>'
-      +jbZeile('Preisansatz (Bausubstanz als Grundlage)','',jbOut('s.substanz'),'rechn gesamt');
+      +jbZeile('Preisansatz (Bausubstanz als Grundlage)','',jbM('substanz','€',2),'rechn gesamt');
     h+=jbKap(kap.substanz,'Preisansatz (Bausubstanz als Grundlage)',s);
   }
 
   // Preisansatz (Mietertrag als Grundlage)
   if(!ohneGeb){ const N=jbErtragNummern(kap.ertrag,G.length); let e=jbErl('mietertrag');
-    G.forEach((g,i)=>{ const nm=mehrere?jbGebName(v,i):'', fuer=mehrere?'für '+nm:'für Gebäude';
+    G.forEach((g,i)=>{ const nm=mehrere?jbGebName(v,i):'', fuer=mehrere?'für '+nm:'für Gebäude', p='gebaeude.'+i+'.', k='e.'+i+'.';
       e+=jbU(N.rnd[i],'Berechnung Restnutzungsdauer '+fuer)
-        +jbZeile('Baujahr'+(mehrere?'':' Hauptgebäude')+':',jbOut('g.'+i+'.baujahr2'),jbOut('g.'+i+'.baujahrText2'))+jbZeile('Gesamtnutzungsdauer:',jbOut('g.'+i+'.gnd'))
-        +jbZeile('Restnutzungsdauer (RND):',jbOut('g.'+i+'.rndRech2'))+jbZeile('Angepasste RND:',jbOut('g.'+i+'.rnd'),jbOut('g.'+i+'.rndText'))
+        +jbZeile('Baujahr'+(mehrere?'':' Hauptgebäude')+':',jbIn(p+'baujahr',g.baujahr,'zahl','5em'),jbIn(p+'baujahrText',g.baujahrText,'text',null,'(fiktives Baujahr …)'))
+        +jbZeile('Gesamtnutzungsdauer:',jbIn(p+'gnd',g.gnd,'zahl','4em')+' Jahre')
+        +jbZeile('Restnutzungsdauer (RND):',jbM('g.'+i+'.rndRech','Jahre',0,'5em'))
+        +jbZeile('Angepasste RND:',jbIn(p+'rnd',g.rnd,'zahl','4em','= RND')+' Jahre',jbIn(p+'rndText',g.rndText,'text',null,'(auf Grundlage des aktuellen Zustands)'))
         +jbU(N.daten[i],'Daten für die Preisermittlung auf Grundlage des Gebäudeertrags'+(mehrere?' – '+nm:''))
-        +jbZeile('Gesamte Jahreskaltmiete / Rohertrag:',jbOut('e.'+i+'.roh'),mehrere?'('+lvH(nm)+')':'')
-        +jbZeile('Abschlag Bewirtschaftungskosten',i?jbOut('e.'+i+'.bwkPct'):jbIn('bwk',v.bwk,'zahl','4em')+' %','(aus dem jährlichen Rohertrag)')
-        +jbZeile('Anteil gewerbliche Kaltmiete',jbOut('e.'+i+'.gew'))
-        +jbZeile('- Abschlag für gewerbliche Vermietung',jbOut('e.'+i+'.ab'),i?'':jbIn('abschlagText',v.abschlagText,'text',null,'(z. B. 5 % aus dem jährlichen Rohertrag Laden)'))
-        +(i?'':jbZeile('',' fester Betrag: '+jbIn('abschlagFest',v.abschlagFest,'zahl','7em','aus % je Zeile')+' € / Jahr','<span class="lv-klein">leer = Summe aus „Abschlag %“ der Mietzeilen</span>'))
-        +jbZeile('Bodenwertverzinsung',i?jbOut('e.'+i+'.lzPct'):jbIn('lz',v.lz,'zahl','4em')+' %','(aus dem Bodenwert)')
-        +jbZeile('Preisansatz Grund und Boden:',jbOut('e.'+i+'.boden'),mehrere?'(anteilig zum Rohertrag)':'')
-        +jbZeile('Angepasste RND',jbOut('e.'+i+'.rnd'))+jbZeile('Vervielfältiger für Gebäude',jbOut('e.'+i+'.vf'),'(Barwertfaktor für die Kapitalisierung)'); });
-    G.forEach((g,i)=>{ const nm=mehrere?jbGebName(v,i):'Gebäude';
+        +jbZeile('Gesamte Jahreskaltmiete / Rohertrag:',jbM(k+'roh','€',2),mehrere?'('+lvH(nm)+')':'')
+        +jbZeile('Abschlag Bewirtschaftungskosten',jbIn('bwk',v.bwk,'zahl','4em')+' %','(aus dem jährlichen Rohertrag)')
+        +jbZeile('Anteil gewerbliche Kaltmiete',jbM(k+'gew','€',2))
+        +jbZeile('- Abschlag für gewerbliche Vermietung',jbM(k+'ab','€',2),i?'':jbIn('abschlagText',v.abschlagText,'text',null,'(z. B. 5 % aus dem jährlichen Rohertrag Laden)'))
+        +jbZeile('Bodenwertverzinsung',jbIn('lz',v.lz,'zahl','4em')+' %','(aus dem Bodenwert)')
+        +jbZeile('Preisansatz Grund und Boden:',jbM(k+'boden','€',2),mehrere?'(anteilig zum Rohertrag)':'')
+        +jbZeile('Angepasste RND',jbIn(p+'rnd',g.rnd,'zahl','4em','= RND')+' Jahre')
+        +jbZeile('Vervielfältiger für Gebäude',jbM(k+'vf','',2,'6em'),'(Barwertfaktor für die Kapitalisierung)'); });
+    G.forEach((g,i)=>{ const nm=mehrere?jbGebName(v,i):'Gebäude', p='gebaeude.'+i+'.', k='e.'+i+'.';
       e+=jbU(N.preis[i],'Preisansatz '+nm+' (Mietertrag als Grundlage)')
-        +jbZeile('Gesamte Jahreskaltmiete / Rohertrag:',jbOut('e.'+i+'.roh2'),'','rechn')
-        +jbZeile('- Abschlag für Bewirtschaftungskosten',jbOut('e.'+i+'.bwkPct2'),jbOut('e.'+i+'.bew'),'rechn')
-        +jbZeile('Zwischensumme','',jbOut('e.'+i+'.zw'),'rechn summe')+jbZeile('- Abschlag für gewerbliche Vermietung','',jbOut('e.'+i+'.ab2'),'rechn')
-        +jbZeile('Grundstücksreinertrag (Gebäude inkl. Grund und Boden)','',jbOut('e.'+i+'.rein'),'rechn summe')
-        +jbZeile('- Ertragsanteil Grund und Boden',jbOut('e.'+i+'.lzText'),jbOut('e.'+i+'.bodenZins'),'rechn')
-        +jbZeile((mehrere?'Reinertrag '+lvH(nm):'Gebäudereinertrag')+' (nur Gebäude ohne Anteil Grund und Boden)','',jbOut('e.'+i+'.gebRein'),'rechn summe')
-        +jbZeile('x Vervielfältiger für Gebäude (Barwertfaktor)',jbOut('e.'+i+'.vfText'),'','rechn')
-        +jbZeile('Preisansatz '+lvH(nm)+' (Mietertrag als Grundlage)','',jbOut('e.'+i+'.wert'),'rechn gesamt'); });
-    e+=jbU(N.summe,'Preisansatz (Mietertrag als Grundlage)')+jbZeile('Preisansatz Grund und Boden','',jbOut('e.boden'),'rechn')
-      +G.map((g,i)=>jbZeile('Preisansatz '+lvH(mehrere?jbGebName(v,i):'Gebäude')+' (Mietertrag als Grundlage)','',jbOut('e.'+i+'.wert2'),'rechn')).join('')
-      +(v.pv?jbZeile('PV-Anlage','',jbOut('e.pv'),'rechn'):'')+jbZeile('Preisansatz (Mietertrag als Grundlage)','',jbOut('e.ertrag'),'rechn gesamt');
+        +jbZeile('Gesamte Jahreskaltmiete / Rohertrag:',jbM(k+'roh','€ / Jahr',2),'','rechn')
+        +jbZeile('- Abschlag für Bewirtschaftungskosten',jbIn('bwk',v.bwk,'zahl','4em')+' %',jbM(k+'bew','€',2),'rechn')
+        +jbZeile('Zwischensumme','',jbM(k+'zw','€',2),'rechn summe')+jbZeile('- Abschlag für gewerbliche Vermietung','',jbM(k+'ab','€',2),'rechn')
+        +jbZeile('Grundstücksreinertrag (Gebäude inkl. Grund und Boden)','',jbM(k+'rein','€',2),'rechn summe')
+        +jbZeile('- Ertragsanteil Grund und Boden',jbIn('lz',v.lz,'zahl','3.6em')+' % aus '+jbM(k+'boden','€',2,'8.5em'),jbM(k+'bodenZins','€',2),'rechn')
+        +jbZeile((mehrere?'Reinertrag '+lvH(nm):'Gebäudereinertrag')+' (nur Gebäude ohne Anteil Grund und Boden)','',jbM(k+'gebRein','€',2),'rechn summe')
+        +jbZeile('x Vervielfältiger für Gebäude (Barwertfaktor)',jbM(k+'vf','',2,'5em')+' bei '+jbIn(p+'rnd',g.rnd,'zahl','3.6em','RND')+' Jahre RND','','rechn')
+        +jbZeile('Preisansatz '+lvH(nm)+' (Mietertrag als Grundlage)','',jbM(k+'wert','€',2),'rechn gesamt'); });
+    e+=jbU(N.summe,'Preisansatz (Mietertrag als Grundlage)')+jbZeile('Preisansatz Grund und Boden','',jbM('e.boden','€',2),'rechn')
+      +G.map((g,i)=>jbZeile('Preisansatz '+lvH(mehrere?jbGebName(v,i):'Gebäude')+' (Mietertrag als Grundlage)','',jbM('e.'+i+'.wert','€',2),'rechn')).join('')
+      +(v.pv?jbZeile('PV-Anlage','',jbM('pv.wert','€',2),'rechn'):'')+jbZeile('Preisansatz (Mietertrag als Grundlage)','',jbM('ertrag','€',2),'rechn gesamt');
     h+=jbKap(kap.ertrag,'Preisansatz (Mietertrag als Grundlage)',e);
   }
 
   // Zusammenfassung / Sonstiges
   { const n=kap.summe; let z=jbU(n+'.1','Die einzelnen Preiskomponenten für Sie im Überblick');
-    z+=ohneGeb?'<div class="jb-ueberblick">'+jbZeile('Preisansatz Grund und Boden','',jbOut('b.summe3'),'rechn')+jbZeile('Summe der objektspezifischen Eigenschaften','',jbOut('s.objektLand'),'rechn')
-        +jbZeile('Preisansatz Grundstück inkl. Außenanlagen','',jbOut('ergebnis3'),'rechn gesamt')+'</div>'
-      :'<div class="jb-ueberblick">'+jbZeile('Preisansatz (Bausubstanz als Grundlage)','',jbOut('s.substanz2'),'rechn')+jbZeile('Preisansatz (Mietertrag als Grundlage)','',jbOut('e.ertrag2'),'rechn')
-        +jbZeile(jbOut('t.mittel'),'',jbOut('ergebnis3'),'rechn gesamt')+'</div>'
+    z+=ohneGeb?'<div class="jb-ueberblick">'+jbZeile('Preisansatz Grund und Boden','',jbM('boden','€',2),'rechn')+jbZeile('Summe der objektspezifischen Eigenschaften','',jbM('s.objektLand','€',2),'rechn')
+        +jbZeile('Preisansatz Grundstück inkl. Außenanlagen','',jbM('ergebnis','€',2),'rechn gesamt')+'</div>'
+      :'<div class="jb-ueberblick">'+jbZeile('Preisansatz (Bausubstanz als Grundlage)','',jbM('substanz','€',2),'rechn')+jbZeile('Preisansatz (Mietertrag als Grundlage)','',jbM('ertrag','€',2),'rechn')
+        +jbZeile(jbOut('t.mittel'),'',jbM('ergebnis','€',2),'rechn gesamt')+'</div>'
         +jbZeile('Gewichtung Bausubstanz',jbIn('gewichtung',v.gewichtung,'zahl','4em')+' %','<span class="lv-klein">Vordruck: 50 % (Mittel); Mietertrag = Rest</span>');
     z+=jbU(n+'.2','Sonstiges / Hinweise')+jbTx('texte.hinweise',v.texte.hinweise,7)
-      +jbZeile('Ort, Datum:',jbIn('ort',v.ort,'text','12em','Ort'),jbOut('t.datum'));
+      +jbZeile('Ort, Datum:',jbIn('ort',v.ort,'text','12em','Ort'),jbIn('stichtag',v.stichtag,'datum'));
     h+=jbKap(n,'Zusammenfassung / Sonstiges',z);
   }
   h+='<div class="grid lv-form">'+jbFeld('Interne Notiz zur Bewertung (nicht im Vordruck)',jbTx('@notiz',E.notiz,3),true)+'</div>';
@@ -251,65 +269,65 @@ function jbEditorHtml(){
   return h;
 }
 
-/* Ausgaben neu berechnen (ohne die Eingaben neu aufzubauen) — Zahlen aus ImmoJahresbewertung.modell() */
+/* Gerechnete Zahlen je Schlüssel (mit den eingetragenen Werten) und Texte */
 function jbWerte(v){
-  const M=JBK.modell(v), o={}, E2=x=>jbE(x), qm=x=>jbN(x,2)+' €/m²';
-  o.boden=jbE(M.bodenSumme); o.substanz=M.substanz==null?'–':jbE(M.substanz); o.ertrag=M.ertrag==null?'–':jbE(M.ertrag); o.ergebnis=jbE(M.ergebnis);
-  o.ergebnis2=o.ergebnis3=o.ergebnis;
-  o['t.objekt']=v.objekt||'–'; o['t.anschrift']=v.deckblatt.anschrift||'–'; o['t.nutzung']=(v.boden[0]||{}).nutzbarkeit||'–';
-  o['t.datum']=v.stichtag?LVK.datumDE(v.stichtag):'–';
-  o['t.mittel']=M.gewichtung===50?'Mittel aus den o.g. Preisansätzen':'Gewichtetes Mittel (Bausubstanz '+jbN(M.gewichtung)+' %, Mietertrag '+jbN(100-M.gewichtung)+' %)';
-  M.boden.forEach((b,i)=>{ o['b.'+i+'.brw']=qm(b.brw); o['b.'+i+'.flaeche']=jbN(b.flaeche)+' m²'; o['b.'+i+'.zw']=E2(b.zw); o['b.'+i+'.ab']=E2(b.abschlagEur); o['b.'+i+'.abPct']=jbProz(b.abschlagPct); o['b.'+i+'.wert']=E2(b.wert); });
-  o['b.flaeche']=jbN(M.flaecheSumme)+' m²'; o['b.summe']=o['b.summe2']=o['b.summe3']=E2(M.bodenSumme);
-  o['m.monat']=E2(M.miete.monat); o['m.jahr']=E2(M.miete.jahr);
-  M.geb.forEach((g,i)=>{ const q=v.gebaeude[i], k='g.'+i+'.';
-    g.kostenkennwerte.forEach((x,s)=>{ o[k+'kk.'+s]=jbZ(x,2); });
-    g.bauteile.forEach((b,r)=>{ o[k+'b.'+r+'.summe']=jbZ(b.summeAnteile,2)+(b.summeAnteile!==0&&b.summeAnteile!==1?' ⚠':''); o[k+'b.'+r+'.kosten']=jbZ(b.kosten,2); });
-    o[k+'nhkSumme']=jbZ(g.nhk2010,2);
-    o[k+'baujahr']=o[k+'baujahr2']=q.baujahr!=null?String(q.baujahr):'–'; o[k+'baujahrText']=o[k+'baujahrText2']=q.baujahrText||'';
-    o[k+'gnd']=jbN(g.gnd)+' Jahre'; o[k+'alter']=jbN(g.alter)+' Jahre'; o[k+'rndRech']=o[k+'rndRech2']=jbN(g.rndRech)+' Jahre';
-    o[k+'rnd']=jbN(g.rnd)+' Jahre'; o[k+'rndText']=g.angepasst?(q.rndText||'(auf Grundlage des aktuellen Zustands)'):'(= rechnerische RND)';
-    o[k+'wm']=jbN(g.wm)+' %'; o[k+'nhk']=jbN(g.nhk2010,2)+' €/m²'; o[k+'abEur']=jbN(g.abschlagEur)+' €/m² (z. B. Holzständerbauweise 1960–1972 bis zu 20 %)';
-    o[k+'nhkBer']=jbN(g.nhkBer)+' €/m²'; o[k+'index']=jbN(g.index2010,1); o[k+'heute']=jbN(g.nhkHeute,2)+' €/m²';
-    o[k+'wmEur']=jbN(g.wmEur,2)+' €/m²'; o[k+'wmText']='entspricht ca. '+jbN(g.wm)+' % aus '+jbN(g.nhkHeute,2)+' €/m²';
-    o[k+'preis']=o[k+'preis2']=jbN(g.preis)+' €/m²'; o[k+'bgf']=jbN(g.bgf,2)+' m²'; o[k+'wert']=E2(g.wert);
-    const t=M.teile.find(x=>x.gebaeude===i)||{roh:0,bew:0,zw:0,abschlag:0,rein:0,bodenAnteil:0,bodenZins:0,gebRein:0,rnd:g.rnd,vf:0,wert:0,gewerblich:0,bwkPct:+v.bwk||0,lzPct:+v.lz||0};
-    const e='e.'+i+'.';
-    o[e+'roh']=o[e+'roh2']=E2(t.roh); o[e+'bwkPct']=o[e+'bwkPct2']=jbProz(t.bwkPct); o[e+'bew']=E2(-t.bew); o[e+'zw']=E2(t.zw);
-    o[e+'gew']=E2(t.gewerblich); o[e+'ab']=o[e+'ab2']=E2(-t.abschlag); o[e+'rein']=E2(t.rein); o[e+'lzPct']=jbProz(t.lzPct);
-    o[e+'boden']=E2(t.bodenAnteil); o[e+'lzText']=jbN(t.lzPct,1)+' % aus '+jbN(t.bodenAnteil,2)+' €'; o[e+'bodenZins']=E2(-t.bodenZins);
-    o[e+'gebRein']=E2(t.gebRein); o[e+'rnd']=jbN(t.rnd)+' Jahre'; o[e+'vf']=jbN(t.vf,2); o[e+'vfText']=jbN(t.vf,2)+' bei '+jbN(t.rnd)+' Jahre RND';
-    o[e+'wert']=o[e+'wert2']=E2(t.wert);
+  const M=JBK.modell(v), r=M.r, N={}, o={};
+  r.bodenTeile.forEach((b,i)=>{ N['b.'+i+'.zw']=b.zw; N['b.'+i+'.ab']=b.abschlagEur; N['b.'+i+'.wert']=b.wert; });
+  N.boden=r.boden; N['b.flaeche']=r.flaeche; N['m.monat']=r.mMonat; N['m.jahr']=r.mJahr;
+  r.gebaeude.forEach((g,i)=>{ const p='g.'+i+'.';
+    g.kostenkennwerte.forEach((x,s)=>{ N[p+'kk.'+s]=x; });
+    g.bauteile.forEach((b,j)=>{ N[p+'b.'+j]=b.kosten; o[p+'b.'+j+'.summe']=b.summeAnteile===1?'✓':b.summeAnteile===0?'fehlt':'⚠ Summe der Anteile '+jbZ(b.summeAnteile,2)+' statt 1'; });
+    Object.assign(N,{[p+'nhk2010']:g.nhk2010,[p+'abEur']:g.abschlagEur,[p+'nhkBer']:g.nhkBer,[p+'index']:g.index2010,[p+'alter']:g.alter,[p+'rndRech']:g.rndRech,
+      [p+'wm']:g.wm,[p+'heute']:g.nhkHeute,[p+'wmEur']:g.wmEur,[p+'preis']:g.preis,[p+'wert']:g.wert});
+    o[p+'wmText']='entspricht ca. '+jbN(g.wm)+' % aus '+jbN(g.nhkHeute,2)+' €/m²';
+    const t=r.teile.find(x=>x.gebaeude===i)||{roh:0,gew:0,bew:0,zw:0,abschlag:0,rein:0,bodenAnteil:0,bodenZins:0,gebRein:0,vf:0,wert:0}, e='e.'+i+'.';
+    Object.assign(N,{[e+'roh']:t.roh,[e+'gew']:t.gew,[e+'bew']:-t.bew,[e+'zw']:t.zw,[e+'ab']:-t.abschlag,[e+'rein']:t.rein,[e+'boden']:t.bodenAnteil,
+      [e+'bodenZins']:-t.bodenZins,[e+'gebRein']:t.gebRein,[e+'vf']:t.vf,[e+'wert']:t.wert});
   });
-  o['s.geb']=E2(M.gebSumme); o['s.gebAussen']=o['s.gebAussen2']=E2(M.gebAussen); o['s.vorlaeufig']=E2(M.vorlaeufig);
-  o['s.pv']=o['e.pv']=E2(M.pvWert); o['s.substanz']=o['s.substanz2']=M.substanz==null?'–':E2(M.substanz);
-  o['s.objektLand']=E2(M.pauschalSumme+M.objektSumme+M.pvWert);
-  o['e.boden']=E2(M.bodenSumme); o['e.ertrag']=o['e.ertrag2']=M.ertrag==null?'–':E2(M.ertrag);
-  if(M.pv){ const P=v.pv; o['pv.laufzeit']=M.pv.laufzeit==null?'–':jbN(M.pv.laufzeit,1)+' Jahre'; o['pv.rest']=jbN(M.pv.rest,1)+' Jahre'; o['pv.vf']=o['pv.vf2']=jbN(M.pv.vf,2);
-    o['pv.rohText']=jbN(P.kwh)+' kWh × '+jbN(P.eurKwh,5)+' €'; o['pv.roh']=E2(M.pv.roh); o['pv.bewText']=jbProz(P.bwk)+' aus '+jbN(M.pv.roh,2)+' €';
-    o['pv.bew']=E2(M.pv.bewEur); o['pv.rein']=E2(M.pv.rein); o['pv.wert']=E2(M.pv.wert); }
-  else ['pv.laufzeit','pv.rest','pv.vf','pv.vf2','pv.rohText','pv.roh','pv.bewText','pv.bew','pv.rein','pv.wert'].forEach(k=>{ o[k]='–'; });
-  return {o,M};
+  N['s.geb']=r.gebaeudeWert; N['s.gebAussen']=r.gebAussen; N['s.vorlaeufig']=r.vorlaeufig; N.substanz=r.substanz; N['s.objektLand']=r.objektLand;
+  if(r.pv) ['laufzeit','rest','roh','bew','rein','vf','wert'].forEach(k=>{ N['pv.'+k]=r.pv[k]; });
+  N['e.boden']=r.ertragBoden; N.ertrag=r.ertrag; N.ergebnis=r.ergebnis;
+  o.boden=jbE(r.boden); o.substanz=r.substanz==null?'–':jbE(r.substanz); o.ertrag=r.ertrag==null?'–':jbE(r.ertrag); o.ergebnis=jbE(r.ergebnis);
+  o['t.mittel']=M.gewichtung===50?'Mittel aus den o.g. Preisansätzen':'Gewichtetes Mittel (Bausubstanz '+jbN(M.gewichtung)+' %, Mietertrag '+jbN(100-M.gewichtung)+' %)';
+  return {o,N,M};
 }
+function jbHol(pfad){
+  if(pfad[0]==='@') return JB_EDIT[pfad.slice(1)];
+  return pfad.split('.').reduce((x,k)=>x==null?undefined:x[/^\d+$/.test(k)?+k:k],JB_EDIT.v);
+}
+/* Alle Felder auf den Stand bringen — außer dem, in dem gerade geschrieben wird, und rot markierten */
 function jbAusgaben(){
   const ed=document.getElementById('jb_editor'); if(!ed||!JB_EDIT) return;
   const erg=ed.querySelector('.jb-erg'), kopf=document.querySelector('#lv_overlay .mdb-head'), tabs=document.getElementById('lv_tabs');
   if(erg) erg.style.top=((kopf?kopf.offsetHeight:0)+(tabs?tabs.offsetHeight:0))+'px';   // unter Kopfzeile und Reitern kleben
-  const {o,M}=jbWerte(JB_EDIT.v);
+  const {o,N,M}=jbWerte(JB_EDIT.v), MAN=JB_EDIT.v.manuell||{}, aktiv=document.activeElement;
   ed.querySelectorAll('[data-jbo]').forEach(el=>{ const t=o[el.dataset.jbo]; if(t!=null&&el.textContent!==t) el.textContent=t; });
+  ed.querySelectorAll('[data-jbm]').forEach(el=>{
+    const k=el.dataset.jbm, man=typeof MAN[k]==='number', wert=man?MAN[k]:N[k], knopf=el.parentNode.querySelector('.jb-reset');
+    el.classList.toggle('jb-manuell',man); el.title=man?'Von Hand eingetragen — „↺“ verwendet wieder den gerechneten Wert':'Gerechnet — zum Überschreiben einfach eintragen';
+    if(knopf) knopf.hidden=!man;
+    if(el!==aktiv&&!el.classList.contains('lv-fehler')){ const t=jbFmt(wert,+el.dataset.st); if(el.value!==t) el.value=t; } });
+  ed.querySelectorAll('[data-jb]').forEach(el=>{
+    if(el===aktiv||el.classList.contains('lv-fehler')||el.type==='file') return;
+    const x=jbHol(el.dataset.jb), art=el.dataset.art;
+    if(art==='check'){ if(el.checked!==!!x) el.checked=!!x; return; }
+    const t=art==='zahl'&&el.tagName!=='SELECT'?jbW(x):x==null?'':String(x);
+    if(el.value!==t) el.value=t; });
   const off=document.getElementById('jb_offen'), fehlt=jbFehlt(JB_EDIT.v,M);
   if(off){ off.hidden=!fehlt.length; off.textContent=fehlt.length?'Noch offen: '+fehlt.join(' · '):''; }
   jbBilderLaden(ed);
 }
 /* Angaben, ohne die ein Teil des Ergebnisses 0 bleibt — mit der Ziffer im Vordruck */
 function jbFehlt(v,M){
-  const k=M.kap, f=[], G=v.gebaeude;
-  v.boden.forEach((b,i)=>{ if(!(b.flaeche>0)) f.push('Grundstücksanteil '+JB_ROEM[i]+' m² (1.2)'); if(!(b.brw>0)) f.push('Bodenrichtwert / Preisansatz (2.'+(i+1)+')'); });
+  const k=M.kap, f=[], G=v.gebaeude, MAN=v.manuell||{}, hat=x=>typeof MAN[x]==='number';
+  v.boden.forEach((b,i)=>{ if(!(b.flaeche>0)&&!hat('b.'+i+'.zw')&&!hat('b.'+i+'.wert')&&!hat('boden')) f.push('Grundstücksanteil '+JB_ROEM[i]+' m² (1.2)');
+    if(!(b.brw>0)&&!hat('b.'+i+'.zw')&&!hat('b.'+i+'.wert')&&!hat('boden')) f.push('Bodenrichtwert (1.2 / 2.'+(i+1)+')'); });
   const N=G.length?jbSubstanzNummern(k.substanz,G.length):null;
-  G.forEach((g,i)=>{ const zu=G.length>1?' '+jbGebName(v,i):'';
-    if(!(g.baujahr>0)) f.push('Baujahr'+zu+' (1.3)'); if(!(g.bgf>0)) f.push('BGF'+zu+' (1.3)');
-    if(!(M.geb[i].nhk2010>0)) f.push('NHK-Tabelle'+zu+' ('+k.substanz+')'); if(!(g.bpi>0)||!(g.bpiFaktor>0)) f.push('Baupreisindex'+zu+' ('+N.rnd[i]+')'); });
-  if(G.length&&!(M.miete.monat>0)) f.push('Mieterträge (1.3)');
+  G.forEach((g,i)=>{ const zu=G.length>1?' '+jbGebName(v,i):'', p='g.'+i+'.', fertig=hat(p+'preis')||hat(p+'wert');
+    if(!(g.baujahr>0)&&!fertig&&!hat(p+'alter')) f.push('Baujahr'+zu+' (1.3)'); if(!(g.bgf>0)&&!hat(p+'wert')) f.push('BGF'+zu+' (1.3)');
+    if(!(M.geb[i].nhk2010>0)&&!fertig) f.push('NHK-Tabelle'+zu+' ('+k.substanz+')');
+    if((!(g.bpi>0)||!(g.bpiFaktor>0))&&!fertig&&!hat(p+'index')&&!hat(p+'heute')) f.push('Baupreisindex'+zu+' ('+N.rnd[i]+')'); });
+  if(G.length&&!(M.miete.monat>0)&&!M.teile.some(t=>t.roh>0)) f.push('Mieterträge (1.3)');
   if(G.length&&v.lz==null) f.push('Bodenwertverzinsung ('+k.ertrag+')');
   return f;
 }
@@ -319,7 +337,15 @@ function jbSetzen(obj,pfad,wert){
   const k=/^\d+$/.test(t[t.length-1])?+t[t.length-1]:t[t.length-1]; o[k]=wert;
 }
 function jbEingabe(el){
-  if(!JB_EDIT||!el.dataset||!el.dataset.jb) return;
+  if(!JB_EDIT||!el.dataset) return;
+  if(el.dataset.jbm){   // gerechnetes Feld überschreiben (leer = wieder rechnen)
+    const k=el.dataset.jbm, z=LVK.zahlEingabe(el.value), MAN=JB_EDIT.v.manuell=JB_EDIT.v.manuell||{};
+    if(Number.isNaN(z)){ el.classList.add('lv-fehler'); return; }
+    el.classList.remove('lv-fehler');
+    if(z==null) delete MAN[k]; else MAN[k]=z;
+    jbAusgaben(); return;
+  }
+  if(!el.dataset.jb) return;
   const pfad=el.dataset.jb, art=el.dataset.art;
   let wert=el.value;
   if(art==='zahl'){ const z=LVK.zahlEingabe(el.value); if(Number.isNaN(z)){ el.classList.add('lv-fehler'); return; } el.classList.remove('lv-fehler'); wert=z; }
@@ -327,10 +353,13 @@ function jbEingabe(el){
   if(art==='check') wert=!!el.checked;
   const rw=/^boden\.(\d+)\.richtwert$/.exec(pfad);
   if(rw){ const b=JB_EDIT.v.boden[+rw[1]];   // Preisansatz folgt dem Richtwert, solange er nicht abweichend eingetragen ist
-    if(b&&(!(b.brw>0)||b.brw===b.richtwert)){ b.brw=wert; const f=document.querySelector('#jb_editor [data-jb="boden.'+rw[1]+'.brw"]'); if(f) f.value=jbW(wert); } }
+    if(b&&(!(b.brw>0)||b.brw===b.richtwert)) b.brw=wert; }
   if(pfad[0]==='@') JB_EDIT[pfad.slice(1)]=wert; else jbSetzen(JB_EDIT.v,pfad,wert);
   jbAusgaben();
 }
+function jbZuruecksetzen(k){ const MAN=JB_EDIT&&JB_EDIT.v.manuell; if(MAN) delete MAN[k];
+  document.querySelectorAll('#jb_editor [data-jbm="'+k+'"]').forEach(el=>el.classList.remove('lv-fehler')); jbAusgaben(); }
+
 function jbHinzu(liste){
   const v=JB_EDIT.v;
   if(liste==='boden') v.boden.push({text:'Grundstücksanteil '+JB_ROEM[v.boden.length],flaeche:0,brw:0,abschlag:0,flst:'',nutzbarkeit:'',zone:'',richtwert:null});
@@ -400,6 +429,9 @@ async function jbBilderAufraeumen(l,kandidaten){
     const o=document.getElementById('lv_overlay'), body=document.getElementById('lv_body'); if(!o||!body) return;
     ['input','change'].forEach(ev=>o.addEventListener(ev,e=>{ if(e.target&&e.target.closest&&e.target.closest('#jb_editor')) jbEingabe(e.target); }));
     o.addEventListener('change',e=>{ if(e.target&&e.target.id==='lvf_jn_objekt') jbNeuWahl(); });
+    // beim Verlassen eines Feldes Zahlen einheitlich darstellen (das Feld wird dann nicht mehr bearbeitet)
+    o.addEventListener('focusout',e=>{ if(e.target&&e.target.closest&&e.target.closest('#jb_editor')&&(e.target.dataset.jbm||e.target.dataset.jb)) setTimeout(jbAusgaben,0); });
+    o.addEventListener('click',e=>{ const b=e.target&&e.target.closest&&e.target.closest('#jb_editor [data-reset]'); if(b) jbZuruecksetzen(b.dataset.reset); });
     new MutationObserver(()=>{ if(document.getElementById('jb_editor')) jbAusgaben(); }).observe(body,{childList:true});
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',einrichten); else einrichten();

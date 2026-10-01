@@ -28,56 +28,86 @@ function datumOk(s){ return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&
 function tage(a,b){ return Math.round((Date.parse(b+'T00:00:00Z')-Date.parse(a+'T00:00:00Z'))/864e5); }
 function summe(a,f){ return (a||[]).reduce((s,x)=>s+zahl(f?f(x):x),0); }
 
-function gebaeudeRechnen(g,jahr){
+/* Eingetragene Werte (v.manuell): Wie in Excel lässt sich jede gerechnete Zahl überschreiben. Der eingetragene Wert gilt
+   an seiner Stelle, alle folgenden Zeilen rechnen mit ihm weiter. Schlüssel: b.<i>.zw|ab|wert, boden, b.flaeche, m.monat,
+   m.jahr, g.<i>.kk.<s>|b.<r>|nhk2010|abEur|nhkBer|index|alter|rndRech|wm|heute|wmEur|preis|wert, s.geb, s.gebAussen,
+   s.vorlaeufig, s.objektLand, substanz, pv.laufzeit|rest|roh|bew|rein|vf|wert, e.<i>.roh|gew|bew|zw|ab|rein|boden|bodenZins|
+   gebRein|vf|wert, e.boden, ertrag, ergebnis. Abzüge (bew, ab, bodenZins, abEur, wmEur, b.<i>.ab) werden wie im Vordruck
+   negativ eingetragen. */
+function istWert(x){ return typeof x==='number'&&isFinite(x); }
+function gebaeudeRechnen(g,jahr,w){
+  w=w||((k,x)=>x);
   const k1=g.kosten1||[], k2=g.kosten2||[], zwei=k2.some(x=>zahl(x)>0);
-  const kk=[0,1,2,3,4].map(s=>zwei?(zahl(k1[s])+zahl(k2[s]))/2:zahl(k1[s]));
+  const kk=[0,1,2,3,4].map(s=>w('kk.'+s,zwei?(zahl(k1[s])+zahl(k2[s]))/2:zahl(k1[s])));
   const anteile=BAUTEILE.map((_,i)=>((g.anteile||[])[i]||[]).slice(0,5).map(zahl));
-  const bauteile=BAUTEILE.map(([name,w],i)=>{ const a=anteile[i]; return {name,wichtung:w,summeAnteile:runden(summe(a),4),kosten:w*a.reduce((s,x,j)=>s+x*kk[j],0)}; });
-  const nhk2010=summe(bauteile,b=>b.kosten);
-  const nhkBer=runden(nhk2010+runden(-nhk2010*zahl(g.abschlagBauweise)/100));
-  const index2010=runden(zahl(g.bpi)*zahl(g.bpiFaktor),1);
-  const gnd=zahl(g.gnd), alter=jahr-zahl(g.baujahr), rndRech=gnd-alter, rnd=zahl(g.rnd)>0?zahl(g.rnd):rndRech;
-  const wm=gnd>0?runden((gnd-rnd)/gnd*100):0;
-  const nhkHeute=nhkBer/100*index2010;
-  const preis=runden(nhkHeute-nhkHeute/100*wm);
-  const wert=zahl(g.bgf)*preis;
-  return {kostenkennwerte:kk,bauteile,nhk2010,nhkBer,index2010,alter,rndRech,rnd,wm,nhkHeute,preis,wert,
+  const wg=Array.isArray(g.waegung)?g.waegung:[];   // Wägungsanteile: wie im Vordruck vorgegeben, je Gebäude änderbar
+  const bauteile=BAUTEILE.map(([name,std],i)=>{ const a=anteile[i], wt=istWert(wg[i])?wg[i]:std;
+    return {name,wichtung:wt,summeAnteile:runden(summe(a),4),kosten:w('b.'+i,wt*a.reduce((s,x,j)=>s+x*kk[j],0))}; });
+  const nhk2010=w('nhk2010',summe(bauteile,b=>b.kosten));
+  const abschlagEur=w('abEur',runden(-nhk2010*zahl(g.abschlagBauweise)/100));
+  const nhkBer=w('nhkBer',runden(nhk2010+abschlagEur));
+  const index2010=w('index',runden(zahl(g.bpi)*zahl(g.bpiFaktor),1));
+  const gnd=zahl(g.gnd), alter=w('alter',jahr-zahl(g.baujahr)), rndRech=w('rndRech',gnd-alter), rnd=zahl(g.rnd)>0?zahl(g.rnd):rndRech;
+  const wm=w('wm',gnd>0?runden((gnd-rnd)/gnd*100):0);
+  const nhkHeute=w('heute',nhkBer/100*index2010);
+  const wmEur=w('wmEur',-nhkHeute/100*wm);
+  const preis=w('preis',runden(nhkHeute+wmEur));
+  const wert=w('wert',zahl(g.bgf)*preis);
+  return {kostenkennwerte:kk,bauteile,nhk2010,abschlagEur,nhkBer,index2010,alter,rndRech,rnd,wm,nhkHeute,wmEur,preis,wert,
     anteileFehler:bauteile.filter(b=>b.summeAnteile!==0&&b.summeAnteile!==1).map(b=>b.name)};
 }
-function pvRechnen(pv,stichtag){
-  if(!pv||!datumOk(pv.eegEnde)||!datumOk(stichtag)) return null;
-  const rest=Math.max(0,tage(stichtag,pv.eegEnde)/365);
-  const roh=zahl(pv.kwh)*zahl(pv.eurKwh), rein=roh-roh*zahl(pv.bwk)/100, vf=runden(rbf(zahl(pv.lz),rest),2);
-  return {rest,roh,rein,vf,wert:rein*vf};
+function pvRechnen(pv,stichtag,w){
+  w=w||((k,x)=>x);
+  if(!pv) return null;
+  const ok=datumOk(pv.eegEnde)&&datumOk(stichtag);
+  const rest=w('rest',ok?Math.max(0,tage(stichtag,pv.eegEnde)/365):0);
+  const laufzeit=w('laufzeit',datumOk(pv.inbetrieb)&&datumOk(stichtag)?Math.max(0,tage(pv.inbetrieb,stichtag)/365):null);
+  const roh=w('roh',zahl(pv.kwh)*zahl(pv.eurKwh)), bew=w('bew',-roh*zahl(pv.bwk)/100), rein=w('rein',roh+bew);
+  const vf=w('vf',runden(rbf(zahl(pv.lz),rest),2));
+  return {rest,laufzeit,roh,bew,rein,vf,wert:w('wert',rein*vf)};
 }
 function rechnen(v){
   v=v||{};
+  const MAN=v.manuell&&typeof v.manuell==='object'&&!Array.isArray(v.manuell)?v.manuell:{};
+  const w=(k,x)=>istWert(MAN[k])?MAN[k]:x, pre=p=>(k,x)=>w(p+k,x);
   const stichtag=datumOk(v.stichtag)?v.stichtag:null, jahr=stichtag?+stichtag.slice(0,4):new Date().getFullYear();
-  const bodenZeilen=(v.boden||[]).map(b=>{ const z=zahl(b.flaeche)*zahl(b.brw); return z-z*zahl(b.abschlag)/100; });
-  const boden=summe(bodenZeilen);
-  const geb=(v.gebaeude||[]).map(g=>gebaeudeRechnen(g,jahr));
+  const bodenTeile=(v.boden||[]).map((b,i)=>{ const zw=w('b.'+i+'.zw',zahl(b.flaeche)*zahl(b.brw)), ab=w('b.'+i+'.ab',-zw*zahl(b.abschlag)/100);
+    return {flaeche:zahl(b.flaeche),brw:zahl(b.brw),zw,abschlagPct:zahl(b.abschlag),abschlagEur:ab,wert:w('b.'+i+'.wert',zw+ab)}; });
+  const bodenZeilen=bodenTeile.map(b=>b.wert);
+  const boden=w('boden',summe(bodenZeilen)), flaeche=w('b.flaeche',summe(bodenTeile,b=>b.flaeche));
+  const geb=(v.gebaeude||[]).map((g,i)=>gebaeudeRechnen(g,jahr,pre('g.'+i+'.')));
   const pauschal=summe(v.pauschal,p=>p.betrag), objekt=summe(v.objektspezifisch,p=>p.betrag);
-  const pv=pvRechnen(v.pv,stichtag), pvWert=pv?pv.wert:0;
-  const r={stichtag,boden,bodenZeilen,gebaeude:geb,gebaeudeWert:summe(geb,g=>g.wert),pauschal,objekt,pv,pvWert,teile:[],substanz:null,ertrag:null,ergebnis:0};
-  if(!geb.length){ r.ergebnis=boden+pauschal+objekt+pvWert; return r; }
-  r.substanz=boden+r.gebaeudeWert+pauschal+objekt+pvWert;
-  // Ertrag: Mieten je Gebäude
-  const mieten=(v.mieten||[]).map(m=>({jahr:zahl(m.monat)*12,g:Math.min(Math.max(Math.round(zahl(m.gebaeude)),0),geb.length-1),abschlag:zahl(m.abschlag)}));
-  const rohGesamt=summe(mieten,m=>m.jahr);
-  const indizes=[...new Set(mieten.filter(m=>m.jahr>0).map(m=>m.g))].sort(); if(!indizes.length) indizes.push(0);
+  const pv=pvRechnen(v.pv,stichtag,pre('pv.')), pvWert=pv?pv.wert:0;
+  const mMonat=w('m.monat',summe(v.mieten,m=>m.monat)), mJahr=w('m.jahr',mMonat*12);
+  const r={stichtag,boden,bodenZeilen,bodenTeile,flaeche,gebaeude:geb,gebaeudeWert:w('s.geb',summe(geb,g=>g.wert)),pauschal,objekt,pv,pvWert,
+    mMonat,mJahr,teile:[],substanz:null,ertrag:null,ergebnis:0};
+  if(!geb.length){ r.objektLand=w('s.objektLand',pauschal+objekt+pvWert); r.ergebnis=w('ergebnis',boden+r.objektLand); return r; }
+  r.gebAussen=w('s.gebAussen',r.gebaeudeWert+pauschal);
+  r.vorlaeufig=w('s.vorlaeufig',boden+r.gebAussen);
+  r.substanz=w('substanz',r.vorlaeufig+pvWert+objekt);
+  // Ertrag: Mieten je Gebäude; Jahresmiete aus der Aufstellung (bei einem Gebäude auch aus einer eingetragenen Summe)
+  const mieten=(v.mieten||[]).map(m=>({jahr:zahl(m.monat)*12,g:Math.min(Math.max(Math.round(zahl(m.gebaeude)),0),geb.length-1),abschlag:zahl(m.abschlag),gew:m.gewerblich===true}));
+  const summeEingetragen=istWert(MAN['m.jahr'])||istWert(MAN['m.monat']);
+  const rohVon=gi=>w('e.'+gi+'.roh',geb.length===1&&summeEingetragen?mJahr:summe(mieten.filter(m=>m.g===gi),m=>m.jahr));
+  const indizes=geb.map((_,gi)=>gi).filter(gi=>rohVon(gi)>0); if(!indizes.length) indizes.push(0);
+  const rohGesamt=summe(indizes,rohVon);
   const fest=typeof v.abschlagFest==='number'&&isFinite(v.abschlagFest)?v.abschlagFest:null;
   indizes.forEach((gi,k)=>{
-    const roh=summe(mieten.filter(m=>m.g===gi),m=>m.jahr);
-    const abschlag=fest!=null?(k===0?fest:0):runden(summe(mieten.filter(m=>m.g===gi),m=>m.jahr*m.abschlag/100));
-    const bodenAnteil=indizes.length>1&&rohGesamt>0?boden*roh/rohGesamt:boden;
-    const bew=roh*zahl(v.bwk)/100, rein=roh-bew-abschlag, bodenZins=bodenAnteil*zahl(v.lz)/100, gebRein=rein-bodenZins;
-    const vf=runden(rbf(zahl(v.lz),geb[gi].rnd),2);
-    r.teile.push({gebaeude:gi,roh,bew,abschlag,rein,bodenAnteil,bodenZins,gebRein,rnd:geb[gi].rnd,vf,wert:gebRein*vf});
+    const p='e.'+gi+'.', zeilen=mieten.filter(m=>m.g===gi), roh=rohVon(gi);
+    const gew=w(p+'gew',summe(zeilen.filter(m=>m.gew),m=>m.jahr));
+    const bew=-w(p+'bew',-(roh*zahl(v.bwk)/100)), zw=w(p+'zw',roh-bew);
+    const abschlag=-w(p+'ab',-(fest!=null?(k===0?fest:0):runden(summe(zeilen,m=>m.jahr*m.abschlag/100))));
+    const rein=w(p+'rein',zw-abschlag);
+    const bodenAnteil=w(p+'boden',indizes.length>1&&rohGesamt>0?boden*roh/rohGesamt:boden);
+    const bodenZins=-w(p+'bodenZins',-(bodenAnteil*zahl(v.lz)/100)), gebRein=w(p+'gebRein',rein-bodenZins);
+    const vf=w(p+'vf',runden(rbf(zahl(v.lz),geb[gi].rnd),2));
+    r.teile.push({gebaeude:gi,roh,gew,bew,zw,abschlag,rein,bodenAnteil,bodenZins,gebRein,rnd:geb[gi].rnd,vf,wert:w(p+'wert',gebRein*vf)});
   });
-  r.ertrag=summe(r.teile,t=>t.wert+t.bodenAnteil)+pvWert;
+  r.ertragBoden=w('e.boden',summe(r.teile,t=>t.bodenAnteil));
+  r.ertrag=w('ertrag',r.ertragBoden+summe(r.teile,t=>t.wert)+pvWert);
   const g=typeof v.gewichtung==='number'&&v.gewichtung>=0&&v.gewichtung<=100?v.gewichtung:50;
   r.gewichtung=g;
-  r.ergebnis=r.substanz*g/100+r.ertrag*(100-g)/100;
+  r.ergebnis=w('ergebnis',r.substanz*g/100+r.ertrag*(100-g)/100);
   return r;
 }
 
@@ -135,7 +165,8 @@ function bereinigen(roh){
     gebaeude:liste(roh.gebaeude,MAX.gebaeude,g=>({text:t(g.text,120),baujahr:z(g.baujahr),baujahrText:t(g.baujahrText,200),bgf:z(g.bgf),bgfText:t(g.bgfText,200),
       gnd:z(g.gnd),rnd:z(g.rnd),rndText:t(g.rndText,200),abschlagBauweise:z(g.abschlagBauweise)||0,
       bpiArt:BPI&&BPI.ARTEN[g.bpiArt]?g.bpiArt:'wohnen',bpiText:t(g.bpiText,120),bpi:z(g.bpi),bpiFaktor:z(g.bpiFaktor),
-      kosten1:fuenf(g.kosten1),kosten2:fuenf(g.kosten2),anteile:BAUTEILE.map((_,i)=>fuenf((g.anteile||[])[i]))})),
+      kosten1:fuenf(g.kosten1),kosten2:fuenf(g.kosten2),anteile:BAUTEILE.map((_,i)=>fuenf((g.anteile||[])[i])),
+      waegung:BAUTEILE.map(([,std],i)=>{ const x=z((g.waegung||[])[i]); return x==null?std:x; })})),
     pauschal:liste(roh.pauschal,MAX.pauschal,p=>({text:t(p.text,160),betrag:z(p.betrag)||0})),
     objektspezifisch:liste(roh.objektspezifisch,MAX.objektspezifisch,p=>({text:t(p.text,160),betrag:z(p.betrag)||0})),
     pv:roh.pv&&typeof roh.pv==='object'?{kwp:z(roh.pv.kwp),kwh:z(roh.pv.kwh),eurKwh:z(roh.pv.eurKwh),bwk:z(roh.pv.bwk),lz:z(roh.pv.lz),
@@ -143,13 +174,27 @@ function bereinigen(roh){
       einspeisung:z(roh.pv.einspeisung),eigen:z(roh.pv.eigen)}:null,
     mieten:liste(roh.mieten,MAX.mieten,m=>({text:t(m.text,120),lage:t(m.lage,40),flaeche:z(m.flaeche),monat:z(m.monat)||0,gebaeude:z(m.gebaeude)||0,
       abschlag:z(m.abschlag)||0,gewerblich:m.gewerblich===true,hinweis:t(m.hinweis,200)})),
-    bwk:z(roh.bwk),lz:z(roh.lz),abschlagFest:z(roh.abschlagFest),abschlagText:t(roh.abschlagText,200),gewichtung:z(roh.gewichtung)!=null?roh.gewichtung:50,
+    bwk:z(roh.bwk),lz:z(roh.lz),abschlagFest:null,abschlagText:t(roh.abschlagText,200),gewichtung:z(roh.gewichtung)!=null?roh.gewichtung:50,
     // ältere Vordrucke: ein Feld „hinweise“ (Zustand, Modernisierungen, Eindruck) → 3.4 Allgemeiner Eindruck
     bautechnik:bt?{schaeden:t(bt.schaeden,4000),zustand:t(bt.zustand,4000),modernisierung:t(bt.modernisierung,4000),eindruck:t(bt.eindruck,4000)}
       :{schaeden:TEXTE.schaeden,zustand:'',modernisierung:'',eindruck:t(roh.hinweise,4000)},
     texte:Object.fromEntries(TEXT_ARTEN.map(k=>[k,tx&&typeof tx[k]==='string'?t(tx[k],6000):TEXTE[k]])),
     ort:t(roh.ort,80),
+    manuell:manuellBereinigen(roh),
     bilder:{karte:(bi&&Array.isArray(bi.karte)?bi.karte:[]).filter(x=>typeof x==='string'&&/^[\w-]{1,80}$/.test(x)).slice(0,8)}};
+}
+/* Eingetragene Werte prüfen; ein fester Abschlag für gewerbliche Vermietung (frühere Fassung, Feld abschlagFest) wird
+   — wie im Vordruck, wo der Betrag in der Zelle „- Abschlag für gewerbliche Vermietung“ steht — zum eingetragenen Wert
+   des ersten Gebäudes mit Miete (gleiche Rechnung wie bisher) */
+function manuellBereinigen(roh){
+  const m=roh.manuell&&typeof roh.manuell==='object'&&!Array.isArray(roh.manuell)?roh.manuell:{};
+  const aus=Object.fromEntries(Object.entries(m).filter(([k,x])=>/^[a-z]+(\.[a-zA-Z0-9]+){0,3}$/.test(k)&&istWert(x)).slice(0,400));
+  if(istWert(roh.abschlagFest)){
+    const nG=Array.isArray(roh.gebaeude)?roh.gebaeude.length:0, mieten=Array.isArray(roh.mieten)?roh.mieten:[];
+    const g=Math.max(0,[...Array(nG).keys()].find(i=>mieten.some(x=>x&&(Math.min(Math.max(Math.round(+x.gebaeude||0),0),nG-1)===i)&&+x.monat>0))||0);
+    if(!istWert(aus['e.'+g+'.ab'])) aus['e.'+g+'.ab']=-roh.abschlagFest;
+  }
+  return aus;
 }
 /* Leerer Vordruck (ein Gebäude, NHK-Zeilen leer) */
 function leer(stichtag){
@@ -169,20 +214,16 @@ function kapitel(v){
 /* Alle Zahlen für Vordruck und Dokument (Zwischenzeilen wie in der Excel-Mappe); v ist bereinigt */
 function modell(v){
   const r=rechnen(v), kap=kapitel(v);
-  const boden=v.boden.map(b=>{ const zw=zahl(b.flaeche)*zahl(b.brw), ab=zw*zahl(b.abschlag)/100; return {flaeche:zahl(b.flaeche),brw:zahl(b.brw),zw,abschlagPct:zahl(b.abschlag),abschlagEur:-ab,wert:zw-ab}; });
-  const geb=r.gebaeude.map((g,i)=>{ const q=v.gebaeude[i], abschlagEur=runden(-g.nhk2010*zahl(q.abschlagBauweise)/100);
+  const geb=r.gebaeude.map((g,i)=>{ const q=v.gebaeude[i];
     return Object.assign({},g,{name:q.text||('Gebäude '+(i+1)),baujahr:q.baujahr,gnd:zahl(q.gnd),angepasst:zahl(q.rnd)>0,bgf:zahl(q.bgf),bpi:zahl(q.bpi),bpiFaktor:zahl(q.bpiFaktor),
-      bpiArt:q.bpiArt,abschlagPct:zahl(q.abschlagBauweise),abschlagEur,wmEur:-g.nhkHeute*g.wm/100}); });
-  const monat=summe(v.mieten,m=>m.monat), gewerblich=summe(v.mieten.filter(m=>m.gewerblich),m=>m.monat)*12;
-  const teile=r.teile.map(t=>Object.assign({},t,{name:(v.gebaeude[t.gebaeude]||{}).text||'Gebäude',zw:t.roh-t.bew,bwkPct:zahl(v.bwk),lzPct:zahl(v.lz),
-    gewerblich:summe(v.mieten.filter(m=>m.gewerblich&&Math.min(Math.max(Math.round(zahl(m.gebaeude)),0),geb.length-1)===t.gebaeude),m=>m.monat)*12}));
+      bpiArt:q.bpiArt,abschlagPct:zahl(q.abschlagBauweise)}); });
+  const teile=r.teile.map(t=>Object.assign({},t,{name:(v.gebaeude[t.gebaeude]||{}).text||'Gebäude',gewerblich:t.gew,bwkPct:zahl(v.bwk),lzPct:zahl(v.lz)}));
   const pauschal=v.pauschal.map(p=>({text:p.text,betrag:zahl(p.betrag)})), objekt=v.objektspezifisch.map(p=>({text:p.text,betrag:zahl(p.betrag)}));
-  let pv=null;
-  if(r.pv){ const roh=r.pv.roh; pv=Object.assign({},r.pv,{laufzeit:v.pv.inbetrieb&&r.stichtag?Math.max(0,tage(v.pv.inbetrieb,r.stichtag)/365):null,bewEur:-(roh-r.pv.rein)}); }
-  const gebSumme=r.gebaeudeWert, pauschalSumme=summe(pauschal,p=>p.betrag);
-  return {r,kap,boden,bodenSumme:r.boden,flaecheSumme:summe(boden,b=>b.flaeche),geb,gebSumme,pauschal,pauschalSumme,gebAussen:gebSumme+pauschalSumme,
-    vorlaeufig:r.boden+gebSumme+pauschalSumme,objekt,objektSumme:summe(objekt,p=>p.betrag),pv,pvWert:r.pvWert,
-    miete:{monat,jahr:monat*12,gewerblich},teile,substanz:r.substanz,ertrag:r.ertrag,ergebnis:r.ergebnis,gewichtung:r.gewichtung==null?50:r.gewichtung};
+  const pv=r.pv?Object.assign({},r.pv,{bewEur:r.pv.bew}):null;
+  return {r,kap,boden:r.bodenTeile,bodenSumme:r.boden,flaecheSumme:r.flaeche,geb,gebSumme:r.gebaeudeWert,pauschal,pauschalSumme:r.pauschal,
+    gebAussen:r.gebAussen,vorlaeufig:r.vorlaeufig,objekt,objektSumme:r.objekt,objektLand:r.objektLand,pv,pvWert:r.pvWert,
+    miete:{monat:r.mMonat,jahr:r.mJahr,gewerblich:summe(teile,t=>t.gewerblich)},teile,ertragBoden:r.ertragBoden,substanz:r.substanz,ertrag:r.ertrag,
+    ergebnis:r.ergebnis,gewichtung:r.gewichtung==null?50:r.gewichtung};
 }
 
 /* Vorlagen für einen neuen Vordruck — Aufbau wie die Excel-Vordrucke der Bank; Flächen, Baujahr, Bodenrichtwert und
@@ -231,6 +272,8 @@ function fortschreiben(v,stichtag,opt){
   const n=bereinigen(JSON.parse(JSON.stringify(v||{}))), hinweise=[];
   const jahre=n.stichtag?(+stichtag.slice(0,4))-(+n.stichtag.slice(0,4)):0;
   n.stichtag=stichtag;
+  const man=Object.keys(n.manuell||{});
+  if(man.length) hinweise.push('Von Hand eingetragene Werte (gelb) übernommen — prüfen, ob sie zum neuen Stichtag noch gelten: '+man.join(', '));
   n.gebaeude.forEach(g=>{
     const w=BPI?BPI.wertFuer(g.bpiArt,stichtag):null;
     if(w){ g.bpi=w.wert; g.bpiFaktor=w.faktor; g.bpiText=w.name+' '+BPI.monatText(w.monat)+(w.vorlaeufig?' (vorläufig)':''); }
@@ -238,7 +281,6 @@ function fortschreiben(v,stichtag,opt){
   });
   if(n.gebaeude.length){ const w=BPI&&BPI.wertFuer(n.gebaeude[0].bpiArt,stichtag);
     if(w) hinweise.push('Baupreisindex '+BPI.monatText(w.monat)+(w.vorlaeufig?' — vorläufig, Quartalswert zum Stichtag nachtragen':'')); }
-  if(n.abschlagFest!=null) hinweise.push('Fester Abschlag für gewerbliche Vermietung ('+String(n.abschlagFest).replace('.',',')+' €) prüfen');
   hinweise.push('Bodenrichtwert prüfen (BORIS-BW)','Mieten prüfen');
   return {vordruck:n,hinweise,jahre};
 }

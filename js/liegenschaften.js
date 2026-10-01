@@ -15,11 +15,13 @@ const ID=/^[\w-]{1,80}$/;
 function istObj(x){ return !!x&&typeof x==='object'&&!Array.isArray(x); }
 function r2(x){ if(!isFinite(x)) return 0; const s=x<0?-1:1; return s*Math.round(Math.abs(x)*100+1e-7)/100||0; }
 function neueId(p){ return (p||'x')+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-/* Eingabe im deutschen Format: „1.234,56“, „450.000“, „12,5“, „-80“, „−80“; Einheiten (€, %, m²) werden überlesen.
+/* Eingabe im deutschen Format: „1.234,56“, „450.000“, „12,5“, „-80“, „−80“; Einheiten (€, €/m², %, m², Jahre, kWh, kWp)
+   werden überlesen.
    Ungültiges ergibt NaN (nie stillschweigend 0) — so kann die Oberfläche das Feld markieren. Leer ergibt null. */
 function zahlEingabe(s){
   if(typeof s==='number') return isFinite(s)?s:NaN;
-  let t=(''+(s==null?'':s)).replace(/[−‒–]/g,'-').replace(/\s|€|%|m²|qm/g,'');
+  let t=(''+(s==null?'':s)).replace(/[−‒–]/g,'-').replace(/\s/g,'')
+    .replace(/€\/(m²|m2|qm|kwh|jahr|monat)|eur(o)?|€|%|m²|m2|qm|jahre?|j\.|kwh|kwp|stk\.?/gi,'');
   if(t==='') return null;
   if(!/^-?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$/.test(t)&&!/^-?\d+\.\d+$/.test(t)&&!/^-?,\d+$/.test(t)) return NaN;
   if(t.indexOf(',')>-1) t=t.replace(/\./g,'').replace(',','.');

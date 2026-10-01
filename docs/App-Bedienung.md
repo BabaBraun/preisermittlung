@@ -59,6 +59,15 @@ Startseite → Kachel „Liegenschaften“ oder Mehr → „Liegenschaften“ (R
   Preisansatz (Mietertrag als Grundlage) und Zusammenfassung / Sonstiges mit Hinweisen, Ort und Datum. Ohne PV-Anlage
   rücken die Kapitel auf, ohne Gebäude endet der Vordruck nach dem Grund und Boden (wie in der Mappe). Jede Zahl und
   jeder Text ist änderbar; Bodenwert, Substanz, Ertrag und Ergebnis oben rechnen beim Tippen mit.
+- **Jede Zahl ist änderbar:** auch jede gerechnete (Gebäudealter, Wertminderung, NHK, Gebäudepreis, Vervielfältiger,
+  Zwischensummen, Ergebnis). Gerechnete Felder sind mit dem Ergebnis vorbelegt (grau, gestrichelt); wer etwas einträgt,
+  überschreibt sie wie eine Excel-Zelle — das Feld wird gelb, alle folgenden Zeilen rechnen mit dem eingetragenen Wert,
+  „↺“ stellt die Rechnung wieder her. Angaben, die an mehreren Stellen stehen (Bodenrichtwert in 1.2, 2.1 und den
+  Rechnungen, Baujahr in 1.3, 6.1 und 7.1, Bewirtschaftung und Zinssatz in 7.2 und 7.3), lassen sich überall eintragen
+  und bleiben gleich. Einheiten beim Tippen stören nicht („360 €/m²“, „80 Jahre“, „8.803 kWh“). Abzüge werden wie im
+  Vordruck mit Minus eingetragen; den Abschlag für gewerbliche Vermietung trägt man als Betrag in seiner Zeile ein (oder
+  er ergibt sich aus „Abschlag %“ der Mietzeilen). Beim Fortschreiben bleiben eingetragene Werte stehen und werden zum
+  Prüfen aufgeführt.
 - **Vordruck ansehen:** zeigt den Vordruck als Dokument wie die Excel-Mappe (jedes Kapitel auf einer neuen Seite) —
   Drucken, PDF, Word, Teilen; „zurück“ führt in den Vordruck, auch ungespeicherte Eingaben bleiben. Gerechnet wird wie im Excel-Vordruck der Bank, einschließlich seiner
   Rundungen (Alterswertminderung volle %, Gebäudepreis volle €, Vervielfältiger zwei Stellen). Mehrere Gebäude

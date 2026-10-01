@@ -123,3 +123,12 @@
 #lv_overlay #lv_tabs{top:var(--lv-kopf,56px)}
 #lv_overlay .jb-erg .jb-offen{grid-column:1/-1;margin:2px 0 0;font-size:12.5px;color:var(--warn);font-weight:600}
 #lv_overlay .jb-nhk-t{font-size:13px;font-weight:600;margin:14px 0 6px}
+/* gerechnete, überschreibbare Felder: vorbelegt wie eine Excel-Formel; von Hand eingetragen = gelb mit ↺ */
+#lv_overlay .jb-mw{display:inline-flex;align-items:center;gap:4px;max-width:100%;justify-content:flex-end}
+#lv_overlay .jb-mw input{width:9.5em;text-align:right;font-variant-numeric:tabular-nums;background:var(--surface-2);border-style:dashed}
+#lv_overlay .jb-mw input:focus{border-style:solid;background:var(--card)}
+#lv_overlay .jb-mw input.jb-manuell{background:#FFF1B8;border:1px solid #C9A227;color:#1d1a10}
+#lv_overlay .jb-mw .jb-eh{font-size:12.5px;color:var(--text-2);white-space:nowrap}
+#lv_overlay .jb-mw .jb-reset{min-height:0;height:28px;width:28px;padding:0;border-radius:50%;font-size:15px;line-height:1;border:1px solid #C9A227;background:#FFF1B8;color:#5a4a0a;cursor:pointer}
+#lv_overlay .jb-hinweis-manuell{margin:0 0 8px}
+#lv_overlay .jb-tbl .jb-mw input{padding:6px 8px}
