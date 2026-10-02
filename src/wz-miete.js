@@ -45,7 +45,8 @@ function mieteHinweise(m){
   if(m==='559') return ['Jährlich 8 % der für die Wohnung aufgewendeten Kosten, ohne ersparte Erhaltungskosten und ohne Fördermittel (§§ 559, 559a BGB).',
     'In sechs Jahren höchstens 3 €/m² mehr, bei einer Miete unter 7 €/m² höchstens 2 €/m² (§ 559 Abs. 3a). Härtefälle beim Mieter können die Erhöhung ausschließen (§ 559 Abs. 4).',
     'Wirkung ab Beginn des dritten Monats nach Zugang der Erklärung, ohne ordnungsgemäße Ankündigung sechs Monate später (§ 559b Abs. 2).',
-    'Für den Einbau einer Heizung nach dem GEG gelten Sonderregeln (§ 559e BGB) — hier nicht gerechnet.','Orientierung, keine Rechtsberatung.'];
+    'Vereinfachtes Verfahren: danach fünf Jahre keine weitere Erhöhung nach § 559 oder § 559e (§ 559c Abs. 4).',
+    'Für den Einbau einer Heizung nach § 43 GModG gelten Sonderregeln: 10 % abzüglich Fördermitteln, höchstens 0,50 €/m² in sechs Jahren (§ 559e BGB) — hier nicht gerechnet.','Orientierung, keine Rechtsberatung.'];
   return ['Bei Wiedervermietung in Gebieten mit angespanntem Wohnungsmarkt höchstens 10 % über der ortsüblichen Vergleichsmiete (§ 556d BGB).',
     'Eine höhere Miete des Vormieters darf weiter verlangt werden (§ 556e); nicht anzuwenden bei Neubau und erster Vermietung nach umfassender Modernisierung (§ 556f).',
     'Orientierung, keine Rechtsberatung.'];

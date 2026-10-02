@@ -4,11 +4,11 @@
    (js/beratung.js, ImmoBeratung.verrentung); Angebote der Anbieter weichen ab. Keine Namen. */
 function renteStart(){
   return {wert:'',miete:'',personen:[{alter:'',g:'w'},{alter:'',g:'m'}],zweiPersonen:false,zins:'3,0',abschlag:'0',garantie:'0',
-    teilAnteil:'50',teilEntgelt:'4,5',teilGebuehr:'3',rueckMiete:'',rueckKosten:'3,57',wertsteigerung:'1,5'};
+    teilAnteil:'50',teilEntgelt:'5,0',teilGebuehr:'3,5',kreditZins:'3,5',rueckMiete:'',rueckKosten:'3,57',wertsteigerung:'1,5'};
 }
 function renteEingabe(S){
   return {wert:wzN(S.wert,true),miete:wzN(S.miete,true),personen:(S.personen||[]).slice(0,S.zweiPersonen?2:1).map(p=>({alter:wzN(p.alter),g:p.g==='m'?'m':'w'})).filter(p=>p.alter>0),
-    zins:wzN(S.zins),abschlag:wzN(S.abschlag),garantie:wzN(S.garantie),teilAnteil:wzN(S.teilAnteil),teilEntgelt:wzN(S.teilEntgelt),teilGebuehr:wzN(S.teilGebuehr),
+    zins:wzN(S.zins),abschlag:wzN(S.abschlag),garantie:wzN(S.garantie),teilAnteil:wzN(S.teilAnteil),teilEntgelt:wzN(S.teilEntgelt),teilGebuehr:wzN(S.teilGebuehr),kreditZins:S.kreditZins==null?3.5:wzN(S.kreditZins),
     rueckMiete:String(S.rueckMiete||'').trim()===''?'':wzN(S.rueckMiete,true),rueckKosten:wzN(S.rueckKosten),wertsteigerung:wzN(S.wertsteigerung)};
 }
 function renteZeichnen(S){
@@ -26,8 +26,9 @@ function renteZeichnen(S){
       +wzFeld('abschlag','Abschlag beim Verkauf mit Wohnrecht',{typ:'prozent',einheit:'% (Anbieter, Instandhaltung)'})
       +wzFeld('garantie','Rentengarantiezeit',{typ:'zahl',einheit:'Jahre'})
       +wzFeld('teilAnteil','Teilverkauf: verkaufter Anteil',{typ:'prozent',einheit:'%'})
-      +wzFeld('teilEntgelt','Teilverkauf: Nutzungsentgelt',{typ:'prozent',einheit:'% des Anteils im Jahr'})
-      +wzFeld('teilGebuehr','Teilverkauf: Entgelt beim späteren Verkauf',{typ:'prozent',einheit:'% vom Verkaufspreis'})
+      +wzFeld('teilEntgelt','Teilverkauf: Nutzungsentgelt',{typ:'prozent',einheit:'% des Anteils im Jahr',hinweis:'Marktübersichten 2025/26: etwa 4,75–5,75 %'})
+      +wzFeld('teilGebuehr','Teilverkauf: Entgelt beim späteren Verkauf',{typ:'prozent',einheit:'% vom Verkaufspreis',hinweis:'üblich etwa 3–6 %'})
+      +wzFeld('kreditZins','Kredit mit Grundschuld: Zins',{typ:'prozent',einheit:'% im Jahr',hinweis:'gleicher Betrag wie beim Teilverkauf; Zinsen monatlich'})
       +wzFeld('rueckMiete','Rückmiete',{typ:'betrag',einheit:'€/Monat',ph:'wie ortsübliche Miete'})
       +wzFeld('rueckKosten','Verkaufskosten bei Rückmiete',{typ:'prozent',einheit:'% (z. B. Makler)'})+'</div>')
     +'</div><div>'
@@ -39,7 +40,8 @@ function renteHinweise(){
   return ['Modellrechnung mit der Sterbetafel des Statistischen Bundesamts '+(window.ImmoSterbetafel?ImmoSterbetafel.zeitraum:'')+' (monatliche Zahlung, bei zwei Personen bis zum Tod des Letztversterbenden). Angebote der Anbieter enthalten eigene Abschläge, Zinsen und Gebühren.',
     '„Summe“ ist der Betrag bis zur erwarteten Lebensdauer ohne Zinsen; wer länger lebt, bekommt bei der Leibrente mehr, beim Teilverkauf zahlt er länger das Nutzungsentgelt.',
     'Wohnrecht, Nießbrauch und Leibrente im Grundbuch absichern (Rangstelle). Beim Teilverkauf Laufzeit und Anpassung des Nutzungsentgelts, Rückkaufrecht und die Kosten beim späteren Verkauf prüfen.',
-    'Steuer: Die Leibrente aus einem Verkauf ist mit dem Ertragsanteil einkommensteuerpflichtig (§ 22 Nr. 1 EStG).',
+    'Kredit statt Teilverkauf: Die Verbraucherzentrale weist darauf hin, dass ein Darlehen gegenüber einem Nutzungsentgelt von rund 5 % plus Entgelten deutlich günstiger sein kann. Der Weg „Kredit mit Grundschuld“ rechnet denselben Betrag mit laufenden Zinsen; Tragfähigkeit und Kreditwürdigkeit prüft die Baufinanzierung.',
+    'Steuer: Die Leibrente aus einem Verkauf ist nur mit dem Ertragsanteil einkommensteuerpflichtig (§ 22 Nr. 1 Satz 3 Buchst. a Doppelbuchst. bb EStG, z. B. 15 % bei Rentenbeginn mit 70, 11 % mit 75).',
     'Orientierung im Beratungsgespräch, keine Anlage- oder Rechtsberatung.'];
 }
 function renteRechnen(S){

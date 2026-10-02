@@ -72,7 +72,7 @@ test('Wohnen im Alter: Wohnrecht, Einmalzahlung und Leibrente aus derselben Ster
   await page.locator('#wz_rente_zweiPersonen').check();
   await eintragen(page, { rente_wert: '450.000', rente_miete: '1.100', rente_personen_0_alter: '76', rente_personen_1_alter: '79' });
   await page.locator('#wz_rente_personen_1_g').selectOption('m');
-  await expect(page.locator('#wz_rente_tab .wz-karte')).toHaveCount(5);
+  await expect(page.locator('#wz_rente_tab .wz-karte')).toHaveCount(6);   // fünf Wege und der Kredit mit Grundschuld
   const r = await page.evaluate(() => ImmoBeratung.verrentung(renteEingabe(wzZustand('rente'))));
   expect(r.wohnrecht).toBeCloseTo(12 * 1100 * r.fLeben, 6);
   await expect(page.locator('#wz_rente_tab .wz-karte').nth(1)).toContainText(await page.evaluate(x => wzEur(x), r.rente));
@@ -127,9 +127,10 @@ test('Grundstückspotenzial, ETW-Kaufcheck und Mieterhöhung rechnen wie js/bera
   await page.evaluate(() => wzOeffnen('etw'));
   await eintragen(page, { etw_wohnflaeche: '78', etw_mea: '85', etw_heizBaujahr: '1990' });
   await page.locator('#wz_etw_heizArt').selectOption('oel');
-  await page.locator('#wz_etw_kessel').selectOption('konstant');
-  await expect(page.locator('#wz_etw_ergebnis')).toContainText('Betriebsverbot nach § 72 GEG');
-  await expect(page.locator('#wz_etw_ergebnis .wz-ampel').first()).toHaveClass(/wz-rot/);
+  await expect(page.locator('#wz_etw_ergebnis')).toContainText('rechnerische Nutzungsdauer (VDI 2067');
+  await expect(page.locator('#wz_etw_ergebnis')).toContainText('§ 43 GModG');
+  await expect(page.locator('#wz_etw_ergebnis')).not.toContainText('GEG');
+  await expect(page.locator('#wz_etw_ergebnis .wz-ampel').first()).toHaveClass(/wz-gelb/);
   await page.evaluate(() => wzOeffnen('miete'));
   await eintragen(page, { miete_wohnflaeche: '78', miete_miete: '640', miete_vergleichM2: '9,50', miete_zugang: '2026-10-15' });
   await expect(page.locator('#wz_miete_ergebnis .subtotal')).toContainText('741 €');
@@ -152,12 +153,19 @@ test('Wertmonitor: gesicherte Bewertung zum Stichtag wie in der Bewertung, fortg
   const x = await page.evaluate(() => wmRechne(pjLoad()[0], wzZustand('wertmonitor')));
   expect(x.alt).toBeCloseTo(damals, 6);                 // dieselbe Rechnung wie in der Bewertung
   expect(x.bpiNeu).toBeGreaterThan(x.bpiAlt);
-  expect(x.neu).toBeGreaterThan(0);
+  expect(x.kosten).toBeGreaterThan(0);                // Rechnung nach Baukosten und Alter (Information)
   expect(x.aenderung).not.toBeNull();
+  // Preisindex (§ 9 Abs. 1, § 18 ImmoWertV): 2023 = 100, 2026 = 95 → Wert × 0,95
+  await page.locator('input[data-wz="index.haus.2023"]').fill('100');
+  await page.locator('input[data-wz="index.haus.2026"]').fill('95');
+  const mitIndex = await page.evaluate(() => wmRechne(pjLoad()[0], wzZustand('wertmonitor')));
+  expect(mitIndex.nachIndex).toBe(true); expect(mitIndex.index).toBeCloseTo(damals * 0.95, 6); expect(mitIndex.aenderung).toBeCloseTo(-5, 6);
+  await expect(page.locator('#wz_body tbody')).toContainText('Index 2023 → 2026');
   await page.locator('#wz_wertmonitor_schwelle').fill('0,1');
   await page.locator('#wz_body tbody').getByRole('button', { name: 'Wiedervorlage' }).click();
   await expect.poll(() => meldungen.join('|')).toContain('Wiedervorlage angelegt');
-  expect(await page.evaluate(() => aufLoad().filter(a => /^Wertmonitor: Wertmonitor Test/.test(a.text)).length)).toBe(1);
+  const wv = await page.evaluate(() => aufLoad().filter(a => /^Wertmonitor: Wertmonitor Test/.test(a.text)));
+  expect(wv.length).toBe(1); expect(wv[0].text).toContain('Preisindex'); expect(wv[0].text).toContain('§ 7 UWG');
   await expect(page.locator('#wz_body tbody')).toContainText('Wiedervorlage am');
   await keineSkriptfehler(page);
 });

@@ -58,10 +58,10 @@ function erbZeichnen(S){
     +'</div></div>';
 }
 function erbHinweise(S){
-  return ['Orientierungsrechnung, keine Steuerberatung — für die Gestaltung Steuerberatung und Notar einbeziehen.',
+  return ['Orientierungsrechnung mit den gesetzlichen Tarifen zur Vorbereitung des Gesprächs mit Steuerberatung und Notar — keine Hilfeleistung in Steuersachen (§ 5 StBerG). Die konkrete Gestaltung gehört zu Steuerberatung und Notar.',
     'Das Finanzamt bewertet nach §§ 176 ff. BewG; ist der Verkehrswert nachweislich niedriger (Gutachten), gilt dieser (§ 198 BewG).',
-    'Freibeträge (§ 16 ErbStG) gelten je Schenker und Empfänger und alle 10 Jahre neu; frühere Schenkungen innerhalb von 10 Jahren werden zusammengerechnet (§ 14 ErbStG).',
-    'Nießbrauch und Wohnrecht: Kapitalwert = Jahreswert × Vervielfältiger (§ 14 Abs. 1 BewG, 5,5 %, Sterbetafel), Jahreswert höchstens Wert / 18,6 (§ 16 BewG). Endet das Recht durch frühen Tod, wird auf Antrag berichtigt (§ 14 Abs. 2 BewG). Die App rechnet mit der Sterbetafel '+(window.ImmoSterbetafel?ImmoSterbetafel.zeitraum:'')+'; das Finanzamt nimmt die BMF-Tabelle des Bewertungsjahres.',
+    'Freibeträge (§ 16 ErbStG) gelten je Schenker und Empfänger und alle 10 Jahre neu; frühere Schenkungen innerhalb von 10 Jahren werden zusammengerechnet. Die Steuer auf den neuen Erwerb allein ist dabei die Untergrenze (§ 14 Abs. 1 Satz 4 ErbStG).',
+    'Nießbrauch und Wohnrecht: Kapitalwert = Jahreswert × Vervielfältiger (§ 14 Abs. 1 BewG, 5,5 %, Sterbetafel), Jahreswert höchstens Wert / 18,6 (§ 16 BewG). Endet das Recht durch frühen Tod, wird auf Antrag berichtigt (§ 14 Abs. 2 BewG). Die App rechnet nach diesem Verfahren mit der Sterbetafel '+(window.ImmoSterbetafel?ImmoSterbetafel.zeitraum:'')+'; das Finanzamt nimmt die BMF-Tabelle des Bewertungsjahres (Stichtage 2026: BMF-Schreiben vom 21.10.2025, Sterbetafel 2022/2024) — den Tabellenwert eintragen.',
     'Familienheim: Schenkung an den Ehegatten steuerfrei (§ 13 Abs. 1 Nr. 4a). Beim Erbe steuerfrei für den Ehegatten (4b) und für Kinder bis 200 m² Wohnfläche (4c) — nur, wenn der Erblasser selbst darin gewohnt hat und der Erbe unverzüglich einzieht und 10 Jahre selbst wohnt; sonst entfällt die Befreiung rückwirkend.',
     'Zu Wohnzwecken vermietet: 10 % des Werts steuerfrei (§ 13d ErbStG). Versorgungsfreibetrag beim Erbe (§ 17 ErbStG) ist hier nicht berücksichtigt.',
     'Grunderwerbsteuer: Schenkung und Erbe sind befreit (§ 3 Nr. 2 GrEStG), zwischen Ehegatten und Verwandten in gerader Linie auch ein entgeltlicher Teil (§ 3 Nr. 4 und 6 GrEStG).'];
@@ -78,7 +78,7 @@ function erbTabelle(r){
       +z('Wert des Anteils',wzEur(e.wert))+(e.kapitalwert>0?z('− '+(r.vorbehalt==='niessbrauch'?'Nießbrauch':'Wohnrecht'),wzEur(e.kapitalwert)):'')
       +(e.familienheimFrei>0?z('steuerfrei (Familienheim)',wzP(e.familienheimFrei*100,0)):'')+(e.vermietet13d?z('steuerfrei (§ 13d)','10 %'):'')
       +z('Bereicherung',wzEur(e.bereicherung))+z('Freibetrag'+(e.schenker>1?' (2 × '+wzEur(e.freibetrag)+')':''),wzEur(fb))
-      +z('steuerpflichtig'+(saetze?' ('+saetze+')':''),wzEur(pflichtig))+z('Steuer',wzEur(e.steuer),'wz-summe')+'</div>';
+      +z('steuerpflichtig'+(saetze?' ('+saetze+')':''),wzEur(pflichtig))+(e.teile.some(t=>t.mindestGreift)?z('Mindeststeuer (§ 14 Abs. 1 Satz 4)','greift'):'')+z('Steuer',wzEur(e.steuer),'wz-summe')+'</div>';
   }).join('')+'<div class="subtotal"><span>Steuer zusammen</span><span>'+wzEur(r.steuer)+'</span></div>';
 }
 function erbRechnen(S){
@@ -131,7 +131,7 @@ function erbDokument(S){
         r.recht?[(r.vorbehalt==='niessbrauch'?'Nießbrauch':'Wohnrecht')+': Jahreswert × Vervielfältiger',wzEur(r.recht.jahreswert)+' × '+wzZ(r.recht.vervielfaeltiger,3)+' = '+wzEur(r.recht.kapitalwert)]:null])
       +'<h2>Steuer je Empfänger</h2>'+teil+'<p><b>Steuer zusammen: '+wzEur(r.steuer)+'</b></p>'+vgl
       +'<h2>Hinweise</h2><ul>'+erbHinweise(S).map(h=>'<li>'+h+'</li>').join('')+'</ul>',
-    fuss:'Orientierungsrechnung nach ErbStG und BewG, keine Steuerberatung.'};
+    fuss:'Orientierungsrechnung mit den gesetzlichen Tarifen (ErbStG, BewG) zur Vorbereitung des Gesprächs mit Steuerberatung und Notar; keine Hilfeleistung in Steuersachen.'};
 }
 function erbAusBewertung(S){
   let R=wzBewertung(); S.wert=String(Math.round(R.empfehlung));

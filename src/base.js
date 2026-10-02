@@ -420,7 +420,7 @@ PLAUSI_REGELN.push(
    m:()=>{ let d=rlDaten(), w=num('ek_wohnflaeche'); return 'Wohnfläche ('+num2(w)+' m²) weicht um '+num2(Math.abs(w-d.wfl)/d.wfl*100)+' % von der Raumliste ('+num2(d.wfl)+' m²) ab.'; }},
   {f:'au_energieklasse', s:'warn', t:()=>{ if(!auAktiv()) return false; let k=num('au_energiewert'), kl=exV('au_energieklasse');
      return k>0&&!!kl&&kl!=='–'&&enKlasseAusKennwert(k)!==kl; },
-   m:()=>'Effizienzklasse '+exV('au_energieklasse')+' passt nicht zum Energiekennwert '+num2(num('au_energiewert'))+' kWh/(m²·a) — das wäre Klasse '+enKlasseAusKennwert(num('au_energiewert'))+' (GEG-Skala).'},
+   m:()=>'Effizienzklasse '+exV('au_energieklasse')+' passt nicht zum Energiekennwert '+num2(num('au_energiewert'))+' kWh/(m²·a) — das wäre Klasse '+enKlasseAusKennwert(num('au_energiewert'))+' (Anlage 10 GModG).'},
   // Keller und Dachgeschoss laut Aufnahmebogen gegen den Gebäudetyp — die NHK-Basiswerte hängen daran
   {f:'ek_typ', s:'warn', t:()=>{ if(!auHaus()) return false; let t=exV('ek_typ'), k=exV('au_keller'); if(!/unterkellert/.test(t)||!k||k==='–') return false;
      let typNicht=/nicht unterkellert/.test(t); return (k==='nicht unterkellert'&&!typNicht)||(k==='voll unterkellert'&&typNicht); },

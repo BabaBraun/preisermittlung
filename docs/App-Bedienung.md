@@ -140,11 +140,16 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   - Ergebnis je Empfänger: Wert, Abzug für den Vorbehalt, Befreiung, Freibetrag, Steuer.
   - Darunter der Vergleich mit dem Erbe in n Jahren (Lebenserwartung oder eigene Angabe, mit Wertsteigerung) — beim Erbe
     vom Letztversterbenden gibt es nur einen Freibetrag je Kind.
-  - Der Vervielfältiger lässt sich aus der BMF-Tabelle eintragen. Orientierung, keine Steuerberatung.
-- **Wohnen im Alter:** Alter (eine oder zwei Personen), Verkehrswert, ortsübliche Miete. Die Karten zeigen fünf Wege:
-  Verkauf mit Wohnrecht, Leibrente, Teilverkauf, Verkaufen und zurückmieten, Behalten. Je Weg steht, was sofort,
-  monatlich, bis zur erwarteten Lebensdauer und für die Erben bleibt. Zins, Wertsteigerung, Entgelte des Teilverkaufs und
-  Abschläge sind Annahmen.
+  - Frühere Schenkungen der letzten 10 Jahre werden zusammengerechnet; die Steuer auf die neue Schenkung allein ist
+    die Untergrenze (Mindeststeuer).
+  - Der Vervielfältiger lässt sich aus der BMF-Tabelle des Jahres eintragen (für 2026: BMF-Schreiben vom 21.10.2025).
+  - Orientierung mit den gesetzlichen Tarifen zur Vorbereitung des Gesprächs mit Steuerberatung und Notar — keine
+    Steuerberatung.
+- **Wohnen im Alter:** Alter (eine oder zwei Personen), Verkehrswert, ortsübliche Miete. Die Karten zeigen sechs Wege:
+  Verkauf mit Wohnrecht, Leibrente, Teilverkauf, Kredit mit Grundschuld über denselben Betrag, Verkaufen und
+  zurückmieten, Behalten. Je Weg steht, was sofort, monatlich, bis zur erwarteten Lebensdauer und für die Erben bleibt.
+  Zins, Wertsteigerung, Entgelte des Teilverkaufs (Vorgabe 5,0 % und 3,5 %, Marktübersichten 2025/26) und Kreditzins sind
+  Annahmen.
 - **Übergabeprotokoll:** „Neues Protokoll“ öffnet das Formular.
   - Erfassen: Art (Verkauf, Vermietung, Rückgabe), Datum, Anschrift, Übergeber und Übernehmer.
   - Zählerstände mit Foto („Foto“ öffnet am Handy die Kamera), Schlüssel, Zustand und Mängel mit Foto, übergebene
@@ -160,18 +165,23 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   - Provisionssätze (Halbteilung, § 656c BGB) und Abschlusswahrscheinlichkeiten je Phase sind änderbar.
 - **Grundstückspotenzial:** Grundstück, GFZ (oder Geschoss-/Wohnfläche), Verkaufspreis Neubau, Baukosten und Annahmen. Das
   Ergebnis ist der tragbare Grundstückspreis eines Bauträgers heute, je m² und gegen Bodenrichtwert und Verkauf des
-  Bestands, dazu die Spanne bei ±10 % Preis und Kosten.
+  Bestands, dazu die Spanne bei ±10 % Preis und Kosten. Eine Verhandlungsgrundlage (Bauträgerkalkulation), kein
+  Bodenwert nach der ImmoWertV.
 - **ETW-Kaufcheck:** Wohnfläche, Miteigentumsanteil, Rücklage und Zuführung der Gemeinschaft, Heizung, Beschlüsse und
   Risiken, zwölf Unterlagen zum Abhaken. Ergebnis: Ampel, Anteile der Wohnung, Vergleich mit der Peters'schen Formel und
-  Heizung nach GEG § 72.
+  Erneuerungsbedarf der Heizung. Seit dem Gebäudemodernisierungsgesetz (29.07.2026) gibt es keine Austauschpflicht für alte
+  Kessel mehr; neue Öl- und Gasheizungen brauchen ab 2029 steigende Anteile klimafreundlicher Brennstoffe (§ 43 GModG).
 - **Mieterhöhung:** drei Rechnungen.
   - Anpassung an die Vergleichsmiete: Kappungsgrenze, Fristen und Hinweis, wenn es zu früh ist.
   - Modernisierungsumlage: 8 %, Erhaltung, Fördermittel, vereinfachtes Verfahren, Kappung.
   - Neuvermietung mit Mietpreisbremse.
-- **Wertmonitor:** Jede gesicherte Bewertung wird zum damaligen Stichtag und zu heute gerechnet — mit aktuellem
-  Baupreisindex, höherem Gebäudealter und neuem Bodenrichtwert, falls eingetragen. Ab der eingestellten Schwelle legt
-  „Wiedervorlage“ eine Aufgabe an, einzeln oder für alle auf einmal. Bei Wohnungen die Vergleichspreise in der Bewertung
-  aktualisieren.
+- **Wertmonitor:** Oben die Preisindexreihe des Marktes eintragen — Jahreswerte aus dem Grundstücksmarktbericht des
+  Gutachterausschusses oder dem Häuserpreisindex, getrennt für Häuser und Wohnungen.
+  - Jede gesicherte Bewertung wird damit auf heute fortgeschrieben: Wert × Index heute / Index im Jahr des Stichtags.
+  - Daneben steht zur Information die Rechnung nach Baupreisindex, Gebäudealter und neuem Bodenrichtwert. Der
+    Baupreisindex misst Baukosten, nicht Kaufpreise.
+  - Ab der eingestellten Schwelle legt „Wiedervorlage“ eine Aufgabe an, einzeln oder für alle.
+  - Werbende Anrufe und E-Mails nur mit Einwilligung (§ 7 UWG) — die Einwilligung im Bankverfahren prüfen.
 
 ## Liegenschaften
 

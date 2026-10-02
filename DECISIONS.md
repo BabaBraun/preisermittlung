@@ -995,7 +995,7 @@ Grundstück, Bodenrichtwert, Miteigentumsanteil).
 - **ETW-Kaufcheck:**
   - Peters'sche Formel (Herstellungskosten × 1,5 / 80 × Anteil Gemeinschaftseigentum).
   - Rücklage und Zuführung nach Miteigentumsanteil.
-  - GEG § 72: Betriebsverbot für Konstanttemperaturkessel vor 1991 bzw. älter als 30 Jahre; fossile Kessel bis 2044.
+  - ~~GEG § 72: Betriebsverbot für Konstanttemperaturkessel vor 1991 bzw. älter als 30 Jahre; fossile Kessel bis 2044.~~ Überholt: seit 29.07.2026 GModG, siehe Nachtrag.
   - Sonderumlage, geplante Maßnahmen, Rechtsstreit, Rückstände und auslaufender Verwaltervertrag als Ampel; zwölf Unterlagen.
 - **Mein Jahr:**
   - Liest den Vermarktungsstand der gesicherten Projekte.
@@ -1022,3 +1022,61 @@ Grundstück, Bodenrichtwert, Miteigentumsanteil).
 - Verwaltervertrag gegen das echte Tagesdatum geprüft.
 - Echte Minuszeichen.
 - Lange Kachelnamen trennen am iPhone an der Wortfuge (weiche Trennstelle) statt abgeschnitten zu werden.
+
+**Nachtrag: Prüfung der Kacheln gegen die Quellen (2026-10-02, Wunsch des Auftraggebers).** Jede Rechtsgrundlage am
+Wortlaut auf gesetze-im-internet.de geprüft, dazu BMF, Verbraucherzentrale und VDI 2067.
+
+Gefunden und korrigiert:
+- **Heizung (ETW-Kaufcheck):** Seit 29.07.2026 gilt das Gebäudemodernisierungsgesetz (GModG) statt des GEG. Die §§ 71–73
+  (65-%-Regel, Austauschpflicht für alte Kessel) sind weggefallen. Die Prüfung nannte noch ein „Betriebsverbot nach § 72
+  GEG“ — falsch.
+  - Jetzt: keine gesetzliche Austauschpflicht. Erneuerungsbedarf ab 20 Jahren (rechnerische Nutzungsdauer von Öl- und
+    Gaskesseln nach VDI 2067: 18–20 Jahre).
+  - Neu eingebaute Öl- und Gasheizungen müssen ab 2029 steigende Anteile klimafreundlicher Brennstoffe nutzen (§ 43 GModG:
+    10 %, 2030 15 %, 2035 30 %, 2040 60 %). Die Versorger sollen bis 2045 vollständig auf klimaneutrale Brennstoffe
+    umstellen (§ 42a).
+  - Die Kesselart ist entfallen.
+  - Ebenso angepasst: Hinweis zu § 559e BGB (verweist jetzt auf § 43 GModG) und die Effizienzklassen-Prüfung im
+    Aufnahmebogen (Anlage 10 GModG; Grenzen unverändert).
+- **Erbschaftsteuer:** Die Mindeststeuer nach § 14 Abs. 1 Satz 4 ErbStG fehlte. Die Steuer auf den letzten Erwerb allein,
+  mit vollem Freibetrag, darf durch den Abzug der Steuer auf frühere Erwerbe nicht unterschritten werden. Ergänzt, mit
+  Handrechnung im Test.
+- **Wertmonitor:** Die Fortschreibung beruhte auf dem Baupreisindex. Das ist ein Kostenindex: Die Werte stiegen mit den
+  Baukosten, auch wenn die Kaufpreise fallen — als Gesprächsanlass irreführend.
+  - Jetzt rechnet er vorrangig mit einer Preisindexreihe des Marktes (§ 9 Abs. 1, § 18 ImmoWertV): Jahreswerte aus dem
+    Grundstücksmarktbericht oder dem Häuserpreisindex, getrennt für Häuser und Wohnungen.
+  - Die Rechnung nach Baukosten und Alter steht nur noch zur Information daneben.
+  - Neu ist der Hinweis zur Kundenansprache: werbende Anrufe bei Verbrauchern nur mit vorheriger ausdrücklicher
+    Einwilligung, E-Mails nach § 7 Abs. 2 und 3 UWG. Dazu die Rechtsgrundlage aus der Kundenakte und der Hinweis im Text
+    der Wiedervorlage.
+- **Wohnen im Alter:**
+  - Die Teilverkaufs-Vorgaben lagen unter dem Markt. Jetzt Nutzungsentgelt 5,0 % (Marktübersichten 2025/26: etwa
+    4,75–5,75 %) und Entgelt beim Verkauf 3,5 % (üblich 3–6 %).
+  - Neu ist der Weg „Kredit mit Grundschuld über denselben Betrag“ — die Verbraucherzentrale weist darauf hin, dass ein
+    Darlehen günstiger sein kann. Der Weg zeigt den Vergleich mit dem Bankprodukt (Beispiel: 225.000 € → Teilverkauf
+    938 € im Monat, Erben 258.689 €; Kredit zu 3,5 % 656 € im Monat, Erben 331.320 €).
+  - Der Ertragsanteil der Leibrente ist mit Fundstelle genannt.
+- **Grundstückspotenzial:** Die Kachel ist keine Bodenwertermittlung nach § 40 Abs. 3 ImmoWertV. Deduktiv darf der
+  Bodenwert nur ermittelt werden, wenn Vergleichspreise und Bodenrichtwert fehlen, und dann mit Marktanpassung. Die Kachel
+  heißt jetzt Bauträgerkalkulation, als Verhandlungsgrundlage.
+- **Übergeben & Vererben:**
+  - Das Finanzamt rechnet für Stichtage 2026 mit der BMF-Tabelle vom 21.10.2025 (Sterbetafel 2022/2024); die App rechnet
+    nach demselben Verfahren mit der neueren Tafel 2023/2025. Den Tabellenwert trägt man ein; die Tabelle gibt es nur
+    als PDF.
+  - Der Hinweis zur Grenze der Beratung ist klarer: geschäftsmäßige Hilfe in Steuersachen ist Steuerberatern vorbehalten
+    (§ 5 StBerG). Die Kachel ist eine Orientierung mit den gesetzlichen Tarifen zur Vorbereitung des Gesprächs mit
+    Steuerberatung und Notar.
+
+Bestätigt: Freibeträge, Steuerklassen, Steuersätze und Härteausgleich (§§ 15, 16, 19 ErbStG), § 13 Abs. 1 Nr. 4a–4c,
+§ 13d, § 14 Abs. 3 ErbStG, §§ 14, 16 BewG, § 3 GrEStG, §§ 558, 558b, 559, 559b, 559c, 556d BGB (Verordnungen höchstens bis
+31.12.2029), § 656c mit § 656b BGB, Peters'sche Formel, § 22 EStG (Ertragsanteil).
+
+Nutzen für Bank und Beratung (Einschätzung):
+- **Hoch:** Übergabeprotokoll, ETW-Kaufcheck (auch für die Baufinanzierung), Wertmonitor (Bestandskunden),
+  Übergeben & Vererben und Wohnen im Alter (Generationenberatung, Gesprächsanlass für Finanzierung und Vermittlung).
+- **Mittel:** Grundstückspotenzial.
+- **Fraglich:**
+  - Mein Jahr — doppelt zur Vertriebssteuerung der Bank und nur so gut wie die Vermarktungsstände in der App.
+  - Mieterhöhung — Rechtsberatung für Vermieter liegt außerhalb der Kernaufgabe. Als Nebenleistung ist das nur in engen
+    Grenzen erlaubt (§ 5 RDG); für gewerbliche Mietverträge (z. B. Bank- und Lagergebäude) gilt § 558 nicht.
+  - Die Entscheidung über beide liegt beim Auftraggeber.

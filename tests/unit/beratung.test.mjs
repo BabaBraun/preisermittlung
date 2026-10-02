@@ -81,6 +81,11 @@ test('Vorerwerbe der letzten 10 Jahre, 50-%-Grenze (§ 14 ErbStG) und Kleinbetra
   // Klasse III: 6.000.000 vor (5.980.000 × 30 % = 1.794.000), jetzt 100.000: 1.860.000 − 1.794.000 = 66.000 → höchstens 50.000
   const k = B.erwerbSteuer(100000, 6000000, 0, 3, 20000);
   assert.equal(k.steuerGesamt, 1860000); assert.equal(k.abzugVorerwerb, 1794000); assert.equal(k.steuer, 50000); assert.equal(k.kappung, true);
+  // Mindeststeuer § 14 Abs. 1 Satz 4: Ehegatte, jetzt 650.000, vorher 1.000.000 mit 210.000 € gezahlter Steuer
+  // 1.650.000 − 500.000 = 1.150.000 × 19 % = 218.500 − 210.000 = 8.500 < 150.000 × 11 % = 16.500 (letzter Erwerb allein)
+  const m = B.erwerbSteuer(650000, 1000000, 210000, 1, 500000);
+  assert.equal(m.steuerGesamt, 218500); assert.equal(m.mindeststeuer, 16500); assert.equal(m.steuer, 16500); assert.equal(m.mindestGreift, true);
+  assert.equal(B.erwerbSteuer(400000, 300000, 0, 1, 400000).mindestGreift, false);
   const klein = B.erwerbSteuer(20100, 0, 0, 3, 20000);   // 100 € × 30 % = 30 €
   assert.equal(klein.steuer, 0); assert.equal(klein.kleinbetrag, true);
 });
@@ -107,7 +112,7 @@ test('Leibrente: nah am Faktor des Rechenkerns (Woolhouse), Garantiezeit erhöht
 
 test('Wohnen im Alter: Einmalzahlung = Wert − Wohnrecht, Rente aus derselben Summe, Erben nach Wertsteigerung', () => {
   const o = { wert: 500000, miete: 1000, personen: [{ alter: 75, g: 'w' }], zins: 3, abschlag: 0, garantie: 0, teilAnteil: 50, teilEntgelt: 5, teilGebuehr: 3,
-    rueckKosten: 0, wertsteigerung: 2 };
+    kreditZins: 3.5, rueckKosten: 0, wertsteigerung: 2 };
   const r = B.verrentung(o);
   nahe(assert, r.wohnrecht, 12000 * r.fLeben, 1e-6, 'Wohnrecht');
   nahe(assert, r.auszahlung, 500000 - r.wohnrecht, 1e-6, 'Einmalzahlung');
@@ -117,6 +122,11 @@ test('Wohnen im Alter: Einmalzahlung = Wert − Wohnrecht, Rente aus derselben S
   nahe(assert, teil.erben, 0.5 * r.wertEnde - 0.03 * r.wertEnde, 1e-6, 'Erben beim Teilverkauf');
   nahe(assert, r.wege.find(w => w.id === 'behalten').erben, 500000 * Math.pow(1.02, r.n), 1e-6, 'Behalten');
   assert.equal(r.wege.find(w => w.id === 'rueck').monatlich, -1000, 'Rückmiete = ortsübliche Miete, wenn nichts eingetragen');
+  // Kredit mit Grundschuld über denselben Betrag wie der Teilverkauf: 250.000 × 3,5 % / 12
+  const kredit = r.wege.find(w => w.id === 'kredit');
+  assert.equal(kredit.sofort, 250000); nahe(assert, kredit.monatlich, -250000 * 0.035 / 12, 1e-9, 'Zinsen im Monat');
+  nahe(assert, kredit.erben, r.wertEnde - 250000, 1e-6, 'Erben: Wert minus Kredit');
+  assert.ok(kredit.erben > teil.erben, 'bei 2 % Wertsteigerung bleibt den Erben mit dem Kredit mehr als beim Teilverkauf');
 });
 
 test('Mieterhöhung § 558 BGB: Vergleichsmiete, Kappungsgrenze, Fristen § 558b', () => {
@@ -161,15 +171,18 @@ test('Grundstückspotenzial: Residualwert nach Handrechnung', () => {
   assert.ok(s.preisPlus > s.basis && s.preisMinus < s.basis && s.kostenPlus < s.basis);
 });
 
-test('ETW-Kaufcheck: Peters\'sche Formel, MEA-Anteile, GEG § 72', () => {
+test('ETW-Kaufcheck: Peters\'sche Formel, MEA-Anteile, Heizung nach GModG (keine Austauschpflicht mehr)', () => {
   nahe(assert, B.petersRuecklage(3000, 0.7), 39.375, 1e-9, '3.000 × 1,5 / 80 × 70 %');
   const r = B.etwCheck({ wohnflaeche: 80, mea: 85, meaGesamt: 1000, ruecklageGesamt: 200000, zufuehrungGesamt: 30000, herstellM2: 3000, anteilGE: 70 }, 2026);
   nahe(assert, r.ruecklage, 17000, 1e-9, 'Rücklage anteilig'); nahe(assert, r.rueckM2, 212.5, 1e-9, '€/m²'); nahe(assert, r.zuM2, 31.875, 1e-9, 'Zuführung');
   assert.equal(r.gesamt, 'gelb', '81 % der Peters-Zuführung');
-  assert.equal(B.heizungPruefen({ heizArt: 'gas', heizBaujahr: 1994, kessel: 'konstant' }, 2026).stufe, 'rot', '32 Jahre, Konstanttemperatur');
-  assert.equal(B.heizungPruefen({ heizArt: 'gas', heizBaujahr: 1994, kessel: 'nt' }, 2026).stufe, 'warn', 'Brennwert: kein Verbot, Erneuerung absehbar');
-  assert.equal(B.heizungPruefen({ heizArt: 'gas', heizBaujahr: 2015, kessel: 'nt' }, 2026).stufe, 'ok');
-  assert.equal(B.heizungPruefen({ heizArt: 'waermepumpe', heizBaujahr: 1990 }, 2026).stufe, 'ok');
+  const alt = B.heizungPruefen({ heizArt: 'gas', heizBaujahr: 1994 }, 2026);   // 32 Jahre
+  assert.equal(alt.stufe, 'warn', 'seit dem GModG kein Betriebsverbot mehr — nur Erneuerungsbedarf');
+  assert.match(alt.text, /VDI 2067/); assert.match(alt.text, /§ 43 GModG/); assert.doesNotMatch(alt.text, /GEG|Betriebsverbot nach/);
+  assert.equal(B.heizungPruefen({ heizArt: 'gas', heizBaujahr: 2015 }, 2026).stufe, 'ok');
+  assert.equal(B.heizungPruefen({ heizArt: 'waermepumpe', heizBaujahr: 2004 }, 2026).stufe, 'warn', 'auch Wärmepumpen haben eine Nutzungsdauer');
+  assert.doesNotMatch(B.heizungPruefen({ heizArt: 'waermepumpe', heizBaujahr: 2004 }, 2026).text, /§ 43/);
+  assert.equal(B.heizungPruefen({ heizArt: '' }, 2026).stufe, '');
   assert.equal(B.etwCheck({ wohnflaeche: 80, mea: 85, meaGesamt: 1000, rechtsstreit: true }, 2026).gesamt, 'rot');
   const v = B.etwCheck({ wohnflaeche: 80, verwalterBis: '2027-03-31', heute: '2026-10-02' }, 2026);
   assert.ok(v.flags.some(f => /Verwaltervertrag endet am 31.3.2027/.test(f.text)), 'Verwaltervertrag endet in weniger als 12 Monaten');

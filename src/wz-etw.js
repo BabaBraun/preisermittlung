@@ -1,6 +1,6 @@
 /* ---------- Kachel „ETW-Kaufcheck“ (D38) ----------
    Für Käufer und Finanzierung einer Eigentumswohnung: Erhaltungsrücklage und Zuführung nach Miteigentumsanteil, Vergleich
-   mit der Peters'schen Formel, Heizung nach GEG § 72, Beschlüsse und Risiken, Unterlagen — als Ampel.
+   mit der Peters'schen Formel, Erneuerungsbedarf der Heizung (GModG, VDI 2067), Beschlüsse und Risiken, Unterlagen — als Ampel.
    Rechnung in js/beratung.js (ImmoBeratung.etwCheck). */
 function etwStart(){
   return {wohnflaeche:'',mea:'',meaGesamt:'1000',ruecklageGesamt:'',zufuehrungGesamt:'',hausgeld:'',herstellM2:'',anteilGE:'70',baujahr:'',einheiten:'',
@@ -9,7 +9,7 @@ function etwStart(){
 }
 function etwEingabe(S){
   return {wohnflaeche:wzN(S.wohnflaeche,true),mea:wzN(S.mea),meaGesamt:wzN(S.meaGesamt,true),ruecklageGesamt:wzN(S.ruecklageGesamt,true),zufuehrungGesamt:wzN(S.zufuehrungGesamt,true),
-    hausgeld:wzN(S.hausgeld,true),herstellM2:wzN(S.herstellM2,true),anteilGE:wzN(S.anteilGE),heizArt:S.heizArt,heizBaujahr:wzN(S.heizBaujahr),kessel:S.kessel,
+    hausgeld:wzN(S.hausgeld,true),herstellM2:wzN(S.herstellM2,true),anteilGE:wzN(S.anteilGE),heizArt:S.heizArt,heizBaujahr:wzN(S.heizBaujahr),
     sonderumlage:wzN(S.sonderumlage,true),massnahmenKosten:wzN(S.massnahmenKosten,true),rechtsstreit:!!S.rechtsstreit,rueckstaende:!!S.rueckstaende,verwalterBis:S.verwalterBis,
     unterlagen:(S.unterlagen||[]).map(Boolean)};
 }
@@ -23,7 +23,7 @@ function etwZeichnen(S){
       +wzFeld('herstellM2','Herstellungskosten heute',{typ:'betrag',einheit:'€/m² Wohnfläche',hinweis:'für die Peters\'sche Formel (Neubaukosten)'})
       +wzFeld('anteilGE','Anteil Gemeinschaftseigentum',{typ:'prozent',einheit:'% (Peters: 65–70)'})+'</div>')
     +wzBox('Heizung','<div class="grid">'+wzFeld('heizArt','Heizungsart',{typ:'wahl',optionen:[['','– bitte wählen'],['gas','Gas'],['oel','Öl'],['fernwaerme','Fernwärme'],['waermepumpe','Wärmepumpe'],['pellets','Pellets / Holz'],['sonstige','Sonstige']]})
-      +wzFeld('heizBaujahr','Baujahr des Kessels',{typ:'zahl'})+wzFeld('kessel','Kesselart',{typ:'wahl',optionen:[['','unbekannt'],['konstant','Konstanttemperaturkessel'],['nt','Niedertemperatur- oder Brennwertkessel']]})+'</div>')
+      +wzFeld('heizBaujahr','Baujahr der Heizung',{typ:'zahl'})+'</div>')
     +wzBox('Beschlüsse und Risiken','<div class="grid">'+wzFeld('sonderumlage','Beschlossene Sonderumlage (gesamt)',{typ:'betrag',einheit:'€'})
       +wzFeld('massnahmenKosten','Geplante Maßnahmen (gesamt)',{typ:'betrag',einheit:'€'})+wzFeld('massnahmenText','Welche Maßnahmen?',{typ:'text',ph:'z. B. Dach, Fassade, Heizung'})
       +wzFeld('verwalterBis','Verwaltervertrag bis',{typ:'datum'})+wzFeld('rechtsstreit','Laufender Rechtsstreit in der Gemeinschaft',{typ:'check',voll:true})
@@ -37,7 +37,7 @@ function etwZeichnen(S){
 }
 function etwHinweise(){
   return ['Peters\'sche Formel: Herstellungskosten je m² × 1,5 ÷ 80 Jahre, davon der Anteil des Gemeinschaftseigentums — eine von mehreren Orientierungen für die jährliche Zuführung zur Rücklage.',
-    'GEG § 72: Öl- und Gaskessel, die vor 1991 eingebaut wurden oder älter als 30 Jahre sind, dürfen nicht mehr betrieben werden (ausgenommen Niedertemperatur- und Brennwertkessel); ab 2045 keine fossilen Kessel mehr. Neue Heizungen müssen grundsätzlich 65 % erneuerbare Energie nutzen (§ 71 GEG).',
+    'Heizung: Seit 29.07.2026 gilt das Gebäudemodernisierungsgesetz (GModG) statt des GEG — die Austauschpflicht für alte Kessel und die 65-%-Regel sind entfallen. Neue Öl- und Gasheizungen müssen ab 2029 steigende Anteile klimafreundlicher Brennstoffe nutzen (§ 43 GModG: 10 %, 2030 15 %, 2035 30 %, 2040 60 %). Rechnerische Nutzungsdauer von Öl- und Gaskesseln: 18–20 Jahre (VDI 2067).',
     'Protokolle der letzten drei Jahre und die Beschlusssammlung zeigen geplante Maßnahmen, Streit und Rückstände — sie gehören vor jeder Kaufentscheidung auf den Tisch.',
     'Orientierung für Käufer und Finanzierung, keine Rechtsberatung.'];
 }

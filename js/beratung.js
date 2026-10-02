@@ -1,12 +1,13 @@
 /* ImmoApp — Rechnungen der Beratungswerkzeuge (ohne DOM, in Node testbar), D38
-   Jede Rechnung nennt ihre Quelle. Gesetzesstand: ErbStG, BewG, BGB, GEG wie unten angegeben; Annahmen (z. B. Zinsen,
+   Jede Rechnung nennt ihre Quelle. Gesetzesstand Oktober 2026: ErbStG, BewG, BGB, GModG (seit 29.07.2026 statt GEG),
+   ImmoWertV, am Wortlaut auf gesetze-im-internet.de geprüft; Annahmen (z. B. Zinsen,
    Wagnis und Gewinn) sind Eingaben und werden in der Oberfläche als Annahme gekennzeichnet.
    - Übergeben & Vererben: ErbStG §§ 10, 13, 13d, 14, 15, 16, 19, 22; BewG §§ 14, 16
-   - Wohnen im Alter: Barwert von Leibrenten nach Sterbetafel (Statistisches Bundesamt), monatlich vorschüssig,
+   - Wohnen im Alter: Barwert von Leibrenten nach Sterbetafel (Statistisches Bundesamt), monatlich vorschüssig, Kredit mit Grundschuld,
      Gleichverteilung der Sterbefälle im Jahr; zwei Personen: Rente bis zum Tod des Letztversterbenden
    - Mieterhöhung: BGB §§ 556d–556f, 558, 558b, 559, 559a, 559b, 559c
-   - Grundstückspotenzial: deduktive Bodenwertermittlung (Residualwert), § 40 Abs. 3 ImmoWertV
-   - ETW-Kaufcheck: Peters'sche Formel (Instandhaltung), GEG § 72 (Betriebsverbot alter Heizkessel)
+   - Grundstückspotenzial: Bauträgerkalkulation (Residualwert); als Bodenwert nur deduktiv nach § 40 Abs. 3 ImmoWertV
+   - ETW-Kaufcheck: Peters'sche Formel (Instandhaltung), Heizung nach GModG §§ 42a, 43 und VDI 2067 (Nutzungsdauer)
    - Mein Jahr: Provision bei Halbteilung, § 656c BGB */
 (function(wurzel){
 'use strict';
@@ -86,17 +87,20 @@ function familienheimFrei(art,verh,selbstnutzung,wohnflaeche){
   return {frei:0,pflichtig:1,norm:''};
 }
 /* Ein Erwerb von einer Person: Zusammenrechnung mit Vorerwerben der letzten 10 Jahre (§ 14 ErbStG), Freibetrag (§ 16),
-   Steuer (§ 19), Abzug der Steuer auf die Vorerwerbe (fiktiv oder tatsächlich, die höhere), höchstens 50 % des
-   Erwerbs (§ 14 Abs. 3), Kleinbetrag bis 50 € (§ 22) */
+   Steuer (§ 19), Abzug der Steuer auf die Vorerwerbe (fiktiv oder tatsächlich, die höhere; § 14 Abs. 1 Sätze 2 und 3),
+   mindestens die Steuer auf den letzten Erwerb allein mit vollem Freibetrag (§ 14 Abs. 1 Satz 4), höchstens 50 % des
+   Erwerbs (§ 14 Abs. 3), Kleinbetrag bis 50 € (§ 22). Bei der fiktiven Steuer zählt nur der verbrauchte Freibetrag. */
 function erwerbSteuer(bereicherung,vorerwerb,vorsteuer,klasse,freibetrag){
   const b=pos(bereicherung), vor=pos(vorerwerb);
   const gesamt=b+vor, nachFb=Math.max(0,gesamt-freibetrag), st=erbstSteuer(nachFb,klasse);
   const vorFiktiv=erbstSteuer(Math.max(0,vor-freibetrag),klasse).steuer, abzug=Math.max(vorFiktiv,pos(vorsteuer));
-  let steuer=Math.max(0,st.steuer-abzug), kappung=false, klein=false;
+  let steuer=Math.max(0,st.steuer-abzug), kappung=false, klein=false, mindestGreift=false;
+  const mindest=vor>0?erbstSteuer(Math.max(0,b-freibetrag),klasse).steuer:0;
+  if(vor>0&&steuer<mindest){ steuer=mindest; mindestGreift=true; }
   if(steuer>0.5*b){ steuer=Math.floor(0.5*b); kappung=true; }
   if(steuer>0&&steuer<=50){ steuer=0; klein=true; }
   return {bereicherung:b,vorerwerb:vor,gesamt,freibetrag,freibetragGenutzt:Math.min(gesamt,freibetrag),steuerpflichtig:st.erwerb,satz:st.satz,
-    steuerGesamt:st.steuer,abzugVorerwerb:abzug,steuer,haerteausgleich:st.haerteausgleich,kappung,kleinbetrag:klein};
+    steuerGesamt:st.steuer,abzugVorerwerb:abzug,mindeststeuer:mindest,mindestGreift,steuer,haerteausgleich:st.haerteausgleich,kappung,kleinbetrag:klein};
 }
 /* Übertragung einer Immobilie (Schenkung heute oder Erbe):
    e={art:'schenkung'|'erbe', wert, uebertragAnteil, zweiSchenker, nutzung:'familienheim'|'vermietet'|'sonstig', wohnflaeche,
@@ -155,7 +159,7 @@ function lebenserwartung(personen,tafel){
   return e;
 }
 /* Vergleich der Wege für Eigentümer im Alter (Modellrechnung, keine Angebote von Anbietern):
-   o={wert, miete, personen, zins, abschlag, garantie, teilAnteil, teilEntgelt, teilGebuehr, rueckMiete, rueckKosten, wertsteigerung} */
+   o={wert, miete, personen, zins, abschlag, garantie, teilAnteil, teilEntgelt, teilGebuehr, kreditZins, rueckMiete, rueckKosten, wertsteigerung} */
 function verrentung(o,tafel){
   const wert=pos(o.wert), miete=pos(o.miete), zins=pos(o.zins), g=zahl(o.wertsteigerung)/100;
   const n=lebenserwartung(o.personen,tafel), fLeben=rentenfaktor(o.personen,zins,0,tafel), fGarantie=rentenfaktor(o.personen,zins,o.garantie,tafel);
@@ -164,6 +168,7 @@ function verrentung(o,tafel){
   const auszahlung=Math.max(0,wert*(1-anteil(o.abschlag))-wohnrecht);
   const rente=fGarantie>0?auszahlung/(12*fGarantie):0;
   const ta=anteil(o.teilAnteil), teilBetrag=wert*ta, entgelt=teilBetrag*anteil(o.teilEntgelt)/12;
+  const kreditZins=o.kreditZins==null||o.kreditZins===''?0:pos(o.kreditZins), kreditMonat=teilBetrag*kreditZins/100/12;
   const rueckErloes=wert*(1-anteil(o.rueckKosten)), rueckMiete=o.rueckMiete===''||o.rueckMiete==null?miete:pos(o.rueckMiete);
   const rueckRente=fLeben>0?rueckErloes/(12*fLeben):0;
   const wege=[
@@ -171,6 +176,8 @@ function verrentung(o,tafel){
     {id:'rente',name:'Verkauf gegen Leibrente mit Wohnrecht',sofort:0,monatlich:rente,summe:rente*12*n,erben:0,wohnen:'Wohnrecht, mietfrei'},
     {id:'teil',name:'Teilverkauf ('+Math.round(ta*100)+' %)',sofort:teilBetrag,monatlich:-entgelt,summe:teilBetrag-entgelt*12*n,
       erben:Math.max(0,(1-ta)*wertEnde-anteil(o.teilGebuehr)*wertEnde),wohnen:'Nießbrauch, Nutzungsentgelt'},
+    {id:'kredit',name:'Kredit mit Grundschuld über denselben Betrag',sofort:teilBetrag,monatlich:-kreditMonat,summe:teilBetrag-kreditMonat*12*n,
+      erben:Math.max(0,wertEnde-teilBetrag),wohnen:'Eigentum bleibt'},
     {id:'rueck',name:'Verkaufen und zurückmieten',sofort:rueckErloes,monatlich:-rueckMiete,summe:rueckErloes-rueckMiete*12*n,erben:0,wohnen:'Mietvertrag',
       monatlichVerrentet:rueckRente-rueckMiete},
     {id:'behalten',name:'Behalten und vererben',sofort:0,monatlich:0,summe:0,erben:wertEnde,wohnen:'Eigentum'}
@@ -253,18 +260,20 @@ function residualSpanne(o){
 /* Peters'sche Formel: jährliche Instandhaltung je m² Wohnfläche = Herstellungskosten je m² × 1,5 / 80 Jahre, davon der
    Anteil des Gemeinschaftseigentums (Peters: 65–70 %) */
 function petersRuecklage(herstellM2,anteilGE){ return pos(herstellM2)*1.5/80*anteil(anteilGE); }
-/* GEG § 72: Heizkessel für flüssige oder gasförmige Brennstoffe, vor 1991 eingebaut oder älter als 30 Jahre, dürfen nicht
-   mehr betrieben werden — ausgenommen Niedertemperatur- und Brennwertkessel (Abs. 3); ab 2045 keine fossilen Kessel (Abs. 4) */
+/* Heizung im ETW-Kaufcheck. Seit 29.07.2026 gilt das Gebäudemodernisierungsgesetz (GModG) statt des GEG: Die Austauschpflicht
+   für alte Kessel und die 65-%-Regel sind weggefallen (§§ 71–73). Wird nach dem 29.07.2026 eine Öl-, Gas- oder Flüssiggasheizung
+   eingebaut, muss sie ab 2029 steigende Anteile klimafreundlicher Brennstoffe nutzen: 10 %, ab 2030 15 %, ab 2035 30 %, ab 2040
+   60 % (§ 43); die Versorger sollen bis 2045 vollständig auf klimaneutrale Brennstoffe umstellen (§ 42a). Geprüft wird deshalb
+   nur der absehbare Erneuerungsbedarf: rechnerische Nutzungsdauer von Öl- und Gaskesseln 18 bis 20 Jahre (VDI 2067). */
 function heizungPruefen(o,jahr){
-  const art=o.heizArt||'', bj=zahl(o.heizBaujahr), kessel=o.kessel||'', j=jahr||new Date().getFullYear();
+  const art=o.heizArt||'', bj=zahl(o.heizBaujahr), j=jahr||new Date().getFullYear();
+  if(!art) return {stufe:'',text:''};
   const fossil=['gas','oel'].includes(art);
-  if(!fossil) return {stufe:art?'ok':'',text:art?'Keine Austauschpflicht nach § 72 GEG für diese Heizungsart.':''};
-  if(!(bj>0)) return {stufe:'warn',text:'Baujahr des Heizkessels erfragen — § 72 GEG verbietet alte Konstanttemperaturkessel.'};
+  if(!(bj>0)) return {stufe:'warn',text:'Baujahr der Heizung erfragen — davon hängt ab, wann die Gemeinschaft erneuern muss.'};
   const alter=j-bj;
-  if(kessel==='konstant'&&(bj<1991||alter>=30)) return {stufe:'rot',text:'Konstanttemperaturkessel von '+bj+': Betriebsverbot nach § 72 GEG — Austausch steht an (Kosten für die Gemeinschaft).'};
-  if(kessel!=='konstant'&&kessel!=='nt'&&(bj<1991||alter>=30)) return {stufe:'warn',text:'Kessel von '+bj+': Ist es ein Niedertemperatur- oder Brennwertkessel? Sonst Betriebsverbot nach § 72 GEG.'};
-  if(alter>=20) return {stufe:'warn',text:'Heizung von '+bj+' ('+alter+' Jahre): Erneuerung absehbar; eine neue Heizung muss nach § 71 GEG grundsätzlich 65 % erneuerbare Energie nutzen.'};
-  return {stufe:'ok',text:'Heizung von '+bj+': derzeit keine Austauschpflicht; fossile Kessel nur bis Ende 2044 (§ 72 Abs. 4 GEG).'};
+  if(alter>=20) return {stufe:'warn',text:'Heizung von '+bj+' ('+alter+' Jahre): rechnerische Nutzungsdauer (VDI 2067: 18–20 Jahre) erreicht — Erneuerung absehbar, Kosten für die Gemeinschaft'
+    +(fossil?'; eine neue Öl- oder Gasheizung muss ab 2029 steigende Anteile klimafreundlicher Brennstoffe nutzen (§ 43 GModG).':'.')+' Eine gesetzliche Austauschpflicht besteht seit dem GModG nicht mehr.'};
+  return {stufe:'ok',text:'Heizung von '+bj+' ('+alter+' Jahre): keine gesetzliche Austauschpflicht.'+(fossil?' Öl und Gas können durch die Quote für klimafreundliche Brennstoffe (§ 42a GModG) teurer werden.':'')};
 }
 const ETW_UNTERLAGEN=['Grundbuchauszug','Teilungserklärung mit Gemeinschaftsordnung','Aufteilungsplan','Protokolle der Eigentümerversammlungen (3 Jahre)',
   'Beschlusssammlung','Wirtschaftsplan','Jahresabrechnung (Hausgeld)','Stand der Erhaltungsrücklage','Energieausweis','Verwaltervertrag','Wohnflächenberechnung','Mietvertrag (falls vermietet)'];

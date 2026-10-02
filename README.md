@@ -154,9 +154,11 @@ Geräteverschlüsselung des Betriebssystems.
 - Der PDF-Download ist ein Bild-PDF (Text nicht durchsuchbar); für das Bewertungsdokument ist die
   Druckansicht („Als PDF sichern“) mit echtem Text vorzuziehen.
 - Keine Synchronisation zwischen Geräten, kein Server (D2).
-- Beratung & Werkzeuge: Orientierungsrechnungen, keine Steuer-, Rechts- oder Anlageberatung. Der Vervielfältiger für
-  Nießbrauch und Wohnrecht wird nach § 14 BewG aus der Sterbetafel berechnet; das Finanzamt nimmt die BMF-Tabelle des
-  Bewertungsjahres (Wert eintragbar, ROADMAP #64).
+- Beratung & Werkzeuge: Orientierungsrechnungen, keine Steuer-, Rechts- oder Anlageberatung. Rechtsstand Oktober 2026,
+  am Wortlaut geprüft (u. a. Gebäudemodernisierungsgesetz statt GEG seit 29.07.2026). Der Vervielfältiger für Nießbrauch
+  und Wohnrecht wird nach § 14 BewG aus der Sterbetafel berechnet; das Finanzamt nimmt die BMF-Tabelle des
+  Bewertungsjahres (Wert eintragbar, ROADMAP #64). Der Wertmonitor braucht für eine marktgerechte Fortschreibung eine
+  Preisindexreihe (Gutachterausschuss oder Häuserpreisindex).
 - Liegenschaften: rechnerische Preiseinschätzung nach dem Vordruck der Bank, kein Verkehrswertgutachten; der
   Baupreisindex zum Stichtag ist vierteljährlich nachzutragen (ROADMAP #50).
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim

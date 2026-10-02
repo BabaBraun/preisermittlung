@@ -1,6 +1,6 @@
 /* ---------- Kachel „Grundstückspotenzial“ (D38) ----------
-   Großes Grundstück oder altes Haus: Was kann ein Bauträger für das Grundstück zahlen? Residualwert (deduktive
-   Bodenwertermittlung, § 40 Abs. 3 ImmoWertV) gegen Bodenrichtwert und gegen den Verkauf des Bestands.
+   Großes Grundstück oder altes Haus: Was kann ein Bauträger für das Grundstück zahlen? Bauträgerkalkulation (Residualwert)
+   gegen Bodenrichtwert und gegen den Verkauf des Bestands — Verhandlungsgrundlage, kein Bodenwert nach ImmoWertV.
    Rechnung in js/beratung.js (ImmoBeratung.residualwert); alle Marktannahmen sind Eingaben. */
 function gsStart(){
   return {grundstueck:'',bodenrichtwert:'',gfz:'',geschossflaeche:'',wfFaktor:'75',wohnflaeche:'',verkaufM2:'',stellplaetze:'0',stellplatzPreis:'',
@@ -38,7 +38,8 @@ function gsZeichnen(S){
     +'</div></div>';
 }
 function gsHinweise(){
-  return ['Deduktive Bodenwertermittlung (Residualwert, § 40 Abs. 3 ImmoWertV): Erlös abzüglich aller Kosten, der Finanzierung sowie Wagnis und Gewinn des Bauträgers ergibt, was er für das Grundstück zahlen kann.',
+  return ['Bauträgerkalkulation (Residualwert): Erlös abzüglich aller Kosten, der Finanzierung sowie Wagnis und Gewinn des Bauträgers ergibt, was er für das Grundstück zahlen kann — eine Verhandlungsgrundlage.',
+    'Den Verkehrswert des Bodens bestimmt die ImmoWertV vorrangig aus Vergleichspreisen und Bodenrichtwert (§ 40 Abs. 1 und 2); deduktiv nur, wenn diese fehlen, und dann mit Marktanpassung (§ 40 Abs. 3).',
     'Das Ergebnis reagiert stark auf Verkaufspreis und Baukosten (siehe Spanne) — für Gespräche als Bandbreite nennen.',
     'Baurecht vorher klären: Bebauungsplan oder Einfügen in die Umgebung (§ 34 BauGB), Abstandsflächen, Stellplatzpflicht. Wohnfläche je Geschossfläche, Zinsen sowie Wagnis und Gewinn sind Annahmen.',
     'Orientierung für das Gespräch mit Eigentümer und Bauträger, kein Verkehrswertgutachten.'];
