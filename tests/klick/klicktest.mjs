@@ -242,7 +242,7 @@ async function musterdaten() {
 /* Bewertung mit Musterfall: alle Felder auf Vorgabe, Objektart wählen, Fall eintragen, alles aufklappen */
 const bewertung = (id, felder) => async () => {
   await page.evaluate(({ id, felder }) => {
-    const aus = '#mdb_overlay,#suche,#gr_overlay,#fin_overlay,#auf_overlay,#projekt_overlay,#lock_setup_overlay,#dsgvo_overlay,#st_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#lv_overlay';
+    const aus = '#mdb_overlay,#suche,#gr_overlay,#fin_overlay,#auf_overlay,#projekt_overlay,#lock_setup_overlay,#dsgvo_overlay,#st_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#lv_overlay,#wz_overlay';
     document.querySelectorAll('input[id],select[id],textarea[id]').forEach(e => { if (e.closest(aus) || e.type === 'file') return;
       if (e.type === 'checkbox' || e.type === 'radio') e.checked = e.defaultChecked;
       else if (e.tagName === 'SELECT') { const o = [...e.options].find(x => x.defaultSelected); e.value = o ? o.value : (e.options[0] ? e.options[0].value : ''); }
@@ -287,6 +287,17 @@ const BEREICHE = [
   { name: 'Liegenschaften – Ansprechpartner', wurzel: '#lv_overlay', auf: js(async () => { await lvOeffnen('ansprechpartner'); }) },
   { name: 'Liegenschaften – Datensicherung', wurzel: '#lv_overlay', auf: js(async () => { await lvOeffnen('sicherung'); }) },
   { name: 'Liegenschaften – Dokument', wurzel: '#report', auf: js(async () => { await lvOeffnen('uebersicht'); await jbDokAnsehen('L_test', 'BW_a'); }) },
+  // Beratung & Werkzeuge (D38)
+  { name: 'Werkzeug – Übergeben & Vererben', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('erbe')) },
+  { name: 'Werkzeug – Wohnen im Alter', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('rente')) },
+  { name: 'Werkzeug – Übergabeprotokolle', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('uebergabe'); await ubLaden(); UB.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Übergabeprotokoll', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('uebergabe'); await ubLaden(); if (!UB.liste.length) ubNeu(); else ubOeffnenProtokoll(UB.liste[0].id); }) },
+  { name: 'Werkzeug – Mein Jahr', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('jahr')) },
+  { name: 'Werkzeug – Grundstückspotenzial', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('grundstueck')) },
+  { name: 'Werkzeug – ETW-Kaufcheck', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('etw')) },
+  { name: 'Werkzeug – Mieterhöhung', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('miete')) },
+  { name: 'Werkzeug – Wertmonitor', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('wertmonitor')) },
+  { name: 'Werkzeug – Dokument', wurzel: '#report', auf: js(async () => { wzOeffnen('miete'); Object.assign(wzZustand('miete'), { wohnflaeche: '70', miete: '560', vergleichM2: '9' }); await wzDokument(); }) },
   { name: 'Datenschutz', wurzel: '#dsgvo_overlay', auf: js(() => dsgvoOeffnen()) },
   // „Einrichten“ braucht Face ID/Touch ID — mit simuliertem Authenticator geprüft in tests/e2e/sonderablaeufe.spec.mjs
   { name: 'App-Sperre', wurzel: '#lock_setup_overlay', auf: js(() => lockSetupOeffnen()), nicht: /einrichten|aktivieren|Face ID|Touch ID|Gerätecode/i, nichtGrund: 'braucht Face ID / Touch ID — eigener Test (sonderablaeufe.spec.mjs)' },

@@ -10,7 +10,7 @@
    Warten lesen können; die Fotos eines Projekts werden erst beim Öffnen geholt. Ohne IndexedDB (manche
    privaten Fenster) arbeitet die App wie bisher mit dem localStorage, meldet volle Speicher aber sichtbar. */
 const PJ_KEY='vb_projekte';
-const IA_DB_NAME='ia_bewertungen', IA_DB_VER=2;   // 2: Kundenakte
+const IA_DB_NAME='ia_bewertungen', IA_DB_VER=3;   // 2: Kundenakte, 3: Übergabeprotokolle (D38)
 var IA_DB=null, IA_DB_BEREIT=false, IA_BEREIT_P=Promise.resolve(false);
 var PJ_CACHE=[];                 // {id,name,objekt,datum,empf,voll,geaendert,nFotos,data:{fields,signature,grundrisse}}
 var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der Datenbank
@@ -19,7 +19,7 @@ var SPEICHER_FEHLER={};
 
 /* Mechanik in js/speicher.js (ImmoSpeicher); hier nur die Datenbank der Bewertungen */
 function iaDbOeffnen(){
-  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'}},t=>speicherFehler('db',t));
+  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'},protokolle:{keyPath:'id'}},t=>speicherFehler('db',t));
 }
 /* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist.
    Bei einem Fehler wird sie abgebrochen — kein halb geschriebener Stand. */
@@ -176,11 +176,13 @@ async function projektLoeschen(id){
    verloren geht oder die App vom Home-Bildschirm gelöscht wird */
 async function pjAlleSichern(teilen){
   await IA_BEREIT_P;
-  let liste, kunden=[];
-  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT) kunden=await iaAlle('kunden'); }
+  let liste, kunden=[], protokolle=[];
+  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT){ kunden=await iaAlle('kunden'); protokolle=await iaAlle('protokolle'); } }
   catch(e){ alert('Die Daten konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
-  if(!liste.length&&!kunden.length){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
-  let datei={typ:'immoapp-projekte',version:2,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste,kunden:kunden,aufgaben:aufLoad(),parameter:pqSets()};
+  let werkzeuge=typeof wzAlle==='function'?wzAlle():null; if(werkzeuge&&!Object.keys(werkzeuge).length) werkzeuge=null;
+  if(!liste.length&&!kunden.length&&!protokolle.length&&!werkzeuge){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
+  let datei={typ:'immoapp-projekte',version:2,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste,kunden:kunden,aufgaben:aufLoad(),parameter:pqSets(),
+    protokolle:protokolle,werkzeuge:werkzeuge||{}};
   let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), name='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
   if(teilen){ if(['abgebrochen','fehlgeschlagen'].includes(await iaTeilen(b,name,'ImmoApp-Sicherung'))) return; }
   else {let result=await iaHerunterladen(b,name);if(result==='abgebrochen'||result==='fehlgeschlagen')return;}
@@ -195,7 +197,7 @@ function pjSicherungEinspielen(){
 async function pjSicherungAusText(text){
       let jl=ImmoDaten.jsonLesen(text); if(!jl.ok){ alert(jl.fehler+'\nEs wurde nichts verändert.'); return; }
       let sp=ImmoDaten.projektSicherungPruefen(jl.wert); if(!sp.ok){ alert(sp.fehler+'\nEs wurde nichts verändert.'); return; }
-      let o={parameter:sp.parameter}, liste=sp.projekte, kunden=sp.kunden, aufgaben=sp.aufgaben;
+      let o={parameter:sp.parameter}, liste=sp.projekte, kunden=sp.kunden, aufgaben=sp.aufgaben, protokolle=sp.protokolle||[], werkzeuge=sp.werkzeuge;
       if(!confirm(liste.length+' Projekte'+(kunden.length?', '+kunden.length+' Kunden':'')+(aufgaben.length?' und '+aufgaben.length+' Wiedervorlagen':'')+' aus der Sicherung übernehmen?\nGibt es einen Eintrag schon, bleibt die neuere Fassung erhalten.'+(sp.verworfen?'\n'+sp.verworfen+' unlesbare Einträge werden übersprungen.':''))) return;
       await IA_BEREIT_P;
       let bestand=pjLoad(), neu=[], n={neu:0,ersetzt:0,gleich:0};
@@ -208,14 +210,20 @@ async function pjSicherungAusText(text){
         let kdNeu=kunden.filter(k=>{ let da=KD_CACHE.find(x=>x.id===k.id); return !da||(k.geaendert||0)>(da.geaendert||0); });
         if(kdNeu.length){ try{ await iaTx('kunden','readwrite',s=>{ kdNeu.forEach(k=>s.put(k)); }); KD_CACHE=await iaAlle('kunden'); }catch(e){ alert('Die Kunden konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
         n.kunden=kdNeu.length;
+        // Übergabeprotokolle (D38): neuere Fassung gewinnt
+        if(protokolle.length){ try{ let da=await iaAlle('protokolle'), neuP=protokolle.filter(p=>{ let x=da.find(y=>y.id===p.id); return !x||(p.geaendert||0)>(x.geaendert||0); });
+          if(neuP.length) await iaTx('protokolle','readwrite',s=>{ neuP.forEach(p=>s.put(p)); }); n.protokolle=neuP.length; if(typeof UB!=='undefined') UB.liste=null; }
+          catch(e){ alert('Die Übergabeprotokolle konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
       } else {
         let l=bestand.filter(x=>!neu.some(p=>p.id===x.id)).concat(neu); if(!pjStore(l)) return;
       }
       if(aufgaben.length){ let alt=aufLoad(), ids=new Set(alt.map(a=>a.id)); let dazu=aufgaben.filter(a=>!ids.has(a.id)); if(dazu.length&&aufStore(alt.concat(dazu))){ n.aufgaben=dazu.length; aufBadge(); } }
+      if(werkzeuge&&typeof wzEinspielen==='function') n.werkzeuge=wzEinspielen(werkzeuge);
       if(o&&Array.isArray(o.parameter)){ let l=pqSets(), ids=new Set(l.map(x=>x.id)), dazu=o.parameter.filter(x=>x&&x.id&&!ids.has(x.id)); if(dazu.length) pqSpeichern(l.concat(dazu)); }
       renderProjekte(); speicherStatus(); kdAnzeige();
       alert('Sicherung eingespielt. Projekte: '+n.neu+' neu, '+n.ersetzt+' durch neuere Fassung ersetzt, '+n.gleich+' unverändert.'
-        +(n.kunden!=null?'\nKunden: '+n.kunden+' neu oder aktualisiert.':'')+(n.aufgaben?'\nWiedervorlagen: '+n.aufgaben+' neu.':''));
+        +(n.kunden!=null?'\nKunden: '+n.kunden+' neu oder aktualisiert.':'')+(n.aufgaben?'\nWiedervorlagen: '+n.aufgaben+' neu.':'')
+        +(n.protokolle?'\nÜbergabeprotokolle: '+n.protokolle+' neu oder aktualisiert.':'')+(n.werkzeuge?'\nWerkzeuge: Eingaben ergänzt.':''));
 }
 /* Erinnerung auf der Startseite, wenn die Projekte länger nicht gesichert wurden */
 async function pjSicherungsHinweis(){

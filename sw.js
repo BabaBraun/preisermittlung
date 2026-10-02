@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-8320edfcecbb';
+const CACHE = 'immoapp-adad93b0a2f3';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -12,12 +12,14 @@ const ASSETS = [
   './assets/fonts/ibm-plex-sans-latin-600-normal.woff2',
   './assets/fonts/ibm-plex-serif-latin-600-normal.woff2',
   './assets/liegenschaften.css',
+  './assets/werkzeuge.css',
   './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512-maskable.png',
   './icons/icon-512.png',
   './index.html',
   './js/baupreisindex.js',
+  './js/beratung.js',
   './js/daten.js',
   './js/jahresbewertung-dok.js',
   './js/jahresbewertung-editor.js',
@@ -65,6 +67,15 @@ const ASSETS = [
   './src/sensitivity.js',
   './src/ui.js',
   './src/valuation.js',
+  './src/werkzeuge.js',
+  './src/wz-erbe.js',
+  './src/wz-etw.js',
+  './src/wz-grundstueck.js',
+  './src/wz-jahr.js',
+  './src/wz-miete.js',
+  './src/wz-rente.js',
+  './src/wz-uebergabe.js',
+  './src/wz-wertmonitor.js',
   './vendor/html2pdf.bundle.min.js'
 ];
 // Fehlende Dateien dürfen keine unvollständige neue Version aktivieren. Frisch vom Server laden (cache: 'reload'):

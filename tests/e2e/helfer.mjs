@@ -23,7 +23,7 @@ export async function arbeitsflaeche(page) {
 /* Alle Eingaben auf die Vorgabewerte des Formulars zurücksetzen (wie der Selbsttest), dann Fall anwenden. */
 export async function fallAnwenden(page, fall) {
   await page.evaluate(({ felder, vordruck }) => {
-    const ausnahmen = '#mdb_overlay,#suche,#gr_overlay,#fin_overlay,#auf_overlay,#projekt_overlay,#lock_setup_overlay,#dsgvo_overlay,#st_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#lv_overlay';
+    const ausnahmen = '#mdb_overlay,#suche,#gr_overlay,#fin_overlay,#auf_overlay,#projekt_overlay,#lock_setup_overlay,#dsgvo_overlay,#st_overlay,#kd_overlay,#pq_overlay,#vm_overlay,#lv_overlay,#wz_overlay';
     document.querySelectorAll('input[id],select[id],textarea[id]').forEach(e => {
       if (e.closest(ausnahmen) || e.type === 'file') return;
       if (e.type === 'checkbox' || e.type === 'radio') e.checked = e.defaultChecked;

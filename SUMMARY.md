@@ -1,3 +1,12 @@
+# Zusammenfassung — Beratung & Werkzeuge: acht neue Kacheln (2026-10-02)
+
+Neue Kacheln auf der Startseite und unter „Mehr“: Übergeben & Vererben (Schenkung oder Erbe mit Nießbrauch, Freibeträgen,
+Vergleich), Wohnen im Alter (Einmalzahlung, Leibrente, Teilverkauf, Rückmiete), Übergabeprotokoll (Zähler, Schlüssel,
+Mängel mit Fotos, Unterschriften auf dem Gerät), Mein Jahr (Aufträge, Provision, Ziel, Herkunft), Grundstückspotenzial
+(Residualwert), ETW-Kaufcheck (Rücklage, Beschlüsse, GEG), Mieterhöhung (§§ 558, 559, 556d BGB) und Wertmonitor
+(gesicherte Bewertungen fortschreiben, Wiedervorlagen). Rechnungen mit Quelle in js/beratung.js, Dokument zu jedem
+Werkzeug, Notiz in der Kundenakte, Teil der Gesamtsicherung; die Bewertung selbst bleibt unverändert (D38).
+
 # Zusammenfassung — Foto an der Feststellung, fehlende Bauteile, Prüfhinweise, Vergleichswert im Beleihungswert (2026-10-02)
 
 Feststellungen im Aufnahmebogen mit Foto, im Bericht beieinander; Bauteile mit „fehlt“ zählen mit Kostenanteil 0 (wie

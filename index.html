@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="assets/fonts.css">
 <link rel="stylesheet" href="assets/app-shell.css">
 <link rel="stylesheet" href="assets/liegenschaften.css">
+<link rel="stylesheet" href="assets/werkzeuge.css">
 </head>
 <body>
 <div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:radial-gradient(120% 80% at 50% 0%,#16284A 0%,#0B1422 60%);color:#E6EEF9;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
@@ -79,6 +80,51 @@
           <span class="qi" data-ic="building"></span>
           <div class="t">Liegenschaften</div>
           <div class="d">Liegenschaften der Bank: Preiseinschätzung je Stichtag nach dem Vordruck, fortschreiben, als Dokument und Excel.</div>
+        </div>
+      </div>
+      <div class="wz-start" id="start_wz">
+        <div class="recent-head"><h2>Beratung &amp; Werkzeuge</h2></div>
+        <div class="quick wz-quick">
+          <div class="tile q" onclick="wzOeffnen('erbe')">
+            <span class="qi" data-ic="gift"></span>
+            <div class="t">Übergeben &amp; Vererben</div>
+            <div class="d">Schenkung oder Erbe, mit Nießbrauch oder Wohnrecht — Freibeträge und Steuer im Vergleich.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('rente')">
+            <span class="qi" data-ic="hourglass"></span>
+            <div class="t">Wohnen im Alter</div>
+            <div class="d">Einmalzahlung, Leibrente, Teilverkauf oder Rückmiete — was bleibt monatlich und für die Erben?</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('uebergabe')">
+            <span class="qi" data-ic="key"></span>
+            <div class="t">Übergabe&shy;protokoll</div>
+            <div class="d">Zählerstände, Schlüssel und Mängel mit Fotos — beide Seiten unterschreiben auf dem Gerät.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('jahr')">
+            <span class="qi" data-ic="target"></span>
+            <div class="t">Mein Jahr</div>
+            <div class="d">Aufträge je Phase, erwartete Provision, Ziel und Herkunft der Aufträge.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('grundstueck')">
+            <span class="qi" data-ic="layers"></span>
+            <div class="t">Grundstücks&shy;potenzial</div>
+            <div class="d">Was kann ein Bauträger zahlen? Residualwert gegen Bodenrichtwert und Bestand.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('etw')">
+            <span class="qi" data-ic="clipboard"></span>
+            <div class="t">ETW-Kaufcheck</div>
+            <div class="d">Rücklage, Beschlüsse, Heizung nach GEG und Unterlagen — als Ampel für Käufer und Finanzierung.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('miete')">
+            <span class="qi" data-ic="trending-up"></span>
+            <div class="t">Mieterhöhung</div>
+            <div class="d">Vergleichsmiete mit Kappungsgrenze, Modernisierungsumlage und Mietpreisbremse — mit Fristen.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('wertmonitor')">
+            <span class="qi" data-ic="activity"></span>
+            <div class="t">Wertmonitor</div>
+            <div class="d">Gesicherte Bewertungen fortschreiben — Wiedervorlage bei deutlicher Wertänderung.</div>
+          </div>
         </div>
       </div>
       <div id="start_auf_block" style="display:none">
@@ -1523,6 +1569,13 @@
       diesem Gerät. Mieter- oder Mitarbeiternamen gehören nicht hinein — Mietzeilen neutral benennen (z. B. „Laden EG“).
       Die Sicherungsdatei ist wie alle Sicherungen <b>nicht verschlüsselt</b>. Löschen: Vordruck oder ganze Liegenschaft direkt
       unter „Liegenschaften“ — mit der Liegenschaft werden auch ihre Bilder gelöscht.</p>
+    <h3>Beratung &amp; Werkzeuge</h3>
+    <p style="font-size:13px;line-height:1.6">Die Rechner (Übergeben &amp; Vererben, Wohnen im Alter, Grundstückspotenzial,
+      ETW-Kaufcheck, Mieterhöhung, Mein Jahr, Wertmonitor) merken sich ihre letzten Eingaben im lokalen Browserspeicher dieses
+      Geräts — Werte, Alter und Verwandtschaftsgrad, aber <b>keine Namen</b>. „Beim Kunden ablegen“ schreibt eine kurze
+      Zusammenfassung als Gesprächsnotiz in die Kundenakte. Das <b>Übergabeprotokoll</b> enthält Namen von Übergeber und
+      Übernehmer, Zählerstände, Fotos und beide Unterschriften; es liegt in der lokalen Datenbank auf diesem Gerät und lässt
+      sich in der Liste der Protokolle einzeln löschen. Rechner und Protokolle sind Teil der Gesamtsicherung (nicht verschlüsselt).</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -1698,6 +1751,18 @@
   </div>
 </div>
 
+<!-- Beratung & Werkzeuge (D38): ein Fenster für alle acht Kacheln, Inhalt aus src/werkzeuge.js und src/wz-*.js -->
+<div id="wz_overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="wz_titel">
+  <div class="mdbwrap">
+    <div class="mdb-head">
+      <h2 id="wz_titel"></h2>
+      <span class="sub" id="wz_sub"></span>
+      <div class="sp" id="wz_aktionen"></div>
+    </div>
+    <div class="mdb-body" id="wz_body"></div>
+  </div>
+</div>
+
 <div id="auf_overlay" class="overlay" onclick="if(event.target===this)aufSchliessen()">
   <div class="modal" style="max-width:720px">
     <h2 style="margin-top:0">Wiedervorlagen</h2>
@@ -1770,6 +1835,7 @@
 <script src="js/modell.js"></script>
 <script src="js/baupreisindex.js"></script>
 <script src="js/kern.js"></script>
+<script src="js/beratung.js"></script>
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/daten.js"></script>
@@ -1811,6 +1877,15 @@
 <script src="js/jahresbewertung-dok.js"></script>
 <script src="js/liegenschaften-vergleich.js"></script>
 <script src="src/aufnahme.js"></script>
+<script src="src/werkzeuge.js"></script>
+<script src="src/wz-erbe.js"></script>
+<script src="src/wz-rente.js"></script>
+<script src="src/wz-uebergabe.js"></script>
+<script src="src/wz-jahr.js"></script>
+<script src="src/wz-grundstueck.js"></script>
+<script src="src/wz-etw.js"></script>
+<script src="src/wz-miete.js"></script>
+<script src="src/wz-wertmonitor.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>

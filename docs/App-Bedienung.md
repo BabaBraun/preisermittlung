@@ -4,10 +4,10 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die acht Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
-- **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Darstellung, Datensicherung, Datenschutz und App-Sperre.
+- **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
 
 ## Neue Bewertung beginnen
 
@@ -122,6 +122,56 @@ Geschäftshäuser; gewerbliche Betriebsgebäude) und „Wert zum Stichtag übern
 Quartalswert des Statistischen Landesamts Baden-Württemberg zum Wertermittlungsstichtag ein, dazu den
 Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle. Liegt der Stichtag nach dem neuesten
 eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus dem Statistischen Bericht selbst eintragen.
+
+## Beratung & Werkzeuge (seit 02.10.2026)
+
+Acht Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
+Fenster. Oben stehen immer dieselben Knöpfe:
+- **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
+- **Beim Kunden ablegen:** schreibt eine kurze Zusammenfassung als Gesprächsnotiz in die Kundenakte.
+- **Dokument:** zeigt eine Zusammenfassung zum Drucken, als PDF, Word oder zum Teilen.
+- **Neu:** setzt alle Eingaben zurück.
+
+Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechner speichern keine Namen.
+
+- **Übergeben & Vererben:** Wert der Immobilie, Nutzung (Familienheim, vermietet, sonstig), Schenkung oder Erbe,
+  Empfänger mit Anteil und früheren Schenkungen der letzten 10 Jahre. Bei der Schenkung „Ehepaar schenkt“ (zwei
+  Freibeträge je Kind) und Vorbehalt von Nießbrauch oder Wohnrecht mit Jahreswert und Alter der Schenkenden.
+  - Ergebnis je Empfänger: Wert, Abzug für den Vorbehalt, Befreiung, Freibetrag, Steuer.
+  - Darunter der Vergleich mit dem Erbe in n Jahren (Lebenserwartung oder eigene Angabe, mit Wertsteigerung) — beim Erbe
+    vom Letztversterbenden gibt es nur einen Freibetrag je Kind.
+  - Der Vervielfältiger lässt sich aus der BMF-Tabelle eintragen. Orientierung, keine Steuerberatung.
+- **Wohnen im Alter:** Alter (eine oder zwei Personen), Verkehrswert, ortsübliche Miete. Die Karten zeigen fünf Wege:
+  Verkauf mit Wohnrecht, Leibrente, Teilverkauf, Verkaufen und zurückmieten, Behalten. Je Weg steht, was sofort,
+  monatlich, bis zur erwarteten Lebensdauer und für die Erben bleibt. Zins, Wertsteigerung, Entgelte des Teilverkaufs und
+  Abschläge sind Annahmen.
+- **Übergabeprotokoll:** „Neues Protokoll“ öffnet das Formular.
+  - Erfassen: Art (Verkauf, Vermietung, Rückgabe), Datum, Anschrift, Übergeber und Übernehmer.
+  - Zählerstände mit Foto („Foto“ öffnet am Handy die Kamera), Schlüssel, Zustand und Mängel mit Foto, übergebene
+    Unterlagen, Bemerkungen.
+  - Unterschreiben: Beide unterschreiben mit Finger oder Stift im jeweiligen Feld. „Abschließen“ sperrt das Protokoll;
+    „Bearbeiten“ entsperrt es wieder und entfernt dabei die Unterschriften. Wer nach einer Unterschrift noch etwas
+    ändert, muss neu unterschreiben lassen.
+  - Ausgeben: „Dokument“ erzeugt das Protokoll mit Fotos und Unterschriften als PDF oder Word.
+  - Die Protokolle liegen in der Datenbank auf dem Gerät und lassen sich in der Liste löschen.
+- **Mein Jahr:** alle gesicherten Bewertungen mit Vermarktungsstand (Abschnitt „Vermarktung“) nach Phase.
+  - Kennzahlen: Provision realisiert, gewichtete Prognose, Ziel und Erreichung.
+  - Je Auftrag Herkunft wählen, bei „Notartermin“/„Verkauft“ Kaufpreis und Datum eintragen.
+  - Provisionssätze (Halbteilung, § 656c BGB) und Abschlusswahrscheinlichkeiten je Phase sind änderbar.
+- **Grundstückspotenzial:** Grundstück, GFZ (oder Geschoss-/Wohnfläche), Verkaufspreis Neubau, Baukosten und Annahmen. Das
+  Ergebnis ist der tragbare Grundstückspreis eines Bauträgers heute, je m² und gegen Bodenrichtwert und Verkauf des
+  Bestands, dazu die Spanne bei ±10 % Preis und Kosten.
+- **ETW-Kaufcheck:** Wohnfläche, Miteigentumsanteil, Rücklage und Zuführung der Gemeinschaft, Heizung, Beschlüsse und
+  Risiken, zwölf Unterlagen zum Abhaken. Ergebnis: Ampel, Anteile der Wohnung, Vergleich mit der Peters'schen Formel und
+  Heizung nach GEG § 72.
+- **Mieterhöhung:** drei Rechnungen.
+  - Anpassung an die Vergleichsmiete: Kappungsgrenze, Fristen und Hinweis, wenn es zu früh ist.
+  - Modernisierungsumlage: 8 %, Erhaltung, Fördermittel, vereinfachtes Verfahren, Kappung.
+  - Neuvermietung mit Mietpreisbremse.
+- **Wertmonitor:** Jede gesicherte Bewertung wird zum damaligen Stichtag und zu heute gerechnet — mit aktuellem
+  Baupreisindex, höherem Gebäudealter und neuem Bodenrichtwert, falls eingetragen. Ab der eingestellten Schwelle legt
+  „Wiedervorlage“ eine Aufgabe an, einzeln oder für alle auf einmal. Bei Wohnungen die Vergleichspreise in der Bewertung
+  aktualisieren.
 
 ## Liegenschaften
 

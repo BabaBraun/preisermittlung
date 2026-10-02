@@ -932,3 +932,93 @@ Bauteile, Prüfhinweise und Vergleichswert im Beleihungswert; Klicktest der Bewe
 einmal nicht innerhalb von 30 s in Gang („Test abgebrochen“). Alle übrigen Bereiche liefen durch, lokal laufen alle
 Liegenschaften-Bereiche ohne Befund. Das war ein Hänger des Testrechners. Der Klicktest lädt bei einem solchen Hänger
 jetzt einmal neu und vermerkt das als Hinweis. Hängt der Start auch beim zweiten Mal, bleibt es ein Befund.
+
+## D38 (2026-10-02) — Beratung & Werkzeuge: acht neue Kacheln
+
+**Auftrag:** Nichts Bestehendes umbauen, sondern Neues schaffen, das zur Immobilienberatung, zu den Liegenschaften und zur
+Bewertung passt — jede Idee in einer eigenen Kachel: Übergeben & Vererben, Wohnen im Alter, Übergabeprotokoll, Mein Jahr,
+Grundstückspotenzial, ETW-Kaufcheck, Mieterhöhung, Wertmonitor.
+
+**Aufbau:** Die Kacheln stehen auf der Startseite unter „Beratung & Werkzeuge“ und im Bereich „Mehr“. Alle öffnen sich in
+einem gemeinsamen Fenster (`#wz_overlay`, `src/werkzeuge.js`); jedes Werkzeug ist eine eigene Datei (`src/wz-*.js`). Die
+Rechnungen stehen ohne Seitenbezug in `js/beratung.js` (`ImmoBeratung`) und sind in Node und gegen eine unabhängige
+Python-Rechnung getestet (`tests/unit/beratung.test.mjs`, `tests/referenz/beratung.py`). Jedes Werkzeug hat „Dokument“:
+Die Zusammenfassung erscheint im Bericht wie das Dokument der Liegenschaft — Drucken, PDF, Word, Teilen. Rechner mit
+Kundenbezug haben „Beim Kunden ablegen“: Eine kurze Zusammenfassung wird Gesprächsnotiz in der Kundenakte (die Akte selbst
+bleibt unverändert). „Aus Bewertung“ übernimmt passende Werte der geöffneten Bewertung (Wert, Wohnfläche, Miete,
+Grundstück, Bodenrichtwert, Miteigentumsanteil).
+
+**Daten und Datenschutz:**
+- Die Rechner merken sich ihre Eingaben im localStorage („ia_wz“) — Werte, Alter, Verwandtschaftsgrad, aber keine Namen.
+- Das Übergabeprotokoll enthält Namen, Fotos und Unterschriften. Es liegt deshalb in der Datenbank auf dem Gerät, im neuen
+  Speicher „protokolle“ (Datenbankversion 3), und lässt sich einzeln löschen.
+- Die Werkzeug-Felder gehören nicht zur Bewertung: `collect()` lässt `#wz_overlay` aus, Eingaben lösen keine Neuberechnung
+  der Bewertung aus.
+- Die Gesamtsicherung enthält Protokolle und Rechner-Eingaben. Beim Einspielen gewinnt das neuere Protokoll; Eingaben auf
+  dem Gerät bleiben, nur Fehlendes wird ergänzt. Schlüssel wie `__proto__` aus fremden Dateien werden übergangen.
+- Die Datenschutzseite beschreibt die neuen Daten.
+
+**Rechenwege und Quellen:**
+- **Übergeben & Vererben:**
+  - ErbStG: Steuerklassen § 15, Freibeträge § 16, Sätze § 19 Abs. 1 mit Härteausgleich § 19 Abs. 3.
+  - Abrundung auf volle 100 € (§ 10 Abs. 1 Satz 6), Zusammenrechnung über 10 Jahre mit Abzug der höheren fiktiven oder
+    gezahlten Steuer und Begrenzung auf 50 % des neuen Erwerbs (§ 14), Kleinbetrag bis 50 € (§ 22).
+  - Familienheim § 13 Abs. 1 Nr. 4a/4b/4c (bei Kindern bis 200 m², Rest anteilig), vermietete Wohnimmobilie 10 % frei (§ 13d).
+  - Lasten nur im Verhältnis des steuerpflichtigen Teils (§ 10 Abs. 6).
+  - Nießbrauch und Wohnrecht: Kapitalwert = Jahreswert × Vervielfältiger. Der Vervielfältiger kommt nach § 14 Abs. 1 BewG
+    aus der Sterbetafel des Statistischen Bundesamts, 5,5 %, als Mittel aus vor- und nachschüssiger Zahlung.
+  - Jahreswert höchstens Wert / 18,6 (§ 16 BewG); bei zwei Berechtigten der höhere Vervielfältiger (§ 14 Abs. 3 BewG).
+  - Das Finanzamt nimmt die BMF-Tabelle des Bewertungsjahres, die auf einer älteren Sterbetafel beruhen kann — deshalb lässt
+    sich der Tabellenwert eintragen.
+  - Zwei Schenkende (Eltern je zur Hälfte) rechnen je Elternteil mit eigenem Freibetrag. Der Vergleich „Erbe später“ rechnet
+    das Erbe vom Letztversterbenden mit einem Freibetrag je Kind — der Unterschied, den die Beratung zeigen soll.
+  - Nicht gerechnet: Versorgungsfreibetrag (§ 17), Grundbesitzwert nach §§ 176 ff. BewG (Verkehrswert als Näherung, Hinweis
+    auf § 198 BewG).
+- **Wohnen im Alter:**
+  - Barwert einer monatlich vorschüssigen Leibrente aus der Sterbetafel, mit Gleichverteilung der Sterbefälle im Jahr; bei
+    zwei Personen bis zum Tod des Letztversterbenden (1 − (1 − p₁)(1 − p₂)). Rentengarantiezeit möglich.
+  - Der Faktor weicht vom Woolhouse-Faktor des Rechenkerns (Nießbrauch) um weniger als 0,01 ab (Test).
+  - Wege: Verkauf mit Wohnrecht (Wert − Barwert des Wohnrechts), Leibrente aus derselben Summe, Teilverkauf mit
+    Nutzungsentgelt und Entgelt beim Verkauf, Verkaufen und zurückmieten (auch verrentet), Behalten.
+  - Zins, Wertsteigerung, Abschläge und Entgelte sind Annahmen.
+- **Mieterhöhung:**
+  - § 558 BGB: Vergleichsmiete, Kappungsgrenze 20 bzw. 15 % auf die Miete vor drei Jahren, 15-Monats- und Jahresfrist.
+  - § 558b: Zustimmung bis Ende des zweiten Kalendermonats, Wirkung ab dem dritten, Klage drei Monate.
+  - § 559: 8 %, Erhaltungsanteil, Drittmittel (§ 559a), vereinfachtes Verfahren bis 10.000 € mit 30 % (§ 559c), Kappung
+    3 bzw. 2 €/m² in sechs Jahren. Wirkung ab dem dritten Monat, ohne Ankündigung sechs Monate später (§ 559b).
+  - Mietpreisbremse § 556d–f.
+  - § 559e (Heizung nach GEG) ist nur als Hinweis genannt.
+- **Grundstückspotenzial:** Residualwert als deduktive Bodenwertermittlung (§ 40 Abs. 3 ImmoWertV). Gerechnet wird Erlös −
+  Bau- und Baunebenkosten − Abriss/Erschließung − Bauzinsen (Hälfte der Kosten über die Bauzeit) − Vermarktung − Wagnis und
+  Gewinn. Daraus folgt der Grundstückspreis ohne Erwerbsnebenkosten und Grundstücksfinanzierung, abgezinst über die
+  Wartezeit. Die Spanne zeigt ±10 % Verkaufspreis und Baukosten. Alle Marktwerte sind Annahmen.
+- **ETW-Kaufcheck:**
+  - Peters'sche Formel (Herstellungskosten × 1,5 / 80 × Anteil Gemeinschaftseigentum).
+  - Rücklage und Zuführung nach Miteigentumsanteil.
+  - GEG § 72: Betriebsverbot für Konstanttemperaturkessel vor 1991 bzw. älter als 30 Jahre; fossile Kessel bis 2044.
+  - Sonderumlage, geplante Maßnahmen, Rechtsstreit, Rückstände und auslaufender Verwaltervertrag als Ampel; zwölf Unterlagen.
+- **Mein Jahr:**
+  - Liest den Vermarktungsstand der gesicherten Projekte.
+  - Provision je Seite bei Halbteilung (§ 656c BGB, Vorgabe 3,57 % inkl. USt), gewichtet mit Abschlusswahrscheinlichkeiten
+    je Phase (eigene Erfahrungswerte, änderbar).
+  - Herkunft, Kaufpreis und Notartermin je Auftrag stehen nur im Werkzeug.
+- **Wertmonitor:**
+  - Rechnet jede gesicherte Bewertung mit dem Rechenkern (`ImmoKern.bewerte`) und den gespeicherten Eingaben zweimal:
+    einmal zum damaligen Stichtag (Ergebnis = Preisempfehlung der Bewertung, Test) und einmal zu heute.
+  - Für heute gelten der amtliche Baupreisindex, das höhere Gebäudealter und, falls eingetragen, ein neuer Bodenrichtwert.
+  - Marktanpassung, Mieten und Vergleichspreise bleiben wie in der Bewertung — keine neue Formel.
+  - Ab einer Schwelle legt er eine Wiedervorlage mit Kunde an. Die Projekte bleiben unverändert.
+
+**Klicktest und Tests:**
+- Zehn neue Bereiche im Klicktest: jedes Werkzeug, die Protokollliste und ein Protokoll, ein Werkzeug-Dokument.
+- Browsertests `tests/e2e/werkzeuge.spec.mjs`: Kacheln, Rechnung je Werkzeug wie `ImmoBeratung`, Kundenakte, Dokument.
+  Übergabeprotokoll mit Foto, Unterschriften, Sperre nach dem Abschließen, Neuladen und Löschen. Wertmonitor gegen die
+  Bewertung, Mein Jahr, Gesamtsicherung hin und zurück.
+
+**Beim Prüfen behoben:**
+- Ergebnisse als Karten statt breiter Tabellen.
+- Feld „Anteil“ verdeckt.
+- Textfelder, die die Ansicht neu aufbauen, verloren beim Tippen den Fokus — jetzt erst beim Verlassen.
+- Verwaltervertrag gegen das echte Tagesdatum geprüft.
+- Echte Minuszeichen.
+- Lange Kachelnamen trennen am iPhone an der Wortfuge (weiche Trennstelle) statt abgeschnitten zu werden.
