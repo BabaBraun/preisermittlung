@@ -394,30 +394,6 @@
         <div class="field"><label>Balkon / Terrasse</label><input id="au_balkon" placeholder="z.B. Balkon Süd 8 m²"></div>
       </div>
 
-      <h3>Grundrisse</h3>
-      <p class="hint">Vorhandene Grundrisse abfotografieren, von Claude digital nachzeichnen lassen und den Code hier
-        einfügen. Die App zeichnet den Plan sauber und maßstabsgetreu und übernimmt die Räume mit der Fläche laut Plan
-        in die Raumliste.</p>
-      <div class="gr-liste" data-gr-liste></div>
-      <div class="gr-aktionen no-print"><button class="plus" onclick="grEinfuegen()">＋ Grundriss einfügen</button>
-        <button class="secondary" onclick="grAnleitung()">Anleitung für Claude</button></div>
-
-      <h3>Raumliste &amp; Wohnfläche nach WoFlV</h3>
-      <p class="hint">Grundfläche je Raum nach lichten Maßen ab Vorderkante der Bekleidung (§ 3 WoFlV), ohne pauschalen
-        Putzabzug. Fläche direkt eintragen oder als Länge × Breite, z.&nbsp;B. <b>4,20 x 3,55</b>. Räume mit Dachschräge in zwei
-        Zeilen teilen: der Teil ab 2&nbsp;m lichter Höhe zählt voll, der Teil zwischen 1 und 2&nbsp;m zur Hälfte. Den Grundriss aus
-        einer Scan-App als Bild unter „Fotodokumentation“ → Karten &amp; Pläne anhängen.</p>
-      <label class="toggle no-print"><input type="checkbox" id="rl_aktiv" onchange="compute()"> Wohnfläche aus der Raumliste übernehmen</label>
-      <p class="hint no-print" id="rl_modus_hint" style="margin-top:-4px"></p>
-      <table class="nhk" id="rl_tbl">
-        <thead><tr><th>Raum</th><th>Geschoss</th><th>Grundfläche</th><th>Anrechnung § 4 WoFlV</th><th>Wohnfläche m²</th></tr></thead>
-        <tbody></tbody>
-        <tfoot><tr class="total"><th colspan="2" style="text-align:right">Summe</th><th id="o_rl_grund">–</th><th></th><th id="o_rl_wfl">–</th></tr></tfoot>
-      </table>
-      <input type="hidden" id="rl_visible" value="5">
-      <datalist id="rl_raeume"></datalist>
-      <button class="plus no-print" onclick="addRLRow()">＋ weiterer Raum</button>
-
       <h3>Technik &amp; Ausstattung</h3>
       <p class="hint">Heizung, Fenster, Energieausweis, Effizienzklasse und Aufzug übernimmt die App in die Objektdaten,
         Energiekennwert und -klasse in die Energetische Qualität, beim Haus den Keller in das Hauptgebäude.</p>
@@ -450,9 +426,11 @@
 
       <h3>Besondere Bauteile <span class="u" style="font-weight:400">(anhaken, was vorhanden ist)</span></h3>
       <div id="au_bauteile" class="grid four"></div>
+      <div class="grid"><div class="field full"><label>Sonstige Bauteile <span class="u">selbst eintragen, mehrere mit Komma</span></label><input id="au_bt_sonst" placeholder="z. B. Batteriespeicher, Brunnen, Sauna im Garten"></div></div>
 
       <h3>Unterlagen <span class="u" style="font-weight:400">(anhaken, was vorliegt)</span></h3>
       <div id="au_unterlagen" class="grid four"></div>
+      <div class="grid au-ul-sonst"><div class="field full"><label>Sonstige Unterlage <span class="u">selbst eintragen; Haken = liegt vor</span></label><div class="au-mod-zeile"><label class="chk"><input type="checkbox" id="au_ul_sonst" aria-label="Sonstige Unterlage liegt vor"> liegt vor</label><input id="au_ul_sonst_txt" placeholder="z. B. Bauabnahmeschein, Statik, Wartungsvertrag Heizung" aria-label="Sonstige Unterlage"></div></div></div>
       <div class="flag" id="o_unterlagen_fehlt"></div>
 
       <h3>Feststellungen vor Ort</h3>
@@ -527,6 +505,7 @@
         <div class="field"><label>GRZ / GFZ</label><input id="od_grz_gfz" placeholder="z.B. 0,35 / 2,0"></div>
         <div class="field"><label>zul. überbaute Fläche <span class="u">m²</span></label><input id="od_ueberbau_zul" type="text" value="0"></div>
         <div class="field"><label>tatsächl. überbaute Fläche <span class="u">m²</span></label><input id="od_ueberbau_ist" type="text" value="0"></div>
+        <div class="field full"><label>Sonstiges <span class="u">z. B. Sanierungsgebiet, Veränderungssperre, Erhaltungssatzung, Umlegung</span></label><textarea id="od_plan_sonst"></textarea></div>
       </div>
 
       <h3>Grundstück &amp; Gebäude (Beschreibung)</h3>
@@ -554,18 +533,13 @@
     <!-- ALLGEMEINE ANGABEN -->
     <section class="card eck" id="s-allg" data-nav="Allgemeine Angaben">
       <h2>Allgemeine Angaben</h2>
-      <p class="hint">Grundstück, Flächen, Baujahr und Mieten — einmal eingetragen, fließen sie automatisch in alle Berechnungen.</p>
-      <div class="grid">
-        <div class="group-title haus-only">Grundstück</div>
+      <p class="hint">Grundstück, Flächen und Baujahr, Grundrisse und Raumliste, Mieten — einmal eingetragen, fließen sie automatisch in alle Berechnungen.</p>
+      <h3 class="haus-only">Grundstück</h3>
+      <div class="grid haus-only">
         <div class="field haus-only"><label>Grundstücksfläche <span class="u">m²</span></label><input id="ek_gs_flaeche" type="text" value="0"></div>
         <div class="field haus-only"><label>Bodenrichtwert <span class="u">€/m² (BORIS-BW)</span></label><input id="ek_brw" type="text" value="0"></div>
         <div class="field haus-only"><label>Abschlag Bodenwert <span class="u">%</span></label><input id="ek_gs_abschlag" type="text" value="0"></div>
         <div class="field haus-only"><label>Flurstück-Nr. / Zone</label><input id="ek_flst" placeholder="Flst. / Zone"></div>
-        <div class="group-title wohnung-only">Wohnung / Gemeinschaft</div>
-        <div class="field wohnung-only"><label>Miteigentumsanteil <span class="u">z.B. 78/1000</span></label><input id="ek_mea"></div>
-        <div class="field wohnung-only"><label>Etage / Lage im Haus</label><input id="ek_etage" placeholder="z.B. 2. OG mit Balkon"></div>
-        <div class="field wohnung-only"><label>Hausgeld <span class="u">€/Monat gesamt</span></label><input id="ek_hausgeld" type="text" value="0"></div>
-        <div class="field wohnung-only"><label>davon nicht umlagefähig <span class="u">€/Monat (Verwaltung, Rücklage)</span></label><input id="ek_hausgeld_nu" type="text" value="0"></div>
       </div>
       <!-- weitere Grundstücksanteile -->
       <div class="xrow3 haus-only" id="xgs_1">
@@ -582,16 +556,50 @@
       </div>
       <button class="plus no-print haus-only" onclick="showNext('xgs',2)">＋ weiterer Grundstücksanteil</button>
 
-      <div class="grid" style="margin-top:14px">
-        <div class="group-title">Flächen &amp; Baujahr</div>
+      <h3 class="wohnung-only">Wohnung / Gemeinschaft</h3>
+      <div class="grid wohnung-only">
+        <div class="field wohnung-only"><label>Miteigentumsanteil <span class="u">z.B. 78/1000</span></label><input id="ek_mea"></div>
+        <div class="field wohnung-only"><label>Etage / Lage im Haus</label><input id="ek_etage" placeholder="z.B. 2. OG mit Balkon"></div>
+        <div class="field wohnung-only"><label>Hausgeld <span class="u">€/Monat gesamt</span></label><input id="ek_hausgeld" type="text" value="0"></div>
+        <div class="field wohnung-only"><label>davon nicht umlagefähig <span class="u">€/Monat (Verwaltung, Rücklage)</span></label><input id="ek_hausgeld_nu" type="text" value="0"></div>
+      </div>
+
+      <h3>Flächen &amp; Baujahr</h3>
+      <div class="grid">
         <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"><span class="feld-info" id="rl_eck_hint"></span></div>
         <div class="field"><label>Gewerbe-/Nutzfläche <span class="u">m²</span></label><input id="ek_nutzflaeche" type="text" value="0"></div>
         <div class="field"><label>Baujahr Hauptgebäude</label><input id="ek_baujahr" type="text" value="0"></div>
         <div class="field"><label>Letzte Sanierung <span class="u">(Jahr, optional)</span></label><input id="ek_sanierung" type="text" placeholder="z.B. 2018"></div>
         <div class="field"><label>Anzahl Wohneinheiten <span class="u">(WE)</span></label><input id="ek_anz_we" type="text" value="1"></div>
         <div class="field"><label>Anzahl Stellplätze <span class="u">(Außen/Garage)</span></label><input id="ek_anz_stell" type="text" value="0"></div>
+      </div>
 
-        <div class="group-title">Erträge (Netto-Kaltmiete je Jahr)</div>
+      <h3>Grundrisse</h3>
+      <p class="hint">Vorhandene Grundrisse abfotografieren, von Claude digital nachzeichnen lassen und den Code hier
+        einfügen. Die App zeichnet den Plan sauber und maßstabsgetreu und übernimmt die Räume mit der Fläche laut Plan
+        in die Raumliste.</p>
+      <div class="gr-liste" data-gr-liste></div>
+      <div class="gr-aktionen no-print"><button class="plus" onclick="grEinfuegen()">＋ Grundriss einfügen</button>
+        <button class="secondary" onclick="grAnleitung()">Anleitung für Claude</button></div>
+
+      <h3>Raumliste &amp; Wohnfläche nach WoFlV</h3>
+      <p class="hint">Grundfläche je Raum nach lichten Maßen ab Vorderkante der Bekleidung (§ 3 WoFlV), ohne pauschalen
+        Putzabzug. Fläche direkt eintragen oder als Länge × Breite, z.&nbsp;B. <b>4,20 x 3,55</b>. Räume mit Dachschräge in zwei
+        Zeilen teilen: der Teil ab 2&nbsp;m lichter Höhe zählt voll, der Teil zwischen 1 und 2&nbsp;m zur Hälfte. Den Grundriss aus
+        einer Scan-App als Bild unter „Fotodokumentation“ → Karten &amp; Pläne anhängen.</p>
+      <label class="toggle no-print"><input type="checkbox" id="rl_aktiv" onchange="compute()"> Wohnfläche aus der Raumliste übernehmen (bleibt oben änderbar)</label>
+      <p class="hint no-print" id="rl_modus_hint" style="margin-top:-4px"></p>
+      <table class="nhk" id="rl_tbl">
+        <thead><tr><th>Raum</th><th>Geschoss</th><th>Grundfläche</th><th>Anrechnung § 4 WoFlV</th><th>Wohnfläche m²</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th colspan="2" style="text-align:right">Summe</th><th id="o_rl_grund">–</th><th></th><th id="o_rl_wfl">–</th></tr></tfoot>
+      </table>
+      <input type="hidden" id="rl_visible" value="5">
+      <datalist id="rl_raeume"></datalist>
+      <button class="plus no-print" onclick="addRLRow()">＋ weiterer Raum</button>
+
+      <h3>Erträge (Netto-Kaltmiete je Jahr)</h3>
+      <div class="grid">
         <div class="field"><label>Miete Wohnen <span class="u">€/Jahr</span></label><input id="ek_miete_wohnen" type="text" value="0"></div>
         <div class="field"><label>Miete Gewerbe <span class="u">€/Jahr</span></label><input id="ek_miete_gewerbe" type="text" value="0"></div>
         <div class="field"><label>Außenstellplätze <span class="u">€/Jahr</span></label><input id="ek_miete_stellplatz" type="text" value="0"></div>

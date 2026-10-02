@@ -80,8 +80,14 @@ function buildUnterlagen(){
     box.insertAdjacentHTML('beforeend',`<label class="chk"><input type="checkbox" id="au_ul${i}"> ${u}</label>`);
   });
 }
+/* alle Unterlagen mit Stand, dazu die selbst eingetragene „Sonstige Unterlage“ (D36) */
+function unterlagenAlle(){
+  let l=AU_UNTERLAGEN.map((u,i)=>({name:u,da:!!($('au_ul'+i)&&$('au_ul'+i).checked)}));
+  let s=(exV('au_ul_sonst_txt')||'').trim(); if(s) l.push({name:s,da:!!($('au_ul_sonst')&&$('au_ul_sonst').checked)});
+  return l;
+}
 function unterlagenStatus(){
   let da=[],fehlt=[];
-  AU_UNTERLAGEN.forEach((u,i)=>{let e=$('au_ul'+i);if(e&&e.checked)da.push(u);else fehlt.push(u);});
+  unterlagenAlle().forEach(u=>{ (u.da?da:fehlt).push(u.name); });
   return {da,fehlt};
 }

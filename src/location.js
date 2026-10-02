@@ -37,13 +37,17 @@ const LAGE_PRUEFUNGEN=[
   {k:'altlasten',name:'Altlasten',dienst:'Landratsamt, Bodenschutz- und Altlastenkataster',ablage:'',url:null,
    tipp:'Auskunft beim Landratsamt; in der Regel mit Zustimmung des Eigentümers.'},
   {k:'baulasten',name:'Baulasten',dienst:'Baurechtsbehörde, Baulastenverzeichnis',ablage:'',url:null,
-   tipp:'Auskunft bei der Baurechtsbehörde der Gemeinde bzw. des Landratsamts.'}
+   tipp:'Auskunft bei der Baurechtsbehörde der Gemeinde bzw. des Landratsamts.'},
+  // eigener Prüfpunkt (D36): Bezeichnung und Quelle selbst eintragen
+  {k:'sonst',name:'Sonstiges',dienst:'eigene Quelle',ablage:'',url:null,eigen:true,
+   tipp:'Eigener Prüfpunkt, z. B. Denkmalliste, Fluglärm, Trinkwasserschutzgebiet — Bezeichnung und Quelle selbst eintragen.'}
 ];
 const LAGE_ERGEBNIS=[['','nicht geprüft'],['ok','unauffällig'],['auff','auffällig'],['na','nicht relevant']];
 function buildLageCheck(){
   let box=$('lage_check'); if(!box) return;
   box.innerHTML=LAGE_PRUEFUNGEN.map(p=>'<div class="lage-zeile" data-k="'+p.k+'">'
-    +'<div class="lage-kopf"><div><b>'+p.name+'</b><span>'+p.dienst+'</span></div>'
+    +'<div class="lage-kopf"><div>'+(p.eigen?'<input id="lg_bez_'+p.k+'" placeholder="Eigener Prüfpunkt" aria-label="Eigener Prüfpunkt: Bezeichnung">'
+       +'<input id="lg_qu_'+p.k+'" placeholder="Quelle, z. B. Landesamt für Denkmalpflege" aria-label="Eigener Prüfpunkt: Quelle">':'<b>'+p.name+'</b><span>'+p.dienst+'</span>')+'</div>'
     +(p.url?'<button type="button" class="secondary no-print" onclick="lageOeffnen(\''+p.k+'\')" data-ic="map">Öffnen</button>':'')+'</div>'
     +'<p class="hint lage-tipp">'+p.tipp+'</p>'
     +'<div class="lage-erg"><select id="lg_st_'+p.k+'" aria-label="'+p.name+': Ergebnis" onchange="lageStatus(\''+p.k+'\')">'+LAGE_ERGEBNIS.map(e=>'<option value="'+e[0]+'">'+e[1]+'</option>').join('')+'</select>'
@@ -71,12 +75,13 @@ function lageOeffnen(k){
   auf();
 }
 function lageBericht(esc){
-  let z=LAGE_PRUEFUNGEN.filter(p=>exV('lg_st_'+p.k)||exV('lg_no_'+p.k));
+  let z=LAGE_PRUEFUNGEN.filter(p=>exV('lg_st_'+p.k)||exV('lg_no_'+p.k)||(p.eigen&&exV('lg_bez_'+p.k)));
+  const nm=p=>p.eigen?(exV('lg_bez_'+p.k)||p.name):p.name, qu=p=>p.eigen?(exV('lg_qu_'+p.k)||''):p.dienst;
   if(!z.length) return '';
   const erg=k=>(LAGE_ERGEBNIS.find(e=>e[0]===exV('lg_st_'+k))||['',''])[1];
   let c=lageKoord();
   return '<h2>Lage-Check</h2><table><tr><td><b>Prüfpunkt</b></td><td><b>Quelle</b></td><td><b>Ergebnis</b></td></tr>'
-    +z.map(p=>'<tr><td>'+esc(p.name)+'</td><td>'+esc(p.dienst)+(exV('lg_dt_'+p.k)?', geprüft am '+new Date(exV('lg_dt_'+p.k)+'T00:00:00').toLocaleDateString('de-DE'):'')+'</td>'
+    +z.map(p=>'<tr><td>'+esc(nm(p))+'</td><td>'+esc(qu(p))+(exV('lg_dt_'+p.k)?(qu(p)?', ':'')+'geprüft am '+new Date(exV('lg_dt_'+p.k)+'T00:00:00').toLocaleDateString('de-DE'):'')+'</td>'
       +'<td>'+esc(erg(p.k))+(exV('lg_no_'+p.k)?' — '+esc(exV('lg_no_'+p.k)):'')+'</td></tr>').join('')+'</table>'
     +(c?'<div class="beschr">Lage des Objekts: UTM 32 (EPSG:25832) '+c.ost+' / '+c.nord+'.</div>':'');
 }

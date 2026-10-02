@@ -226,3 +226,4 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 58 | [x] Liegenschaften: Verlauf über alle Stichtage als Diagramm im historischen Vergleich und im Dokument — erledigt 2026-10-02 (D32) | Vorschlag 7 |
 | 59 | [x] Erste vollständige Klicktest-Läufe: Haken der Exposé-Fotos über dem Bild, ungültiges Datum in der Vermarktung, Fehlalarme des Tests, Listen „ohne Wirkung“ — erledigt 2026-10-02 (D34) | Klicktest |
 | 60 | [x] Gliederung der Bewertung neu (Eckdaten · Aufnahmebogen · Objektdaten · Allgemeine Angaben · Hauptgebäude …), Aufnahmebogen überträgt Standardstufen, Modernisierungen und Technik, § 8 in zwei Listen mit ＋, Schalter je Abschnitt — erledigt 2026-10-02 (D35) | Rückmeldung |
+| 61 | [x] Grundrisse und Raumliste unter „Allgemeine Angaben“ (hinter Flächen & Baujahr), Wohnfläche trotz Raumliste änderbar, „Sonstiges“ in Planungsrecht, Modernisierungen, Bauteilen, Unterlagen und Lage-Check — erledigt 2026-10-02 (D36) | Rückmeldung |

@@ -29,8 +29,8 @@ Alle Abschnitte stehen untereinander, fortlaufend nummeriert 1, 2, 3 … ohne L�
 2. **Aufnahmebogen** — für die Besichtigung (siehe unten), mit dem Datum der Ortsbesichtigung
 3. **Objektdaten & Beschreibung** — Lage (Makro-/Mikrolage), Lage-Check mit amtlichen Karten, Gebäudedaten,
    Grundstück, Grundbuch & Recht, Planungsrecht, Grundstück & Gebäude, Zustand & Bautechnik, Rechtliches & Vermarktung
-4. **Allgemeine Angaben** — Grundstück und Bodenrichtwert (bei der Wohnung Miteigentumsanteil und Hausgeld), Flächen,
-   Baujahr, Mieten
+4. **Allgemeine Angaben** — Grundstück und Bodenrichtwert (bei der Wohnung Miteigentumsanteil und Hausgeld), Flächen
+   und Baujahr, Grundrisse, Raumliste mit Wohnfläche nach WoFlV, Mieten
 5. Hauptgebäude · 6. Anbau / Nebengebäude · 7. Datengrundlagen · 8. Preis nach Substanz · 9. Vergleichswert ·
    10. Preis nach Ertrag · danach wie bisher Nießbrauch … Preisempfehlung … Vermarktung.
 
@@ -62,6 +62,14 @@ Preisempfehlung und Ersteller.
 - Heizung, Fenster, Energieausweis, Effizienzklasse, Aufzug → Objektdaten; Keller → Unterkellerung; Energiekennwert
   und -klasse → Energetische Qualität.
 Übernommene Felder sind in der Bewertung farbig markiert und bleiben änderbar (z. B. Stufe 3,5).
+
+**Wohnfläche und Raumliste:** Mit „Wohnfläche aus der Raumliste übernehmen“ trägt die App die Summe der Raumliste als
+Wohnfläche ein — das Feld bleibt änderbar. Eine eigene Zahl dort gilt und schaltet die Übernahme aus; daneben steht dann
+„Raumliste: … m² · übernehmen“, um sie wieder zu übernehmen.
+
+**Sonstiges selbst eintragen:** im Planungsrecht (z. B. Sanierungsgebiet), bei den Modernisierungen (nur zur
+Dokumentation, ohne Punkte), bei den besonderen Bauteilen, bei den Unterlagen (mit Haken „liegt vor“, auch in der
+Unterlagenliste für den Eigentümer) und im Lage-Check (eigener Prüfpunkt mit Quelle). Alles erscheint im Bericht.
 
 **Besondere objektspezifische Merkmale (§ 8 Abs. 3):** zwei Listen, „Wertmindernd“ (Abschläge) und „Werterhöhend“
 (Zuschläge). Mit „＋ Abschlag“ bzw. „＋ Zuschlag“ eine Position anlegen, das Merkmal aus der Liste wählen oder selbst

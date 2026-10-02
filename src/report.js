@@ -57,7 +57,7 @@ function druckbericht(){
   // Strukturierte Objektdaten (nur befüllte Felder)
   const dl=(label,id,suffix)=>{let e=$(id);let v=e?(''+(e.value||'')).trim():'';if(!v||v==='0'||v==='–')return '';return `<tr><td>${label}</td><td>${esc(v)}${suffix||''}</td></tr>`;};
   let odGrund=[dl('Eigentumsform','od_eigentum'),dl('Entwicklungszustand','od_entwicklung'),dl('Anzahl Flurstücke','od_anz_flst'),dl('Flurstück-Nr(n).','od_flst_nrn'),dl('Grundbuch','od_grundbuch'),dl('Grundbuch-Blatt','od_gb_blatt'),dl('Abt. II','od_abt2'),dl('Abt. III','od_abt3'),dl('Erschließung','od_erschliessung'),dl('Denkmalschutz','od_denkmal'),dl('Baulasten','od_baulasten'),dl('Altlasten','od_altlasten')].join('');
-  let odPlan=[dl('Flächennutzungsplan','od_fnp'),dl('Bebauungsplan','od_bplan'),dl('Art der Nutzung','od_nutzungsart'),dl('GRZ / GFZ','od_grz_gfz'),dl('zul. überbaute Fläche','od_ueberbau_zul',' m²'),dl('tatsächl. überbaute Fläche','od_ueberbau_ist',' m²')].join('');
+  let odPlan=[dl('Flächennutzungsplan','od_fnp'),dl('Bebauungsplan','od_bplan'),dl('Art der Nutzung','od_nutzungsart'),dl('GRZ / GFZ','od_grz_gfz'),dl('zul. überbaute Fläche','od_ueberbau_zul',' m²'),dl('tatsächl. überbaute Fläche','od_ueberbau_ist',' m²'),dl('Sonstiges','od_plan_sonst')].join('');
   let odGeb=[dl('Gebäudeart','od_gebart'),dl('Bauweise','od_bauweise'),dl('Baujahr','ek_baujahr'),dl('Letzte Sanierung','ek_sanierung'),dl('Vollgeschosse','od_geschosse'),dl('Wohneinheiten','ek_anz_we'),dl('Gewerbeeinheiten','od_gewerbe_eh'),dl('Stellplätze','ek_anz_stell'),dl('Aufzug','od_aufzug'),dl('Heizungsart','od_heizung'),dl('Fenster','od_fenster'),dl('Energieausweis','od_energieausweis'),dl('Energieeffizienzklasse','od_effizienz'),dl('Gebäudegrundfläche','od_gebflaeche',' m²'),dl('Wohnfläche','ek_wohnflaeche',' m²')].join('');
   let objektBlock='';
   if(odGrund) objektBlock+='<h2>Grundstück, Grundbuch &amp; Recht</h2><table>'+odGrund+'</table>';
@@ -109,17 +109,23 @@ function druckbericht(){
     dl('Elektro','au_elektro'),dl('Energieausweis','au_energieausweis'),dl('Energiekennwert','au_energiewert',' kWh/(m²·a)'),
     (($('au_lat').value||'').trim()&&($('au_lon').value||'').trim())?L('Standort (GPS)',esc($('au_lat').value)+', '+esc($('au_lon').value)):'',
     dl('Energieeffizienzklasse','au_energieklasse'),dl('Aufzug','au_aufzug'),dl('Barrierefreiheit','au_barriere')].join('');
-  let auBt=aufnahmeBauteileListe();
+  // Aufnahmebogen ausgeschaltet (D35): keine Feststellungen; die Wohnflächenberechnung (Raumliste, jetzt unter
+  // „Allgemeine Angaben“, D36) erscheint dann als eigener Teil
+  let auAus=$('au_aus')&&$('au_aus').checked;
+  let auBt=auAus?[]:aufnahmeBauteileListe(), auMod=auAus?[]:auModBericht();
+  if(auAus) auRows='';
   let auBlock='';
-  if(auRows||auBt.length||($('au_maengel').value||'').trim()||($('au_notizen').value||'').trim()){
+  if(auRows||auBt.length||auMod.length||(!auAus&&(($('au_maengel').value||'').trim()||($('au_notizen').value||'').trim()))){
     auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>';
     if(auRows) auBlock+='<table>'+auRows+'</table>';
     if(auBt.length) auBlock+='<h3>Besondere Bauteile</h3><div class="beschr">'+esc(auBt.join(' · '))+'</div>';
+    if(auMod.length) auBlock+='<h3>Modernisierungen</h3><div class="beschr">'+esc(auMod.join('\n'))+'</div>';
     auBlock+=bt('Mängel / Auffälligkeiten','au_maengel')+bt('Sonstige Notizen','au_notizen');
   }
   let rlBlock=raumlisteBericht(esc);
-  if(rlBlock){ if(!auBlock) auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>'; auBlock+=rlBlock; }
-  let ulSt=unterlagenStatus();
+  if(rlBlock&&auAus) auBlock+=rlBlock.replace('<h3>Wohnflächenberechnung nach WoFlV</h3>','<h2>Wohnflächenberechnung nach WoFlV</h2>');
+  else if(rlBlock){ if(!auBlock) auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>'; auBlock+=rlBlock; }
+  let ulSt=auAus?{da:[],fehlt:[]}:unterlagenStatus();
   if(ulSt.da.length) auBlock+='<h3>Vorliegende Unterlagen</h3><div class="beschr">'+esc(ulSt.da.join(' · '))
     +(ulSt.fehlt.length?'\nNicht vorgelegt: '+esc(ulSt.fehlt.join(' · ')):'')+'</div>';
   let szBlock=(window._SZEN_DATA&&window._SZEN_DATA.length)

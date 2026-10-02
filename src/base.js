@@ -92,10 +92,11 @@ function druckeUnterlagen(){
   let funktion=(($('ek_ersteller_funktion')||{}).value||'').trim();
   let kopf=(($('cfg_kopf')||{}).value||'Immobilien-Preisermittlung').trim();
   let heute=new Date().toLocaleDateString('de-DE');
-  let zeilen=AU_UNTERLAGEN.map((u,i)=>{
-    let da=(($('au_ul'+i)||{}).checked)===true;
+  let alle=unterlagenAlle();
+  let zeilen=alle.map(u=>{
+    let da=u.da;
     return '<div class="ul-pos'+(da?' da':'')+'"><span class="kasten">'+(da?'✓':'')+'</span>'
-      +'<span class="bez">'+esc(u)+'</span>'
+      +'<span class="bez">'+esc(u.name)+'</span>'
       +'<span class="status">'+(da?'liegt vor':'wird benötigt')+'</span></div>';
   }).join('');
   $('report').className=''; delete $('report').dataset.pdfname;
@@ -106,7 +107,7 @@ function druckeUnterlagen(){
    +(adr?'<tr><td>Objekt</td><td>'+esc(adr)+'</td></tr>':'')
    +(ag?'<tr><td>Auftraggeber(in)</td><td>'+esc(ag)+'</td></tr>':'')
    +'<tr><td>Stand</td><td>'+heute+'</td></tr>'
-   +'<tr><td>Vollständigkeit</td><td>'+st.da.length+' von '+AU_UNTERLAGEN.length+' vorhanden</td></tr>'
+   +'<tr><td>Vollständigkeit</td><td>'+st.da.length+' von '+alle.length+' vorhanden</td></tr>'
    +'</table>'
    +'<div class="ul-liste">'+zeilen+'</div>'
    +'<div class="ul-hinweis">Bitte die noch fehlenden Unterlagen zusammenstellen — sie werden für eine belastbare '

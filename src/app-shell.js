@@ -165,7 +165,7 @@ function appAbschnitteKlappbar(){
    Ohne Schalter bleiben Abschnitte, ohne die es keine Bewertung gibt (Eckdaten, Allgemeine Angaben, Hauptgebäude,
    Preisempfehlung, Ersteller). */
 const APP_SCHALTER={
- 's-aufnahme':{aus:'au_aus',text:'Aufnahmebogen verwenden',bericht:['besichtigung']},
+ 's-aufnahme':{aus:'au_aus',text:'Aufnahmebogen verwenden'},   // Bericht: report.js lässt die Feststellungen weg, die Wohnflächenberechnung bleibt (D36)
  's-technik':{aus:'od_aus',text:'Objektdaten und Beschreibung verwenden',bericht:['objektdaten','beschreibung','lagecheck']},
  's-anbau':{feld:'anbau_aktiv'},
  's-grundlagen':{aus:'dg_aus',text:'Datengrundlagen verwenden',bericht:['grundlagen']},

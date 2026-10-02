@@ -8,7 +8,8 @@ function buildAufnahmeBauteile(){
   });
 }
 function aufnahmeBauteileListe(){
-  return AU_BAUTEILE.filter((b,i)=>{let e=$('au_bt'+i);return e&&e.checked;});
+  let sonst=(exV('au_bt_sonst')||'').split(/[,;]/).map(x=>x.trim()).filter(Boolean);   // „Sonstige Bauteile“ (D36)
+  return AU_BAUTEILE.filter((b,i)=>{let e=$('au_bt'+i);return e&&e.checked;}).concat(sonst);
 }
 function druckeAufnahmebogen(){
   document.body.classList.add('print-aufnahme');

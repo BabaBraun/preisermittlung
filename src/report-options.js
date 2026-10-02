@@ -4,7 +4,7 @@
    unangetastet. rp_abschnitte hält die abgewählten Schlüssel als JSON, rp_vorlage den Namen der Vorlage. */
 const RP_ABSCHNITTE=[
   ['Objekt','objektdaten','Objektdaten (Grundbuch, Planungsrecht, Gebäude, Wohnung)',/^(Grundstück, Grundbuch|Planungsrecht|Gebäudedaten|Wohnung \/ Gemeinschaft)/],
-  ['Objekt','besichtigung','Feststellungen der Ortsbesichtigung mit Wohnflächenberechnung',/^Feststellungen der Ortsbesichtigung/],
+  ['Objekt','besichtigung','Feststellungen der Ortsbesichtigung mit Wohnflächenberechnung',/^(Feststellungen der Ortsbesichtigung|Wohnflächenberechnung)/],
   ['Objekt','beschreibung','Objektbeschreibung',/^Objektbeschreibung/],
   ['Objekt','lagecheck','Lage-Check (Hochwasser, Lärm, Bebauungsplan …)',/^Lage-Check/],
   ['Verfahren','grundlagen','Datengrundlagen und Modellkonformität',/^Datengrundlagen/],

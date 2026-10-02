@@ -72,7 +72,12 @@ function buildAufnahmeStandard(){
   let mod=$('au_mod_box');
   if(mod) mod.innerHTML=MOD_ELEMENTS.map(([b,max],i)=>'<div class="field"><label for="au_mod_u'+i+'">'+b+' <span class="u">max. '+max+' Punkte</span></label>'
     +'<div class="au-mod-zeile"><select id="au_mod_u'+i+'">'+AU_MOD_UMFANG.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('')+'</select>'
-    +'<input id="au_mod_j'+i+'" type="text" inputmode="numeric" placeholder="Jahr" aria-label="'+b+': im Jahr"></div></div>').join('');
+    +'<input id="au_mod_j'+i+'" type="text" inputmode="numeric" placeholder="Jahr" aria-label="'+b+': im Jahr"></div></div>').join('')
+    // Sonstige Modernisierung (D36): nur zur Dokumentation — Punkte gibt es nur für die acht Elemente der Anlage 2
+    +'<div class="field full"><label for="au_mod_s_bez">Sonstige Modernisierung <span class="u">ohne Punkte, nur zur Dokumentation</span></label>'
+    +'<div class="au-mod-zeile"><input id="au_mod_s_bez" placeholder="z. B. Balkonsanierung, neue Garagentore" aria-label="Sonstige Modernisierung: was">'
+    +'<select id="au_mod_s_u" aria-label="Sonstige Modernisierung: Umfang">'+AU_MOD_UMFANG.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('')+'</select>'
+    +'<input id="au_mod_s_j" type="text" inputmode="numeric" placeholder="Jahr" aria-label="Sonstige Modernisierung: im Jahr"></div></div>';
 }
 
 /* Freitext aus dem Aufnahmebogen einer Auswahl der Objektdaten zuordnen — nur bei eindeutigem Stichwort */
@@ -121,3 +126,12 @@ document.addEventListener('change',e=>{ let t=e.target; if(t&&t.id&&/^au_/.test(
 /* in der Bewertung von Hand geändert: Markierung „aus dem Aufnahmebogen“ entfernen */
 document.addEventListener('input',e=>{ let t=e.target;
   if(e.isTrusted&&t&&t.classList&&t.classList.contains('aus-aufnahme')){ t.classList.remove('aus-aufnahme'); t.removeAttribute('title'); } },true);
+
+/* Für den Bericht: Modernisierungen laut Aufnahmebogen (Umfang, Jahr), mit der sonstigen Modernisierung (D36) */
+function auModBericht(){
+  const um=u=>(AU_MOD_UMFANG.find(x=>x[0]===u)||['',''])[1];
+  let z=MOD_ELEMENTS.map(([b],i)=>{ let u=exV('au_mod_u'+i), j=exV('au_mod_j'+i); return u?b+': '+um(u)+(j?' ('+j+')':''):''; });
+  let sb=(exV('au_mod_s_bez')||'').trim(), su=exV('au_mod_s_u'), sj=exV('au_mod_s_j');
+  if(sb) z.push('Sonstiges — '+sb+(su?': '+um(su):'')+(sj?' ('+sj+')':''));
+  return z.filter(Boolean);
+}

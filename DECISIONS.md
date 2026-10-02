@@ -834,3 +834,27 @@ auf den Standard des Typs setzt (Einfamilienhaus: nur Substanz); dann verweigert
 auszuschalten, und sagt warum. Ein Haken, der mit Meldung stehen bleibt, gilt jetzt als in Ordnung (Nachprüfung der
 Bewertungsbereiche ohne Befund).
 
+---
+
+## D36 (2026-10-02) — Raumliste und Grundrisse zu den Flächen; Wohnfläche änderbar; „Sonstiges“
+
+**Wunsch des Auftraggebers:** Grundrisse und Raumliste aus dem Aufnahmebogen zu „Flächen & Baujahr“ unter den
+Allgemeinen Angaben; eine schon genannte Wohnfläche wird übernommen, muss aber änderbar bleiben — die Felder sollen
+nicht voneinander abhängen; „Sonstiges“ selbst eintragen können bei Planungsrecht, Modernisierungen, Lage-Check,
+besonderen Bauteilen und Unterlagen.
+
+**Umsetzung:** Allgemeine Angaben in Blöcken: Grundstück (bei der Wohnung: Wohnung / Gemeinschaft) · Flächen & Baujahr ·
+Grundrisse · Raumliste & Wohnfläche nach WoFlV · Erträge. Die Wohnfläche hat weiter nur ein Feld; die Raumliste füllt
+es, solange „übernehmen“ an ist, sperrt es aber nicht mehr (vorher schreibgeschützt). Eine eigene Zahl gilt und
+schaltet die Übernahme aus; „übernehmen“ daneben holt die Summe der Raumliste zurück. Eigene Einträge: Planungsrecht
+„Sonstiges“ (Freitext), sonstige Modernisierung (Bezeichnung, Umfang, Jahr — nur Dokumentation, keine Punkte, weil
+Anlage 2 ImmoWertV nur die acht Elemente kennt), sonstige Bauteile (Freitext, mehrere mit Komma), sonstige Unterlage
+(mit „liegt vor“, auch in der Unterlagenliste für den Eigentümer und ihrer Vollständigkeit), eigener Prüfpunkt im
+Lage-Check (Bezeichnung, Quelle, Ergebnis, Notiz, Datum). Alles erscheint im Bericht; die Modernisierungen laut
+Aufnahmebogen stehen jetzt unter „Feststellungen der Ortsbesichtigung“.
+
+**Bericht:** Die Wohnflächenberechnung stand unter „Feststellungen der Ortsbesichtigung“ und wäre mit ausgeschaltetem
+Aufnahmebogen verschwunden. Jetzt lässt der Bericht bei ausgeschaltetem Aufnahmebogen nur dessen Feststellungen weg;
+die Wohnflächenberechnung erscheint dann als eigener Teil (im Berichtsumfang weiter unter „Feststellungen … mit
+Wohnflächenberechnung“). Mit eingeschaltetem Aufnahmebogen ist der Bericht unverändert. Keine Rechnung ändert sich.
+

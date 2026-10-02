@@ -24,6 +24,11 @@ test('Bewertung: Gliederung Eckdaten, Aufnahmebogen, Objektdaten, Allgemeine Ang
  await expect(lage.locator('summary')).toHaveText('3.1 Lage');
  expect(await page.locator('#s-technik details.app-disclosure>summary').evaluateAll(l=>l.map(s=>s.dataset.titel))).toEqual(['Lage','Lage-Check mit amtlichen Karten',
   'Gebäudedaten','Grundstück, Grundbuch & Recht','Planungsrecht','Grundstück & Gebäude (Beschreibung)','Zustand & Bautechnik','Rechtliches & Vermarktung']);
+ // Grundrisse und Raumliste stehen unter „Allgemeine Angaben“ hinter „Flächen & Baujahr“ (D36)
+ const titel=sel=>page.locator(sel+' details.app-disclosure>summary').evaluateAll(l=>l.filter(s=>s.checkVisibility()).map(s=>s.dataset.titel));
+ expect(await titel('#s-aufnahme')).toEqual(['Räume & Flächen','Technik & Ausstattung','Bauteile & Ausstattungsstandard (fließt in den Gebäudepreis)',
+  'Modernisierungen (fließen in die Restnutzungsdauer)','Besondere Bauteile (anhaken, was vorhanden ist)','Unterlagen (anhaken, was vorliegt)','Feststellungen vor Ort']);
+ expect(await titel('#s-allg')).toEqual(['Grundstück','Flächen & Baujahr','Grundrisse','Raumliste & Wohnfläche nach WoFlV','Erträge (Netto-Kaltmiete je Jahr)']);
  await expect(lage).toHaveAttribute('open','');await lage.locator('summary').click();await expect(lage).not.toHaveAttribute('open','');
  await page.reload();await expect(page.locator('#s-eck')).toHaveClass(/app-zu/);await expect(lage).not.toHaveAttribute('open','');
  // Sprung über die Abschnittsliste öffnet den Abschnitt wieder; die Eingabe ist unverändert
@@ -255,5 +260,41 @@ test('Exposé, Präsentation und Vermarktung lassen sich ausblenden, die Eingabe
  expect(await page.evaluate(()=>[$('ex_aus').checked,$('vp_aus').checked,$('vm_aus').checked,collect().ex_aus])).toEqual([true,true,true,true]);
  await page.locator('#s-expose>h2 .sec-schalter input').check();
  await expect(page.locator('#ex_titel')).toBeVisible();await expect(page.locator('#ex_titel')).toHaveValue('Sonniges Einfamilienhaus');
+ await keineSkriptfehler(page);
+});
+test('Wohnfläche: Raumliste übernimmt, das Feld bleibt änderbar; eigene Zahl gilt (D36)',async({page})=>{
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appOpenObject();appAlleKlappen(true);});
+ await page.locator('#rl_name0').fill('Wohnen');await page.locator('#rl_fl0').fill('5 x 6');
+ await page.locator('#rl_name1').fill('Küche');await page.locator('#rl_fl1').fill('12,5');await page.locator('#rl_fl1').blur();
+ await page.locator('#rl_aktiv').check();
+ await expect(page.locator('#ek_wohnflaeche')).toHaveValue('42,50');await expect(page.locator('#ek_wohnflaeche')).toBeEditable();
+ // von Hand: eigene Zahl gilt, Übernahme aus, Hinweis mit „übernehmen“
+ await page.locator('#ek_wohnflaeche').fill('44');await page.locator('#ek_wohnflaeche').blur();
+ await expect(page.locator('#rl_aktiv')).not.toBeChecked();await expect(page.locator('#rl_eck_hint')).toContainText('Raumliste: 42,50 m²');
+ expect(await page.evaluate(()=>num('ek_wohnflaeche'))).toBe(44);
+ // die Raumliste ändert sich — die eigene Zahl bleibt
+ await page.locator('#rl_fl1').fill('20');await page.locator('#rl_fl1').blur();
+ expect(await page.evaluate(()=>num('ek_wohnflaeche'))).toBe(44);
+ // wieder übernehmen
+ await page.locator('#rl_eck_hint a',{hasText:'übernehmen'}).click();
+ await expect(page.locator('#ek_wohnflaeche')).toHaveValue('50,00');await expect(page.locator('#rl_aktiv')).toBeChecked();
+ await keineSkriptfehler(page);
+});
+test('Sonstiges selbst eintragen: Planungsrecht, Modernisierung, Bauteile, Unterlagen, Lage-Check — im Bericht (D36)',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);});
+ await page.locator('#od_plan_sonst').fill('Sanierungsgebiet Ortskern');
+ await page.locator('#au_mod_s_bez').fill('Balkonsanierung');await page.locator('#au_mod_s_u').selectOption('voll');await page.locator('#au_mod_s_j').fill('2021');
+ await page.locator('#au_bt_sonst').fill('Batteriespeicher, Brunnen');
+ await page.locator('#au_ul0').check();await page.locator('#au_ul_sonst_txt').fill('Statik');
+ await page.locator('#lg_bez_sonst').fill('Denkmalliste');await page.locator('#lg_qu_sonst').fill('Landesamt für Denkmalpflege');
+ await page.locator('#lg_st_sonst').selectOption('ok');await page.locator('#lg_no_sonst').fill('kein Kulturdenkmal');await page.locator('#lg_no_sonst').blur();
+ // die sonstige Modernisierung gibt keine Punkte
+ expect(await page.evaluate(()=>_R.modPunkte)).toBe(await page.evaluate(()=>{let s=0;for(let i=0;i<8;i++)s+=num('mod_p'+i);return Math.min(s,20);}));
+ await page.evaluate(()=>druckbericht());const r=page.locator('#report');
+ for(const t of ['Sanierungsgebiet Ortskern','Sonstiges — Balkonsanierung: vollständig erneuert (2021)','Batteriespeicher','Brunnen','Statik','Denkmalliste','Landesamt für Denkmalpflege','kein Kulturdenkmal'])
+  await expect(r).toContainText(t);
+ await page.evaluate(()=>{document.body.classList.remove('report-mode');druckeUnterlagen();});
+ await expect(page.locator('#report')).toContainText('Statik');await expect(page.locator('#report')).toContainText('1 von 15 vorhanden');
  await keineSkriptfehler(page);
 });

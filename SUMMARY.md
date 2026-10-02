@@ -1,3 +1,8 @@
+# Zusammenfassung — Raumliste zu den Flächen, Wohnfläche änderbar, Sonstiges (2026-10-02)
+
+Grundrisse und Raumliste stehen unter „Allgemeine Angaben“ hinter „Flächen & Baujahr“; die Wohnfläche übernimmt die
+Raumliste, bleibt aber änderbar; „Sonstiges“ an fünf Stellen, auch im Bericht (D36).
+
 # Zusammenfassung — Gliederung der Bewertung neu (2026-10-02)
 
 Eckdaten schlank, Aufnahmebogen als 2., Objektdaten als 3., „Allgemeine Angaben“ (Grundstück, Flächen, Mieten) als 4.
