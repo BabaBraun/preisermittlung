@@ -418,6 +418,7 @@ function startFoot(){
   try{ vmStartRender(); }catch(e){}
 }
 function startStep0(){
+  KD_NEU_FUER=null; kdNeuHinweis();
   $('start-step0').style.display=''; $('start-step1').style.display='none';
   setT('start_greet', startGreeting());
   let n=0; try{ n=pjLoad().length; }catch(e){}
@@ -427,6 +428,7 @@ function startStep0(){
   window.scrollTo(0,0);
 }
 function startPreisermittlung(){
+  kdNeuHinweis();
   $('start-step0').style.display='none'; $('start-step1').style.display='';
   window.scrollTo(0,0);
 }

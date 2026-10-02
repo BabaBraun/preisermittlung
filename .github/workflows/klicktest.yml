@@ -1,0 +1,53 @@
+name: Klicktest
+
+# Die ganze App wird durchgeklickt (tests/klick/klicktest.mjs): jeder Knopf, jedes Feld, jedes Auf- und Zuklappen —
+# am PC (Chromium) und in der iPhone-Ansicht (WebKit). Dauert länger als die übrigen Tests (rund eine Stunde je Gerät),
+# deshalb ein eigener Ablauf; ein neuerer Stand bricht den laufenden ab.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  schedule:
+    - cron: '0 4 * * 1'   # montags früh, auch ohne Änderung (z. B. neue Browserfassungen)
+  workflow_dispatch:
+
+concurrency:
+  group: klicktest-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  klicktest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    # wie tests.yml: offizielles Playwright-Image (Chromium, WebKit, Systembibliotheken); Version passend zu package.json
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        geraet: [desktop, iphone]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      - name: Klicktest ${{ matrix.geraet }}
+        run: node tests/klick/klicktest.mjs ${{ matrix.geraet }}
+
+      - name: Bericht sichern
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: klicktest-${{ matrix.geraet }}
+          path: tests/ausgabe/klicktest/
+          retention-days: 14

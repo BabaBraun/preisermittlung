@@ -44,6 +44,60 @@ function jbVgDiff(z){
   return {t:abs+(z.pct!=null?' ('+JBK.vergleichProzent(z.pct)+')':''),cls:z.richtung==='auf'?'jb-vg-auf':'jb-vg-ab'};
 }
 
+/* ---------- Verlauf über alle Stichtage (Diagramm, D32) ----------
+   Mittelwert, Bausubstanz, Mietertrag und Grund und Boden je Stichtag als Linien; Entwürfe als hohle Punkte, die beiden
+   verglichenen Stichtage hinterlegt. Eigenes SVG ohne Bibliothek: in der App mit den Farben der App (auch dunkel), im
+   Dokument mit festen Farben (immer hell, für Word als Bild umwandelbar). Werte aus den Vordrucken — bei ungespeicherten
+   Änderungen im Vergleich aus der Arbeitskopie. */
+const JB_VG_REIHEN=[
+  { k: 'ergebnis', name: 'Mittelwert', farbe: 'var(--accent)', hell: '#0B6B61', breit: 2.8, strich: '' },
+  { k: 'substanz', name: 'Bausubstanz', farbe: 'var(--text-2)', hell: '#4A5A60', breit: 1.7, strich: '' },
+  { k: 'ertrag', name: 'Mietertrag', farbe: 'var(--warn)', hell: '#9A6A12', breit: 1.7, strich: '6 4' },
+  { k: 'boden', name: 'Grund und Boden', farbe: 'var(--muted)', hell: '#7E8B8F', breit: 1.3, strich: '2 4' }];
+function jbVgPunkte(l){
+  return jbVgListe(l).map(b=>{ const v=(JB_VG&&JB_VG.lId===l.id&&JB_VG.kopien[b.id])||JBK.bereinigen(b.vordruck);
+    return { id: b.id, datum: LVK.datumDE(b.stichtag), entwurf: b.status==='entwurf', r: JBK.rechnen(v) }; });
+}
+function jbVgEuroKurz(x){ const a=Math.abs(x);
+  return a>=1e6?(x/1e6).toLocaleString('de-DE',{maximumFractionDigits:2})+' Mio. €':a>=1e3?Math.round(x/1e3).toLocaleString('de-DE')+' T€':Math.round(x).toLocaleString('de-DE')+' €'; }
+function jbVgTicks(lo,hi,n){
+  const roh=(hi-lo)/n||1, p=Math.pow(10,Math.floor(Math.log10(roh))), schritt=[1,2,2.5,5,10].map(f=>f*p).find(s=>s>=roh);
+  const t=[]; for(let v=Math.floor(lo/schritt)*schritt; ; v+=schritt){ t.push(v); if(v>=hi-1e-9) break; } return t; }   // bis über den größten Wert
+function jbVgVerlaufSvg(l,opt){
+  opt=opt||{}; const P=jbVgPunkte(l); if(P.length<2) return '';
+  const da=(p,s)=>isFinite(p.r[s.k])&&p.r[s.k]>0;
+  let reihen=JB_VG_REIHEN.filter(s=>P.some(p=>da(p,s)));
+  // Grund und Boden steckt in beiden Ansätzen; neben ihnen drückt er die Achse bis 0 € und Veränderungen verschwinden
+  if(reihen.some(s=>s.k==='substanz'||s.k==='ertrag')) reihen=reihen.filter(s=>s.k!=='boden');
+  const werte=reihen.flatMap(s=>P.filter(p=>da(p,s)).map(p=>p.r[s.k])); if(!werte.length) return '';
+  // in der App so breit wie der Platz (Schrift bleibt lesbar, auch am iPhone), im Dokument fest für A4
+  const W=opt.dok?640:Math.max(320,Math.min(1100,((document.getElementById('lv_body')||{}).clientWidth||700)-60)), H=250, ML=74, MR=36, MT=14, MB=46;
+  let lo=Math.min(...werte), hi=Math.max(...werte); const pad=(hi-lo)*0.12||hi*0.1||1; lo=Math.max(0,lo-pad); hi+=pad;
+  const ticks=jbVgTicks(lo,hi,4); lo=ticks[0]; hi=ticks[ticks.length-1];
+  const x=i=>ML+i*(W-ML-MR)/(P.length-1), y=v=>MT+(H-MT-MB)*(1-(v-lo)/(hi-lo));
+  const f=s=>opt.dok?s.hell:s.farbe, linie=opt.dok?'#D5DCDA':'var(--line)', schrift=opt.dok?'#555555':'var(--muted)', grund=opt.dok?'#FFFFFF':'var(--card)', band=opt.dok?'#EEF4F2':'var(--tint)';
+  const markiert=JB_VG&&JB_VG.lId===l.id?[JB_VG.aId,JB_VG.bId]:[];
+  let g='';
+  P.forEach((p,i)=>{ if(markiert.includes(p.id)) g+='<rect x="'+(x(i)-15).toFixed(1)+'" y="'+MT+'" width="30" height="'+(H-MT-MB)+'" rx="6" fill="'+band+'"/>'; });
+  ticks.forEach(t=>{ g+='<line x1="'+ML+'" x2="'+(W-MR)+'" y1="'+y(t).toFixed(1)+'" y2="'+y(t).toFixed(1)+'" stroke="'+linie+'"/>'
+    +'<text x="'+(ML-8)+'" y="'+(y(t)+4).toFixed(1)+'" text-anchor="end" fill="'+schrift+'" font-size="11">'+lvH(jbVgEuroKurz(t))+'</text>'; });
+  // Datumsbeschriftung: bei vielen Stichtagen nur jede n-te; das letzte Datum immer (rechts ist Platz dafür)
+  const abst=(W-ML-MR)/(P.length-1), schritt=Math.max(1,Math.ceil(68/abst));
+  P.forEach((p,i)=>{ const letzte=i===P.length-1; if(!letzte&&(i%schritt||(P.length-1-i)*abst<68)) return;
+    const lx=x(i).toFixed(1), anker='middle';
+    g+='<text x="'+lx+'" y="'+(H-MB+18)+'" text-anchor="'+anker+'" fill="'+schrift+'" font-size="11"'+(markiert.includes(p.id)?' font-weight="700"':'')+'>'+lvH(p.datum)+'</text>'
+    +(p.entwurf?'<text x="'+lx+'" y="'+(H-MB+32)+'" text-anchor="'+anker+'" fill="'+schrift+'" font-size="10">Entwurf</text>':''); });
+  reihen.slice().reverse().forEach(s=>{ const q=P.map((p,i)=>({ i, p, v: p.r[s.k] })).filter(z=>da(z.p,s));
+    g+='<path d="'+q.map((z,j)=>(j?'L':'M')+x(z.i).toFixed(1)+' '+y(z.v).toFixed(1)).join(' ')+'" fill="none" stroke="'+f(s)+'" stroke-width="'+s.breit+'"'
+      +(s.strich?' stroke-dasharray="'+s.strich+'"':'')+' stroke-linejoin="round"/>';
+    q.forEach(z=>{ g+='<circle cx="'+x(z.i).toFixed(1)+'" cy="'+y(z.v).toFixed(1)+'" r="'+(s.k==='ergebnis'?4.5:3.5)+'" fill="'+(z.p.entwurf?grund:f(s))+'" stroke="'+f(s)+'" stroke-width="2">'
+      +'<title>'+lvH(z.p.datum+(z.p.entwurf?' (Entwurf)':'')+' · '+s.name+': '+Math.round(z.v).toLocaleString('de-DE')+' €')+'</title></circle>'; }); });
+  const aria='Verlauf über '+P.length+' Stichtage, Mittelwert: '+P.map(p=>p.datum+' '+Math.round(p.r.ergebnis).toLocaleString('de-DE')+' €').join(', ');
+  const legende='<div class="jb-vg-legende">'+reihen.map(s=>'<span><i style="border-top:'+(s.k==='ergebnis'?3:2)+'px '+(s.strich==='2 4'?'dotted':s.strich?'dashed':'solid')+' '+f(s)+'"></i>'+lvH(s.name)+'</span>').join('')
+    +(P.some(p=>p.entwurf)?'<span><i class="jb-vg-hohl" style="border-color:'+f(reihen[0])+'"></i>Entwurf</span>':'')+'</div>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" class="jb-vg-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+lvH(aria)+'" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif">'+g+'</svg>'+legende;
+}
+
 function jbVergleichHtml(){
   const VG=JB_VG, l=LV.liste.find(x=>x.id===VG.lId);
   if(!l||!jbVgMoeglich(l)){ JB_VG=null; LV.form=null; return jbAnsichtHtml(); }
@@ -77,6 +131,7 @@ function jbVergleichHtml(){
         +'<td class="r jb-vg-d" data-vgd="'+lvH(z.key)+'"></td></tr>';
     });
     inhalt='<p class="jb-vg-objekt"><b>'+lvH(objekt||'Objekt')+'</b>'+(l.ort?' · '+lvH(l.ort):'')+'</p>'
+      +'<div class="jb-vg-verlauf"><h4>Verlauf über alle Stichtage</h4><div id="jb_vg_verlauf">'+jbVgVerlaufSvg(l)+'</div></div>'
       +'<div class="mdb-scroll"><table class="mdb-tbl lv-tbl jb-vg-tab" id="jb_vergleich"><thead><tr><th>Kennzahl</th><th class="r">'+lvH(jbVgDatum(A))+'</th><th class="r">'+lvH(jbVgDatum(B))+'</th><th class="r">Veränderung</th></tr></thead>'
       +'<tbody>'+rows+'</tbody></table></div>'
       +'<div class="jb-vg-text" id="jb_vg_text" aria-live="polite"></div>'
@@ -103,6 +158,9 @@ function jbVgAusgaben(){
     if(el.textContent!==d.t) el.textContent=d.t; el.className='r jb-vg-d '+d.cls; });
   const txt=document.getElementById('jb_vg_text');
   if(txt){ const s=JBK.vergleichText(zeilen), html=s.length?'<b>Hinweis:</b> '+s.map(lvH).join(' '):''; if(txt.innerHTML!==html) txt.innerHTML=html; }
+  // Diagramm rechnet mit (nur neu zeichnen, wenn sich etwas geändert hat)
+  const verlauf=document.getElementById('jb_vg_verlauf'), l=LV.liste.find(x=>x.id===VG.lId);
+  if(verlauf&&l){ const h=jbVgVerlaufSvg(l); if(VG.verlaufHtml!==h){ verlauf.innerHTML=h; VG.verlaufHtml=h; } }
 }
 function jbVgEingabe(el){
   const VG=JB_VG; if(!VG||!el.dataset||el.dataset.vgk==null||el.tagName!=='INPUT') return;
@@ -150,6 +208,7 @@ function jbVgDokHtml(l,A,B,va,vb){
   const text=JBK.vergleichText(zeilen);
   return '<div class="jbd jbd-vg"><h2 class="jbd-titel">Historischer Vergleich</h2>'
     +'<table class="jbd-t jbd-kv"><tbody>'+kv('Objekt:',objekt)+(l.ort?kv('Ort:',l.ort):'')+kv('Vergleich der Stichtage:',jbVgDatum(A)+' und '+jbVgDatum(B))+'</tbody></table>'
+    +(jbVgVerlaufSvg(l,{dok:true})?'<h3>Verlauf über alle Stichtage</h3><div class="jbd-vg-verlauf">'+jbVgVerlaufSvg(l,{dok:true})+'</div>':'')
     +'<table class="jbd-t jbd-vg-t"><thead><tr><th class="l">Kennzahl</th><th class="b">'+h(jbVgDatum(A))+'</th><th class="b">'+h(jbVgDatum(B))+'</th><th class="b">Veränderung</th></tr></thead><tbody>'+rows+'</tbody></table>'
     +(text.length?'<p class="jbd-text"><b>Hinweis:</b> '+h(text.join(' '))+'</p>':'')
     +'<p class="jbd-fuss">Rechnerische Preiseinschätzung nach dem Vordruck der Bank, kein Verkehrswertgutachten. Baupreisindex auf Basis 2010. Stand '+h(LVK.datumDE(lvHeute()))+'.</p></div>';

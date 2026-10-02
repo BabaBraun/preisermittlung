@@ -10,7 +10,9 @@
     "serve": "node tests/server.mjs",
     "build": "node scripts/build.mjs",
     "test:unit": "node --test tests/unit/*.test.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "klicktest": "node tests/klick/klicktest.mjs desktop",
+    "klicktest:iphone": "node tests/klick/klicktest.mjs iphone"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"

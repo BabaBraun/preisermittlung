@@ -193,8 +193,13 @@ function jbDokZurueck(){
   const o=document.getElementById('lv_overlay'); if(o){ o.classList.add('on'); document.body.style.overflow='hidden'; }
   lvRender();
 }
-function jbDokWord(){
+async function jbDokWord(){
   const r=document.getElementById('report'), inhalt=r&&r.querySelector('.jbd'); if(!inhalt) return;
   const name=r.dataset.pdfname||'Preiseinschätzung';
-  lvHerunterladen(ImmoOffice.docx(ImmoOffice.bloeckeAusHtml(inhalt),{titel:name}),LV_DOCX,lvDateiname(name)+'.docx');
+  // Word kennt kein SVG: Diagramme (Verlauf im historischen Vergleich) als Bild einsetzen
+  const kopie=inhalt.cloneNode(true);
+  for(const svg of [...kopie.querySelectorAll('svg.jb-vg-svg')]){
+    try{ const img=document.createElement('img'); img.src=await grPng(svg.outerHTML,1600); img.setAttribute('width','600'); img.alt=svg.getAttribute('aria-label')||'Diagramm'; svg.replaceWith(img); }
+    catch(e){ svg.remove(); } }
+  lvHerunterladen(ImmoOffice.docx(ImmoOffice.bloeckeAusHtml(kopie),{titel:name}),LV_DOCX,lvDateiname(name)+'.docx');
 }

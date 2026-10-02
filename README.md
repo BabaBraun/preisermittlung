@@ -81,6 +81,8 @@ pip install -r tests/requirements.txt
 npm test                     # Rechenkern, Office-Dateien, Sicherungsprüfung (Node, ohne Browser)
 npm run test:e2e             # Browsertests: Desktop (Chromium) und iPhone 13 (WebKit)
 npm run test:alle            # beides
+npm run klicktest            # ganze App durchklicken: jeder Knopf, jedes Feld, jedes Auf-/Zuklappen (PC, ~1 Std.)
+npm run klicktest:iphone     # dasselbe in der iPhone-Ansicht (WebKit)
 python tests/referenz/sollwerte.py   # Sollwerte der unabhängigen Vergleichsrechnung neu erzeugen
 PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersatzschrift gegenprüfen
 ```
@@ -97,10 +99,17 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
   Datensicherung (vollständiger Ablauf, Datei-Import/-Export, Gesamtsicherung, PDF-Anhänge, beschädigte
   Dateien, voller Speicher, fehlende Datenbank), Übereinstimmung der Werte über alle Vordrucke,
   Offline-Start und Service-Worker-Update, alle Ansichten auf Desktop und iPhone.
+- **Klicktest** (`tests/klick/klicktest.mjs`): öffnet alle Bereiche mit Musterdaten, klappt jeden Abschnitt und
+  Block auf und zu, füllt jedes Feld bzw. stellt jeden Schalter und jede Auswahl um und klickt jeden Knopf und Link —
+  rot bei Skriptfehlern, nicht funktionierenden Feldern, verdeckten Knöpfen und NaN mit dem Musterfall; Knöpfe „ohne
+  Wirkung“ werden mit `tests/klick/ohne-wirkung-*.json` verglichen. Bericht unter `tests/ausgabe/klicktest/`.
+  Abläufe, die er nur anstößt (App-Sperre mit simuliertem Face ID, Grundriss, Fotos …), prüft
+  `tests/e2e/sonderablaeufe.spec.mjs` Schritt für Schritt.
 - **Python-Prüfskripte** (`tests/referenz/pruefe_*.py`) öffnen die erzeugten Dateien mit unabhängigen
   Bibliotheken. Auf ihre Standardausgabe geht nur das JSON-Ergebnis; Meldungen der Bibliotheken landen auf
   stderr. Jede andere Ausgabe lässt den Test mit vollständiger stdout-/stderr-Ausgabe scheitern.
-- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`), im offiziellen
+- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`), den Klicktest für PC und
+  iPhone zusätzlich in einem eigenen Ablauf (`.github/workflows/klicktest.yml`, auch wöchentlich), im offiziellen
   Playwright-Image mit fertig installierten Browsern. Dessen Version muss zu `@playwright/test` in
   `package.json` passen — beim Aktualisieren beide ändern; `npm test` prüft das.
 - Alle Testdaten sind synthetisch.

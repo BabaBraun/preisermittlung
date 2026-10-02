@@ -106,10 +106,13 @@ function startPreisermittlung(){
   window.scrollTo(0,0);
 }
 function pickVordruck(id){
-  let v=VORDRUCKE.find(x=>x.id===id); if(!v)return;
+  let v=VORDRUCKE.find(x=>x.id===id); if(!v)return false;
+  // neue Bewertung aus der Kundenakte: leeres Formular für diesen Kunden (customers.js)
+  if(typeof KD_NEU_FUER!=='undefined'&&KD_NEU_FUER) return kdNeueBewertungStarten(v);
   applyVordruck(v);
   document.body.classList.add('started');
   window.scrollTo(0,0);
+  return true;
 }
 function applyVordruck(v){
   $('ek_modus').value=v.modus;

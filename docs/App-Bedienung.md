@@ -16,6 +16,10 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 vorbelegt und bleiben änderbar. Eine zweite Auswahl (mit PV-Anlage, mit Anbau, mit Nießbrauch …) gibt es nicht mehr:
 Anbau / Nebengebäude, Wohnrecht / Nießbrauch und PV-Anlage schaltet man in der Bewertung im jeweiligen Abschnitt zu.
 
+**Aus der Kundenakte:** Kunden → Akte → „Neue Bewertung für diesen Kunden“ → Objektart wählen. Die neue Bewertung ist
+dem Kunden zugeordnet und hat ihn als Auftraggeber. Ist gerade eine Bewertung angefangen, wird sie vorher als Projekt
+gesichert (mit Rückfrage) — es geht nichts verloren.
+
 ## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
 
 Alle Abschnitte stehen untereinander in der bekannten Reihenfolge (Eckdaten, Aufnahmebogen, Hauptgebäude, Anbau,
@@ -89,6 +93,9 @@ Startseite → Kachel „Liegenschaften“ oder Mehr → „Liegenschaften“ (R
   Vordruck des jeweiligen Stichtags, genau wie dort eingetragen (gerechnete Werte gelb überschrieben, „↺“ rechnet
   wieder), und wird mit „Speichern“ übernommen. Ohne Namen, ohne Anschrift (nur Objektart und Ort) und ohne Angabe, woher
   eine Miete stammt — auch im Dokument (Drucken, PDF, Word).
+  Darüber zeigt ein Diagramm den **Verlauf über alle Stichtage** (Mittelwert, Bausubstanz, Mietertrag; ohne Gebäude
+  Grund und Boden): Entwürfe als hohle Punkte, die beiden verglichenen Stichtage hinterlegt; es rechnet beim Eintippen
+  mit und steht auch im Dokument (in Word als Bild).
 - **Fortschreiben:** „Alle fortschreiben“ (oder je Liegenschaft) legt aus dem letzten Vordruck einen Entwurf zum neuen
   Stichtag an: amtlicher Baupreisindex je Gebäudeart, angepasste RND um die vergangenen Jahre verringert.
 - **Ansprechpartner:** Name, Anschrift, Telefon und E-Mail für das Deckblatt.

@@ -56,3 +56,10 @@ if(!istInstalliert()) $('installBtn').style.display='inline-block';
 
 
 appShellInit();
+/* Neue Bewertung aus der Kundenakte: nach dem Neustart mit leerem Formular Objektart und Kunde übernehmen */
+(async function(){
+  let p=null; try{ p=JSON.parse(sessionStorage.getItem('ia_neu_fuer')||'null'); sessionStorage.removeItem('ia_neu_fuer'); }catch(e){}
+  if(!p||!p.vordruck) return;
+  try{ await IA_BEREIT_P; }catch(e){}
+  pickVordruck(p.vordruck); if(p.kunde) kdAktuelleZuordnen(p.kunde);
+})();

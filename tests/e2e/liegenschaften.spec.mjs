@@ -308,6 +308,10 @@ test('Historischer Vergleich: zwei Stichtage nebeneinander, Veränderung farbig,
   await expect(zeile('Restnutzungsdauer').locator('.jb-vg-d')).toHaveClass(/jb-vg-ab/);
   await expect(zeile('Bodenrichtwert').locator('.jb-vg-d')).toHaveText('unverändert');
   await expect(lv(page).locator('#jb_vg_text')).toContainText('Der Mittelwert stieg von 1.220.052 € auf 1.230.554 € (+0,9 %).');
+  // Verlauf über alle Stichtage: Diagramm mit beiden Stichtagen, Entwurf als hohler Punkt, Legende
+  const verlauf = lv(page).locator('#jb_vg_verlauf svg.jb-vg-svg');
+  await expect(verlauf).toHaveAttribute('aria-label', 'Verlauf über 2 Stichtage, Mittelwert: 31.12.2025 1.220.052 €, 31.12.2026 1.230.554 €');
+  await expect(lv(page).locator('#jb_vg_verlauf .jb-vg-legende')).toHaveText(/^Mittelwert.*Bausubstanz.*Mietertrag.*Entwurf$/);   // Grund und Boden steckt in beiden Ansätzen
   // keine Namen, keine Anschrift, keine Mietzeilen („Büro“, „Laden“) — nur Objektart, Gebäudeart und Ort
   expect(await lv(page).locator('.jb-vg').innerText()).not.toMatch(/Musterweg|74000|\bBüro\b|\bLaden\b/);
   // jede Zahl ein Feld: Monatsmiete 2026 +100 € → Ertrag + 1.200 × 0,8 × 19,87 = +19.075,20 €, Mittelwert + 9.537,60 € = 1.240.091,60 €
@@ -315,6 +319,7 @@ test('Historischer Vergleich: zwei Stichtage nebeneinander, Veränderung farbig,
   await miete.fill('7.450'); await miete.blur();
   await expect(miete).toHaveClass(/jb-manuell/);
   await expect(mittel.locator('input').nth(1)).toHaveValue('1.240.091,60');
+  await expect(verlauf).toHaveAttribute('aria-label', /31\.12\.2026 1\.240\.092 €$/);   // das Diagramm rechnet mit
   await expect(zeile('Monatsmiete').locator('.jb-vg-d')).toHaveText('+100,00 € (+1,4 %)');
   // Eingabe (Bodenrichtwert) und Zurücksetzen
   const brw = zeile('Bodenrichtwert').locator('input').nth(1); await brw.fill('330 €/m²'); await brw.blur();
@@ -333,6 +338,10 @@ test('Historischer Vergleich: zwei Stichtage nebeneinander, Veränderung farbig,
   await expect(dok).toContainText('Historischer Vergleich'); await expect(dok).toContainText('Musterstadt');
   expect(await dok.innerText()).not.toMatch(/Musterweg|74000|\bBüro\b|\bLaden\b/);
   await expect(page.locator('#report')).toHaveAttribute('data-pdfname', /^Historischer Vergleich .*Musterstadt 31\.12\.2025 und 31\.12\.2026$/);
+  await expect(dok.locator('svg.jb-vg-svg')).toHaveCount(1);
+  // Word: das Diagramm kommt als Bild mit (Word kennt kein SVG)
+  const [wort] = await Promise.all([page.waitForEvent('download'), page.locator('#report').getByRole('button', { name: 'Word' }).click()]);
+  expect(readFileSync(await wort.path()).includes(Buffer.from('word/media/'))).toBe(true);
   await page.locator('#report').getByRole('button', { name: 'zurück' }).click();
   await expect(lv(page).locator('#jb_vergleich')).toBeVisible();
   await keineSkriptfehler(page);

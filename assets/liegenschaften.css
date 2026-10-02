@@ -172,3 +172,12 @@
 #report.jb-dok .jb-vg-ab{color:#B0303A;font-weight:700}
 #report.jb-dok .jb-vg-gleich{color:#666}
 #report.jb-dok table.jbd-vg-t tr.total td{color:#111}
+/* Verlauf über alle Stichtage (Diagramm im historischen Vergleich, D32) */
+#lv_overlay .jb-vg-verlauf{margin:6px 0 14px;padding:12px 14px 10px;border:1px solid var(--line);border-radius:var(--rs);background:var(--card)}
+#lv_overlay .jb-vg-verlauf h4{margin:0 0 6px;font-size:13.5px;font-weight:600;color:var(--text)}
+.jb-vg-svg{display:block;width:100%;height:auto}
+.jb-vg-legende{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:4px;font-size:12px;color:var(--text-2)}
+.jb-vg-legende i{display:inline-block;width:20px;height:0;margin-right:6px;vertical-align:middle}
+.jb-vg-legende i.jb-vg-hohl{width:9px;height:9px;border:2px solid;border-radius:50%;box-sizing:border-box}
+#report.jb-dok .jbd-vg-verlauf{margin:6px 0 14px}
+#report.jb-dok .jb-vg-legende{color:#333}

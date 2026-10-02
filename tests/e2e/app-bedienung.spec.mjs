@@ -100,3 +100,33 @@ test('Handzeiger nur bei klickbaren Tabellen: Markt-Bestand ja, Tilgungsplan nei
  await expect(page.locator('#mdb_tbl tbody tr').first()).toBeVisible();
  expect(await page.evaluate(()=>['#mdb_tbl th','#mdb_tbl tbody tr'].map(s=>getComputedStyle(document.querySelector(s)).cursor))).toEqual(['pointer','pointer']);
 });
+test('Neue Bewertung aus der Kundenakte: Objektart wählen, Kunde zugeordnet und als Auftraggeber eingetragen',async({page})=>{
+ await appOeffnen(page);
+ await page.evaluate(async()=>{await kdSpeichern({id:'k_neu',vorname:'Erika',nachname:'Musterfrau',kontakte:[],finanzierungen:[],erstellt:1});kdOeffnen('k_neu');});
+ await page.locator('#kd_overlay').getByRole('button',{name:'Neue Bewertung für diesen Kunden'}).click();
+ await expect(page.locator('#start_fuer')).toHaveText(/Neue Bewertung für Erika Musterfrau/);
+ await page.getByRole('button',{name:'Eigentumswohnung',exact:true}).click();
+ await expect(page.locator('body')).toHaveClass(/started/);
+ expect(await page.evaluate(()=>[$('ek_kunde_id').value,$('ek_ag').value,$('ek_modus').value])).toEqual(['k_neu','Erika Musterfrau','wohnung']);
+ // die Akte zeigt die Bewertung; ein späteres „Neue Bewertung“ über die Startseite ist wieder ohne Kunde
+ await page.evaluate(()=>kdOeffnen('k_neu'));await expect(page.locator('#kd_overlay')).toContainText('in Bearbeitung');
+ await page.evaluate(()=>{kdSchliessen();appSetTab('home');startPreisermittlung();});await expect(page.locator('#start_fuer')).toBeHidden();
+});
+test('Neue Bewertung aus der Kundenakte: angefangene Bewertung wird vorher als Projekt gesichert, Abbrechen ändert nichts',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(async()=>{$('ek_anschrift').value='Altweg 1, Musterstadt';compute();autosave();
+  await kdSpeichern({id:'k_neu',vorname:'Erika',nachname:'Musterfrau',kontakte:[],finanzierungen:[],erstellt:1});kdOeffnen('k_neu');});
+ await page.locator('#kd_overlay').getByRole('button',{name:'Neue Bewertung für diesen Kunden'}).click();
+ // abbrechen: nichts gesichert, nichts verloren, Objektart-Wahl bleibt offen
+ let frage='';page.once('dialog',d=>{frage=d.message();d.dismiss();});
+ await page.getByRole('button',{name:'Wohnhaus',exact:true}).click();
+ expect(frage).toMatch(/„Altweg 1, Musterstadt“ wird als Projekt gesichert.*neue, leere Bewertung für Erika Musterfrau/);
+ await expect(page.locator('#start_fuer')).toBeVisible();
+ expect(await page.evaluate(()=>[$('ek_anschrift').value,pjLoad().length])).toEqual(['Altweg 1, Musterstadt',0]);
+ // bestätigen: Projekt gesichert, Neustart mit leerem Formular für den Kunden
+ page.on('dialog',d=>d.accept());
+ await Promise.all([page.waitForEvent('load'),page.getByRole('button',{name:'Wohnhaus',exact:true}).click()]);
+ await page.waitForFunction(()=>typeof APP_STATE!=='undefined'&&APP_STATE.ready&&$('ek_kunde_id').value==='k_neu',null,{timeout:20000});
+ expect(await page.evaluate(()=>[$('ek_anschrift').value,$('ek_ag').value,$('ek_modus').value,document.body.classList.contains('started'),pjLoad().map(p=>p.name)]))
+  .toEqual(['','Erika Musterfrau','haus',true,['Altweg 1, Musterstadt']]);
+});

@@ -48,7 +48,18 @@ function projektDateiEinlesen(text,name){
 }
 async function neu(){
   if(!confirm('Neue leere Wertermittlung? Ungespeicherte Daten gehen verloren.'))return;
+  await neuOhneFrage();
+}
+/* Leeres Formular: Arbeitsstand und Fotos der offenen Bewertung löschen und neu laden (Projekte bleiben erhalten) */
+async function neuOhneFrage(){
   SILENT=true; localStorage.removeItem('vb_wert2');
   try{ await IA_BEREIT_P; if(IA_DB_BEREIT){ clearTimeout(FOTO_TIMER); FOTO_GEAENDERT=false; await iaPut('arbeit',[],'fotos'); } }catch(e){}
   location.reload();
+}
+/* Enthält die offene Bewertung eigene Angaben? Auswahlfelder, Schalter und die Vorgaben der Objektart zählen nicht. */
+function bewertungAngefangen(){
+  if(PHOTOS.length||GRUNDRISSE.length||SIGNATURE) return true;
+  const vorgabe=/^(nhk(hg|an)_(base|gnd)|bpi|bpi_faktor|ek_vordruck|ek_kunde_id|vm_n_\w+)$/;   // vm_n_…: Eingabe für einen neuen Vermarktungs-Eintrag (Datum vorbelegt)
+  return [...document.querySelectorAll('main input[id], main textarea[id]')].some(e=>!vorgabe.test(e.id)&&!e.readOnly
+    &&!['checkbox','radio','file','button','hidden','range'].includes(e.type)&&(e.value||'').trim()!==(e.defaultValue||'').trim());
 }

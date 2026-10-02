@@ -219,3 +219,4 @@ body.app-shell.report-mode{padding:0}
  .app-shell #app_liste_werkzeuge button{min-height:32px;padding:4px 10px;font-size:12.5px}
 }
 .app-shell .start-hinweis{margin:14px 0 0;max-width:820px;font-size:13px;color:var(--muted)}
+.app-shell .start-fuer{margin:-4px 0 14px;color:var(--accent);font-weight:600;font-size:14px}

@@ -135,7 +135,7 @@ Neu aufgefallen in dieser Runde (für später):
 |---|---|---|
 | 33 | [ ] Echte Grundrisse des Nutzers einlesen und die Leseanleitung daran nachschärfen | Die Anleitung ist bisher nur an einem Testplan geprüft |
 | 34 | [ ] App-Sperre, GPS und Speicherumzug auf dem iPhone gegenprüfen | Nur mit simulierten Antworten bzw. in Chrome getestet |
-| 35 | [ ] Neue Bewertung direkt aus der Kundenakte beginnen | Heute: Bewertung anlegen, dann zuordnen — ein Schritt zu viel |
+| 35 | [x] Neue Bewertung direkt aus der Kundenakte beginnen — erledigt 2026-10-02 (D32) | Heute: Bewertung anlegen, dann zuordnen — ein Schritt zu viel |
 | 36 | [ ] Dateigröße: index.html ist auf 552 KB gewachsen | Weitere Module (wie der Selbsttest) als eigene, bei Bedarf geladene Dateien auslagern |
 
 **2026-09-29, Runde „Profi-Qualität, dann Vertrieb“** (vom Nutzer beauftragt: erst Richtung Gutachter, dann
@@ -222,3 +222,5 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 54 | [x] Historischer Vergleich zweier Stichtage je Liegenschaft (Veränderung je Kennzahl, jede Zahl änderbar, ohne Namen und Anschrift) — erledigt 2026-10-01 (D29) | Vorlage „Historischer Vergleich“ des Auftraggebers |
 | 55 | [x] Neue Bewertung: nur Objektart wählen (Eigentumswohnung, Wohnhaus, Laden / Büro / Praxis, Gewerbe / Betrieb), keine zweite Vordruck-Auswahl — erledigt 2026-10-01 (D30) | Rückmeldung des Auftraggebers |
 | 56 | [x] Klicktest der ganzen App (PC und iPhone-Ansicht) und Befunde behoben: Export-Menü am iPhone, Effizienzklasse von Hand, Beschriftung der Kopfzeilen-Knöpfe, Hinweis im Sanierungsweg, Dateinamen, Handzeiger — erledigt 2026-10-02 (D31) | Auftrag „die ganze App einmal komplett testen“ |
+| 57 | [x] Klicktest der ganzen App dauerhaft im Repository (`npm run klicktest`, GitHub Actions für PC und iPhone) und Sonderabläufe als Browsertest — erledigt 2026-10-02 (D32) | Vorschlag 4 nach dem Klicktest |
+| 58 | [x] Liegenschaften: Verlauf über alle Stichtage als Diagramm im historischen Vergleich und im Dokument — erledigt 2026-10-02 (D32) | Vorschlag 7 |

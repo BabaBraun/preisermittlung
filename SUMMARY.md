@@ -1,3 +1,8 @@
+# Zusammenfassung — Klicktest dauerhaft, Bewertung aus der Kundenakte, Verlauf der Liegenschaften (2026-10-02)
+
+`npm run klicktest` / GitHub Actions klicken die ganze App durch; neue Bewertung direkt aus der Kundenakte (angefangene
+wird vorher gesichert); Liegenschaften: Verlauf über alle Stichtage als Diagramm (D32).
+
 # Zusammenfassung — Klicktest der ganzen App, Befunde behoben (2026-10-02)
 
 Jeder Knopf, jedes Feld und jedes Auf- und Zuklappen am PC und in der iPhone-Ansicht geprüft (rund 3.900 Elemente am PC,

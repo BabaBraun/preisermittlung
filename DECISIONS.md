@@ -681,3 +681,30 @@ Kein Befund: Knöpfe „ohne Wirkung“ waren aktive Reiter, bereits offene Ansi
 Cursor ins Feld) und Tabellenzeilen; „NaN Tage“ trat nur in der Testumgebung auf (WebKit unter Windows kennt keine
 Datumsfelder, das iPhone zeigt immer den Datumswähler). Rechnung unverändert.
 
+---
+
+## D32 (2026-10-02) — Klicktest dauerhaft; neue Bewertung aus der Kundenakte; Verlauf der Liegenschaften
+
+**Wunsch des Auftraggebers:** Vorschläge 4 und 7 umsetzen — den Klicktest dauerhaft einbauen, eine Bewertung direkt aus
+der Kundenakte beginnen, den Verlauf der Liegenschaften als Diagramm zeigen (und den Mietertrag je Gebäude rechnen, D33).
+
+**Klicktest:** `tests/klick/klicktest.mjs` (aus dem Prüfprogramm von D31) startet einen eigenen Testserver, arbeitet nur
+mit Musterdaten und ruft keine fremden Seiten auf. Rot werden Skriptfehler, Felder oder Klappbereiche ohne Funktion,
+verdeckte Knöpfe und NaN schon mit dem Musterfall. Knöpfe „ohne Wirkung“ sind oft richtig (aktiver Reiter, schon offene
+Ansicht, leere Eingabe) — sie werden mit einer festgehaltenen Liste verglichen, neue melden sich als Warnung statt den
+Lauf rot zu machen. Er dauert rund eine Stunde je Gerät, deshalb ein eigener GitHub-Ablauf (bei Änderungen und
+wöchentlich), nicht Teil von `npm test`. Die Sonderabläufe (App-Sperre mit virtuellem Authenticator, Grundriss,
+Fotos, Präsentation, Übernahme-Knöpfe, Vergleichssuche) laufen als schneller Browsertest in der normalen Testreihe.
+
+**Neue Bewertung aus der Kundenakte:** Knopf in der Akte → dieselbe Objektart-Wahl wie „Neue Bewertung“ mit dem Hinweis,
+für wen → leeres Formular, Kunde zugeordnet und als Auftraggeber eingetragen. Eine angefangene Bewertung (eigene
+Eingaben, Fotos, Grundrisse — Auswahlfelder und Vorgaben der Objektart zählen nicht) wird nach Rückfrage als Projekt
+gesichert; ohne Name und Anschrift unter „Wertermittlung <Datum Uhrzeit>“, damit kein anderes Projekt überschrieben
+wird. Das leere Formular entsteht wie bei „Neue leere Bewertung“ über einen Neustart; Objektart und Kunde werden danach
+übernommen. „Neue Bewertung“ auf der Startseite bleibt unverändert.
+
+**Verlauf der Liegenschaften:** Diagramm im historischen Vergleich über alle Stichtage mit Vordruck: Mittelwert,
+Bausubstanz, Mietertrag (Grund und Boden nur ohne Gebäude — er steckt in beiden Ansätzen und würde die Achse bis 0 €
+dehnen). Entwürfe hohl, verglichene Stichtage hinterlegt, rechnet beim Eintippen mit; eigenes SVG ohne Bibliothek, in
+der App so breit wie der Platz (lesbar am iPhone), im Dokument mit festen Farben und für Word als Bild.
+

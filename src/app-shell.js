@@ -199,7 +199,7 @@ function appShellInit(){
  showStart=()=>appSetTab('home');oeffneProjekte=()=>appSetTab('objects');mdbOeffnen=async()=>{appSetTab('market');await APP_MARKET_PROMISE;};
  schliesseProjekte=()=>{APP_ORIGINAL.closeProjects();if(APP_STATE.tab==='objects'){if(document.body.classList.contains('started'))appOpenObject();else appSetTab('home');}};
  mdbClose=()=>{APP_ORIGINAL.closeMarket();if(APP_STATE.tab==='market')appSetTab('home');};
- pickVordruck=id=>{APP_ORIGINAL.pick(id);appOpenObject();};
+ pickVordruck=id=>{if(APP_ORIGINAL.pick(id)!==false)appOpenObject();};
  buildNav=()=>{if(APP_STATE.ready)appRenderSideNav();};
  cockpitUpdate=()=>{APP_ORIGINAL.cockpit();appRefresh();};
  document.addEventListener('input',appRefresh);document.addEventListener('change',()=>{appRefresh();if(APP_STATE.tab==='object')appRenderSideNav();});

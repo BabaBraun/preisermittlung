@@ -4,6 +4,7 @@
    IndexedDB „ia_bewertungen“, Speicher „kunden“ (D8) — nur auf diesem Gerät, mit Auskunft (Export) und
    Löschung je Kunde. Kundennamen gelangen nie in den Marktüberblick (D4). */
 var KD_CACHE=[], KD_AKTIV=null, KD_WAHL=null, KD_SUCHE='';
+var KD_NEU_FUER=null;   // Kunde, für den gerade eine neue Bewertung beginnt (Objektart-Wahl läuft)
 const KD_GRUNDLAGEN=[['vertrag','Anbahnung oder Durchführung eines Auftrags (Art. 6 Abs. 1 lit. b DSGVO)'],
   ['einwilligung','Einwilligung des Kunden (Art. 6 Abs. 1 lit. a DSGVO)'],['sonstige','Sonstige Rechtsgrundlage (in der Notiz festhalten)']];
 const KD_KONTAKTARTEN=['Gespräch','Telefonat','E-Mail','Besichtigung','Angebot','Termin','Sonstiges'];
@@ -107,7 +108,8 @@ function kdAkte(id,fokus){
       +(p.typ==='projekt'?'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();projektLaden(\''+idSicher(p.id)+'\')">Öffnen</button><button class="secondary" onclick="kdProjektLoesen(\''+idSicher(p.id)+'\')">Zuordnung lösen</button></div>'
         :'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();document.body.classList.add(\'started\');window.scrollTo(0,0)">Zur Bewertung</button><button class="secondary" onclick="kdAktuelleZuordnen(\'\')">Zuordnung lösen</button></div>')+'</div>').join('')+'</div>'
       :'<p class="hint" style="margin:0">Noch keine Bewertung zugeordnet.</p>')
-    +(zugeordnet?'':'<div class="gr-zeile"><button class="secondary" onclick="kdAktuelleZuordnen(\''+id+'\')">Aktuelle Bewertung diesem Kunden zuordnen</button></div>')
+    +'<div class="gr-zeile"><button class="secondary" onclick="kdNeueBewertung(\''+id+'\')" data-ic="plus">Neue Bewertung für diesen Kunden</button>'
+    +(zugeordnet?'':'<button class="secondary" onclick="kdAktuelleZuordnen(\''+id+'\')">Aktuelle Bewertung diesem Kunden zuordnen</button>')+'</div>'
 
     +'<h3>Wiedervorlagen</h3>'
     +(auf.length?'<div class="kd-auf">'+auf.map(aufZeile).join('')+'</div>':'')
@@ -133,6 +135,38 @@ async function kdFeld(feld,wert){
   let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k) return;
   k[feld]=(''+wert).trim();
   if(await kdSpeichern(k)){ let t=$('kd_titel'); if(t) t.textContent=kdName(k); kdAnzeige(); }
+}
+/* Neue Bewertung direkt aus der Kundenakte (D32): erst die Objektart wählen wie bei „Neue Bewertung“, dann beginnt ein
+   leeres Formular, dem Kunden zugeordnet und mit ihm als Auftraggeber. Eine angefangene Bewertung wird vorher als
+   Projekt gesichert — sie geht nicht verloren. */
+function kdNeueBewertung(id){
+  if(!KD_CACHE.some(x=>x.id===id)) return;
+  kdSchliessen(); appSetTab('home'); startPreisermittlung();
+  KD_NEU_FUER=id; kdNeuHinweis();
+}
+function kdNeuHinweis(){
+  let e=$('start_fuer'); if(!e) return;
+  let k=KD_NEU_FUER&&KD_CACHE.find(x=>x.id===KD_NEU_FUER);
+  e.hidden=!k; e.textContent=k?'Neue Bewertung für '+kdName(k)+' — sie wird diesem Kunden zugeordnet.':'';
+}
+/* aus pickVordruck (Objektart gewählt); false = nichts geöffnet (abgebrochen oder Neustart mit leerem Formular) */
+function kdNeueBewertungStarten(v){
+  let kid=KD_NEU_FUER, k=KD_CACHE.find(x=>x.id===kid);
+  KD_NEU_FUER=null; kdNeuHinweis();
+  if(bewertungAngefangen()){
+    // ohne Projektname und Anschrift ein eigener Name: überschreibt kein anderes Projekt
+    let name=(exV('pj_name')||exV('ek_anschrift')||'Wertermittlung '+new Date().toLocaleString('de-DE')).trim();
+    if(!confirm('Die angefangene Bewertung „'+name+'“ wird als Projekt gesichert. Danach beginnt eine neue, leere Bewertung'+(k?' für '+kdName(k):'')+'.')){
+      KD_NEU_FUER=kid; kdNeuHinweis(); return false; }
+    if(!exV('pj_name')&&!exV('ek_anschrift')) $('pj_name').value=name;
+    (async()=>{ await projektSichern();
+      try{ sessionStorage.setItem('ia_neu_fuer',JSON.stringify({vordruck:v.id,kunde:kid})); }catch(e){}
+      await neuOhneFrage(); })();
+    return false;
+  }
+  applyVordruck(v); if(kid) kdAktuelleZuordnen(kid);
+  document.body.classList.add('started'); window.scrollTo(0,0);
+  return true;
 }
 function kdAktuelleZuordnen(id){
   $('ek_kunde_id').value=id;
