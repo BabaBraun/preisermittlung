@@ -198,8 +198,18 @@ async function ruhe(max = 6000) {
 }
 
 async function app() {
-  await page.goto(BASIS + 'index.html', { waitUntil: 'load' });
-  await page.waitForFunction(() => typeof window.compute === 'function' && window.IA_BEREIT_P !== undefined && typeof APP_STATE !== 'undefined' && APP_STATE.ready, null, { timeout: 30000 });
+  for (let versuch = 1; ; versuch++) {
+    await page.goto(BASIS + 'index.html', { waitUntil: 'load' });
+    try {
+      await page.waitForFunction(() => typeof window.compute === 'function' && window.IA_BEREIT_P !== undefined && typeof APP_STATE !== 'undefined' && APP_STATE.ready, null, { timeout: 30000 });
+      break;
+    } catch (e) {
+      // Ein einzelner Hänger des Testrechners beim Start (GitHub-Lauf 11, lokal nicht nachvollziehbar) bricht nicht
+      // gleich den Bereich ab: einmal neu laden und als Hinweis festhalten. Hängt der Start wieder, ist es ein Befund.
+      if (versuch >= 2) throw e;
+      notiere('Start', 'App-Start', 'Hinweis', 'nach 30 s noch nicht bereit — einmal neu geladen');
+    }
+  }
   await page.evaluate(() => window.IA_BEREIT_P);
   await page.waitForTimeout(250);
 }

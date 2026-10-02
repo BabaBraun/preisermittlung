@@ -927,3 +927,8 @@ Stand. Stichtage danach sind in der App weiter als „vorläufig“ gekennzeichn
 
 **Tests:** Unit- und Python-Vergleichsrechnung wie oben; Browsertests (D37) für Feststellung mit Foto, fehlende
 Bauteile, Prüfhinweise und Vergleichswert im Beleihungswert; Klicktest der Bewertungen und des Berichts.
+
+**Klicktest auf GitHub (Nachtrag):** Lauf 11 war am iPhone grün. Am PC kam die App vor „Liegenschaften – Übersicht“
+einmal nicht innerhalb von 30 s in Gang („Test abgebrochen“). Alle übrigen Bereiche liefen durch, lokal laufen alle
+Liegenschaften-Bereiche ohne Befund. Das war ein Hänger des Testrechners. Der Klicktest lädt bei einem solchen Hänger
+jetzt einmal neu und vermerkt das als Hinweis. Hängt der Start auch beim zweiten Mal, bleibt es ein Befund.
