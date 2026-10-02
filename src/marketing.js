@@ -7,7 +7,9 @@ const VM_ARTEN=['Anfrage','Besichtigung','Zweitbesichtigung','Kaufangebot','Rese
 const VM_RUECK=['','positiv','neutral','Preis zu hoch','Lage','Zustand / Sanierungsbedarf','Grundriss','zu klein','zu groß','Finanzierung unklar','Sonstiges'];
 function vmDaten(f){ let v=f?f.vm_daten:exV('vm_daten'); try{ let o=JSON.parse(v||'{}'); o.ev=Array.isArray(o.ev)?o.ev:[]; return o; }catch(e){ return {ev:[]}; } }
 function vmSpeichern(d){ $('vm_daten').value=JSON.stringify(d); autosave(); vmRender(); }
-function vmTage(start){ return start?Math.max(0,Math.round((new Date(aufHeute())-new Date(start))/864e5)):0; }
+// nur ein gültiges Datum zählt: das Datumsfeld lässt nichts anderes zu, eine ältere oder fremde Projektdatei schon
+function vmDatum(s){ return /^\d{4}-\d{2}-\d{2}$/.test(s||'')&&isFinite(new Date(s))?s:''; }
+function vmTage(start){ start=vmDatum(start); return start?Math.max(0,Math.round((new Date(aufHeute())-new Date(start))/864e5)):0; }
 function vmKennzahlen(d,start,ab){
   let ev=d.ev.filter(e=>!ab||e.d>=ab);
   const z=a=>ev.filter(e=>a.includes(e.art)).length;
@@ -23,7 +25,7 @@ function vmEmpfehlung(d,start){
 }
 function vmRender(){
   let box=$('vm_log'); if(!box) return;
-  let d=vmDaten(), start=exV('vm_start'), k=vmKennzahlen(d,start);
+  let d=vmDaten(), start=vmDatum(exV('vm_start')), k=vmKennzahlen(d,start);
   setT('vm_k_tage',start?k.tage+' Tage':'–'); setT('vm_k_anfragen',k.anfragen); setT('vm_k_besicht',k.besicht); setT('vm_k_angebote',k.angebote);
   let ev=d.ev.slice().sort((a,b)=>(b.d||'').localeCompare(a.d||'')||(b.id||'').localeCompare(a.id||''));
   box.innerHTML=ev.length?'<table class="nhk vm-tab"><thead><tr><th>Datum</th><th>Art</th><th>Interessent</th><th>Rückmeldung</th><th>Notiz</th><th></th></tr></thead><tbody>'
@@ -40,9 +42,9 @@ function vmNeu(){
   let art=exV('vm_n_art'), wer=exV('vm_n_wer'), preis=art==='Preisänderung'?zahlLesen(exV('vm_n_preis'),true):0;
   if(art==='Preisänderung'&&!(preis>0)){ alert('Bitte den neuen Angebotspreis eintragen.'); return; }
   let d=vmDaten(), kd=KD_CACHE.find(x=>kdName(x)===wer);
-  d.ev.push({id:'v'+Date.now().toString(36),d:exV('vm_n_datum')||aufHeute(),art:art,wer:wer,kid:kd?kd.id:'',rueck:exV('vm_n_rueck'),notiz:exV('vm_n_notiz'),preis:preis||0});
+  d.ev.push({id:'v'+Date.now().toString(36),d:vmDatum(exV('vm_n_datum'))||aufHeute(),art:art,wer:wer,kid:kd?kd.id:'',rueck:exV('vm_n_rueck'),notiz:exV('vm_n_notiz'),preis:preis||0});
   if(preis>0) $('vm_preis').value=''+preis;
-  if(!exV('vm_start')&&['Anfrage','Besichtigung'].includes(art)) $('vm_start').value=exV('vm_n_datum')||aufHeute();
+  if(!exV('vm_start')&&['Anfrage','Besichtigung'].includes(art)) $('vm_start').value=vmDatum(exV('vm_n_datum'))||aufHeute();
   ['vm_n_wer','vm_n_notiz','vm_n_preis'].forEach(i=>$(i).value=''); $('vm_n_rueck').value='';
   vmSpeichern(d);
   if(kd&&['Besichtigung','Zweitbesichtigung','Kaufangebot'].includes(art)&&IA_DB_BEREIT){   // auch in der Akte des Interessenten vermerken
@@ -56,7 +58,7 @@ function vmArtWechsel(){ let p=$('vm_n_preis_feld'); if(p) p.style.display=exV('
 /* Eigentümer-Bericht */
 function vmBericht(teilen){
   compute();
-  let d=vmDaten(), start=exV('vm_start'), ab=exV('vm_bericht_ab'), k=vmKennzahlen(d,start,ab), kg=vmKennzahlen(d,start), K=exKontakt(), esc=sEsc;
+  let d=vmDaten(), start=vmDatum(exV('vm_start')), ab=vmDatum(exV('vm_bericht_ab')), k=vmKennzahlen(d,start,ab), kg=vmKennzahlen(d,start), K=exKontakt(), esc=sEsc;
   let titel=exV('ex_titel')||exTitelVorschlag(), preis=num('vm_preis')||num('ex_preis');
   let r=$('report'); r.className='expose eigentuemer'; r.dataset.pdfname='Vermarktungsbericht '+(exV('ek_anschrift')||titel).replace(/[^\wäöüÄÖÜß -]/g,'').trim()+' '+aufHeute();
   let rueck=Object.keys(kg.rueck).sort((a,b)=>kg.rueck[b]-kg.rueck[a]);
@@ -94,7 +96,7 @@ function vmUebersicht(){
   $('vm_inhalt').innerHTML='<div class="gr-kopf"><h2 id="vm_titel">Vermarktung</h2><button class="gr-x" onclick="vmSchliessen()" aria-label="Schließen">✕</button></div>'
     +(gruppen.length?gruppen.map(g=>'<h3>'+sEsc(g[0])+' <span class="u">'+g[1].length+'</span></h3><div class="kd-karten">'+g[1].map(x=>{ let d=vmDaten(x.f), k=vmKennzahlen(d,x.f.vm_start), p=zahlLesen(x.f.vm_preis,true)||zahlLesen(x.f.ex_preis,true);
         let alt=x.f.vm_letzter?vmTage(x.f.vm_letzter):null;
-        return '<div class="kd-karte"><div><b>'+sEsc(x.name)+'</b><span>'+sEsc([p?eur(p):'',x.f.vm_start?k.tage+' Tage am Markt':'',k.anfragen+' Anfragen',k.besicht+' Besichtigungen',k.angebote?k.angebote+' Angebote':''].filter(Boolean).join(' · '))
+        return '<div class="kd-karte"><div><b>'+sEsc(x.name)+'</b><span>'+sEsc([p?eur(p):'',vmDatum(x.f.vm_start)?k.tage+' Tage am Markt':'',k.anfragen+' Anfragen',k.besicht+' Besichtigungen',k.angebote?k.angebote+' Angebote':''].filter(Boolean).join(' · '))
           +(['In Vermarktung','Reserviert'].includes(x.f.vm_status)&&(alt==null||alt>7)?' · <em class="vm-faellig">Eigentümer-Bericht '+(alt==null?'noch nie':'vor '+alt+' Tagen')+'</em>':'')+'</span></div>'
           +(x.id?'<div class="kd-k"><button class="secondary" onclick="vmSchliessen();projektLaden(\''+x.id+'\')">Öffnen</button></div>':'<div class="kd-k"><button class="secondary" onclick="vmSchliessen();document.body.classList.add(\'started\');document.getElementById(\'s-vermarktung\').scrollIntoView()">Öffnen</button></div>')+'</div>'; }).join('')+'</div>').join('')
       :'<div class="kd-leer">Noch kein Objekt mit Vermarktungsstand. Den Stand setzt du im Abschnitt „Vermarktung“ und sicherst die Bewertung als Projekt.</div>');

@@ -76,6 +76,19 @@ test('Foto hinzufügen über die Dateiauswahl: Bild in der Galerie', async ({ pa
   await keineSkriptfehler(page);
 });
 
+test('Exposé-Fotos: Haken ab und wieder an — auch über dem blassen Bild eines nicht gewählten Fotos', async ({ page }) => {
+  await appOeffnen(page); await fallAnwenden(page, HAUS);
+  await page.evaluate(() => { appOpenObject(); appAlleKlappen(true); });
+  await page.setInputFiles('#file_objekt', [{ name: 'a.png', mimeType: 'image/png', buffer: PNG }, { name: 'b.png', mimeType: 'image/png', buffer: PNG }]);
+  await expect(page.locator('#ex_fotowahl input[type=checkbox]')).toHaveCount(2);
+  const haken = page.locator('#ex_fotowahl input[type=checkbox]').nth(1);
+  // echter Mausklick: scheitert, wenn das Bild (opacity < 1) über dem Haken liegt
+  await haken.click({ timeout: 3000 }); await expect(haken).not.toBeChecked();
+  await haken.click({ timeout: 3000 }); await expect(haken).toBeChecked();
+  await expect(page.locator('#ex_fotowahl .ex-foto.on')).toHaveCount(2);
+  await keineSkriptfehler(page);
+});
+
 test('Präsentation: vor und zurück blättern, auch mit der Pfeiltaste', async ({ page }) => {
   await appOeffnen(page); await fallAnwenden(page, HAUS);
   await page.evaluate(() => vpStarten());

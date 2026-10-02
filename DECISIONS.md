@@ -732,3 +732,37 @@ Fälle). Mehr als der Rohertrag wird auf den ganzen Rohertrag begrenzt, mit Hinw
 sein eigenes Modell. Geprüft: Handrechnung (Unit-Test und Selbsttest), neuer Fall der unabhängigen Python-Vergleichs-
 rechnung (dort jetzt auch Substanz des Anbaus), Browsertest der Anzeige und des Berichts.
 
+---
+
+## D34 (2026-10-02) — Erste vollständige Läufe des Klicktests aus dem Repository
+
+**Anlass:** Der dauerhafte Klicktest (D32) lief zum ersten Mal ganz durch: am PC 307 Klappbereiche, 2.848 Felder und
+661 Knöpfe/Links (62 min), in der iPhone-Ansicht 141 / 1.581 / 657 (50 min). Keine Skriptfehler, keine Downloads leer.
+
+**Befunde in der App:**
+- Exposé, Fotoauswahl: Bei einem nicht gewählten Foto lag das blasse Bild über dem Haken — ein Element mit
+  `opacity` unter 1 bildet eine eigene Ebene und wird nach dem davor stehenden Haken gezeichnet. Der leere Haken war kaum
+  zu sehen, ein echter Klick traf das Bild (umgeschaltet hat er trotzdem, weil das Bild im selben Label liegt). Der Haken
+  liegt jetzt darüber (`z-index`). Browsertest: Haken mit echtem Mausklick ab und wieder an; ohne die Korrektur
+  scheitert er.
+- Vermarktung: Ein ungültiges Datum ergab „NaN Tage“ („Am Markt seit“) bzw. „Invalid Date“ („Bericht ab“, Datum eines
+  Eintrags). Das Datumsfeld selbst lässt nichts anderes zu, eine ältere oder fremde Projektdatei aber schon — und die
+  Testumgebung der iPhone-Ansicht unter Windows kennt kein Datumsfeld. Jetzt zählen nur gültige Daten, sonst „–“
+  (Browsertest mit einem Projekt, dessen Datum ungültig ist).
+
+**Fehlalarme des Klicktests behoben:**
+- Listen, die die App beim Umschalten neu aufbaut (Berichtsumfang, Exposé-Fotos), machten das gemerkte Feld ungültig;
+  der zweite Klick ging ins Leere und erschien als „verdeckt“ oder „Haken ändert sich nicht“. Das Feld wird jetzt über
+  seinen Weg im Dokument wiedergefunden — die Beschriftung ändert sich dabei („Titelbild“, „Als Titelbild“). „Verdeckt“
+  meldet er nur noch, wenn der Klick auf das vorhandene Feld scheitert, mit Playwrights Begründung (welches Element den
+  Klick abfängt).
+- Drei Musterfotos gehören zu den Musterdaten: Fotodokumentation, Exposé-Auswahl und Titelbild werden in jedem Bereich
+  geprüft, nicht erst nach „Foto hinzufügen“ in einem früheren Bereich.
+- Monat und Datum in Knopfnamen (Titelfolie „Ihr Haus Oktober 2026“) ersetzt der Vergleich „ohne Wirkung“ durch
+  Platzhalter, sonst meldete er sich jeden Monat neu.
+
+**Listen „ohne Wirkung“** (`tests/klick/ohne-wirkung-desktop.json`, `-iphone.json`) festgehalten, jeder Eintrag geprüft:
+aktiver Reiter, schon offene Ansicht, leere Eingabe („Hinzufügen“, „Notiz speichern“), Filter schon zurückgesetzt,
+Klick in die Fläche eines Fensters, Budget schon leer, „Alle aufklappen“ bei offenen Abschnitten, „Vorige Folie“ auf
+der ersten und „Nächste Folie“ auf der letzten Folie (das Blättern prüft `sonderablaeufe.spec.mjs`).
+

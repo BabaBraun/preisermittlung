@@ -1,3 +1,8 @@
+# Zusammenfassung — Erste vollständige Klicktest-Läufe (2026-10-02)
+
+Exposé-Fotos: Haken nicht gewählter Fotos lag unter dem blassen Bild — behoben; Vermarktung zeigt bei ungültigem Datum
+„–“ statt „NaN Tage“; Klicktest ohne Fehlalarme bei neu aufgebauten Listen, Listen „ohne Wirkung“ festgehalten (D34).
+
 # Zusammenfassung — Mietertrag je Gebäude in der Preisermittlung (2026-10-02)
 
 Mit Anbau: „davon Anbau / Nebengebäude (€/Jahr)“ — jedes Gebäude rechnet mit seiner eigenen Restnutzungsdauer wie im

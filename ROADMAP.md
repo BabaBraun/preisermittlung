@@ -224,3 +224,4 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 56 | [x] Klicktest der ganzen App (PC und iPhone-Ansicht) und Befunde behoben: Export-Menü am iPhone, Effizienzklasse von Hand, Beschriftung der Kopfzeilen-Knöpfe, Hinweis im Sanierungsweg, Dateinamen, Handzeiger — erledigt 2026-10-02 (D31) | Auftrag „die ganze App einmal komplett testen“ |
 | 57 | [x] Klicktest der ganzen App dauerhaft im Repository (`npm run klicktest`, GitHub Actions für PC und iPhone) und Sonderabläufe als Browsertest — erledigt 2026-10-02 (D32) | Vorschlag 4 nach dem Klicktest |
 | 58 | [x] Liegenschaften: Verlauf über alle Stichtage als Diagramm im historischen Vergleich und im Dokument — erledigt 2026-10-02 (D32) | Vorschlag 7 |
+| 59 | [x] Erste vollständige Klicktest-Läufe: Haken der Exposé-Fotos über dem Bild, ungültiges Datum in der Vermarktung, Fehlalarme des Tests, Listen „ohne Wirkung“ — erledigt 2026-10-02 (D34) | Klicktest |

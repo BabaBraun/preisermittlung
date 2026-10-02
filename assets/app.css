@@ -772,7 +772,7 @@
   .ex-foto.on{border-color:var(--accent)}
   .ex-foto img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;opacity:.45;transition:opacity .15s}
   .ex-foto.on img{opacity:1}
-  .ex-foto input{position:absolute;top:8px;left:8px;width:20px;height:20px}
+  .ex-foto input{position:absolute;top:8px;left:8px;width:20px;height:20px;z-index:1}   /* über dem blassen Bild nicht gewählter Fotos (opacity < 1 legt es sonst darüber) */
   .ex-foto .nr{position:absolute;top:7px;right:8px;background:var(--accent-btn);color:#fff;border-radius:999px;font-size:11px;padding:2px 8px;font-weight:600}
   .ex-foto small{display:block;padding:5px 8px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ex-foto .ex-titel-k{position:absolute;top:6px;right:6px;padding:3px 9px;font-size:11px;background:rgba(255,255,255,.92);color:#1D5BC4;border:none;border-radius:999px}

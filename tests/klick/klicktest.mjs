@@ -103,10 +103,23 @@ const INIT = `(() => {
   window.__ktFeldKey = el => { const d = el.dataset || {};
     return [el.tagName, el.type, eigeneId(el), el.name, d.jb, d.jbm, d.vgk, d.vgs, eigeneId(el) ? '' : window.__ktFeldName(el).replace(/\\s*\\([^)]*\\)$/, '')].join('|'); };
   // Felder über einen festen Schlüssel merken: auch Ansichten, die sich beim Ausfüllen neu aufbauen, werden ganz geprüft
-  window.__ktFelder = w => { window.__ktGetestetK = window.__ktGetestetK || new Set(); window.__ktF = []; const z = {};
+  window.__ktSchluessel = w => { const z = {}, alle = [];
     for (const r of wurzeln(w)) for (const el of r.querySelectorAll('input, select, textarea')) {
       if (['hidden', 'file', 'button', 'submit', 'reset', 'image'].includes(el.type)) continue;
-      const basis = window.__ktFeldKey(el); z[basis] = (z[basis] || 0) + 1; el.__ktKey = basis + '|' + z[basis];
+      const basis = window.__ktFeldKey(el); z[basis] = (z[basis] || 0) + 1; el.__ktKey = basis + '|' + z[basis]; alle.push(el); }
+    return alle; };
+  // Weg ab dem nächsten Vorfahren mit fester Kennung: bleibt gleich, wenn die App eine Liste gleich wieder aufbaut —
+  // auch wenn sich dabei die Beschriftung ändert (Exposé-Fotos: „Titelbild“, „Als Titelbild“)
+  window.__ktPfad = el => { const p = []; let e = el;
+    while (e.parentElement && !eigeneId(e)) { p.unshift([...e.parentElement.children].indexOf(e)); e = e.parentElement; }
+    return { id: eigeneId(e), p }; };
+  // ein Feld, das die App beim Ausfüllen neu aufgebaut hat, wiederfinden: zuerst über den Weg, sonst über den Schlüssel
+  window.__ktWieder = (w, q) => { let e = q.pfad.id ? document.getElementById(q.pfad.id) : document.documentElement;
+    for (const i of q.pfad.p) e = e && e.children[i];
+    if (e && e.tagName.toLowerCase() === q.tag && e.type === q.typ && wurzeln(w).some(r => r.contains(e))) return e;
+    return window.__ktSchluessel(w).find(el => el.__ktKey === q.key) || null; };
+  window.__ktFelder = w => { window.__ktGetestetK = window.__ktGetestetK || new Set(); window.__ktF = [];
+    for (const el of window.__ktSchluessel(w)) {
       if (window.__ktGetestetK.has(el.__ktKey)) continue;
       if (!visF(el) || el.disabled || el.readOnly || el.closest('[inert]')) continue;
       window.__ktF.push(el); }
@@ -134,6 +147,11 @@ const INIT = `(() => {
       for (const i of r.querySelectorAll('input,textarea')) if (bad.test(i.value) && visF(i)) out.push('Feld ' + (i.id || i.name) + ' = ' + i.value.slice(0, 60)); }
     return [...new Set(out)].slice(0, 40); };
 })();`;
+
+/* Playwrights Begründung, warum ein echter Klick scheitert (z. B. „<header …> intercepts pointer events“) */
+const grund = e => { const z = String(e && e.message || '').replace(/\x1b\[[0-9;]*m/g, '').split('\n').map(s => s.trim().replace(/^-\s*/, ''))
+  .filter(s => /intercepts pointer events|not stable|not visible|outside of the viewport|not enabled|not attached/.test(s)).pop();
+  return z ? ': ' + z.replace(/data:[^"'\s>]+/g, 'data:…').replace(/\s+/g, ' ').slice(0, 160) : ''; };
 
 /* ---------- Protokoll ---------- */
 const ERG = [];
@@ -188,7 +206,7 @@ async function app() {
 
 /* Musterdaten (nur synthetisch), jedes Mal geprüft und bei Bedarf neu angelegt — Knöpfe wie „Löschen“ dürfen sie entfernen */
 async function musterdaten() {
-  await page.evaluate(async ({ haus, lvFall }) => {
+  await page.evaluate(async ({ haus, lvFall, png }) => {
     try { if (!(KD_CACHE || []).some(k => k.id === 'k_test')) await kdSpeichern({ id: 'k_test', vorname: 'Erika', nachname: 'Musterfrau', telefon: '07062 000000',
       kontakte: [{ id: 'c1', ts: 1, datum: '2026-09-01', art: 'Gespräch', text: 'Erstgespräch (Muster)' }], finanzierungen: [], erstellt: 1 }); } catch (e) { console.warn('kd', e); }
     try { if (!aufLoad().some(a => a.id === 'a_test')) aufStore(aufLoad().concat([{ id: 'a_test', text: 'Unterlagen anfordern (Muster)', frist: '2026-10-05', objekt: '', kundeId: 'k_test', erledigt: false, angelegt: 1 }])); } catch (e) { console.warn('auf', e); }
@@ -201,7 +219,12 @@ async function musterdaten() {
         const b = L.ausVordruck({ id: 'BW_b', art: 'preiseinschaetzung', status: 'entwurf', quelle: '', notiz: '', vordruck: J.fortschreiben(lvFall, '2026-12-31').vordruck });
         await lvSpeichern({ id: 'L_test', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [a, b] }); } } catch (e) { console.warn('lv', e); }
     try { if (!pjLoad().length) { applyVordruck(VORDRUCKE.find(v => v.id === 'wh_bgf')); apply(haus); $('pj_name').value = 'Musterhaus (Test)'; await projektSichern(); } } catch (e) { console.warn('pj', e); }
-  }, { haus: FALL_HAUS, lvFall: FALL_LV });
+    // jedes fehlende Musterfoto nachlegen („Foto löschen“ entfernt eins; mit zwei Objektfotos gibt es „Als Titelbild“)
+    try { const data = 'data:image/png;base64,' + png;
+      const fehlt = [{ id: 'p_muster1', cat: 'objekt', caption: 'Ansicht (Muster)', data }, { id: 'p_muster2', cat: 'objekt', caption: '', data },
+        { id: 'p_muster3', cat: 'schaden', caption: '', data }].filter(m => !PHOTOS.some(p => p.id === m.id));
+      if (fehlt.length) { PHOTOS.push(...fehlt); fotosGeaendert(); renderPhotos(); autosave(); } } catch (e) { console.warn('fotos', e); }
+  }, { haus: FALL_HAUS, lvFall: FALL_LV, png: PNG.toString('base64') });
 }
 
 /* Bewertung mit Musterfall: alle Felder auf Vorgabe, Objektart wählen, Fall eintragen, alles aufklappen */
@@ -294,6 +317,7 @@ async function klappen(B) {
 }
 
 /* ---------- 2. Eingabefelder ---------- */
+const NEU_AUFGEBAUT = 'nach dem Neuaufbau der Ansicht nicht wiedergefunden — nicht geprüft';
 function testwert(info) {
   const v = info.wert;
   if (info.typ === 'date') return v || '2026-10-01';
@@ -316,7 +340,7 @@ async function felder(B) {
     for (let i = 0; i < anzahl; i++) {
       const h = (await page.evaluateHandle(i => window.__ktF[i], i)).asElement(); if (!h) continue;
       const info = await h.evaluate(e => { if (!e.isConnected) return null; window.__ktGetestetK.add(e.__ktKey);
-        return { tag: e.tagName.toLowerCase(), typ: e.type, wert: e.value, an: e.checked, im: e.inputMode || '', ph: e.placeholder || '', name: window.__ktFeldName(e),
+        return { key: e.__ktKey, pfad: window.__ktPfad(e), tag: e.tagName.toLowerCase(), typ: e.type, wert: e.value, an: e.checked, im: e.inputMode || '', ph: e.placeholder || '', name: window.__ktFeldName(e),
           opts: e.tagName === 'SELECT' ? [...e.options].filter(o => !o.disabled).map(o => o.value) : null,
           ok: e.isConnected && e.checkVisibility({ checkVisibilityCSS: true }) && !e.disabled && !e.readOnly }; }).catch(() => null);
       if (!info || !info.ok) continue;
@@ -324,15 +348,27 @@ async function felder(B) {
       let detail = '';
       try {
         if (info.typ === 'checkbox' || info.typ === 'radio') {
-          const klick = async () => { try { await h.click({ timeout: 3000 }); } catch (e) { await h.evaluate(x => x.click()); detail = 'nur per Skript klickbar (verdeckt) · '; } };
-          await klick(); await ruhe(2000);
-          const nach1 = await h.evaluate(e => e.checked);
+          // die App baut manche Listen beim Umschalten neu auf (Berichtsumfang, Exposé-Fotos): das Feld dann neu holen
+          const da = x => x.evaluate(e => e.isConnected).catch(() => false);
+          const frisch = async alt => (await da(alt)) ? alt
+            : ((await page.evaluateHandle(([w, q]) => window.__ktWieder(w, q), [B.wurzel, { key: info.key, pfad: info.pfad, tag: info.tag, typ: info.typ }])).asElement() || alt);
+          let feld = h;
+          // „verdeckt“ nur, wenn ein Klick auf das vorhandene Feld scheitert — nicht, wenn es gerade neu aufgebaut wurde
+          const klick = async () => {
+            for (let v = 0; v < 3; v++) {
+              feld = await frisch(feld); if (!(await da(feld))) break;
+              try { await feld.click({ timeout: 3000 }); return; }
+              catch (e) { if (await da(feld)) { await feld.evaluate(x => x.click()); detail = 'nur per Skript klickbar (verdeckt' + grund(e) + ') · '; return; } }
+            }
+            throw new Error(NEU_AUFGEBAUT); };
+          await klick(); await ruhe(2000); feld = await frisch(feld);
+          const nach1 = await feld.evaluate(e => e.checked);
           if (info.typ === 'radio') { if (!nach1) throw new Error('lässt sich nicht auswählen'); detail += 'ausgewählt'; }
           else {
             if (nach1 === info.an) throw new Error('Haken ändert sich nicht');
             // Schalter bleiben eingeschaltet, damit abhängige Felder sichtbar werden
             if (!info.an) detail += 'ein (bleibt an)';
-            else { await klick(); await ruhe(2000); if ((await h.evaluate(e => e.checked)) !== info.an) throw new Error('Haken lässt sich nicht zurücksetzen'); detail += 'aus und wieder an'; }
+            else { await klick(); await ruhe(2000); feld = await frisch(feld); if ((await feld.evaluate(e => e.checked)) !== info.an) throw new Error('Haken lässt sich nicht zurücksetzen'); detail += 'aus und wieder an'; }
           }
         } else if (info.tag === 'select') {
           const andere = info.opts.find(o => o !== info.wert);
@@ -357,7 +393,7 @@ async function felder(B) {
           if (nach !== null && nach !== w && ziff(nach).indexOf(ziff(w).replace(/0+$/, '')) < 0 && !/date|month|time/.test(info.typ)) detail = 'eingegeben „' + w + '“, steht „' + nach + '“';
           else detail = '„' + w + '“' + (nach !== null && nach !== w ? ' → „' + nach + '“' : '');
         }
-      } catch (e) { notiere('Feld', info.name, 'Fehler', e.message.split('\n')[0]); continue; }
+      } catch (e) { notiere('Feld', info.name, e.message === NEU_AUFGEBAUT ? 'Hinweis' : 'Fehler', e.message.split('\n')[0]); continue; }
       if (LOG.fehler.length) notiere('Feld', info.name, 'Fehler', LOG.fehler.join(' | '));
       else if (/steht „|verdeckt/.test(detail)) notiere('Feld', info.name, 'prüfen', detail);
       else notiere('Feld', info.name, 'ok', detail + (LOG.dialoge.length ? ' · Meldung: ' + LOG.dialoge.join(' / ') : ''));
@@ -392,7 +428,7 @@ async function knoepfe(B) {
       window.__ktSigVor = window.__ktSig(); window.__ktUrlVor = location.href; window.__ktWerteVor = window.__ktWerte(); });
     let verdeckt = '';
     try { await h.click({ timeout: 4000 }); }
-    catch (e) { verdeckt = 'nur per Skript klickbar (verdeckt oder außerhalb)';
+    catch (e) { verdeckt = 'nur per Skript klickbar (verdeckt oder außerhalb' + grund(e) + ')';
       try { await h.evaluate(el => el.click()); } catch (e2) { notiere('Knopf', k.name, 'Fehler', 'nicht klickbar: ' + e2.message.split('\n')[0]); zustandOk = false; continue; } }
     await ruhe();
     let w;
@@ -467,7 +503,10 @@ try {
 
 /* ---------- Auswertung ---------- */
 const minuten = Math.round((Date.now() - t0) / 60000);
-const schluessel = r => r.bereich + ' | ' + r.element;
+// Monat und Datum im Namen (z. B. Titelfolie „Ihr Haus Oktober 2026“) ändern sich von selbst — für den Vergleich ersetzen
+const MONATE = 'Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember';
+const schluessel = r => r.bereich + ' | ' + r.element.replace(new RegExp('\\b(' + MONATE + ') \\d{4}\\b', 'g'), '‹Monat›')
+  .replace(/\b\d{1,2}\.\d{1,2}\.\d{4}\b/g, '‹Datum›').replace(/\b\d{4}-\d{2}-\d{2}\b/g, '‹Datum›');
 const ohne = ERG.filter(r => r.ergebnis === 'ohne Wirkung').map(schluessel);
 if (opt('erwartung')) writeFileSync(ERWARTUNG, JSON.stringify([...new Set(ohne)].sort(), null, 1) + '\n');
 const erwartet = new Set(existsSync(ERWARTUNG) ? JSON.parse(readFileSync(ERWARTUNG, 'utf8')) : []);

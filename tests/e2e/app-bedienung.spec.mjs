@@ -147,3 +147,12 @@ test('Mietertrag je Gebäude (D33): Feld nur mit Anbau, Zeilen je Gebäude in de
  await expect(page.locator('#report')).toContainText('davon Anbau / Nebengebäude (25 % der Miete)');
  await expect(page.locator('#report')).toContainText('Hauptgebäude 20,00 J · Anbau 40,00 J');
 });
+test('Vermarktung: ungültiges Datum (z. B. aus einer fremden Projektdatei) zeigt „–“ statt NaN',async({page})=>{
+ await appOeffnen(page);
+ // ein Datumsfeld nimmt nur gültige Werte an — ungültige kommen nur über gespeicherte Projektdaten herein
+ const t=await page.evaluate(()=>{ pickVordruck('wh_bgf');
+   PJ_CACHE.push({id:'p_vm',name:'Fremdes Projekt',data:{fields:{vm_status:'In Vermarktung',vm_start:'Test',vm_preis:'300.000'}}});
+   vmUebersicht(); return [vmDatum('Test'),vmDatum('2026-13-01'),vmDatum('2026-09-01'),vmTage('Test'),vmTage('2026-09-01'),$('vm_inhalt').innerText]; });
+ expect(t.slice(0,5)).toEqual(['','','2026-09-01',0,28]);
+ expect(t[5]).toContain('Fremdes Projekt');expect(t[5]).not.toMatch(/NaN|Tage am Markt/);
+});
