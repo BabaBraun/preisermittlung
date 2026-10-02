@@ -34,6 +34,12 @@ Preisempfehlung, Gewichtung, Vollständigkeit und Prüfhinweisen. Am Handy ist d
 der Kopfzeile, das Ergebnis steht als Karte über der Liste. Ein Sprung oder Prüfhinweis öffnet zugeklappte Abschnitte
 und Blöcke automatisch. Beim Drucken wird alles aufgeklappt. Die Eingaben und Rechnungen sind unverändert.
 
+**Mietertrag je Gebäude (seit 02.10.2026):** Ist ein Anbau / Nebengebäude eingeschaltet, steht unter „Preis nach
+Ertrag“ das Feld „davon Anbau / Nebengebäude (€/Jahr)“. Der dort eingetragene Teil der Jahresmiete wird mit der
+Restnutzungsdauer des Anbaus kapitalisiert, der Rest mit der des Hauptgebäudes — Reinertrag und Bodenwertverzinsung
+nach dem Mietanteil, wie im Vordruck der Bank für Bank- und Lagergebäude. Die Bewertung und der Bericht zeigen beide
+Gebäude einzeln. 0 (Vorgabe) = alles beim Hauptgebäude wie bisher.
+
 ## Baupreisindex
 
 Im Abschnitt „Hauptgebäude“ (2.3 Gebäudepreis) die Gebäudeart wählen (Wohngebäude; Bürogebäude, auch für Bank- und

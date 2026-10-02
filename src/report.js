@@ -254,8 +254,10 @@ function druckbericht(){
     ${L('Grundstücksreinertrag',eur(R.grundRein))}
     ${L('− Bodenwertverzinsung ('+num2(R.effLZ)+' %)',eur(R.bodenwert*R.effLZ/100))}
     ${L('Gebäudereinertrag',eur(R.gebRein))}
-    ${L('Restnutzungsdauer / Liegenschaftszins',num2(R.erRND)+' Jahre · '+num2(R.effLZ)+' %'+(R.modPunkte?' · '+num2(R.modPunkte)+' Mod.-Pkt.':''))}
-    ${L('× Vervielfältiger',num2(R.vf))}
+    ${L('Restnutzungsdauer / Liegenschaftszins',(R.erGeb?'Hauptgebäude '+num2(R.erGeb.rndHG)+' J · Anbau '+num2(R.erGeb.rndAN)+' J':num2(R.erRND)+' Jahre')+' · '+num2(R.effLZ)+' %'+(R.modPunkte?' · '+num2(R.modPunkte)+' Mod.-Pkt.':''))}
+    ${R.erGeb?L('davon Hauptgebäude ('+(R.erGeb.anteilHG*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' % der Miete)',eur(R.erGeb.gebReinHG)+' × '+num2(R.erGeb.vfHG)+' = '+eur(R.erGeb.gebWertHG))
+      +L('davon Anbau / Nebengebäude ('+(R.erGeb.anteilAN*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' % der Miete)',eur(R.erGeb.gebReinAN)+' × '+num2(R.erGeb.vfAN)+' = '+eur(R.erGeb.gebWertAN)):''}
+    ${L('× Vervielfältiger'+(R.erGeb?' (nach Miete gewichtet)':''),num2(R.vf))}
     ${XL('xer',3)}
     ${w?'':L('+ Bodenwert (BRW, ohne Sachwertfaktor)',eur(R.bodenwert))}
     <tr class="total"><td>Preis nach Gebäudeertrag</td><td>${eur(R.ertrag)}</td></tr>

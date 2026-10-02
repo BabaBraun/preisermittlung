@@ -84,6 +84,15 @@ function anzeigen(R,D){
   setT('o_er_grund',eur(R.grundRein));setT('o_er_zinsp',num2(R.effLZ)+' % aus '+eur(R.bodenwert));
   setT('o_er_bodenz','− '+eur(D.bodenZins));setT('o_er_gebrein',eur(R.gebRein));
   setT('o_er_vf','('+num2(R.vf)+' bei '+num2(R.erRND)+' J)');setT('o_er_gebwert',eur(R.gebWert));
+  // Mietertrag je Gebäude (D33): Anteil des Anbaus, je Gebäude eigener Vervielfältiger
+  $('er_anbau_box').style.display=(!D.istWohnung&&D.anbauAktiv)?'':'none';
+  let eg=R.erGeb, proz=x=>(x*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %';
+  $('er_geb_zeilen').style.display=eg?'':'none';
+  if(eg){
+    setT('o_er_vf','('+num2(R.vf)+', nach Miete gewichtet)');
+    setT('o_er_hg_info','('+proz(eg.anteilHG)+' der Miete: '+eur(eg.gebReinHG)+' × '+num2(eg.vfHG)+' bei '+num2(eg.rndHG)+' J)'); setT('o_er_hg_wert',eur(eg.gebWertHG));
+    setT('o_er_an_info','('+proz(eg.anteilAN)+' der Miete: '+eur(eg.gebReinAN)+' × '+num2(eg.vfAN)+' bei '+num2(eg.rndAN)+' J)'); setT('o_er_an_wert',eur(eg.gebWertAN));
+  }
   setT('o_er_boden',eur(R.bodenwert));setT('o_ertrag',eur(R.ertrag));
   // 7 Nießbrauch / Wohnrecht / Leibrente
   $('niess_body').style.opacity=D.niessAktiv?1:.4;

@@ -216,7 +216,7 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 48 | [–] entfällt mit der Liegenschaftsverwaltung (D27) | |
 | 49 | [x] Bewertungen je Liegenschaft mit Fortschreibung, amtlicher Baupreisindex BW, Eigennutzung — erledigt 2026-10-01 (D23) | jährliche Bewertung der Liegenschaften der Bank |
 | 50 | [ ] Baupreisindex BW vierteljährlich nachtragen (`js/baupreisindex.js`): August 2026 erscheint im Oktober, November 2026 Anfang 2027 | Stichtag 31.12.2026 braucht den Novemberwert |
-| 51 | [~] Ertragswert getrennt je Gebäude und fehlende Bauteile (Kostenanteil 0): in der Jahresbewertung umgesetzt (D24); in der Preisermittlung offen | Bank- und Lagergebäude in einer Bewertung |
+| 51 | [~] Ertragswert getrennt je Gebäude: in der Jahresbewertung (D24) und seit 2026-10-02 in der Preisermittlung (Mietanteil des Anbaus, eigene Restnutzungsdauer, D33). Offen: fehlende Bauteile (Kostenanteil 0) in der Preisermittlung — dort zählt Stufe 0 heute als Stufe 3 | Bank- und Lagergebäude in einer Bewertung |
 | 52 | [x] Jahresbewertung als eigener Bereich mit änderbarem Vordruck der Bank, Fortschreiben aller Objekte, Excel-Übersicht — erledigt 2026-10-01 (D24) | Liegenschaften der Bank 2023/2024/2026 |
 | 53 | [x] Bereich „Liegenschaften“ statt Liegenschaftsverwaltung und Jahresbewertung; Update-Hinweis „Neue Version“ — erledigt 2026-10-01 (D27) | Rückmeldung des Auftraggebers |
 | 54 | [x] Historischer Vergleich zweier Stichtage je Liegenschaft (Veränderung je Kennzahl, jede Zahl änderbar, ohne Namen und Anschrift) — erledigt 2026-10-01 (D29) | Vorlage „Historischer Vergleich“ des Auftraggebers |

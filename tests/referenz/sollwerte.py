@@ -101,9 +101,28 @@ def bewerte(f, jahr):
     vergleich = z('ek_wohnflaeche') * z('vw_preis') + z('vw_garage') + z('vw_sonst')
     r['vergleichswert'] = vergleich
 
+    # Anbau / Nebengebäude: eigenes Baujahr, eigene Normalherstellungskosten und Restnutzungsdauer
+    # (Modernisierungspunkte wie beim Hauptgebäude), Außenanlagen des Anbaus
+    anbau = an('anbau_aktiv') and not wohnung
+    anbau_vorlaeufig, rnd_anbau = 0.0, 0.0
+    if anbau:
+        bgf_an = sum(z('bgfan_l%d' % i) * z('bgfan_b%d' % i) + z('bgfan_e%d' % i) for i in range(6))
+        txt_an = f.get('nhkan_base', '')
+        basis_an = [float(x.strip().replace(',', '.')) for x in txt_an.replace(';', ',').split(',') if x.strip()] if txt_an else []
+        if len(basis_an) < 5:
+            basis_an = [615, 685, 785, 945, 1180]
+        nhk_an = sum(g * kostenkennwert(basis_an, z('nhkan_s%d' % i) or 3) for i, g in enumerate(GEWICHTE))
+        gnd_an = z('nhkan_gnd') or 80
+        alter_an = max(jahr - z('an_baujahr'), 0) if z('an_baujahr') > 0 else 0
+        rnd_anbau = z('nhkan_rnd') if z('nhkan_rnd') > 0 else restnutzungsdauer(alter_an, gnd_an, punkte)
+        wm_an = min(max((gnd_an - rnd_anbau) / gnd_an, 0), 1)
+        an_je_m2 = nhk_an * (z('bpi_faktor') or 1) * (z('bpi') or 100) / 100 * (z('nhk_regional') or 1) * (1 - wm_an)
+        anbau_vorlaeufig = bgf_an * an_je_m2 + z('an_aussen')
+        r.update(rnd_anbau=rnd_anbau, anbau_je_m2=an_je_m2)
+
     # Sachwert: vorläufiger Sachwert × Sachwertfaktor
     faktor = z('markt_faktor') or 1
-    vorlaeufig = boden + gebaeude + z('hg_aussen') + z('hg_garage')
+    vorlaeufig = boden + gebaeude + z('hg_aussen') + z('hg_garage') + anbau_vorlaeufig
     sachwert = vergleich if wohnung else vorlaeufig * faktor + z('sub_zuschlag') + z('sub_abschlag')
     r['substanz'] = sachwert
 
@@ -121,11 +140,21 @@ def bewerte(f, jahr):
         bewirt = z('ek_hausgeld_nu') * 12
     else:
         bewirt = roh * z('er_bewirt') / 100
-    rein = (roh - bewirt) * (1 - z('er_gewerbe') / 100)
-    gebaeude_rein = rein - boden * lz / 100
     rnd_ertrag = z('er_rnd_override') if (wohnung and z('er_rnd_override') > 0) else rnd
-    v = rentenbarwertfaktor(lz, rnd_ertrag)
-    ertrag = gebaeude_rein * v + z('er_aussen') + z('er_objekt') + boden
+    # Mietertrag je Gebäude wie im Vordruck der Bank (Bank- und Lagergebäude): Jedes Gebäude trägt seinen Teil des
+    # Rohertrags, der Bewirtschaftung und des Bodenwerts (nach Mietanteil) und wird mit seiner eigenen
+    # Restnutzungsdauer kapitalisiert. Ohne Miete für den Anbau gibt es nur das Hauptgebäude.
+    roh_anbau = min(max(z('er_miete_anbau'), 0), max(roh, 0)) if anbau else 0.0
+    teile = [(roh - roh_anbau, rnd_ertrag)] + ([(roh_anbau, rnd_anbau)] if roh_anbau > 0 else [])
+    gebaeudewert = 0.0
+    for roh_teil, rnd_teil in teile:
+        anteil = roh_teil / roh if roh > 0 else 1.0
+        rein_teil = (roh_teil - bewirt * anteil) * (1 - z('er_gewerbe') / 100)
+        gebaeude_rein_teil = rein_teil - boden * anteil * lz / 100
+        gebaeudewert += gebaeude_rein_teil * rentenbarwertfaktor(lz, rnd_teil)
+    gebaeude_rein = (roh - bewirt) * (1 - z('er_gewerbe') / 100) - boden * lz / 100
+    v = gebaeudewert / gebaeude_rein if gebaeude_rein else rentenbarwertfaktor(lz, rnd_ertrag)
+    ertrag = gebaeudewert + z('er_aussen') + z('er_objekt') + boden
     r.update(roh=roh, bewirt=bewirt, vf=v, ertrag=ertrag)
 
     # Gewichtung

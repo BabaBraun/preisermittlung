@@ -105,3 +105,14 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
 - Tests: `tests/unit/kern.test.mjs` (64 Fälle gegen `tests/referenz/leibrente.py`),
   `tests/unit/modellkorrekturen.test.mjs`, `tests/e2e/modellkorrekturen.spec.mjs`.
 
+
+## 10. Mietertrag je Gebäude — nur neue Anzeigefelder (2026-10-02)
+
+- Quelle: Vordruck der Bank „Preiseinschätzung Bank- und Lagergebäude“ (Ertrag je Gebäude mit eigener
+  Restnutzungsdauer, Boden nach Mietanteil), ImmoWertV § 27 ff.; D33.
+- Keine Zahl und kein bisheriger Text der zehn Vergleichsfälle ändert sich (maschinell verglichen): Keiner hat eine
+  Miete für den Anbau eingetragen, der Anteil des Hauptgebäudes ist damit genau 1.
+- Neu in `texte`: `o_er_hg_info`, `o_er_hg_wert`, `o_er_an_info`, `o_er_an_wert` (leer bzw. „0 €“ — die Zeilen je
+  Gebäude sind ausgeblendet, solange nichts aufgeteilt ist).
+- Tests: `tests/unit/kern.test.mjs` (Handrechnung), neuer Fall `haus_anbau_miete_je_gebaeude` der Python-
+  Vergleichsrechnung (`tests/referenz/`), Selbsttest, `tests/e2e/app-bedienung.spec.mjs`.

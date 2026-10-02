@@ -311,8 +311,19 @@ function bewerte(e,k){
   let bodenZins=bodenwert*effLZ/100;
   let gebRein=grundRein-bodenZins;
   let erRND=(istWohnung&&e.n('er_rnd_override')>0)?e.n('er_rnd_override'):hg.rnd;
-  let vf=barwertfaktor(effLZ,erRND);
-  let gebWert=gebRein*vf;
+  /* Mietertrag je Gebäude (D33) wie im Vordruck der Bank (Bank- und Lagergebäude Gronau, js/jahresbewertung.js): Der dem
+     Anbau zugeordnete Teil des Rohertrags trägt Bewirtschaftung, Abschlag und Bodenwert(-verzinsung) nach seinem
+     Mietanteil und wird mit der Restnutzungsdauer des Anbaus kapitalisiert, der Rest mit der des Hauptgebäudes. Ohne
+     Miete für den Anbau ist der Anteil des Hauptgebäudes genau 1 — das Ergebnis bleibt wie bisher. */
+  let anRoh=(!istWohnung&&anbauAktiv)?Math.min(Math.max(e.n('er_miete_anbau')*szen.miete,0),Math.max(roh,0)):0;
+  let anAnteil=roh>0?anRoh/roh:0, hgAnteil=1-anAnteil;
+  let vfHG=barwertfaktor(effLZ,erRND), vfAN=anAnteil>0?barwertfaktor(effLZ,an.rnd):0;
+  let gebReinHG=gebRein*hgAnteil, gebReinAN=gebRein*anAnteil;
+  let gebWertHG=gebReinHG*vfHG, gebWertAN=gebReinAN*vfAN;
+  let vf=hgAnteil*vfHG+anAnteil*vfAN;   // Vervielfältiger nach Mietanteil gewichtet
+  let gebWert=gebWertHG+gebWertAN;
+  let erGeb=anAnteil>0?{anteilHG:hgAnteil,anteilAN:anAnteil,rohHG:roh-anRoh,rohAN:anRoh,bodenHG:bodenwert*hgAnteil,bodenAN:bodenwert*anAnteil,
+    gebReinHG,gebReinAN,rndHG:erRND,rndAN:an.rnd,vfHG,vfAN,gebWertHG,gebWertAN}:null;
   let ertrag=gebWert+e.n('er_aussen')+e.n('er_objekt')+extras(e,'xer',3)+bodenwert;
   D.gew=gew; D.bodenZins=bodenZins;
   // 7 Nießbrauch / Wohnrecht / Leibrente
@@ -412,7 +423,7 @@ function bewerte(e,k){
   let reNetto=reInvest>0?reRein/reInvest*100:0;
   let reFaktor=roh>0?reKP/roh:0;
 
-  const R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,beleihungswert,bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte:modP,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
+  const R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,erGeb,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,beleihungswert,bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte:modP,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};
@@ -438,7 +449,7 @@ function protokollLeser(e){
   const gelesen=new Set();
   return {gelesen, leser:{n:id=>{ gelesen.add(id); return e.n(id); }, v:e.v, an:e.an}};
 }
-const NICHT_NEGATIV=/^(ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche|ek_nutzflaeche|bgf(hg|an)_[lbe]\d|ek_baujahr|an_baujahr|ek_miete_\w+|mr_(fl|pm2|pau)\d+|vw_(preis|garage)|pv_\w+|ni_(alter|leben|zins|miete|rente|grundst|kapwert|nuk)|eb_(restlaufzeit|zins_eur|verzinsung|abschlag)|nhk(hg|an)_(gnd|rnd|s\d)|markt_faktor|bpi|bpi_faktor|nhk_regional|verhandlung|gew_vergleich|er_bw_\w+|er_bewirt|er_gewerbe|er_zins_basis|ek_anz_\w+|bw_\w+|re_\w+|ek_hausgeld\w*|ek_grundsteuer|en_(kennwert|preis_kwh|jahre|zins|pct_stufe)|mod_p\d|vgl_(fl|kp)\d|msp_(min|max|avg)\d)$/;
+const NICHT_NEGATIV=/^(ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche|ek_nutzflaeche|bgf(hg|an)_[lbe]\d|ek_baujahr|an_baujahr|ek_miete_\w+|er_miete_anbau|mr_(fl|pm2|pau)\d+|vw_(preis|garage)|pv_\w+|ni_(alter|leben|zins|miete|rente|grundst|kapwert|nuk)|eb_(restlaufzeit|zins_eur|verzinsung|abschlag)|nhk(hg|an)_(gnd|rnd|s\d)|markt_faktor|bpi|bpi_faktor|nhk_regional|verhandlung|gew_vergleich|er_bw_\w+|er_bewirt|er_gewerbe|er_zins_basis|ek_anz_\w+|bw_\w+|re_\w+|ek_hausgeld\w*|ek_grundsteuer|en_(kennwert|preis_kwh|jahre|zins|pct_stufe)|mod_p\d|vgl_(fl|kp)\d|msp_(min|max|avg)\d)$/;
 const PROZENT_MAX=/^(ek_gs_abschlag|xgs[12]_abschlag|er_bewirt|er_gewerbe|er_bw_mietausfall|pv_bewirt|ni_nuk|eb_abschlag|bw_bewirt|bw_sicher|bw_besichtigung|bw_abschlag|gew_vergleich|verhandlung|re_grest|re_notar|re_makler)$/;
 function pruefen(e,R,D,gelesen){
   const h=[], fehlend=[];
@@ -464,6 +475,9 @@ function pruefen(e,R,D,gelesen){
       +num2(R.hg.rnd)+' J'+(hoch?' — mehr als die im Modell vorgesehenen 70 % der GND':'')+'. Restnutzungsdauer sachverständig prüfen und in 2.2 von Hand eintragen.'});
   }
   if(R.bodenwert<0) h.push({feld:'ek_brw',stufe:'fehler',art:'ergebnis',text:'Der Bodenwert ist negativ ('+eur(R.bodenwert)+').'});
+  /* Mietertrag je Gebäude (D33): der Anbau-Anteil ist ein Teil des Rohertrags */
+  if(!D.istWohnung&&D.anbauAktiv&&e.n('er_miete_anbau')>0&&e.n('er_miete_anbau')>R.roh+0.005)
+    h.push({feld:'er_miete_anbau',stufe:'warn',art:'anbau',text:'Der Anteil des Anbaus ('+eur(e.n('er_miete_anbau'))+') ist größer als der Rohertrag ('+eur(R.roh)+') — gerechnet wird mit dem ganzen Rohertrag beim Anbau.'});
   /* Mindestangaben für eine Preisempfehlung */
   let g=R.g;
   if(D.istWohnung){

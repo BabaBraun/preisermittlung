@@ -1,3 +1,8 @@
+# Zusammenfassung — Mietertrag je Gebäude in der Preisermittlung (2026-10-02)
+
+Mit Anbau: „davon Anbau / Nebengebäude (€/Jahr)“ — jedes Gebäude rechnet mit seiner eigenen Restnutzungsdauer wie im
+Vordruck der Bank; ohne Eintrag unverändert (D33).
+
 # Zusammenfassung — Klicktest dauerhaft, Bewertung aus der Kundenakte, Verlauf der Liegenschaften (2026-10-02)
 
 `npm run klicktest` / GitHub Actions klicken die ganze App durch; neue Bewertung direkt aus der Kundenakte (angefangene

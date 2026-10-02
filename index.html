@@ -783,6 +783,12 @@
         </table>
         <p class="hint">Wohnungen: Fläche × €/m²·Monat. Stellplätze/Gewerbe pauschal: €/Monat. Leere Zeilen zählen nicht.</p>
       </div>
+      <div id="er_anbau_box" class="haus-only" style="display:none">
+        <div class="grid" style="margin-top:10px">
+          <div class="field"><label>davon Anbau / Nebengebäude <span class="u">€/Jahr</span></label><input id="er_miete_anbau" type="text" value="0"></div>
+        </div>
+        <p class="hint">Teil des Rohertrags, der auf den Anbau bzw. das Nebengebäude entfällt. Dann rechnet jedes Gebäude mit seiner eigenen Restnutzungsdauer wie im Vordruck der Bank: Reinertrag und Bodenwertverzinsung nach dem Mietanteil. 0 = alles beim Hauptgebäude.</p>
+      </div>
 
       <div class="grid four" style="margin-top:10px">
         <div class="field"><label>Liegenschaftszins Basiszins <span class="u">% (Gutachterausschuss)</span></label><input id="er_zins_basis" type="text" value="2.5"></div>
@@ -812,6 +818,10 @@
       <div class="row-calc"><span>− Bodenwertverzinsung (<span id="o_er_zinsp"></span>)</span><b id="o_er_bodenz">0 €</b></div>
       <div class="row-calc"><span>Gebäudereinertrag</span><b id="o_er_gebrein">0 €</b></div>
       <div class="row-calc"><span>× Vervielfältiger (Barwertfaktor) <span id="o_er_vf"></span></span><b id="o_er_gebwert">0 €</b></div>
+      <div id="er_geb_zeilen" style="display:none">
+        <div class="row-calc"><span>davon Hauptgebäude <span id="o_er_hg_info" class="from"></span></span><b id="o_er_hg_wert">0 €</b></div>
+        <div class="row-calc"><span>davon Anbau / Nebengebäude <span id="o_er_an_info" class="from"></span></span><b id="o_er_an_wert">0 €</b></div>
+      </div>
       <div class="grid" style="margin-top:8px">
         <div class="field"><label>+ Außenanlagen / Sonstiges €</label><input id="er_aussen" type="text" value="0"></div>
         <div class="field"><label>± objektspez. Merkmale €</label><input id="er_objekt" type="text" value="0"></div>

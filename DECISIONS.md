@@ -708,3 +708,27 @@ Bausubstanz, Mietertrag (Grund und Boden nur ohne Gebäude — er steckt in beid
 dehnen). Entwürfe hohl, verglichene Stichtage hinterlegt, rechnet beim Eintippen mit; eigenes SVG ohne Bibliothek, in
 der App so breit wie der Platz (lesbar am iPhone), im Dokument mit festen Farben und für Word als Bild.
 
+---
+
+## D33 (2026-10-02) — Mietertrag je Gebäude in der Preisermittlung
+
+**Wunsch des Auftraggebers:** Vorschlag 7 — den Mietertrag in der normalen Bewertung getrennt je Gebäude rechnen, wie bei
+Bank- und Lagergebäude in Gronau.
+
+**Befund:** Die Preisermittlung rechnete den Anbau / das Nebengebäude in der Bausubstanz mit eigener Restnutzungsdauer,
+kapitalisierte im Ertragswert aber den ganzen Gebäudereinertrag mit der Restnutzungsdauer des Hauptgebäudes.
+
+**Beleg:** Der Vordruck der Bank (Preiseinschätzung Bank- und Lagergebäude, Stichtage 2023/2024) rechnet je Gebäude:
+Rohertrag des Gebäudes, Bewirtschaftung und Abschlag, Bodenwert nach dem Mietanteil, Bodenwertverzinsung,
+Gebäudereinertrag × Vervielfältiger aus der Restnutzungsdauer des Gebäudes; die Jahresbewertung bildet das seit D24 auf
+den Cent nach. ImmoWertV § 27 ff.: Kapitalisiert wird über die Restnutzungsdauer der baulichen Anlagen.
+
+**Entscheidung:** Neues Feld „davon Anbau / Nebengebäude (€/Jahr)“ (nur mit Anbau, nur Haus). Dieser Teil des Rohertrags
+trägt Bewirtschaftung, Abschlag und Bodenwert(-verzinsung) nach seinem Mietanteil und wird mit der Restnutzungsdauer
+des Anbaus kapitalisiert, der Rest mit der des Hauptgebäudes. Weil alles vor dem Vervielfältiger anteilig ist,
+entspricht das einem nach Miete gewichteten Vervielfältiger. Ohne Eintrag (Vorgabe 0) ist der Anteil des Hauptgebäudes
+genau 1 — alle bisherigen Ergebnisse bleiben gleich (keine Änderung an golden.json und an den Sollwerten der bisherigen
+Fälle). Mehr als der Rohertrag wird auf den ganzen Rohertrag begrenzt, mit Hinweis. Der Beleihungswert (BelWertV) behält
+sein eigenes Modell. Geprüft: Handrechnung (Unit-Test und Selbsttest), neuer Fall der unabhängigen Python-Vergleichs-
+rechnung (dort jetzt auch Substanz des Anbaus), Browsertest der Anzeige und des Berichts.
+

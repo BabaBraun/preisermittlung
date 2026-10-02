@@ -34,6 +34,8 @@ async function exportExcel(){
     ['Restnutzungsdauer Jahre',dez(R.erRND)],['Modernisierungspunkte',dez(R.modPunkte)],
     ['Liegenschaftszins',pct(R.effLZ)],['Vervielfältiger',dez(R.vf)],
     ['Jahresrohertrag',eur(R.roh)],['Bewirtschaftungskosten',eur(R.bewirt)],['Gebäudereinertrag',eur(R.gebRein)],
+    ...(R.erGeb?[['Mietanteil Anbau / Nebengebäude',pct(R.erGeb.anteilAN*100)],['Restnutzungsdauer Anbau Jahre',dez(R.erGeb.rndAN)],
+      ['Vervielfältiger Hauptgebäude',dez(R.erGeb.vfHG)],['Vervielfältiger Anbau',dez(R.erGeb.vfAN)]]:[]),
     [modus()==='wohnung'?'Preis nach Vergleichswert':'Preis nach Gebäudesubstanz',eur(R.substanz)],['Preis nach Gebäudeertrag',eur(R.ertrag)],
     ['Vergleichswert',eur(R.vergleichWert)],['Gewichteter Mittelwert',eur(R.mittel)],
     ['Belastung Nießbrauch/Wohnrecht/Leibrente',eur(R.niessWert)],['Korrektur Erbbaurecht',eur(R.erbbauAbzug)],

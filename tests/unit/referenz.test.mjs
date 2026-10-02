@@ -1,6 +1,7 @@
 /* Rechenkern gegen die unabhängige Python-Vergleichsrechnung (tests/referenz/sollwerte.py):
    Gewerbe mit Mietrolle, Wohnhaus mit Nießbrauch/Vergleichswert/Energie, Wohnungsrecht mit Erbbaurecht und PV,
-   Eigentumswohnung mit Leibrente, Zins 0 %, sehr altes Gebäude, leere Eingaben. */
+   Eigentumswohnung mit Leibrente, Zins 0 %, sehr altes Gebäude, leere Eingaben, Wohnhaus mit Anbau und Mietertrag
+   je Gebäude (D33). */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -16,7 +17,8 @@ const WERTE = {
   mittel: (R) => R.mittel, pvWert: (R) => R.pvWert, energieWert: (R) => R.energieWert, niessWert: (R) => R.niessWert,
   erbbauAbzug: (R) => R.erbbauAbzug, wkSumme: (R) => R.wkSumme, empfehlung: (R) => R.empfehlung,
   spanne_unten: (R) => R.empfehlung * (1 - R.vh), spanne_oben: (R) => R.empfehlung * (1 + R.vh),
-  reBrutto: (R) => R.reBrutto, reFaktor: (R) => R.reFaktor
+  reBrutto: (R) => R.reBrutto, reFaktor: (R) => R.reFaktor,
+  rnd_anbau: (R) => R.an.rnd, anbau_je_m2: (R) => R.an.preis   // Anbau mit eigener Restnutzungsdauer (D33)
 };
 
 for (const [name, fall] of Object.entries(FAELLE)) {

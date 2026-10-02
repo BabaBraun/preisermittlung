@@ -130,3 +130,20 @@ test('Neue Bewertung aus der Kundenakte: angefangene Bewertung wird vorher als P
  expect(await page.evaluate(()=>[$('ek_anschrift').value,$('ek_ag').value,$('ek_modus').value,document.body.classList.contains('started'),pjLoad().map(p=>p.name)]))
   .toEqual(['','Erika Musterfrau','haus',true,['Altweg 1, Musterstadt']]);
 });
+test('Mietertrag je Gebäude (D33): Feld nur mit Anbau, Zeilen je Gebäude in der Bewertung und im Bericht',async({page})=>{
+ await appOeffnen(page);
+ await fallAnwenden(page,{felder:{ek_modus:'haus',ek_gs_flaeche:'1000',ek_brw:'100',ek_miete_wohnen:'12.000',er_bewirt:'20',er_zins_basis:'4',nhkhg_rnd:'20',nhkan_rnd:'40'}});
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);});
+ await expect(page.locator('#er_anbau_box')).toBeHidden();await expect(page.locator('#o_ertrag')).toHaveText('176.106 €');
+ await page.locator('#anbau_aktiv').check();
+ await expect(page.locator('#er_anbau_box')).toBeVisible();
+ await page.locator('#er_miete_anbau').fill('3.000');await page.locator('#er_miete_anbau').blur();
+ // 4.200 × 13,590326 + 1.400 × 19,792774 + 100.000 (Handrechnung im Unit-Test)
+ await expect(page.locator('#er_geb_zeilen')).toBeVisible();
+ await expect(page.locator('#o_er_hg_info')).toContainText('75 % der Miete');await expect(page.locator('#o_er_an_info')).toContainText('25 % der Miete');
+ await expect(page.locator('#o_er_hg_wert')).toHaveText('57.079 €');await expect(page.locator('#o_er_an_wert')).toHaveText('27.710 €');
+ await expect(page.locator('#o_ertrag')).toHaveText('184.789 €');
+ await page.evaluate(()=>druckbericht());
+ await expect(page.locator('#report')).toContainText('davon Anbau / Nebengebäude (25 % der Miete)');
+ await expect(page.locator('#report')).toContainText('Hauptgebäude 20,00 J · Anbau 40,00 J');
+});

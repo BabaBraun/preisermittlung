@@ -174,6 +174,40 @@
       "en_basis": "zusatz"
     }
   },
+  "haus_anbau_miete_je_gebaeude": {
+    "jahr": 2026,
+    "felder": {
+      "ek_modus": "haus",
+      "ek_gs_flaeche": 900,
+      "ek_brw": 380,
+      "ek_baujahr": 1972,
+      "ek_wohnflaeche": 190,
+      "ek_miete_wohnen": 21600,
+      "bgfhg_e0": 180,
+      "bgfhg_e1": 180,
+      "nhkhg_base": "655, 725, 835, 1005, 1260",
+      "nhkhg_gnd": 80,
+      "mod_p0": 2,
+      "mod_p1": 2,
+      "bpi": 131,
+      "bpi_faktor": 1.406,
+      "hg_aussen": 12000,
+      "markt_faktor": 1,
+      "anbau_aktiv": true,
+      "an_baujahr": 2004,
+      "bgfan_e0": 60,
+      "bgfan_e1": 60,
+      "nhkan_base": "480, 535, 615, 740, 925",
+      "nhkan_gnd": 60,
+      "an_aussen": 3000,
+      "er_miete_anbau": 6000,
+      "er_bewirt": 20,
+      "er_zins_basis": 2.5,
+      "er_zins_adj": 0.2,
+      "gewichtung": "0.5",
+      "verhandlung": 5
+    }
+  },
   "etw_hausgeld_leibrente": {
     "jahr": 2026,
     "felder": {

@@ -235,3 +235,35 @@ test('Eingabeprüfung: Status für gültige, fehlerhafte und unvollständige Bew
   const altManuell = pruefe(Object.assign({}, haus, { ek_baujahr: '1850', nhkhg_rnd: '15' }));
   assert.ok(!altManuell.hinweise.some(h => h.art === 'rnd'), 'von Hand gesetzte RND: kein Hinweis');
 });
+
+test('Mietertrag je Gebäude (D33): Anbau mit eigener Restnutzungsdauer, Handrechnung', () => {
+  // Boden 1.000 m² × 100 € = 100.000 €; Miete 12.000 €/Jahr, davon 3.000 € (25 %) Anbau; Bewirtschaftung 20 %, Zins 4 %;
+  // RND Hauptgebäude 20 J., Anbau 40 J. (von Hand eingetragen)
+  const basis = { ek_modus: 'haus', ek_gs_flaeche: 1000, ek_brw: 100, ek_miete_wohnen: 12000, er_bewirt: 20, er_zins_basis: 4,
+    nhkhg_rnd: 20, anbau_aktiv: true, nhkan_rnd: 40, gewichtung: '0.5' };
+  const rechne = extra => K.bewerte(leser(Object.assign({}, basis, extra)), { jahr: 2026 });
+  // Gebäudereinertrag 12.000 − 2.400 − 4.000 = 5.600 €; RBF(4 %; 20) = 13,590326, RBF(4 %; 40) = 19,792774
+  const { R } = rechne({ er_miete_anbau: 3000 });
+  nahe(assert, R.gebRein, 5600, 1e-9, 'Gebäudereinertrag');
+  assert.equal(R.erGeb.anteilAN, 0.25);
+  nahe(assert, R.erGeb.vfHG, 13.590326, 1e-6, 'Vervielfältiger Hauptgebäude');
+  nahe(assert, R.erGeb.vfAN, 19.792774, 1e-6, 'Vervielfältiger Anbau');
+  nahe(assert, R.erGeb.gebReinHG, 4200, 1e-9, 'Gebäudereinertrag Hauptgebäude (75 %)');
+  nahe(assert, R.erGeb.bodenAN, 25000, 1e-9, 'Bodenwert nach Mietanteil');
+  // 4.200 × 13,590326 + 1.400 × 19,792774 + 100.000 = 57.079,37 + 27.709,88 + 100.000
+  nahe(assert, R.ertrag, 184789.25, 0.01, 'Ertragswert je Gebäude');
+  nahe(assert, R.vf, 0.75 * 13.590326 + 0.25 * 19.792774, 1e-6, 'Vervielfältiger nach Miete gewichtet');
+  // ohne Anbau-Miete genau wie bisher: 5.600 × 13,590326 + 100.000
+  const ohne = rechne({}).R, null0 = rechne({ er_miete_anbau: 0 }).R;
+  nahe(assert, ohne.ertrag, 176105.83, 0.01, 'ohne Aufteilung');
+  assert.equal(null0.ertrag, ohne.ertrag); assert.equal(null0.erGeb, null); assert.equal(ohne.vf, K.barwertfaktor(4, 20));
+  // Anbau ausgeschaltet oder Wohnung: das Feld zählt nicht
+  assert.equal(rechne({ er_miete_anbau: 3000, anbau_aktiv: false }).R.ertrag, ohne.ertrag);
+  assert.equal(rechne({ er_miete_anbau: 3000, ek_modus: 'wohnung' }).R.erGeb, null);
+  // mehr als der Rohertrag: höchstens alles beim Anbau, mit Hinweis
+  const zuviel = rechne({ er_miete_anbau: 20000 });
+  assert.equal(zuviel.R.erGeb.anteilAN, 1);
+  nahe(assert, zuviel.R.ertrag, 5600 * 19.792774 + 100000, 0.01, 'alles beim Anbau');
+  const p = K.pruefen(leser(Object.assign({}, basis, { er_miete_anbau: 20000 })), zuviel.R, zuviel.D, new Set(['er_miete_anbau']));
+  assert.ok(p.hinweise.some(h => h.feld === 'er_miete_anbau' && /größer als der Rohertrag/.test(h.text)));
+});

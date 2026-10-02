@@ -142,6 +142,11 @@ window.iaSelbsttest=function(){
     pruef('Bausteine','Leibrente ohne Zins ≈ Lebenserwartung + ½ Monat (Frau 74 J)',leibrentenfaktor(74,'w',0)-restLeben(74,'w'),0.045,0.03);
     pruef('Bausteine','Restnutzungsdauer Anlage 2: 7 Punkte, Alter 41, GND 80',computeRND(41,80,7),43.98717,0.0001);
     pruef('Bausteine','Restnutzungsdauer Anlage 2: 8 Punkte, Alter 121, GND 80 (Gutachten ALEX99)',computeRND(121,80,8),38.41,0.005);
+    // Mietertrag je Gebäude (D33), Handrechnung: Boden 100.000 €, Miete 12.000 €, davon 25 % Anbau, Bewirtschaftung 20 %,
+    // Zins 4 %, RND 20 bzw. 40 J. → 4.200 × 13,590326 + 1.400 × 19,792774 + 100.000
+    const anbauFall={ek_modus:'haus',ek_gs_flaeche:1000,ek_brw:100,ek_miete_wohnen:12000,er_bewirt:20,er_zins_basis:4,nhkhg_rnd:20,anbau_aktiv:true,nhkan_rnd:40,er_miete_anbau:3000};
+    const anbauLeser={n:id=>+anbauFall[id]||0,v:id=>anbauFall[id]==null?'':String(anbauFall[id]),an:id=>!!anbauFall[id]};
+    pruef('Bausteine','Mietertrag je Gebäude: Anbau mit eigener Restnutzungsdauer',ImmoKern.bewerte(anbauLeser,{jahr:2026}).R.ertrag,184789.25,0.01);
     pruef('Bausteine','Anrechnung Balkon § 4 WoFlV',rlFaktor('bal'),0.25,0);
     pruef('Bausteine','Anrechnung lichte Höhe 1–2 m',rlFaktor('halb'),0.5,0);
     pruef('Bausteine','Anrechnung Zubehörraum',rlFaktor('zub'),0,0);
