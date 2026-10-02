@@ -1,8 +1,7 @@
 /* ---------- PDF-Download ---------- */
 function pdfName(){
   let r=$('report'); if(r&&r.dataset.pdfname) return r.dataset.pdfname+'.pdf';
-  let n=($('ek_anschrift').value||'Preisermittlung').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Preisermittlung';
-  return 'Preisermittlung '+n+'.pdf';
+  return berichtName()+'.pdf';
 }
 /* PDF-Baustein (html2pdf 0.10.1) liegt im Repository (vendor/) und im Service-Worker-Cache — die
    PDF-Erstellung funktioniert damit auch offline. Integritätsprüfung wie bisher (D3); fehlt die lokale

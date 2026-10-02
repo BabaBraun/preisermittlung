@@ -221,3 +221,4 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 53 | [x] Bereich „Liegenschaften“ statt Liegenschaftsverwaltung und Jahresbewertung; Update-Hinweis „Neue Version“ — erledigt 2026-10-01 (D27) | Rückmeldung des Auftraggebers |
 | 54 | [x] Historischer Vergleich zweier Stichtage je Liegenschaft (Veränderung je Kennzahl, jede Zahl änderbar, ohne Namen und Anschrift) — erledigt 2026-10-01 (D29) | Vorlage „Historischer Vergleich“ des Auftraggebers |
 | 55 | [x] Neue Bewertung: nur Objektart wählen (Eigentumswohnung, Wohnhaus, Laden / Büro / Praxis, Gewerbe / Betrieb), keine zweite Vordruck-Auswahl — erledigt 2026-10-01 (D30) | Rückmeldung des Auftraggebers |
+| 56 | [x] Klicktest der ganzen App (PC und iPhone-Ansicht) und Befunde behoben: Export-Menü am iPhone, Effizienzklasse von Hand, Beschriftung der Kopfzeilen-Knöpfe, Hinweis im Sanierungsweg, Dateinamen, Handzeiger — erledigt 2026-10-02 (D31) | Auftrag „die ganze App einmal komplett testen“ |

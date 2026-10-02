@@ -650,3 +650,34 @@ Anbau, Nießbrauch) und in einem Fall die Gewichtung 40 : 60; diese Schalter ste
 die Gewichtung in der Preisempfehlung. Rechnung, Felder und gespeicherte Bewertungen bleiben unverändert (ältere
 Bewertungen behalten ihre Vordruck-Bezeichnung).
 
+---
+
+## D31 (2026-10-02) — Klicktest der ganzen App, Befunde behoben
+
+**Wunsch des Auftraggebers:** Die ganze App auf ihre Funktion testen — jeder Knopf, jedes Auf- und Zuklappen, jedes
+Eingabefeld —, ohne dabei an der Rechnung etwas zu ändern; danach die Befunde beheben.
+
+**Vorgehen:** Ein Prüfprogramm (außerhalb des Repositorys) öffnete am PC (Chromium) und in der iPhone-Ansicht (WebKit)
+38 Bereiche mit Musterdaten, klappte jeden Abschnitt und Block auf und zu, füllte jedes Feld bzw. stellte jeden
+Schalter und jede Auswahl um und las den Wert zurück, klickte jeden Knopf und Link und prüfte, ob etwas passiert
+(Ansicht, Inhalt, Feldwerte, Meldung, Download, Druck, Teilen) und kein Skriptfehler auftritt — rund 3.900 Elemente am
+PC, 2.400 in der iPhone-Ansicht. Gegenproben: Klick ins Leere zählt als „ohne Wirkung“, App-Sperre mit simuliertem Face ID, Grundriss mit echtem
+Plan-Code, Foto, Selbsttest. Keine Skriptfehler, alle Downloads vollständig, falsche Dateien sauber abgewiesen.
+
+**Befunde und Korrektur:**
+- iPhone: Die unteren sechs Einträge des Export-Menüs lagen hinter der unteren Leiste bzw. unterhalb des Bildschirms
+  (die Kopfzeile scrollt nicht mit). Das Menü endet jetzt über der Leiste und hat einen eigenen Bildlauf.
+- Effizienzklasse: Bei eingetragenem Energiekennwert ersetzte die Neuberechnung beim ersten Auswählen die Klasse von
+  Hand durch die errechnete (das „input“-Ereignis kam vor „change“). Die Auswahl gilt jetzt schon beim „input“.
+- iPhone: Kopfzeilen-Knöpfe in Finanzierung, Marktüberblick und Liegenschaften zeigten nur ein Symbol (↓ sah wie
+  „Herunterladen“ aus, meint aber „Aus Bewertung“) und hatten keinen Namen für die Sprachausgabe — jetzt Symbol mit
+  kurzer Beschriftung darunter, wie die untere Leiste.
+- Sanierungsweg: „Aus Aufnahmebogen und Energetischer Qualität übernehmen“ meldet jetzt, wenn nichts einzutragen ist.
+- Dateinamen ohne Anschrift: „Preisermittlung.pdf/.docx/.xlsx“ statt „Preisermittlung Preisermittlung“.
+- Tabellen: Handzeiger nur noch, wo ein Klick etwas tut (Sortieren, Objekt öffnen) — nicht im Tilgungsplan und nicht
+  in den Tabellen der Liegenschaften.
+
+Kein Befund: Knöpfe „ohne Wirkung“ waren aktive Reiter, bereits offene Ansichten, leere Eingaben (dann springt der
+Cursor ins Feld) und Tabellenzeilen; „NaN Tage“ trat nur in der Testumgebung auf (WebKit unter Windows kennt keine
+Datumsfelder, das iPhone zeigt immer den Datumswähler). Rechnung unverändert.
+

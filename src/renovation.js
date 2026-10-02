@@ -108,9 +108,13 @@ function sanBericht(esc){
     +'Die Aufstellung ersetzt keine Energieberatung und keine Handwerkerangebote und ist nicht Teil des Preisansatzes.</div>';
 }
 function sanAusEnergie(){
-  let e=num('en_kennwert')||zahlLesen(exV('au_energiewert'),false); if(e>0) $('san_e0').value=(''+Math.round(e));
+  let e=num('en_kennwert')||zahlLesen(exV('au_energiewert'),false);
   let h=(exV('au_heizung_art')||'').toLowerCase(), k=/wärmepumpe/.test(h)?'wp':/etage/.test(h)?'gasetage':/öl|oel/.test(h)?'oel':/gas/.test(h)?'gas':/fernw/.test(h)?'fern':/pellet|holz|bio/.test(h)?'bio':/nachtspeicher|strom/.test(h)?'strom':'';
+  let j=(exV('au_heizung_bj').match(/(19|20)\d\d/)||[''])[0];
+  // wie „Aus Aufnahmebogen“ unter Energetische Qualität: sagen, wenn es nichts zu übernehmen gibt
+  if(!(e>0)&&!k&&!j){ alert('Im Aufnahmebogen und unter „Energetische Qualität“ ist nichts zum Übernehmen eingetragen (Energiekennwert, Heizungsart, Baujahr der Heizung).'); return; }
+  if(e>0) $('san_e0').value=(''+Math.round(e));
   if(k) $('san_heizung').value=k;
-  let j=(exV('au_heizung_bj').match(/(19|20)\d\d/)||[''])[0]; if(j) $('san_heizjahr').value=j;
+  if(j) $('san_heizjahr').value=j;
   compute(); autosave();
 }

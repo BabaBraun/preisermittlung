@@ -9,6 +9,10 @@ body.app-shell{--bg:#f4f6f6;--card:#fff;--surface-2:#f0f4f3;--field:#fbfcfc;--te
 .app-shell .app-brand strong{font-size:17px;letter-spacing:-.4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .app-shell .app-brand span{font-size:12px;color:var(--text-2)}
 .app-shell #app_exports{display:flex;align-items:center;gap:8px}
+/* Export-Menü nie länger als der Platz zwischen Kopfzeile und unterer Leiste, sonst eigener Bildlauf — am iPhone lagen
+   die unteren Einträge hinter der Leiste bzw. unterhalb des Bildschirms (die Kopfzeile scrollt nicht mit) */
+.app-shell #app_exports .menu-list{max-height:calc(100vh - var(--app-header-height) - var(--app-tab-height) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px);max-height:calc(100dvh - var(--app-header-height) - var(--app-tab-height) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.app-shell #app_exports .menu-list>*{flex-shrink:0}
 .app-shell button{min-height:44px;white-space:normal;border-radius:12px;transition:background-color .18s,opacity .18s}
 .app-shell button:active{opacity:.76}
 .app-shell button:focus-visible,.app-shell a:focus-visible,.app-shell select:focus-visible,.app-shell [role="button"]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
@@ -127,6 +131,7 @@ body.app-shell.report-mode{padding:0}
  .app-shell #mbar{left:0;top:0;bottom:0;right:auto;width:96px;height:100dvh;flex-direction:column;justify-content:center;padding:12px 10px;border-top:0;border-right:1px solid var(--line);gap:16px}
  .app-shell #mbar button{flex:none;min-height:72px}
  .app-shell #app_header{left:96px;padding-left:28px;padding-right:28px}
+ .app-shell #app_exports .menu-list{max-height:calc(100vh - var(--app-header-height) - 24px);max-height:calc(100dvh - var(--app-header-height) - 24px)}
  .app-shell .overlay.app-root-panel{left:96px;bottom:0}
 }
 @media(max-width:799px){

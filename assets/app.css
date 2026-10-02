@@ -415,9 +415,11 @@
   .mdb-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
   .mdb-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
   .mdb-tbl th,.mdb-tbl td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;white-space:nowrap}
-  .mdb-tbl th{background:var(--surface-2);color:var(--text-2);font-weight:600;cursor:pointer;position:sticky;top:0;z-index:2;font-size:11.5px}
-  .mdb-tbl th:hover{color:var(--accent)}
-  .mdb-tbl tbody tr{cursor:pointer}
+  .mdb-tbl th{background:var(--surface-2);color:var(--text-2);font-weight:600;position:sticky;top:0;z-index:2;font-size:11.5px}
+  /* Handzeiger nur, wo ein Klick etwas tut (Sortieren, Objekt öffnen) — nicht z. B. im Tilgungsplan */
+  .mdb-tbl th[onclick]{cursor:pointer}
+  .mdb-tbl th[onclick]:hover{color:var(--accent)}
+  .mdb-tbl tbody tr[onclick]{cursor:pointer}
   .mdb-tbl tbody tr:hover{background:var(--surface-2)}
   .mdb-tbl td.r{text-align:right}
   .mdb-tbl td.strong{font-weight:600;color:var(--text)}
@@ -495,7 +497,16 @@
     .mdb-tabs{top:56px}
     .mdb-head{padding:0 8px 0 16px;padding-top:env(safe-area-inset-top)}
     .mdb-head .sub{display:none}
-    .mdb-head .sp .lbl{display:none}
+    /* Kopfzeilen-Knöpfe: Symbol mit kurzer Beschriftung darunter wie die untere Leiste (nur das Symbol war
+       missverständlich, z. B. ↓ = „Aus Bewertung“, und ohne Namen für die Sprachausgabe) */
+    .mdb-head .sp{flex-wrap:nowrap;align-items:stretch}
+    .mdb-head .sp>button.icon{align-self:center}
+    .mdb-head .sp>button.secondary{flex-direction:column;justify-content:flex-start;gap:2px;padding:6px 6px 5px;font-size:10.5px;line-height:1.15;font-weight:500;flex:0 1 auto}
+    .mdb-head .sp>button.secondary .ic-svg{margin:0}
+    .mdb-head .sp .lbl{display:block;max-width:64px;text-align:center}
+  }
+  @media(max-width:340px){
+    .mdb-head .sp{flex-wrap:wrap}
   }
   /* ---------- Objektsuche ---------- */
   .search-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--rs);background:var(--field);color:var(--muted);font-weight:400;min-width:230px;justify-content:flex-start;cursor:text}

@@ -89,6 +89,8 @@ function a11yLabels(root){
 
 
 /* Kennwert und Klasse aus dem Aufnahmebogen uebernehmen, damit nichts doppelt erfasst wird */
+/* Effizienzklasse von Hand: schon beim „input“-Ereignis als eingetragen merken — sonst rechnet die allgemeine
+   Neuberechnung (document „input“) vorher und ersetzt die Auswahl durch die Klasse aus dem Energiekennwert */
 function enKlasseManuell(){ $('en_klasse').dataset.manuell='1'; compute(); }
 function enAusAufnahme(){
   let k=num('au_energiewert'), kl=($('au_energieklasse')||{value:'–'}).value;

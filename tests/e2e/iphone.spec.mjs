@@ -57,3 +57,44 @@ test('iPhone: jeder Abschnitt und Block lässt sich zu- und aufklappen, Nummern 
   for (const v of ['wh_bgf', 'etw_vergleich']) await pruefeAlles(page, v);
   await keineSkriptfehler(page);
 });
+
+test('iPhone: Export-Menü — jeder Eintrag erreichbar (Menü endet über der unteren Leiste, eigener Bildlauf)', async ({ page }) => {
+  await appOeffnen(page);
+  await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz')); await page.evaluate(() => appOpenObject());
+  await page.locator('#exportMenu > button').click();
+  const liste = page.locator('#exportMenu .menu-list');
+  await expect(liste).toBeVisible();
+  const g = await page.evaluate(() => ({ unten: document.querySelector('#exportMenu .menu-list').getBoundingClientRect().bottom, leiste: document.getElementById('mbar').getBoundingClientRect().top }));
+  expect(g.unten, 'Menü endet über der unteren Leiste').toBeLessThanOrEqual(g.leiste);
+  const eintraege = await liste.locator('button').allInnerTexts();
+  expect(eintraege.length).toBeGreaterThanOrEqual(16);
+  for (const [i, name] of eintraege.entries()) {
+    const b = liste.locator('button').nth(i);
+    await b.scrollIntoViewIfNeeded();
+    const r = await b.evaluate(e => { const q = e.getBoundingClientRect(), x = q.left + q.width / 2, y = q.top + q.height / 2, o = document.elementFromPoint(x, y); return { y, frei: !!o && e.contains(o) }; });
+    expect(r.frei, '„' + name.trim() + '“ liegt frei unter dem Finger').toBe(true);
+    expect(r.y).toBeLessThan(g.leiste);
+  }
+  // der unterste Eintrag lässt sich wirklich antippen
+  await liste.getByRole('button', { name: 'Selbsttest Rechenkern' }).click();
+  await expect(page.locator('#st_overlay')).toBeVisible({ timeout: 20000 });
+  await keineSkriptfehler(page);
+});
+
+test('iPhone: Kopfzeilen-Knöpfe mit Beschriftung unter dem Symbol (Finanzierung, Markt, Liegenschaften)', async ({ page }) => {
+  await appOeffnen(page);
+  const pruefe = async (sel, namen) => {
+    const k = page.locator(sel + ' .mdb-head .sp > button.secondary');
+    await expect(k).toHaveText(namen);
+    for (let i = 0; i < namen.length; i++) await expect(k.nth(i).locator('.lbl')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(391);
+  };
+  await page.evaluate(() => finOeffnen());
+  await pruefe('#fin_overlay', ['Aus Bewertung', 'Beim Kunden ablegen', 'Gespräch vereinbaren', 'Drucken']);
+  await page.screenshot({ animations: 'disabled', path: 'tests/ausgabe/app-iphone-finanzierung-kopf.png' });
+  await page.evaluate(() => finSchliessen());
+  await page.evaluate(() => mdbOeffnen()); await pruefe('#mdb_overlay', ['Objekt', 'Backup']);
+  await page.evaluate(() => mdbClose());
+  await page.evaluate(() => lvOeffnen('uebersicht')); await pruefe('#lv_overlay', ['Liegenschaft', 'Sichern']);
+  await keineSkriptfehler(page);
+});

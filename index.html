@@ -936,7 +936,7 @@
         <div class="grid four">
           <div class="field"><label>Energiekennwert <span class="u">kWh/(m²·a)</span></label><input id="en_kennwert" type="text" value="0"></div>
           <div class="field"><label>Effizienzklasse <span class="u">(aus Kennwert oder manuell)</span></label>
-            <select id="en_klasse" onchange="enKlasseManuell()"><option>A+</option><option>A</option><option>B</option><option>C</option><option selected>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
+            <select id="en_klasse" oninput="enKlasseManuell()" onchange="enKlasseManuell()"><option>A+</option><option>A</option><option>B</option><option>C</option><option selected>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
           <div class="field"><label>Marktüblicher Normalzustand <span class="u">Referenzklasse</span></label>
             <select id="en_ref_klasse"><option>A+</option><option>A</option><option>B</option><option>C</option><option selected>D</option><option>E</option><option>F</option><option>G</option><option>H</option></select></div>
           <div class="field no-print"><label>&nbsp;</label><button type="button" onclick="enAusAufnahme()" data-ic="arrow-down">Aus Aufnahmebogen</button></div>

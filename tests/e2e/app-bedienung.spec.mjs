@@ -67,3 +67,36 @@ test('Neue Bewertung: nur die Objektart wählen, danach öffnet sich gleich die 
  expect(await page.evaluate(()=>[$('ek_modus').value,$('ek_typ').value,$('gewichtung').value])).toEqual(['haus','Betriebs-/Werkstattgebäude · eingeschossig','0.3']);
  await expect(page.locator('#s-anbau')).toBeVisible();
 });
+test('Effizienzklasse von Hand bleibt schon beim ersten Auswählen, auch mit eingetragenem Energiekennwert',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);$('en_aktiv').checked=true;$('en_kennwert').value='210';delete $('en_klasse').dataset.manuell;compute();});
+ await expect(page.locator('#en_klasse')).toHaveValue('G');   // aus dem Energiekennwert
+ await page.locator('#en_klasse').selectOption('B');
+ await expect(page.locator('#en_klasse')).toHaveValue('B');
+ expect(await page.evaluate(()=>{compute();return [$('en_klasse').value,$('en_klasse').dataset.manuell];})).toEqual(['B','1']);
+});
+test('Sanierungsweg: Übernahme sagt Bescheid, wenn nichts einzutragen ist, und übernimmt sonst den Kennwert',async({page})=>{
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appAlleKlappen(true);});
+ const knopf=page.getByRole('button',{name:'Aus Aufnahmebogen und Energetischer Qualität übernehmen'});
+ const meldung=new Promise(r=>page.once('dialog',d=>{r(d.message());d.accept();}));
+ await knopf.click();expect(await meldung).toMatch(/nichts zum Übernehmen/);
+ await page.evaluate(()=>{$('en_kennwert').value='180';});
+ await knopf.click();await expect(page.locator('#san_e0')).toHaveValue('180');
+});
+test('Dateinamen: ohne Anschrift einfach „Preisermittlung“, mit Anschrift wie bisher',async({page})=>{
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');$('ek_anschrift').value='';compute();});
+ expect(await page.evaluate(()=>pdfName())).toBe('Preisermittlung.pdf');
+ const [dl]=await Promise.all([page.waitForEvent('download'),page.evaluate(()=>exportExcel())]);
+ expect(dl.suggestedFilename()).toBe('Preisermittlung.xlsx');
+ await page.evaluate(()=>{$('ek_anschrift').value='Musterweg 7, 74360 Ilsfeld';});
+ expect(await page.evaluate(()=>pdfName())).toBe('Preisermittlung Musterweg 7 74360 Ilsfeld.pdf');
+});
+test('Handzeiger nur bei klickbaren Tabellen: Markt-Bestand ja, Tilgungsplan nein',async({page})=>{
+ await appOeffnen(page);
+ await page.evaluate(()=>finOeffnen());await expect(page.locator('#fin_plan tbody tr').first()).toBeAttached();
+ expect(await page.evaluate(()=>['#fin_plan th','#fin_plan tbody tr'].map(s=>getComputedStyle(document.querySelector(s)).cursor))).toEqual(['auto','auto']);
+ await page.evaluate(()=>finSchliessen());
+ await page.evaluate(async()=>{await mdbPut({id:'o_t1',gemeinde:'Musterstadt',art:'EFH',basis:'KP',kp:300000,wfl:120,baujahr:1990,datum:'2026-05-01'});await mdbOeffnen();mdbTab('liste');});
+ await expect(page.locator('#mdb_tbl tbody tr').first()).toBeVisible();
+ expect(await page.evaluate(()=>['#mdb_tbl th','#mdb_tbl tbody tr'].map(s=>getComputedStyle(document.querySelector(s)).cursor))).toEqual(['pointer','pointer']);
+});

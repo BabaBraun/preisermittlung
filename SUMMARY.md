@@ -1,3 +1,9 @@
+# Zusammenfassung — Klicktest der ganzen App, Befunde behoben (2026-10-02)
+
+Jeder Knopf, jedes Feld und jedes Auf- und Zuklappen am PC und in der iPhone-Ansicht geprüft (rund 3.900 Elemente am PC,
+2.400 am iPhone). Behoben: Export-Menü am iPhone (untere Einträge erreichbar), Effizienzklasse von Hand, Beschriftung der
+Kopfzeilen-Knöpfe am iPhone, Hinweis im Sanierungsweg, Dateinamen ohne Anschrift, Handzeiger in Tabellen (D31).
+
 # Zusammenfassung — Neue Bewertung: nur Objektart wählen (2026-10-01)
 
 Vier Kacheln (Eigentumswohnung, Wohnhaus, Laden / Büro / Praxis, Gewerbe / Betrieb) öffnen direkt die Bewertung;
