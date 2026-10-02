@@ -59,12 +59,14 @@ function druckbericht(){
   let odGrund=[dl('Eigentumsform','od_eigentum'),dl('Entwicklungszustand','od_entwicklung'),dl('Anzahl Flurstücke','od_anz_flst'),dl('Flurstück-Nr(n).','od_flst_nrn'),dl('Grundbuch','od_grundbuch'),dl('Grundbuch-Blatt','od_gb_blatt'),dl('Abt. II','od_abt2'),dl('Abt. III','od_abt3'),dl('Erschließung','od_erschliessung'),dl('Denkmalschutz','od_denkmal'),dl('Baulasten','od_baulasten'),dl('Altlasten','od_altlasten')].join('');
   let odPlan=[dl('Flächennutzungsplan','od_fnp'),dl('Bebauungsplan','od_bplan'),dl('Art der Nutzung','od_nutzungsart'),dl('GRZ / GFZ','od_grz_gfz'),dl('zul. überbaute Fläche','od_ueberbau_zul',' m²'),dl('tatsächl. überbaute Fläche','od_ueberbau_ist',' m²'),dl('Sonstiges','od_plan_sonst')].join('');
   let odGeb=[dl('Gebäudeart','od_gebart'),dl('Bauweise','od_bauweise'),dl('Baujahr','ek_baujahr'),dl('Letzte Sanierung','ek_sanierung'),dl('Vollgeschosse','od_geschosse'),dl('Wohneinheiten','ek_anz_we'),dl('Gewerbeeinheiten','od_gewerbe_eh'),dl('Stellplätze','ek_anz_stell'),dl('Aufzug','od_aufzug'),dl('Heizungsart','od_heizung'),dl('Fenster','od_fenster'),dl('Energieausweis','od_energieausweis'),dl('Energieeffizienzklasse','od_effizienz'),dl('Gebäudegrundfläche','od_gebflaeche',' m²'),dl('Wohnfläche','ek_wohnflaeche',' m²')].join('');
-  let objektBlock='';
-  if(odGrund) objektBlock+='<h2>Grundstück, Grundbuch &amp; Recht</h2><table>'+odGrund+'</table>';
-  if(odPlan) objektBlock+='<h2>Planungsrecht</h2><table>'+odPlan+'</table>';
-  if(odGeb) objektBlock+='<h2>Gebäudedaten</h2><table>'+odGeb+'</table>';
+  // Reihenfolge wie im Formular (Objektdaten & Beschreibung, D36): Lage · Lage-Check · Gebäudedaten ·
+  // Grundstück, Grundbuch & Recht · Planungsrecht · übrige Beschreibung
+  let grundBlock=odGrund?'<h2>Grundstück, Grundbuch &amp; Recht</h2><table>'+odGrund+'</table>':'';
+  let planBlock=odPlan?'<h2>Planungsrecht</h2><table>'+odPlan+'</table>':'';
+  let gebBlock=odGeb?'<h2>Gebäudedaten</h2><table>'+odGeb+'</table>':'';
+  let lageBlock=bt('Makrolage','lage_makro')+bt('Mikrolage','lage_mikro');
+  if(lageBlock) lageBlock='<h2>Lage</h2>'+lageBlock;
   let beschreibungBlock=[
-    bt('Makrolage','lage_makro'),bt('Mikrolage','lage_mikro'),
     bt('Grundstück','grundstueck_besch'),bt('Gebäude &amp; Ausstattung','gebaeude_besch'),
     bt('Baumängel / Bauschäden','maengel'),bt('Instandhaltungsstau','stau'),
     bt('Modernisierungen','modernisierung'),bt('Allgemeiner Eindruck','eindruck'),
@@ -247,10 +249,13 @@ function druckbericht(){
    ${mitDeckblatt?'':`<p><b>${esc(objektTyp)}</b> · ${esc($('ek_anschrift').value||'')}<br>
    Auftraggeber: ${esc($('ek_ag').value||'–')} · Stichtag: ${esc($('ek_stichtag').value||today)}<br>
    Nutzung: ${esc($('ek_nutzung').value||'–')}</p>`}
-   ${objektBlock}
    ${auBlock}
-   ${beschreibungBlock}
+   ${lageBlock}
    ${lageBericht(esc)}
+   ${gebBlock}
+   ${grundBlock}
+   ${planBlock}
+   ${beschreibungBlock}
    ${bodenBlock}
    ${wert1Block}
    <h2>Preisansatz nach dem Gebäudeertrag</h2>

@@ -856,5 +856,10 @@ Aufnahmebogen stehen jetzt unter „Feststellungen der Ortsbesichtigung“.
 **Bericht:** Die Wohnflächenberechnung stand unter „Feststellungen der Ortsbesichtigung“ und wäre mit ausgeschaltetem
 Aufnahmebogen verschwunden. Jetzt lässt der Bericht bei ausgeschaltetem Aufnahmebogen nur dessen Feststellungen weg;
 die Wohnflächenberechnung erscheint dann als eigener Teil (im Berichtsumfang weiter unter „Feststellungen … mit
-Wohnflächenberechnung“). Mit eingeschaltetem Aufnahmebogen ist der Bericht unverändert. Keine Rechnung ändert sich.
+Wohnflächenberechnung“). Keine Rechnung ändert sich.
+
+**Bericht wie das Formular (Nachtrag, Wunsch des Auftraggebers):** Feststellungen der Ortsbesichtigung (Aufnahmebogen) ·
+Lage (eigene Überschrift, vorher Teil der Objektbeschreibung) · Lage-Check · Gebäudedaten · Grundstück, Grundbuch & Recht ·
+Planungsrecht · Objektbeschreibung · danach wie bisher Grundstück & Bodenwert und die Preisansätze. Im Berichtsumfang
+umfasst „Objektbeschreibung (mit Lage)“ auch die Lage.
 

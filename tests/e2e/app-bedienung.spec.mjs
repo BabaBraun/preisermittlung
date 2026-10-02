@@ -298,3 +298,17 @@ test('Sonstiges selbst eintragen: Planungsrecht, Modernisierung, Bauteile, Unter
  await expect(page.locator('#report')).toContainText('Statik');await expect(page.locator('#report')).toContainText('1 von 15 vorhanden');
  await keineSkriptfehler(page);
 });
+test('Bericht: Objektteile in der Reihenfolge des Formulars (Feststellungen, Lage, Lage-Check, Gebäudedaten …)',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{for(const [id,v] of [['lage_makro','Kleinstadt'],['lage_mikro','ruhige Straße'],['od_grundbuch','Musterstadt'],['od_fnp','Wohnbaufläche'],
+  ['gebaeude_besch','Massivbau'],['au_wetter','sonnig'],['lg_st_hochwasser','ok'],['od_gebart','Einfamilienhaus']]) $(id).value=v;compute();druckbericht();});
+ const h2=()=>page.locator('#report h2').evaluateAll(l=>l.map(h=>h.textContent.replace(/^\d+\.\s+/,'').trim()));
+ const t=await h2();const i=x=>t.indexOf(x);
+ const reihe=['Feststellungen der Ortsbesichtigung','Lage','Lage-Check','Gebäudedaten','Grundstück, Grundbuch & Recht','Planungsrecht','Objektbeschreibung','Grundstück & Bodenwert'];
+ for(const x of reihe) expect(i(x),x).toBeGreaterThanOrEqual(0);
+ expect(reihe.map(i)).toEqual([...reihe.map(i)].sort((a,b)=>a-b));
+ // Berichtsumfang „Objektbeschreibung (mit Lage)“ abgewählt: Lage und Beschreibung fehlen, Lage-Check bleibt
+ await page.evaluate(()=>{document.body.classList.remove('report-mode');$('rp_abschnitte').value=JSON.stringify(['beschreibung']);druckbericht();});
+ const o=await h2();expect(o).not.toContain('Lage');expect(o).not.toContain('Objektbeschreibung');expect(o).toContain('Lage-Check');
+ await keineSkriptfehler(page);
+});

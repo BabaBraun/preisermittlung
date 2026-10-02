@@ -71,6 +71,9 @@ Wohnfläche ein — das Feld bleibt änderbar. Eine eigene Zahl dort gilt und sc
 Dokumentation, ohne Punkte), bei den besonderen Bauteilen, bei den Unterlagen (mit Haken „liegt vor“, auch in der
 Unterlagenliste für den Eigentümer) und im Lage-Check (eigener Prüfpunkt mit Quelle). Alles erscheint im Bericht.
 
+**Bericht:** Er folgt der Gliederung des Formulars — Feststellungen der Ortsbesichtigung, Lage, Lage-Check, Gebäudedaten,
+Grundstück, Grundbuch & Recht, Planungsrecht, Objektbeschreibung, danach Bodenwert und Preisansätze.
+
 **Besondere objektspezifische Merkmale (§ 8 Abs. 3):** zwei Listen, „Wertmindernd“ (Abschläge) und „Werterhöhend“
 (Zuschläge). Mit „＋ Abschlag“ bzw. „＋ Zuschlag“ eine Position anlegen, das Merkmal aus der Liste wählen oder selbst
 benennen, den Betrag positiv eintragen; ✕ entfernt sie. Darunter steht der Saldo.
