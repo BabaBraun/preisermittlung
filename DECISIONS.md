@@ -787,6 +787,10 @@ verglichen, nur Anzeigetexte, golden-aenderungen.md §11). Die Ortsbesichtigung 
 doppelte Feld „Besichtigung am“ entfällt (ältere Bewertungen: dessen Datum wird übernommen, wenn die Ortsbesichtigung
 leer ist).
 
+**Objektdaten & Beschreibung (Nachtrag, Wunsch des Auftraggebers):** Blöcke in der Reihenfolge Lage (Makro-/Mikrolage) ·
+Lage-Check mit amtlichen Karten · Gebäudedaten · Grundstück, Grundbuch & Recht · Planungsrecht · Grundstück & Gebäude ·
+Zustand & Bautechnik · Rechtliches & Vermarktung. Nur die Anordnung im Formular; der Bericht behält seinen Aufbau.
+
 **Auftraggeber:** Anschrift, Telefon und E-Mail zeigen die Eckdaten aus der Kundenakte. Personenbezogene Daten bleiben
 in der Akte gebündelt, mit Auskunft und Löschung (D8); die Bewertung speichert wie bisher nur Name und Zuordnung.
 

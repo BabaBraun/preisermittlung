@@ -27,7 +27,8 @@ Alle Abschnitte stehen untereinander, fortlaufend nummeriert 1, 2, 3 … ohne L�
 1. **Eckdaten** — Vordruck, Gebäudetyp, Auftraggeber (Anschrift, Telefon und E-Mail aus der Kundenakte),
    Objektanschrift, Nutzung, Verwendungszweck, Wertermittlungsstichtag
 2. **Aufnahmebogen** — für die Besichtigung (siehe unten), mit dem Datum der Ortsbesichtigung
-3. **Objektdaten & Beschreibung**
+3. **Objektdaten & Beschreibung** — Lage (Makro-/Mikrolage), Lage-Check mit amtlichen Karten, Gebäudedaten,
+   Grundstück, Grundbuch & Recht, Planungsrecht, Grundstück & Gebäude, Zustand & Bautechnik, Rechtliches & Vermarktung
 4. **Allgemeine Angaben** — Grundstück und Bodenrichtwert (bei der Wohnung Miteigentumsanteil und Hausgeld), Flächen,
    Baujahr, Mieten
 5. Hauptgebäude · 6. Anbau / Nebengebäude · 7. Datengrundlagen · 8. Preis nach Substanz · 9. Vergleichswert ·

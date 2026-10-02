@@ -466,9 +466,39 @@
     <section class="card" id="s-technik" data-nav="④ Objektdaten & Beschreibung">
       <h2>④ Objektdaten &amp; Beschreibung</h2>
       <input type="checkbox" id="od_aus" hidden>
-      <p class="hint">Strukturierte Objektdaten (Grundstück, Recht, Planung, Gebäude) und Freitexte für den Bericht. Leere Felder erscheinen nicht im Bericht.</p>
+      <p class="hint">Lage und Lage-Check, Gebäudedaten, Grundstück und Recht, Planungsrecht sowie Freitexte für den Bericht. Leere Felder erscheinen nicht im Bericht.</p>
 
-      <h3>4.1 Grundstück, Grundbuch &amp; Recht</h3>
+      <h3>Lage</h3>
+      <div class="grid">
+        <div class="field full"><label>Makrolage <span class="u">(Gemeinde, Infrastruktur, Verkehrsanbindung, ÖPNV, Nahversorgung)</span></label><textarea id="lage_makro" placeholder="z.B. Ruhige Wohnlage in der Gemeinde …, gute Anbindung an B/A…, Kindergärten/Schulen/Einkauf fußläufig erreichbar."></textarea></div>
+        <div class="field full"><label>Mikrolage <span class="u">(Straße, Nachbarschaft, Ausrichtung, Immissionen)</span></label><textarea id="lage_mikro" placeholder="z.B. Wohnstraße mit geringem Verkehrsaufkommen, überwiegend Wohnbebauung, Süd-West-Ausrichtung des Gartens, keine wesentlichen Immissionen erkennbar."></textarea></div>
+      </div>
+
+      <h3>Lage-Check mit amtlichen Karten</h3>
+      <p class="hint">Je Prüfpunkt öffnet „Öffnen“ den amtlichen Dienst; die App legt vorher die Adresse bzw. die Koordinaten in die
+        Zwischenablage, dort einfach einfügen. Ergebnis, Notiz und Prüfdatum erscheinen im Bericht als „Lage-Check“.</p>
+      <p class="lage-koord" id="lage_koord"></p>
+      <div class="lage-check" id="lage_check"></div>
+
+      <h3>Gebäudedaten</h3>
+      <div class="grid">
+        <div class="field"><label>Gebäudeart</label><input id="od_gebart" placeholder="z.B. Mehrfamilienhaus, freistehend"></div>
+        <div class="field"><label>Bauweise</label>
+          <select id="od_bauweise"><option>massiv</option><option>Mauerwerk verputzt</option><option>Stahlbeton-Skelett</option><option>Holzständer / Fertigbau</option><option>Mischbauweise</option><option>Fachwerk</option></select></div>
+        <div class="field"><label>Anzahl Vollgeschosse</label><input id="od_geschosse" type="text" value="0"></div>
+        <div class="field"><label>Anzahl Gewerbeeinheiten</label><input id="od_gewerbe_eh" type="text" value="0"></div>
+        <div class="field"><label>Aufzug</label><select id="od_aufzug"><option>nein</option><option>ja</option></select></div>
+        <div class="field"><label>Heizungsart</label>
+          <select id="od_heizung"><option>Gas-Zentralheizung</option><option>Öl-Zentralheizung</option><option>Fernwärme</option><option>Wärmepumpe</option><option>Pellet / Biomasse</option><option>Gas-Etagenheizung</option><option>Nachtspeicher / dezentral</option><option>Einzelöfen</option></select></div>
+        <div class="field"><label>Fenster / Verglasung</label>
+          <select id="od_fenster"><option>Zweifachverglasung</option><option>Dreifachverglasung</option><option>Einfachverglasung (Altbestand)</option><option>Kastenfenster</option></select></div>
+        <div class="field"><label>Energieausweis</label>
+          <select id="od_energieausweis"><option>nicht vorhanden</option><option>Verbrauchsausweis</option><option>Bedarfsausweis</option></select></div>
+        <div class="field"><label>Energieeffizienzklasse</label><input id="od_effizienz" placeholder="A+ … H (optional)"></div>
+        <div class="field"><label>Gebäudegrundfläche <span class="u">m² (überbaut)</span></label><input id="od_gebflaeche" type="text" value="0"></div>
+      </div>
+
+      <h3>Grundstück, Grundbuch &amp; Recht</h3>
       <div class="grid">
         <div class="field"><label>Eigentumsform</label>
           <select id="od_eigentum"><option>Alleineigentum</option><option>Miteigentum / Bruchteil</option><option>Wohnungseigentum (WEG)</option><option>Erbbaurecht</option></select></div>
@@ -488,7 +518,7 @@
         <div class="field"><label>Altlasten</label><input id="od_altlasten" placeholder="z.B. kein Verdacht bekannt"></div>
       </div>
 
-      <h3>4.2 Planungsrecht</h3>
+      <h3>Planungsrecht</h3>
       <div class="grid">
         <div class="field"><label>Flächennutzungsplan (FNP)</label><input id="od_fnp" placeholder="z.B. Wohnbaufläche"></div>
         <div class="field"><label>Bebauungsplan (Nr./Name)</label><input id="od_bplan" placeholder="z.B. Nr. … / Bestandsobjekt § 34 BauGB"></div>
@@ -499,43 +529,13 @@
         <div class="field"><label>tatsächl. überbaute Fläche <span class="u">m²</span></label><input id="od_ueberbau_ist" type="text" value="0"></div>
       </div>
 
-      <h3>4.3 Gebäudedaten</h3>
-      <div class="grid">
-        <div class="field"><label>Gebäudeart</label><input id="od_gebart" placeholder="z.B. Mehrfamilienhaus, freistehend"></div>
-        <div class="field"><label>Bauweise</label>
-          <select id="od_bauweise"><option>massiv</option><option>Mauerwerk verputzt</option><option>Stahlbeton-Skelett</option><option>Holzständer / Fertigbau</option><option>Mischbauweise</option><option>Fachwerk</option></select></div>
-        <div class="field"><label>Anzahl Vollgeschosse</label><input id="od_geschosse" type="text" value="0"></div>
-        <div class="field"><label>Anzahl Gewerbeeinheiten</label><input id="od_gewerbe_eh" type="text" value="0"></div>
-        <div class="field"><label>Aufzug</label><select id="od_aufzug"><option>nein</option><option>ja</option></select></div>
-        <div class="field"><label>Heizungsart</label>
-          <select id="od_heizung"><option>Gas-Zentralheizung</option><option>Öl-Zentralheizung</option><option>Fernwärme</option><option>Wärmepumpe</option><option>Pellet / Biomasse</option><option>Gas-Etagenheizung</option><option>Nachtspeicher / dezentral</option><option>Einzelöfen</option></select></div>
-        <div class="field"><label>Fenster / Verglasung</label>
-          <select id="od_fenster"><option>Zweifachverglasung</option><option>Dreifachverglasung</option><option>Einfachverglasung (Altbestand)</option><option>Kastenfenster</option></select></div>
-        <div class="field"><label>Energieausweis</label>
-          <select id="od_energieausweis"><option>nicht vorhanden</option><option>Verbrauchsausweis</option><option>Bedarfsausweis</option></select></div>
-        <div class="field"><label>Energieeffizienzklasse</label><input id="od_effizienz" placeholder="A+ … H (optional)"></div>
-        <div class="field"><label>Gebäudegrundfläche <span class="u">m² (überbaut)</span></label><input id="od_gebflaeche" type="text" value="0"></div>
-      </div>
-
-      <h3>4.4 Lage</h3>
-      <div class="grid">
-        <div class="field full"><label>Makrolage <span class="u">(Gemeinde, Infrastruktur, Verkehrsanbindung, ÖPNV, Nahversorgung)</span></label><textarea id="lage_makro" placeholder="z.B. Ruhige Wohnlage in der Gemeinde …, gute Anbindung an B/A…, Kindergärten/Schulen/Einkauf fußläufig erreichbar."></textarea></div>
-        <div class="field full"><label>Mikrolage <span class="u">(Straße, Nachbarschaft, Ausrichtung, Immissionen)</span></label><textarea id="lage_mikro" placeholder="z.B. Wohnstraße mit geringem Verkehrsaufkommen, überwiegend Wohnbebauung, Süd-West-Ausrichtung des Gartens, keine wesentlichen Immissionen erkennbar."></textarea></div>
-      </div>
-
-      <h3>Lage-Check mit amtlichen Karten</h3>
-      <p class="hint">Je Prüfpunkt öffnet „Öffnen“ den amtlichen Dienst; die App legt vorher die Adresse bzw. die Koordinaten in die
-        Zwischenablage, dort einfach einfügen. Ergebnis, Notiz und Prüfdatum erscheinen im Bericht als „Lage-Check“.</p>
-      <p class="lage-koord" id="lage_koord"></p>
-      <div class="lage-check" id="lage_check"></div>
-
-      <h3>4.5 Grundstück &amp; Gebäude (Beschreibung)</h3>
+      <h3>Grundstück &amp; Gebäude (Beschreibung)</h3>
       <div class="grid">
         <div class="field full"><label>Grundstücksbeschreibung <span class="u">(Zuschnitt, Topografie, Erschließung, Außenanlagen)</span></label><textarea id="grundstueck_besch" placeholder="z.B. Weitgehend ebenes, rechteckig geschnittenes Grundstück, voll erschlossen; Außenanlagen: Zufahrt gepflastert, Garten mit Rasen und Gehölzen."></textarea></div>
         <div class="field full"><label>Gebäude- &amp; Ausstattungsbeschreibung <span class="u">(Bauweise, Grundriss, Ausstattungsstandard)</span></label><textarea id="gebaeude_besch" placeholder="z.B. Massiv errichtetes Gebäude mit Satteldach, unterkellert; Ausstattung dem Baujahr entsprechend, teilweise modernisiert; Fenster: Kunststoff, 2-fach verglast."></textarea></div>
       </div>
 
-      <h3>4.6 Zustand &amp; Bautechnik</h3>
+      <h3>Zustand &amp; Bautechnik</h3>
       <div class="grid">
         <div class="field full"><label>Baumängel / Bauschäden</label><textarea id="maengel">Wesentliche Bauschäden und Baumängel waren bei der Ortsbesichtigung nicht erkennbar.</textarea></div>
         <div class="field full"><label>Instandhaltungsstau</label><textarea id="stau" placeholder="z.B. Erkennbarer Instandhaltungsstau bei … (Dach, Heizung, Fenster); wurde durch Abschlag berücksichtigt."></textarea></div>
@@ -543,7 +543,7 @@
         <div class="field full"><label>Allgemeiner Eindruck / Erläuterungen</label><textarea id="eindruck" placeholder="z.B. Insgesamt gepflegter Gesamteindruck; das Objekt wird aktuell eigengenutzt / ist vermietet."></textarea></div>
       </div>
 
-      <h3>4.7 Rechtliches &amp; Vermarktung</h3>
+      <h3>Rechtliches &amp; Vermarktung</h3>
       <div class="grid">
         <div class="field full"><label>Rechte &amp; Lasten <span class="u">(Grundbuch Abt. II — Wege-/Leitungsrechte, Wohnrecht, Nießbrauch, Erbbaurecht, Baulasten)</span></label><textarea id="rechte_lasten" placeholder="z.B. In Abt. II eingetragen: Geh- und Fahrtrecht zugunsten Flst. …; im Übrigen keine wertrelevanten Belastungen bekannt."></textarea></div>
         <div class="field full"><label>Vermietungssituation / Mietverhältnisse</label><textarea id="vermietung_besch" placeholder="z.B. EG/UG gewerblich vermietet an …, Mietvertrag bis …; OG eigengenutzt bzw. an Angehörige überlassen."></textarea></div>

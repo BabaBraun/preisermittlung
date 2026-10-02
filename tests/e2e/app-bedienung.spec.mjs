@@ -19,9 +19,11 @@ test('Bewertung: Gliederung Eckdaten, Aufnahmebogen, Objektdaten, Allgemeine Ang
  // Abschnitt zuklappen: Inhalt weg, Überschrift bleibt; Zustand bleibt nach dem Neuladen erhalten
  await page.locator('#s-eck .app-sec-toggle').click();await expect(page.locator('#ek_anschrift')).toBeHidden();await expect(page.locator('#s-eck>h2')).toBeVisible();
  await expect(page.locator('#s-eck .app-sec-toggle')).toHaveAttribute('aria-expanded','false');
- // Block im Abschnitt „Objektdaten & Beschreibung“ (Abschnitt 3): „3.4 Lage“ zu- und aufklappen
+ // Block im Abschnitt „Objektdaten & Beschreibung“ (Abschnitt 3): „3.1 Lage“ zu- und aufklappen; Reihenfolge der Blöcke
  const lage=page.locator('#s-technik details.app-disclosure').filter({has:page.locator('summary[data-titel="Lage"]')});
- await expect(lage.locator('summary')).toHaveText('3.4 Lage');
+ await expect(lage.locator('summary')).toHaveText('3.1 Lage');
+ expect(await page.locator('#s-technik details.app-disclosure>summary').evaluateAll(l=>l.map(s=>s.dataset.titel))).toEqual(['Lage','Lage-Check mit amtlichen Karten',
+  'Gebäudedaten','Grundstück, Grundbuch & Recht','Planungsrecht','Grundstück & Gebäude (Beschreibung)','Zustand & Bautechnik','Rechtliches & Vermarktung']);
  await expect(lage).toHaveAttribute('open','');await lage.locator('summary').click();await expect(lage).not.toHaveAttribute('open','');
  await page.reload();await expect(page.locator('#s-eck')).toHaveClass(/app-zu/);await expect(lage).not.toHaveAttribute('open','');
  // Sprung über die Abschnittsliste öffnet den Abschnitt wieder; die Eingabe ist unverändert
