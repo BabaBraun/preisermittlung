@@ -225,3 +225,4 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 57 | [x] Klicktest der ganzen App dauerhaft im Repository (`npm run klicktest`, GitHub Actions für PC und iPhone) und Sonderabläufe als Browsertest — erledigt 2026-10-02 (D32) | Vorschlag 4 nach dem Klicktest |
 | 58 | [x] Liegenschaften: Verlauf über alle Stichtage als Diagramm im historischen Vergleich und im Dokument — erledigt 2026-10-02 (D32) | Vorschlag 7 |
 | 59 | [x] Erste vollständige Klicktest-Läufe: Haken der Exposé-Fotos über dem Bild, ungültiges Datum in der Vermarktung, Fehlalarme des Tests, Listen „ohne Wirkung“ — erledigt 2026-10-02 (D34) | Klicktest |
+| 60 | [x] Gliederung der Bewertung neu (Eckdaten · Aufnahmebogen · Objektdaten · Allgemeine Angaben · Hauptgebäude …), Aufnahmebogen überträgt Standardstufen, Modernisierungen und Technik, § 8 in zwei Listen mit ＋, Schalter je Abschnitt — erledigt 2026-10-02 (D35) | Rückmeldung |

@@ -78,7 +78,7 @@ function rpVorlageLoeschen(){
 }
 function rpSchluessel(titel){ titel=(titel||'').replace(/^\d+\.\s+/,'').trim(); let a=RP_ABSCHNITTE.find(x=>x[3].test(titel)); return a?a[1]:null; }
 function rpFiltern(root){
-  let aus=rpAus(); if(!aus.length) return;
+  let aus=rpAus().concat(typeof appSchalterBerichtAus==='function'?appSchalterBerichtAus():[]); if(!aus.length) return;
   let weg=false;
   [...root.children].forEach(el=>{
     if(el.tagName==='H2'){ let k=rpSchluessel(el.textContent); weg=!!(k&&aus.includes(k)); }

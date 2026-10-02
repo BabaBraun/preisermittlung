@@ -101,7 +101,7 @@ function druckbericht(){
   }
 
   // Feststellungen der Ortsbesichtigung (Aufnahmebogen)
-  let auRows=[dl('Besichtigung am','au_datum'),dl('Uhrzeit / Wetter','au_wetter'),dl('Anwesend','au_anwesend'),
+  let auRows=[dl('Ortsbesichtigung am','ek_besichtigung'),dl('Uhrzeit / Wetter','au_wetter'),dl('Anwesend','au_anwesend'),
     dl('Zimmer','au_zimmer'),dl('Bäder','au_baeder'),dl('Gäste-WC','au_gaeste_wc'),dl('Tageslichtbad','au_tageslichtbad'),
     dl('Küche','au_kueche'),dl('Keller','au_keller'),dl('Dachgeschoss','au_dg'),dl('Balkon / Terrasse','au_balkon'),
     dl('Heizungsart','au_heizung_art'),dl('Heizung Baujahr / Fabrikat','au_heizung_bj'),dl('Warmwasser','au_ww'),
@@ -157,8 +157,8 @@ function druckbericht(){
      <tr class="total"><td>Korrektur für Erbbaurecht</td><td>− ${eur(R.erbbauAbzug)}</td></tr></table>`:'';
   let wkL=wkLines();
   let wkBlock=wkL.length?'<h2>Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV)</h2><table>'
-      + wkL.map(x=>L(esc(x[0]),eur(x[1]))).join('')
-      + '<tr class="total"><td>Summe Wertkorrekturen</td><td>'+eur(R.wkSumme)+'</td></tr></table>':'';
+      + wkL.map(x=>L(esc(x[0])+(x[1]<0?' (Zuschlag)':' (Abschlag)'),(x[1]<0?'+ ':'− ')+eur(Math.abs(x[1])))).join('')
+      + '<tr class="total"><td>Saldo der Zu- und Abschläge</td><td>'+(R.wkSumme<0?'+ ':R.wkSumme>0?'− ':'')+eur(Math.abs(R.wkSumme))+'</td></tr></table>':'';
 
   // Plausibilisierung & Rendite
   let plausiBlock = (R.eigenM2>0) ? `<h2>Plausibilisierung</h2><table>
@@ -206,7 +206,7 @@ function druckbericht(){
       ${L('Objekt',esc($('ek_anschrift').value||'–'))}
       ${L('Auftraggeber(in)',esc($('ek_ag').value||'–'))}
       ${L('Nutzung',esc($('ek_nutzung').value||'–'))}
-      ${L('Ortsbesichtigung',esc($('ek_besichtigung').value||$('au_datum').value||'–'))}
+      ${L('Ortsbesichtigung',esc($('ek_besichtigung').value||'–'))}
       ${L('Wertermittlungsstichtag',esc($('ek_stichtag').value||today))}
       ${sigName?L('Erstellt von',esc(sigName)):''}
      </table>
@@ -303,7 +303,7 @@ function druckbericht(){
     ${$('en_aktiv').checked&&R.energieWert!==0?L((R.energieWert>0?'+ ':'− ')+'Energetische Qualität',eur(Math.abs(R.energieWert))):''}
     ${niessRow}
     ${R.ebAktiv?L('− Korrektur Erbbaurecht',eur(R.erbbauAbzug)):''}
-    ${R.wkSumme?L('− Wertkorrekturen § 8 Abs. 3',eur(R.wkSumme)):''}
+    ${R.wkSumme?L((R.wkSumme<0?'+ Zuschläge':'− Abschläge')+' § 8 Abs. 3 (Saldo)',eur(Math.abs(R.wkSumme))):''}
     ${XL('xemp',2)}
     <tr class="total"><td>Empfohlener Preisansatz</td><td>${empfText(R.empfehlung)}</td></tr>
     ${L('Verhandlungsspanne',eur(R.empfehlung*(1-R.vh))+' – '+eur(R.empfehlung*(1+R.vh)))}

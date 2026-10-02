@@ -255,13 +255,21 @@ async function kdLoeschen(id){
   if(exV('ek_kunde_id')===id){ $('ek_kunde_id').value=''; autosave(); }
   kdAnzeige(); kdListe();
 }
-/* Anzeige in den Eckdaten */
+/* Anzeige in den Eckdaten: Kunde mit Anschrift, Telefon und E-Mail aus der Akte — die Kontaktdaten liegen nur dort
+   (D8: Auskunft und Löschung je Kunde), die Bewertung merkt sich nur die Zuordnung (ek_kunde_id) */
+function kdKontaktZeile(k){
+  let teile=[[k.strasse,k.plzort].filter(Boolean).join(', ')].filter(Boolean).map(sEsc);
+  if(k.telefon) teile.push('<a href="tel:'+sEsc(String(k.telefon).replace(/[^\d+]/g,''))+'">'+sEsc(k.telefon)+'</a>');
+  if(k.email) teile.push('<a href="mailto:'+sEsc(k.email)+'">'+sEsc(k.email)+'</a>');
+  return '<div class="kd-eck-kontakt">'+(teile.length?teile.join(' · '):'<span class="u">Keine Anschrift und kein Telefon in der Akte — dort ergänzen.</span>')+'</div>';
+}
 function kdAnzeige(){
   let el=$('ek_kunde_anzeige'); if(!el) return;
   let id=exV('ek_kunde_id'), k=id&&KD_CACHE.find(x=>x.id===id);
-  el.innerHTML=k?'<span class="kd-chip">'+iaSvg('users')+sEsc(kdName(k))+'</span><a href="#" onclick="kdOeffnen(\''+k.id+'\');return false;">Akte</a> · <a href="#" onclick="kdEckWahl();return false;">ändern</a>'
+  el.innerHTML=k?'<span class="kd-chip">'+iaSvg('users')+sEsc(kdName(k))+'</span><a href="#" onclick="kdOeffnen(\''+k.id+'\');return false;">Akte</a> · <a href="#" onclick="kdEckWahl();return false;">ändern</a>'+kdKontaktZeile(k)
     :id&&!IA_DB_BEREIT?'<span class="u">Kunde wird geladen …</span>'
-    :'<a href="#" onclick="kdEckWahl();return false;">Kunde zuordnen</a>'+(id?' <span class="u">(zugeordneter Kunde nicht mehr vorhanden)</span>':'');
+    :'<a href="#" onclick="kdEckWahl();return false;">Kunde zuordnen oder anlegen</a>'+(id?' <span class="u">(zugeordneter Kunde nicht mehr vorhanden)</span>':'')
+      +'<div class="kd-eck-kontakt"><span class="u">Anschrift, Telefon und E-Mail des Auftraggebers kommen aus der Kundenakte.</span></div>';
 }
 function kdEckWahl(){ kdOeffnen(null,id=>kdAktuelleZuordnen(id)); }
 function kdNachAufgaben(){ if(KD_AKTIV&&$('kd_overlay').classList.contains('on')) kdAkte(KD_AKTIV); else if($('kd_liste')) kdListeZeilen(); }

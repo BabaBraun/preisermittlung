@@ -1,13 +1,13 @@
-/* App-Navigation. In einer Bewertung stehen alle Abschnitte wie früher untereinander (① Eckdaten … ⑬ Vermarktung);
+/* App-Navigation. In einer Bewertung stehen alle Abschnitte untereinander (Eckdaten, Aufnahmebogen, Objektdaten, Allgemeine Angaben … Vermarktung);
    jeder Abschnitt und jeder Block darin lässt sich auf- und zuklappen (Zustand je Gerät gemerkt). Links die
    Abschnittsliste mit Status (am Handy als Leiste oben), rechts das Ergebnis. Die Formularfelder bleiben unverändert. */
 const APP_GROUPS=[
- {id:'objekt',label:'Objekt',icon:'home',hint:'Grundlagen und Beschreibung',sections:['s-eck','s-technik']},
+ {id:'objekt',label:'Objekt',icon:'home',hint:'Grundlagen und Beschreibung',sections:['s-eck','s-technik','s-allg']},
  {id:'besichtigung',label:'Besichtigung',icon:'camera',hint:'Aufnahme, Flächen und Fotos',sections:['s-aufnahme','s-hg','s-anbau','s-fotos']},
  {id:'bewertung',label:'Bewertung',icon:'calc',hint:'Verfahren und Marktparameter',sections:['s-grundlagen','s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung']},
  {id:'ergebnis',label:'Ergebnis',icon:'file-text',hint:'Preis, Dokumente und Vermarktung',sections:['s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']}
 ];
-const APP_LABELS={'s-eck':'Objektangaben','s-technik':'Beschreibung & Recht','s-aufnahme':'Aufnahmebogen','s-hg':'Hauptgebäude','s-anbau':'Anbau & Nebengebäude','s-fotos':'Fotos & Grundrisse','s-grundlagen':'Marktparameter','s-substanz':'Sachwert','s-vergleich':'Vergleichswert','s-ertrag':'Ertragswert','s-niess':'Wohnrecht & Nießbrauch','s-erbbau':'Erbbaurecht','s-wk':'Wertkorrekturen','s-pv':'Photovoltaik','s-energie':'Energetischer Zustand','s-sanierung':'Sanierungsweg','s-empfehlung':'Preisempfehlung','s-belwert':'Beleihungswert','s-rendite':'Rendite & Investition','s-sign':'Bericht vorbereiten','s-expose':'Exposé','s-praesentation':'Präsentation','s-vermarktung':'Vermarktung'};
+const APP_LABELS={'s-eck':'Objektangaben','s-allg':'Allgemeine Angaben','s-technik':'Beschreibung & Recht','s-aufnahme':'Aufnahmebogen','s-hg':'Hauptgebäude','s-anbau':'Anbau & Nebengebäude','s-fotos':'Fotos & Grundrisse','s-grundlagen':'Marktparameter','s-substanz':'Sachwert','s-vergleich':'Vergleichswert','s-ertrag':'Ertragswert','s-niess':'Wohnrecht & Nießbrauch','s-erbbau':'Erbbaurecht','s-wk':'Wertkorrekturen','s-pv':'Photovoltaik','s-energie':'Energetischer Zustand','s-sanierung':'Sanierungsweg','s-empfehlung':'Preisempfehlung','s-belwert':'Beleihungswert','s-rendite':'Rendite & Investition','s-sign':'Bericht vorbereiten','s-expose':'Exposé','s-praesentation':'Präsentation','s-vermarktung':'Vermarktung'};
 const APP_STATE={ready:false,tab:'home',section:'overview',group:'objekt',ignore:false};
 const appButton=(label,icon,action,hint='')=>`<button type="button" class="app-action" aria-label="${sEsc(label)}" onclick="${action}"><span class="app-action-icon">${iaSvg(icon)}</span><span><strong>${sEsc(label)}</strong>${hint?'<small>'+sEsc(hint)+'</small>':''}</span>${iaSvg('chevron-right')}</button>`;
 function appRouteSave(route,replace=false){
@@ -147,14 +147,91 @@ function appAbschnitteKlappbar(){
   const h=appKopfVorbereiten(sec);if(!h||h.querySelector('.app-sec-toggle'))return;
   const b=document.createElement('button');b.type='button';b.className='app-sec-toggle no-print';b.innerHTML=iaSvg('chevron-down');b.setAttribute('aria-controls',sec.id);
   b.addEventListener('click',e=>{e.stopPropagation();appAbschnittUmschalten(sec);});
-  h.classList.add('app-sec-kopf');h.append(b);
+  h.classList.add('app-sec-kopf');h.append(b);appSchalterBauen(sec);
   h.addEventListener('click',e=>{if(e.target.closest('a,input,select,textarea,label'))return;appAbschnittUmschalten(sec);});
   appAbschnittOeffnen(sec,!zu.has('s:'+sec.id));
  });
 }
+/* ---------- Schalter in der Kopfzeile (D35) ----------
+   Jeder Abschnitt, den man weglassen kann, hat oben rechts einen Schalter: aus = fließt nicht in die Bewertung (und,
+   wo es um Darstellung geht, nicht in den Bericht). Drei Arten:
+   feld: der bisherige Schalter des Abschnitts (z. B. „Anbau vorhanden“) wandert in die Kopfzeile — gleiche Kennung,
+         gleiche Rechnung;
+   aus:  verstecktes Feld „…_aus“ (neu). Fehlt es in älteren Bewertungen, ist der Abschnitt an;
+   gew:  Verfahren in der Gewichtung Substanz (bei der Wohnung: Vergleich) : Ertrag — der Schalter stellt die vorhandene
+         Auswahl „Gewichtung“ auf „nur …“ und beim Einschalten zurück; keine neue Formel.
+   Ohne Schalter bleiben Abschnitte, ohne die es keine Bewertung gibt (Eckdaten, Allgemeine Angaben, Hauptgebäude,
+   Preisempfehlung, Ersteller), und Exposé, Präsentation, Vermarktung — sie fließen nicht in die Bewertung ein. */
+const APP_SCHALTER={
+ 's-aufnahme':{aus:'au_aus',text:'Aufnahmebogen verwenden',bericht:['besichtigung']},
+ 's-technik':{aus:'od_aus',text:'Objektdaten und Beschreibung verwenden',bericht:['objektdaten','beschreibung','lagecheck']},
+ 's-anbau':{feld:'anbau_aktiv'},
+ 's-grundlagen':{aus:'dg_aus',text:'Datengrundlagen verwenden',bericht:['grundlagen']},
+ 's-substanz':{gew:'sub',text:'Preisansatz nach der Gebäudesubstanz in die Preisempfehlung'},
+ 's-vergleich':{feld:'vw_aktiv',wohnung:{gew:'sub',text:'Vergleichswert in die Preisempfehlung'}},
+ 's-ertrag':{gew:'er',text:'Preisansatz nach dem Gebäudeertrag in die Preisempfehlung'},
+ 's-niess':{feld:'niess_aktiv'},
+ 's-erbbau':{feld:'eb_aktiv'},
+ 's-wk':{aus:'wk_aus',text:'Besondere objektspezifische Merkmale berücksichtigen',bericht:['wk']},
+ 's-pv':{feld:'pv_aktiv'},
+ 's-energie':{feld:'en_aktiv'},
+ 's-sanierung':{feld:'san_aktiv'},
+ 's-fotos':{aus:'fo_aus',text:'Fotos, Grundrisse und Karten verwenden',bericht:['fotos','karten','grundrisse']},
+ 's-belwert':{feld:'bw_aktiv'},
+ 's-rendite':{aus:'re_aus',text:'Rendite und Investitionsrechnung verwenden',bericht:['rendite','investition']}
+};
+function appSchalterCfg(id){ const c=APP_SCHALTER[id]; if(!c) return null; return (c.wohnung&&modus()==='wohnung')?c.wohnung:c; }
+function appGewWert(){ let g=parseFloat(exV('gewichtung')); return g>=0&&g<=1?g:0.5; }
+/* an (true), aus (false) oder kein Schalter (null) */
+function appSchalterAn(id){
+ const c=appSchalterCfg(id); if(!c) return null;
+ if(c.feld){ const e=$(c.feld); return e?e.checked:null; }
+ if(c.aus){ const e=$(c.aus); return !(e&&e.checked); }
+ if(c.gew){ const g=appGewWert(); return c.gew==='sub'?g>0:g<1; }
+ return null;
+}
+/* Berichtsteile ausgeschalteter Abschnitte (für rpFiltern) */
+function appSchalterBerichtAus(){ return Object.keys(APP_SCHALTER).filter(id=>APP_SCHALTER[id].bericht&&appSchalterAn(id)===false).flatMap(id=>APP_SCHALTER[id].bericht); }
+function appSchalterBauen(sec){
+ const c0=APP_SCHALTER[sec.id], h=sec.querySelector(':scope>h2'); if(!c0||!h||h.querySelector('.sec-schalter')) return;
+ const vor=h.querySelector('.app-sec-toggle');
+ const bau=(c,klasse)=>{
+  const lab=document.createElement('label'); lab.className='toggle sec-schalter no-print'+(klasse?' '+klasse:'');
+  let cb, text=c.text||'';
+  if(c.feld){ cb=$(c.feld); if(!cb) return; const alt=cb.closest('label.toggle');
+   if(alt&&!alt.classList.contains('sec-schalter')){ text=alt.textContent.replace(/\s+/g,' ').trim(); alt.remove(); } }
+  // „input“ statt „change“: läuft vor dem Abgleich appRefresh (document, ebenfalls „input“), der den Schalter sonst zurückstellt
+  else { cb=document.createElement('input'); cb.type='checkbox'; cb.addEventListener('input',()=>appSchalterGesetzt(sec.id,c,cb)); }
+  cb.setAttribute('aria-label',text); lab.title=text; lab.append(cb); h.insertBefore(lab,vor);
+  const hw=document.createElement('p'); hw.className='sec-aus-hinweis'+(klasse?' '+klasse:'');
+  hw.textContent='Ausgeschaltet'+(text?' („'+text+'“)':'')+' — fließt nicht in die Bewertung'+(c.bericht?' und nicht in den Bericht':'')+' ein. Zum Einbeziehen den Schalter oben rechts einschalten.';
+  h.after(hw);
+ };
+ if(c0.wohnung){ bau(c0,'haus-only'); bau(c0.wohnung,'wohnung-only'); } else bau(c0,'');
+}
+function appSchalterGesetzt(id,c,cb){
+ if(c.aus){ const e=$(c.aus); if(e) e.checked=!cb.checked; }
+ else if(c.gew){
+  const sel=$('gewichtung'), g=appGewWert();
+  if(cb.checked){ const v=exV('gew_vorher'); sel.value=[...sel.options].some(o=>o.value===v)&&v!=='0'&&v!=='1'?v:'0.5'; }
+  else if((c.gew==='sub'&&g>=1)||(c.gew==='er'&&g<=0)){ cb.checked=true; alert('Mindestens ein Verfahren muss in die Preisempfehlung einfließen.'); return; }
+  else { if(g>0&&g<1) $('gew_vorher').value=sel.value; sel.value=c.gew==='sub'?'0':'1'; }
+ }
+ compute(); autosave(); appSchalterStand();
+}
+/* Schalter und Abschnitte nach dem Stand der Daten (nach jeder Rechnung, nach dem Laden) */
+function appSchalterStand(){
+ Object.keys(APP_SCHALTER).forEach(id=>{
+  const sec=$(id); if(!sec) return; const an=appSchalterAn(id);
+  sec.classList.toggle('sec-aus',an===false);
+  sec.querySelectorAll(':scope>h2 .sec-schalter input').forEach(cb=>{ const lab=cb.closest('label');
+   if(lab.classList.contains(modus()==='wohnung'?'haus-only':'wohnung-only')) return;
+   if(!cb.id&&an!==null&&cb.checked!==an) cb.checked=an; });
+ });
+}
 function appRefresh(){
  if(!APP_STATE.ready)return;
- appNummerieren();
+ appSchalterStand();appNummerieren();
  const P=window._PRUEF||{},v=voll();
  setT('app_object_value',P.status==='fehler'?'Eingaben prüfen':P.status==='unvollstaendig'?'Noch nicht vollständig':($('o_empfehlung').textContent||'–'));
  setT('app_object_status',P.status==='ok'?'Rechnerische Preisempfehlung':'Angaben vervollständigen, bevor du das Ergebnis verwendest.');
@@ -231,6 +308,7 @@ function appFormDisclosure(){
    if(heading.closest('details.app-disclosure>summary'))return;
    const titel=heading.textContent.replace(/\s+/g,' ').trim().replace(/^\d+[a-z]?(?:\.\d+)?\s*[·.]?\s*/,''), key='b:'+section.id+':'+titel.slice(0,60);
    const details=document.createElement('details');details.className='app-disclosure';details.open=!zu.has(key);
+   ['haus-only','wohnung-only'].forEach(c=>{if(heading.classList.contains(c))details.classList.add(c);});   // Block nur für Haus bzw. Wohnung
    const summary=document.createElement('summary');summary.textContent=titel;summary.dataset.titel=titel;
    details.append(summary);let next=heading.nextSibling;const nodes=[];
    while(next&&!(next.nodeType===1&&next.tagName==='H3')){nodes.push(next);next=next.nextSibling;}

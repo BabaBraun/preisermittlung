@@ -1,24 +1,27 @@
 import {test,expect} from '@playwright/test';
-import {appOeffnen,fallAnwenden} from './helfer.mjs';
+import {appOeffnen,fallAnwenden,keineSkriptfehler} from './helfer.mjs';
 import {SZENARIEN} from '../fixtures/szenarien.mjs';
 test('vier klare Hauptbereiche sind mit der Tastatur erreichbar',async({page})=>{
  await appOeffnen(page);const nav=page.getByRole('navigation',{name:'Hauptbereiche'});await expect(nav.getByRole('button')).toHaveCount(4);
  await nav.getByRole('button',{name:'Mehr',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('heading',{name:'Werkzeuge & Einstellungen'})).toBeVisible();
  await nav.getByRole('button',{name:'Übersicht',exact:true}).click();await expect(page.locator('#start-step0')).toBeVisible();
 });
-test('Bewertung: alle Abschnitte untereinander wie früher, Abschnitte und Blöcke auf- und zuklappbar, Eingaben bleiben',async({page})=>{
+test('Bewertung: Gliederung Eckdaten, Aufnahmebogen, Objektdaten, Allgemeine Angaben, Hauptgebäude …, Abschnitte und Blöcke auf- und zuklappbar, Eingaben bleiben',async({page})=>{
  await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();await page.getByRole('button',{name:'Wohnhaus',exact:true}).click();
- // Reihenfolge wie früher (Eckdaten, Aufnahmebogen, Hauptgebäude …), Nummern fortlaufend 1, 2, 3 …
+ // Gliederung (D35): Eckdaten, Aufnahmebogen, Objektdaten & Beschreibung, Allgemeine Angaben, Hauptgebäude, Anbau,
+ // Datengrundlagen …, Nummern fortlaufend 1, 2, 3 …
  const ids=await page.locator('main>section.card:visible').evaluateAll(l=>l.map(s=>s.id));
- expect(ids.slice(0,6)).toEqual(['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen']);expect(ids.length).toBeGreaterThanOrEqual(20);
- await expect(page.locator('#s-eck>h2 .step')).toHaveText('1');await expect(page.locator('#s-aufnahme>h2 .step')).toHaveText('2');await expect(page.locator('#s-hg>h2 .step')).toHaveText('3');
+ expect(ids.slice(0,10)).toEqual(['s-eck','s-aufnahme','s-technik','s-allg','s-hg','s-anbau','s-grundlagen','s-substanz','s-vergleich','s-ertrag']);expect(ids.length).toBe(24);
+ expect(ids.slice(10)).toEqual(['s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung','s-fotos','s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']);
+ await expect(page.locator('#s-eck>h2 .step')).toHaveText('1');await expect(page.locator('#s-aufnahme>h2 .step')).toHaveText('2');await expect(page.locator('#s-technik>h2 .step')).toHaveText('3');
+ await expect(page.locator('#s-allg>h2 .step')).toHaveText('4');await expect(page.locator('#s-hg>h2 .step')).toHaveText('5');await expect(page.locator('#s-vermarktung>h2 .step')).toHaveText('24');
  await page.locator('#ek_anschrift').fill('Übersichtstraße 7');
  // Abschnitt zuklappen: Inhalt weg, Überschrift bleibt; Zustand bleibt nach dem Neuladen erhalten
  await page.locator('#s-eck .app-sec-toggle').click();await expect(page.locator('#ek_anschrift')).toBeHidden();await expect(page.locator('#s-eck>h2')).toBeVisible();
  await expect(page.locator('#s-eck .app-sec-toggle')).toHaveAttribute('aria-expanded','false');
- // Block im Abschnitt „Objektdaten & Beschreibung“ (beim Haus Abschnitt 5): „5.4 Lage“ zu- und aufklappen
+ // Block im Abschnitt „Objektdaten & Beschreibung“ (Abschnitt 3): „3.4 Lage“ zu- und aufklappen
  const lage=page.locator('#s-technik details.app-disclosure').filter({has:page.locator('summary[data-titel="Lage"]')});
- await expect(lage.locator('summary')).toHaveText('5.4 Lage');
+ await expect(lage.locator('summary')).toHaveText('3.4 Lage');
  await expect(lage).toHaveAttribute('open','');await lage.locator('summary').click();await expect(lage).not.toHaveAttribute('open','');
  await page.reload();await expect(page.locator('#s-eck')).toHaveClass(/app-zu/);await expect(lage).not.toHaveAttribute('open','');
  // Sprung über die Abschnittsliste öffnet den Abschnitt wieder; die Eingabe ist unverändert
@@ -76,7 +79,7 @@ test('Effizienzklasse von Hand bleibt schon beim ersten Auswählen, auch mit ein
  expect(await page.evaluate(()=>{compute();return [$('en_klasse').value,$('en_klasse').dataset.manuell];})).toEqual(['B','1']);
 });
 test('Sanierungsweg: Übernahme sagt Bescheid, wenn nichts einzutragen ist, und übernimmt sonst den Kennwert',async({page})=>{
- await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appAlleKlappen(true);});
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appAlleKlappen(true);});await page.locator('#san_aktiv').check();
  const knopf=page.getByRole('button',{name:'Aus Aufnahmebogen und Energetischer Qualität übernehmen'});
  const meldung=new Promise(r=>page.once('dialog',d=>{r(d.message());d.accept();}));
  await knopf.click();expect(await meldung).toMatch(/nichts zum Übernehmen/);
@@ -155,4 +158,85 @@ test('Vermarktung: ungültiges Datum (z. B. aus einer fremden Projektdatei) zeig
    vmUebersicht(); return [vmDatum('Test'),vmDatum('2026-13-01'),vmDatum('2026-09-01'),vmTage('Test'),vmTage('2026-09-01'),$('vm_inhalt').innerText]; });
  expect(t.slice(0,5)).toEqual(['','','2026-09-01',0,28]);
  expect(t[5]).toContain('Fremdes Projekt');expect(t[5]).not.toMatch(/NaN|Tage am Markt/);
+});
+/* ---------- Gliederung neu (D35) ---------- */
+test('Aufnahmebogen → Bewertung: Standardstufe, Modernisierung, Heizung, Fenster, Keller werden übernommen',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);$('nhkhg_s2').value='3';$('mod_p1').value='0';compute();});
+ const preis=await page.evaluate(()=>_R.hg.preis), rnd=await page.evaluate(()=>_R.hg.rnd);
+ // Fenster vor Ort: Dreifachverglasung → Stufe 4 im Gebäudepreis, als übernommen markiert
+ await page.locator('#au_std2').selectOption('4');
+ await expect(page.locator('#nhkhg_s2')).toHaveValue('4');await expect(page.locator('#nhkhg_s2')).toHaveClass(/aus-aufnahme/);
+ expect(await page.evaluate(()=>_R.hg.preis)).toBeGreaterThan(preis);
+ // Fenster vollständig erneuert → volle 2 Punkte (ImmoWertV Anlage 2), längere Restnutzungsdauer; Jahr in der Punktetabelle
+ await page.locator('#au_mod_u1').selectOption('voll');await page.locator('#au_mod_j1').fill('2019');await page.locator('#au_mod_j1').blur();
+ await expect(page.locator('#mod_p1')).toHaveValue('2');await expect(page.locator('#mod_au1')).toContainText('vollständig erneuert, 2019');
+ expect(await page.evaluate(()=>_R.hg.rnd)).toBeGreaterThan(rnd);
+ // Technik → Objektdaten, Keller → Hauptgebäude
+ await page.locator('#au_fenster').fill('Kunststoff, 3-fach, 2019');await page.locator('#au_fenster').blur();
+ await page.locator('#au_heizung_art').fill('Luft-Wasser-Wärmepumpe');await page.locator('#au_heizung_art').blur();
+ await page.locator('#au_keller').selectOption('teilunterkellert');await page.locator('#au_aufzug').selectOption('nein');
+ expect(await page.evaluate(()=>[$('od_fenster').value,$('od_heizung').value,$('hg_keller').value,$('od_aufzug').value]))
+  .toEqual(['Dreifachverglasung','Wärmepumpe','teilweise','nein']);
+ // in der Bewertung von Hand verfeinert: Wert bleibt, Markierung weg
+ await page.locator('#nhkhg_s2').fill('3,5');await expect(page.locator('#nhkhg_s2')).not.toHaveClass(/aus-aufnahme/);
+ // Wohnung: die Blöcke für den Gebäudepreis gibt es nicht
+ await page.evaluate(()=>{pickVordruck('etw_vergleich');appAlleKlappen(true);});await expect(page.locator('#au_std_box')).toBeHidden();await expect(page.locator('#au_mod_box')).toBeHidden();
+ await keineSkriptfehler(page);
+});
+test('Schalter in der Kopfzeile: Substanz aus = nur Ertrag, nie beide aus; § 8 und Aufnahmebogen ausschaltbar',async({page})=>{
+ const dialoge=[];page.on('dialog',d=>{dialoge.push(d.message());d.accept();});
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);$('gewichtung').value='0.6';compute();appRefresh();});
+ const nurErtrag=await page.evaluate(()=>{const g=$('gewichtung').value;$('gewichtung').value='0';compute();const e=_R.empfehlung;$('gewichtung').value=g;compute();return e;});
+ const sub=page.locator('#s-substanz>h2 .sec-schalter input'), er=page.locator('#s-ertrag>h2 .sec-schalter input');
+ await expect(sub).toBeChecked();await expect(er).toBeChecked();
+ await sub.uncheck();
+ await expect(page.locator('#gewichtung')).toHaveValue('0');await expect(page.locator('#s-substanz')).toHaveClass(/sec-aus/);
+ expect(await page.evaluate(()=>_R.empfehlung)).toBeCloseTo(nurErtrag,6);
+ await er.click();expect(dialoge.pop()).toMatch(/Mindestens ein Verfahren/);await expect(er).toBeChecked();await expect(page.locator('#gewichtung')).toHaveValue('0');
+ await sub.check();await expect(page.locator('#gewichtung')).toHaveValue('0.6');   // vorige Gewichtung zurück
+ // § 8: Abschlag und Zuschlag, ausgeschaltet ohne Zu- und Abschläge
+ await page.locator('#s-wk .wk-kopf button',{hasText:'Abschlag'}).click();
+ await page.locator('#wk_minus input[aria-label="Merkmal"]').last().fill('Feuchtigkeitsschäden');await page.locator('#wk_minus input[aria-label="Betrag in €"]').last().fill('12.000');
+ await page.locator('#s-wk .wk-kopf button',{hasText:'Zuschlag'}).click();
+ await page.locator('#wk_plus input[aria-label="Merkmal"]').last().fill('Mehrmiete (über Marktmiete)');await page.locator('#wk_plus input[aria-label="Betrag in €"]').last().fill('3.000');
+ await page.locator('#wk_plus input[aria-label="Betrag in €"]').last().blur();
+ const mit=await page.evaluate(()=>[_R.wkSumme,_R.empfehlung]);expect(mit[0]).toBe(9000);
+ await expect(page.locator('#o_wk_summe')).toHaveText('− 9.000 €');
+ await page.locator('#s-wk>h2 .sec-schalter input').uncheck();
+ expect(await page.evaluate(()=>[_R.wkSumme,$('wk_aus').checked])).toEqual([0,true]);
+ expect(await page.evaluate(()=>_R.empfehlung)).toBeCloseTo(mit[1]+9000,6);
+ await expect(page.locator('#wk_minus')).toBeHidden();await expect(page.locator('#s-wk>.sec-aus-hinweis')).toBeVisible();
+ await page.locator('#s-wk>h2 .sec-schalter input').check();expect(await page.evaluate(()=>_R.wkSumme)).toBe(9000);
+ // Position entfernen
+ await page.locator('#wk_plus button[aria-label="Position entfernen"]').last().click();expect(await page.evaluate(()=>_R.wkSumme)).toBe(12000);
+ // Aufnahmebogen aus: nicht im Bericht, Ortsbesichtigung zählt nicht als Pflichtfeld
+ await page.evaluate(()=>{$('au_wetter').value='sonnig';$('ek_besichtigung').value='';compute();appRefresh();});
+ expect(await page.evaluate(()=>pflichtListe().includes('ek_besichtigung'))).toBe(true);
+ await page.locator('#s-aufnahme>h2 .sec-schalter input').uncheck();
+ expect(await page.evaluate(()=>pflichtListe().includes('ek_besichtigung'))).toBe(false);
+ await page.evaluate(()=>druckbericht());await expect(page.locator('#report')).not.toContainText('Feststellungen der Ortsbesichtigung');
+ await page.evaluate(()=>document.body.classList.remove('report-mode'));await page.locator('#s-aufnahme>h2 .sec-schalter input').check();
+ await page.evaluate(()=>druckbericht());await expect(page.locator('#report')).toContainText('Feststellungen der Ortsbesichtigung');
+ await keineSkriptfehler(page);
+});
+test('Ältere Bewertung: negativer Betrag erscheint als Zuschlag, Besichtigung am → Ortsbesichtigung, alle Abschnitte an',async({page})=>{
+ await appOeffnen(page);
+ await page.evaluate(()=>restore({fields:{ek_modus:'haus',wk_bez0:'Feuchtigkeit',wk_val0:'12.000',wk_bez1:'Carport',wk_val1:'-3.000',au_datum:'2026-09-12'}}));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);compute();appRefresh();});
+ expect(await page.evaluate(()=>[_R.wkSumme,$('ek_besichtigung').value])).toEqual([9000,'2026-09-12']);
+ await expect(page.locator('#wk_plus input[aria-label="Merkmal"]')).toHaveValue('Carport');
+ await expect(page.locator('#wk_plus input[aria-label="Betrag in €"]')).toHaveValue('3.000,00');
+ expect(await page.evaluate(()=>Object.keys(APP_SCHALTER).filter(id=>APP_SCHALTER[id].aus).map(id=>appSchalterAn(id)))).toEqual([true,true,true,true,true,true]);
+});
+test('Eckdaten: Anschrift, Telefon und E-Mail des Auftraggebers aus der Kundenakte',async({page})=>{
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appOpenObject();});
+ await expect(page.locator('#ek_kunde_anzeige')).toContainText('kommen aus der Kundenakte');
+ await page.evaluate(async()=>{await kdSpeichern({id:'k_kontakt',vorname:'Erika',nachname:'Musterfrau',strasse:'Musterweg 1',plzort:'74000 Musterstadt',telefon:'07062 000000',email:'erika@example.org',kontakte:[],finanzierungen:[],erstellt:1});kdAktuelleZuordnen('k_kontakt');});
+ const z=page.locator('#ek_kunde_anzeige');
+ await expect(z).toContainText('Erika Musterfrau');await expect(z).toContainText('Musterweg 1, 74000 Musterstadt');
+ await expect(z.locator('a[href^="tel:"]')).toHaveText('07062 000000');await expect(z.locator('a[href^="mailto:"]')).toHaveText('erika@example.org');
+ // die Kontaktdaten stehen nur in der Akte, nicht in der Bewertung (D8)
+ expect(await page.evaluate(()=>JSON.stringify(collect()))).not.toContain('Musterweg');
 });

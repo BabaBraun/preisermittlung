@@ -55,6 +55,8 @@ body.app-shell{--bg:#f4f6f6;--card:#fff;--surface-2:#f0f4f3;--field:#fbfcfc;--te
 .app-shell #app_steps,.app-shell #app_section_toolbar,.app-shell #app_object_actions,.app-shell #app_object_overview .app-page-heading{display:none!important}
 .app-shell main>section.card{scroll-margin-top:calc(var(--app-header-height) + 16px)}
 .app-shell main>section.card>h2.app-sec-kopf{cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.app-shell main>section.card>h2.app-sec-kopf>.sec-schalter{margin:0 0 0 auto;flex:0 0 auto;gap:0}   /* Schalter rechts, vor dem Pfeil (D35) */
+.app-shell main>section.card>h2.app-sec-kopf>.sec-schalter~.app-sec-toggle{margin-left:4px}
 .app-shell .app-sec-toggle{margin-left:auto;flex:0 0 auto;width:40px;height:40px;min-height:40px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--text-2);display:inline-flex;align-items:center;justify-content:center}
 .app-shell .app-sec-toggle svg{width:18px;height:18px}
 .app-shell main>section.card.app-zu .app-sec-toggle svg{transform:rotate(-90deg)}

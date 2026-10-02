@@ -116,3 +116,15 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
   Gebäude sind ausgeblendet, solange nichts aufgeteilt ist).
 - Tests: `tests/unit/kern.test.mjs` (Handrechnung), neuer Fall `haus_anbau_miete_je_gebaeude` der Python-
   Vergleichsrechnung (`tests/referenz/`), Selbsttest, `tests/e2e/app-bedienung.spec.mjs`.
+
+## 11. Neue Gliederung der Bewertung — nur Anzeigetexte (2026-10-02)
+
+- Anlass: Gliederung neu (D35) — Grundstück, Flächen, Baujahr und Mieten stehen unter „Allgemeine Angaben“ statt in
+  den Eckdaten; § 8 Abs. 3 in zwei Listen (Abschläge, Zuschläge).
+- Keine Zahl der Vergleichsfälle ändert sich (maschinell verglichen, 9 Unterschiede, alle in `texte`):
+  - `o_er_rohsrc` (8 Fälle): „(Wohnen + Gewerbe + Stellplätze aus Eckdaten)“ → „… aus den Allgemeinen Angaben)“.
+  - `o_wk_summe` (`haus_anbau_niessbrauch_vergleich`): „9.000 €“ → „− 9.000 €“ — der Saldo zeigt jetzt, ob er
+    abgezogen oder zugeschlagen wird (vorher erschien ein Zuschlag in der Preisempfehlung als „− -… €“).
+- Tests: neue Fälle `haus_merkmale_zuschlag_als_art` und `haus_merkmale_ausgeschaltet` der Python-Vergleichsrechnung,
+  `tests/unit/referenz.test.mjs` (Zuschlag als Art = früherer negativer Betrag), Browsertests der neuen Gliederung.
+

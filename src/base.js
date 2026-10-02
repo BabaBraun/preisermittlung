@@ -142,7 +142,7 @@ function bwAusBewertung(){
   let typ=((($('ek_typ')||{}).value)||'').toLowerCase();
   if(/b(ü|ue)ro|laden|gesch(ä|ae)ft|gewerbe|betrieb|halle/.test(typ)){ $('bw_nutzung').value='gewerbe'; $('bw_objektart').value='60'; }
   compute();
-  if(!(R.roh>0)&&!(herstell>0)) alert('In der Bewertung stehen noch keine übernehmbaren Werte — bitte zuerst Eckdaten, Bruttogrundfläche und Miete erfassen.');
+  if(!(R.roh>0)&&!(herstell>0)) alert('In der Bewertung stehen noch keine übernehmbaren Werte — bitte zuerst Allgemeine Angaben, Bruttogrundfläche und Miete erfassen.');
 }
 
 /* ---------- Aufgaben und Wiedervorlagen ------------------------------------------------
@@ -336,7 +336,7 @@ function finAusBewertung(still){
   /* mdbNum statt parseNum: parseNum liest "267.901" als 267,901 (Punkt = Dezimaltrenner ohne Komma) */
   let emp=mdbNum((($('o_empfehlung')||{}).textContent)||'');
   if(emp>0){ $('fin_kaufpreis').value=Math.round(emp).toLocaleString('de-DE'); finRechnen(); }
-  else if(!still) alert('In der Bewertung steht noch keine Preisempfehlung — bitte zuerst die Eckdaten ausfüllen oder den Kaufpreis von Hand eintragen.');
+  else if(!still) alert('In der Bewertung steht noch keine Preisempfehlung — bitte zuerst Eckdaten und Allgemeine Angaben ausfüllen oder den Kaufpreis von Hand eintragen.');
 }
 function finDrucken(){ window.print(); }
 ['input','change'].forEach(ev=>{ let f=$('fin_overlay'); if(f) f.addEventListener(ev,e=>e.stopPropagation()); });
@@ -434,6 +434,6 @@ function buildModPunkte(){
   let tb=$('modpunkte_tbl').querySelector('tbody'); tb.innerHTML='';
   MOD_ELEMENTS.forEach((el,i)=>{
     tb.insertAdjacentHTML('beforeend',
-      `<tr><td>${el[0]}</td><td>${el[1]}</td><td><input id="mod_p${i}" type="text" value="0" style="width:70px"></td></tr>`);
+      `<tr><td>${el[0]}</td><td>${el[1]}</td><td><input id="mod_p${i}" type="text" value="0" style="width:70px"></td><td class="mod-au" id="mod_au${i}"></td></tr>`);
   });
 }

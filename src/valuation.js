@@ -71,7 +71,7 @@ function anzeigen(R,D){
   // 6 Ertrag
   $('mietrolle_body').style.display=R.mietrolleAktiv?'':'none';
   D.mietrolle.zeilen.forEach((pa,i)=>setT('mr_pa'+i,eur(pa))); setT('o_mr_summe',eur(R.mrSumme));
-  setT('o_er_rohsrc', R.mietrolleAktiv?'(aus Mietrolle)':'(Wohnen + Gewerbe + Stellplätze aus Eckdaten)');
+  setT('o_er_rohsrc', R.mietrolleAktiv?'(aus Mietrolle)':'(Wohnen + Gewerbe + Stellplätze aus den Allgemeinen Angaben)');
   $('bw_pausch').style.display=R.bwDetail?'none':'';
   $('bw_detail').style.display=R.bwDetail?'':'none';
   let q=D.bwQuelle, bwInfo;
@@ -125,7 +125,7 @@ function anzeigen(R,D){
   setT('o_erbbau',eur(R.erbbauAbzug));
   // 7d Wertkorrekturen § 8 Abs. 3
   renderWKRows();
-  setT('o_wk_summe',eur(R.wkSumme));
+  setT('o_wk_summe',R.wkSumme>0?'− '+eur(R.wkSumme):R.wkSumme<0?'+ '+eur(-R.wkSumme):eur(0));
   // Energetische Qualität
   $('en_body').style.opacity=R.enAktiv?1:.4;
   if(R.enKennwert>0 && !$('en_klasse').dataset.manuell) $('en_klasse').value=D.enKlasse;
@@ -151,7 +151,7 @@ function anzeigen(R,D){
   $('fld_gew_vergleich').style.display=R.vwAktiv?'':'none';
   setT('o_e_vgl',num2(R.gv*100)+' % · '+eur(R.vergleichWert));
   setT('o_e_erbbau','− '+eur(R.erbbauAbzug));
-  setT('o_e_wk','− '+eur(R.wkSumme));
+  setT('o_e_wk',R.wkSumme<0?'+ '+eur(-R.wkSumme):'− '+eur(R.wkSumme));
   $('row_e_pv').style.display=D.pvAktiv?'':'none';
   setT('o_e_sub',eur(R.substanz));setT('o_e_er',eur(R.ertrag));setT('o_e_mittel',eur(R.mittel));
   setT('o_e_pv','+ '+eur(R.pvWert));

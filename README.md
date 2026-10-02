@@ -18,7 +18,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Baupreisindex (amtliche Quartalswerte Baden-Württemberg für Wohn-, Büro- und gewerbliche Betriebsgebäude
   eingebaut, Übernahme zum Stichtag mit Umrechnung auf NHK 2010) und Regionalfaktor; Restnutzungsdauer nach Modernisierungspunkten (Anlage 2 ImmoWertV,
   Alter bezogen auf das Stichtagsjahr); Ertragswert mit Mietrolle und Bewirtschaftungskosten; Vergleichswert;
-  Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht; Wertkorrekturen § 8 Abs. 3; PV-Anlage; energetische
+  Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht; besondere objektspezifische Merkmale § 8 Abs. 3 (Ab- und
+  Zuschläge); Aufnahmebogen, der Standardstufen, Modernisierungen und Technik in die Bewertung überträgt; PV-Anlage; energetische
   Qualität; Sanierungsweg mit Förderung; Beleihungswert nach BelWertV; Datengrundlagen und
   Modellkonformität (§ 10 ImmoWertV); Lage-Check.
 - **Eingabeprüfung:** ungültige Zahlen, unzulässig negative Werte, Prozentwerte über 100 und fehlende

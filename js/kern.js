@@ -361,7 +361,9 @@ function bewerte(e,k){
   let erbbauAbzug=ebAktiv?Math.max(ebRoh+ebAbsch,0):0;
   D.ebAbsch=ebAbsch;
   // 7d Wertkorrekturen § 8 Abs. 3
-  let wkSumme=0; for(let i=0;i<ANZAHL.wk;i++) wkSumme+=e.n('wk_val'+i);
+  // Abschläge positiv, Zuschläge (wk_art 'plus') mit umgekehrtem Vorzeichen; ohne Art wie früher (negativ = Zuschlag).
+  // Abschnitt ausgeschaltet (wk_aus): keine Zu- und Abschläge (D35)
+  let wkSumme=0; if(!e.an('wk_aus')) for(let i=0;i<ANZAHL.wk;i++){ let v=e.n('wk_val'+i); wkSumme+=e.v('wk_art'+i)==='plus'?-Math.abs(v):v; }
   // 8 Empfehlung
   let g=parseFloat(e.v('gewichtung')); if(!(g>=0&&g<=1)) g=0.5;   /* fehlt die Auswahl: Standard 50 : 50 */
   let mittelBasis=g*substanz+(1-g)*ertrag;

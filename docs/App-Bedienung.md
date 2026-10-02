@@ -20,11 +20,21 @@ Anbau / Nebengebäude, Wohnrecht / Nießbrauch und PV-Anlage schaltet man in der
 dem Kunden zugeordnet und hat ihn als Auftraggeber. Ist gerade eine Bewertung angefangen, wird sie vorher als Projekt
 gesichert (mit Rückfrage) — es geht nichts verloren.
 
-## Innerhalb einer Bewertung (seit 30.09.2026 wieder wie früher)
+## Innerhalb einer Bewertung (Gliederung seit 02.10.2026)
 
-Alle Abschnitte stehen untereinander in der bekannten Reihenfolge (Eckdaten, Aufnahmebogen, Hauptgebäude, Anbau,
-Objektdaten & Beschreibung … Preisempfehlung … Vermarktung), fortlaufend nummeriert 1, 2, 3 … ohne Lücken — beim Haus
-und bei der Wohnung jeweils passend zu den angezeigten Abschnitten; die Blöcke darin entsprechend 5.1, 5.2 … Jeder
+Alle Abschnitte stehen untereinander, fortlaufend nummeriert 1, 2, 3 … ohne Lücken:
+
+1. **Eckdaten** — Vordruck, Gebäudetyp, Auftraggeber (Anschrift, Telefon und E-Mail aus der Kundenakte),
+   Objektanschrift, Nutzung, Verwendungszweck, Wertermittlungsstichtag
+2. **Aufnahmebogen** — für die Besichtigung (siehe unten), mit dem Datum der Ortsbesichtigung
+3. **Objektdaten & Beschreibung**
+4. **Allgemeine Angaben** — Grundstück und Bodenrichtwert (bei der Wohnung Miteigentumsanteil und Hausgeld), Flächen,
+   Baujahr, Mieten
+5. Hauptgebäude · 6. Anbau / Nebengebäude · 7. Datengrundlagen · 8. Preis nach Substanz · 9. Vergleichswert ·
+   10. Preis nach Ertrag · danach wie bisher Nießbrauch … Preisempfehlung … Vermarktung.
+
+Bei der Eigentumswohnung entfallen die Abschnitte, die es nur beim Haus gibt (Hauptgebäude, Anbau, Substanz …); die
+Reihenfolge ist dieselbe. Die Blöcke in einem Abschnitt sind entsprechend nummeriert (3.1, 3.2 …). Jeder
 Abschnitt lässt sich über den Pfeil rechts (oder einen Klick auf die Überschrift) auf- und zuklappen, jeder Block
 darin (z. B. „Lage“, „Restnutzungsdauer“) ebenso. Die Seitenleiste zeigt dieselben Nummern. „Alle aufklappen“ / „Alle zuklappen“ stehen über der Liste. Die App
 merkt sich auf dem Gerät, was zugeklappt ist.
@@ -34,6 +44,27 @@ Preisempfehlung, Gewichtung, Vollständigkeit und Prüfhinweisen. Am Handy ist d
 der Kopfzeile, das Ergebnis steht als Karte über der Liste. Ein Sprung oder Prüfhinweis öffnet zugeklappte Abschnitte
 und Blöcke automatisch. Beim Drucken wird alles aufgeklappt. Die Eingaben und Rechnungen sind unverändert.
 
+**Schalter je Abschnitt:** Jeder Abschnitt, den man weglassen kann, hat oben rechts einen Schalter. Aus = fließt nicht
+in die Bewertung (Aufnahmebogen, Objektdaten, Datengrundlagen, Fotos und Rendite erscheinen dann auch nicht im
+Bericht); der Abschnitt zeigt nur noch seine Kopfzeile, seine Pflichtfelder zählen nicht. „Preis nach Substanz“ und
+„Preis nach Ertrag“ (bei der Wohnung „Vergleichswert“ und „Preis nach Ertrag“) stellen die Gewichtung auf „nur …“ —
+beide aus geht nicht; beim Wiedereinschalten gilt die vorige Gewichtung. Ohne Schalter: Eckdaten, Allgemeine Angaben,
+Hauptgebäude, Preisempfehlung, Ersteller sowie Exposé, Präsentation und Vermarktung.
+
+**Aufnahmebogen → Bewertung:** Was vor Ort eingetragen wird, landet in der Bewertung:
+- „Bauteile & Ausstattungsstandard“: je Bauteil die passende Beschreibung wählen (z. B. Fenster: „Dreifachverglasung,
+  erhöhter Schall-/Einbruchschutz“) → Standardstufe im Gebäudepreis des Hauptgebäudes;
+- „Modernisierungen“: Umfang und Jahr je Element → „vollständig erneuert“ gibt die volle Punktzahl (ImmoWertV
+  Anlage 2), „nicht modernisiert“ 0; bei „teilweise“ oder länger zurückliegenden Maßnahmen die Punkte selbst
+  festlegen — das Jahr steht in der Punktetabelle daneben;
+- Heizung, Fenster, Energieausweis, Effizienzklasse, Aufzug → Objektdaten; Keller → Unterkellerung; Energiekennwert
+  und -klasse → Energetische Qualität.
+Übernommene Felder sind in der Bewertung farbig markiert und bleiben änderbar (z. B. Stufe 3,5).
+
+**Besondere objektspezifische Merkmale (§ 8 Abs. 3):** zwei Listen, „Wertmindernd“ (Abschläge) und „Werterhöhend“
+(Zuschläge). Mit „＋ Abschlag“ bzw. „＋ Zuschlag“ eine Position anlegen, das Merkmal aus der Liste wählen oder selbst
+benennen, den Betrag positiv eintragen; ✕ entfernt sie. Darunter steht der Saldo.
+
 **Mietertrag je Gebäude (seit 02.10.2026):** Ist ein Anbau / Nebengebäude eingeschaltet, steht unter „Preis nach
 Ertrag“ das Feld „davon Anbau / Nebengebäude (€/Jahr)“. Der dort eingetragene Teil der Jahresmiete wird mit der
 Restnutzungsdauer des Anbaus kapitalisiert, der Rest mit der des Hauptgebäudes — Reinertrag und Bodenwertverzinsung
@@ -42,7 +73,7 @@ Gebäude einzeln. 0 (Vorgabe) = alles beim Hauptgebäude wie bisher.
 
 ## Baupreisindex
 
-Im Abschnitt „Hauptgebäude“ (2.3 Gebäudepreis) die Gebäudeart wählen (Wohngebäude; Bürogebäude, auch für Bank- und
+Im Abschnitt „Hauptgebäude“ (Block „Gebäudepreis“) die Gebäudeart wählen (Wohngebäude; Bürogebäude, auch für Bank- und
 Geschäftshäuser; gewerbliche Betriebsgebäude) und „Wert zum Stichtag übernehmen“ tippen: Die App trägt den
 Quartalswert des Statistischen Landesamts Baden-Württemberg zum Wertermittlungsstichtag ein, dazu den
 Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle. Liegt der Stichtag nach dem neuesten

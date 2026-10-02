@@ -109,7 +109,7 @@ function rlDaten(){
   return {zeilen:zeilen, grund:grund, wfl:wfl};
 }
 /* Läuft am Anfang von compute(): Summen bilden und — nur wenn der Schalter an ist —
-   die Wohnfläche der Eckdaten füllen. Sonst bleibt das Eckdatenfeld frei beschreibbar. */
+   die Wohnfläche der Allgemeinen Angaben füllen. Sonst bleibt das Feld frei beschreibbar. */
 function raumlisteSync(){
   if(!$('rl_name0')) return;
   let d=rlDaten();
@@ -128,15 +128,15 @@ function raumlisteSync(){
   feld.classList.toggle('aus-raumliste',uebernehmen);
   feld.title=uebernehmen?'Wird aus der Raumliste im Aufnahmebogen übernommen':'';
   let manuell=num('ek_wohnflaeche'), hint='';
-  if(uebernehmen) hint='Die Wohnfläche in den Eckdaten wird aus dieser Liste übernommen. Zum freien Eintragen den Schalter ausschalten — der Wert bleibt dann stehen und ist wieder änderbar.';
-  else if(aktiv) hint='Noch keine Räume mit Fläche erfasst — bis dahin gilt der in den Eckdaten eingetragene Wert.';
+  if(uebernehmen) hint='Die Wohnfläche in den Allgemeinen Angaben wird aus dieser Liste übernommen. Zum freien Eintragen den Schalter ausschalten — der Wert bleibt dann stehen und ist wieder änderbar.';
+  else if(aktiv) hint='Noch keine Räume mit Fläche erfasst — bis dahin gilt der in den Allgemeinen Angaben eingetragene Wert.';
   else if(n&&manuell>0){
     let abw=(d.wfl-manuell)/manuell*100;
-    hint='Die Raumliste ergibt '+num2(d.wfl)+' m², in den Eckdaten stehen '+num2(manuell)+' m²'
+    hint='Die Raumliste ergibt '+num2(d.wfl)+' m², in den Allgemeinen Angaben stehen '+num2(manuell)+' m²'
       +(Math.abs(abw)>=0.5?' — Abweichung '+(abw>0?'+':'')+num2(abw)+' %.':' — stimmt überein.');
   }
   else if(n) hint='Die Raumliste ergibt '+num2(d.wfl)+' m². Mit dem Schalter wird sie als Wohnfläche übernommen.';
-  else hint='Die Wohnfläche wird in den Eckdaten frei eingetragen. Wer Raum für Raum misst, erfasst die Räume hier und schaltet die Übernahme ein.';
+  else hint='Die Wohnfläche wird in den Allgemeinen Angaben frei eingetragen. Wer Raum für Raum misst, erfasst die Räume hier und schaltet die Übernahme ein.';
   setT('rl_modus_hint',hint);
   let eh=$('rl_eck_hint');
   if(eh){
@@ -155,7 +155,7 @@ function raumlisteBericht(esc){
     +'<td>'+num2(z.grund)+' m²</td><td>'+esc(rlFaktorText(z.key).split(' — ')[0])+'</td><td>'+num2(z.wfl)+' m²</td></tr>').join('');
   let angesetzt=num('ek_wohnflaeche'), ausListe=$('rl_aktiv').checked;
   let satz= ausListe ? 'Die angesetzte Wohnfläche von '+num2(angesetzt)+' m² ist dieser Aufstellung entnommen.'
-    : (angesetzt>0 && Math.abs(angesetzt-d.wfl)>=0.01 ? 'Angesetzt wurde abweichend eine Wohnfläche von '+num2(angesetzt)+' m² (lt. Eckdaten).' : '');
+    : (angesetzt>0 && Math.abs(angesetzt-d.wfl)>=0.01 ? 'Angesetzt wurde abweichend eine Wohnfläche von '+num2(angesetzt)+' m² (lt. Allgemeinen Angaben).' : '');
   return '<h3>Wohnflächenberechnung nach WoFlV</h3><table>'
     +'<tr><td><b>Raum</b></td><td><b>Grundfläche</b></td><td><b>Anrechnung</b></td><td><b>Wohnfläche</b></td></tr>'
     +zeilen+'<tr class="total"><td>Summe</td><td>'+num2(d.grund)+' m²</td><td></td><td>'+num2(d.wfl)+' m²</td></tr></table>'

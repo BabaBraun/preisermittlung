@@ -23,7 +23,7 @@ function lageKoord(){
 const LAGE_PRUEFUNGEN=[
   {k:'brw',name:'Bodenrichtwert',dienst:'BORIS-BW',ablage:'adresse',
    url:()=>'https://www.gutachterausschuesse-bw.de/borisbw/?app=boris_bw'+(exOrt()?'&commune='+encodeURIComponent(exOrt()):''),
-   tipp:'Nutzungsbedingungen bestätigen, Adresse in die Suche einfügen. Bodenrichtwert und Stichtag in den Eckdaten und unter „Datengrundlagen“ eintragen.'},
+   tipp:'Nutzungsbedingungen bestätigen, Adresse in die Suche einfügen. Bodenrichtwert unter „Allgemeine Angaben“, Stichtag in den Eckdaten und unter „Datengrundlagen“ eintragen.'},
   {k:'hochwasser',name:'Hochwasser',dienst:'LUBW, Hochwassergefahrenkarte',ablage:'utm',url:()=>'https://udo.lubw.baden-wuerttemberg.de/public/',
    tipp:'Thema „Hochwassergefahrenkarte“ öffnen, Koordinaten ins Suchfeld einfügen, Eingabe drücken. Liegt das Grundstück in HQ100 oder HQextrem?'},
   {k:'starkregen',name:'Starkregen',dienst:'Gemeinde, Starkregengefahrenkarte',ablage:'adresse',url:()=>'https://www.lubw.baden-wuerttemberg.de/wasser/starkregenrisikomanagement',

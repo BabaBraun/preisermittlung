@@ -263,7 +263,9 @@ function feldGefuellt(id){
   if(e.type==='date'||e.tagName==='TEXTAREA')return true;
   return !(/^[0.,\s]*$/.test(v));
 }
-function pflichtListe(){ return (modus()==='wohnung'?window.PFLICHT_WOHNUNG:window.PFLICHT_HAUS)||[]; }
+/* Pflichtfelder in ausgeschalteten Abschnitten zählen nicht (z. B. Ortsbesichtigung bei ausgeschaltetem Aufnahmebogen, D35) */
+function pflichtListe(){ return ((modus()==='wohnung'?window.PFLICHT_WOHNUNG:window.PFLICHT_HAUS)||[]).filter(p=>{ if(typeof p!=='string') return true;
+  let e=$(p), sec=e&&e.closest('main>section.card'); return !(sec&&typeof appSchalterAn==='function'&&appSchalterAn(sec.id)===false); }); }
 function pflichtOk(p){ return typeof p==='string'?feldGefuellt(p):!!p.ok(); }
 function pflichtLabel(p){
   if(typeof p!=='string') return p.lbl;
@@ -284,7 +286,7 @@ function voll(){
 
 /* ---------- Navigation mit Status ---------- */
 /* Reihenfolge wie im Formular — die Abschnittsnummern laufen in dieser Folge */
-var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-hg','s-anbau','s-technik','s-grundlagen']],
+var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-technik','s-allg','s-hg','s-anbau','s-grundlagen']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung']],
                   ['Abschluss',['s-fotos','s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']]];
 var NAV_TOGGLE={'s-sanierung':'san_aktiv','s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
@@ -311,10 +313,11 @@ function buildNav(){
   navStatus();
 }
 function secStatus(id){
+  if(typeof appSchalterAn==='function'&&appSchalterAn(id)===false) return ['off','aus'];   // Schalter in der Kopfzeile (D35)
   let tg=(window.NAV_TOGGLE||{})[id];
   if(tg){ let e=$(tg); if(e&&!e.checked&&!(id==='s-vergleich'&&modus()==='wohnung')) return ['off','aus']; }
   if(id==='s-fotos'){ let n=(typeof PHOTOS!=='undefined'&&PHOTOS)?PHOTOS.length:0; return n?['done',String(n)]:['empty','']; }
-  if(id==='s-aufnahme'){ let any=[...document.querySelectorAll('#s-aufnahme input[type=checkbox]')].some(c=>c.checked)||feldGefuellt('au_datum'); return any?['done','']:['empty','']; }
+  if(id==='s-aufnahme'){ let any=[...document.querySelectorAll('#s-aufnahme input[type=checkbox]')].some(c=>c.checked)||feldGefuellt('ek_besichtigung'); return any?['done','']:['empty','']; }
   if(id==='s-rendite'){ return feldGefuellt('pl_markt')?['done','']:['empty','']; }
   if(id==='s-technik'){ let n=[...document.querySelectorAll('#s-technik input:not([type=checkbox]),#s-technik select,#s-technik textarea')].filter(e=>e.id&&feldGefuellt(e.id)).length; return n>=6?['done','']:n?['started','']:['empty','']; }
   if(id==='s-wk'){ let n=0; for(let i=0;i<(typeof N_WK!=='undefined'?N_WK:14);i++) if(feldGefuellt('wk_val'+i))n++; return n?['done',String(n)]:['empty','']; }

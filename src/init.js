@@ -8,6 +8,7 @@ buildBGF('bgf_an_tbl','bgfan');
 buildModPunkte();
 buildMietrolle();
 buildAufnahmeBauteile();
+buildAufnahmeStandard();   // Aufnahmebogen: Standardstufen und Modernisierungen (D35)
 buildUnterlagen();
 buildVergleich();
 buildMietspiegel();

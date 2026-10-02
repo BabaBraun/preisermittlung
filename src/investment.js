@@ -103,32 +103,47 @@ function ivDokument(teilen){
   if(teilen) pdfTeilen();
 }
 
+/* ---------- Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV) — D35 ----------
+   Zwei Listen: wertmindernd (Abschläge) und werterhöhend (Zuschläge), jede Position mit ＋ hinzufügen. Gespeichert wird
+   wie bisher in 14 Plätzen (wk_bez, wk_val) und zusätzlich der Art (wk_art 'minus'/'plus'); Beträge werden positiv
+   eingetragen, die Art bestimmt das Vorzeichen. Ältere Bewertungen (nur Vorzeichen, negativ = Zuschlag) werden beim
+   Anzeigen ihrer Liste zugeordnet — die Summe und damit das Ergebnis bleiben gleich. */
 const N_WK=14;
-const WK_VORLAGE=[['Überalterung der Decken',0],['Unzureichender Brand-/Schallschutz',0],['Feuchtigkeitsschäden',0],
-  ['Veraltete Heizungsanlage',0],['Undichte / veraltete Fenster',0],['Denkmalbedingte Mehraufwendungen',0]];
+const WK_VORSCHLAG={
+  minus:['Baumängel / Bauschäden','Instandhaltungsstau','Feuchtigkeitsschäden','Überalterung der Decken','Unzureichender Brand-/Schallschutz',
+    'Veraltete Heizungsanlage','Undichte / veraltete Fenster','Schadstoffe (z. B. Asbest)','Bodenverunreinigung / Altlasten',
+    'Freilegungs- / Abbruchkosten','Denkmalbedingte Mehraufwendungen','Mindermiete (unter Marktmiete)','Leerstand / Mietausfall',
+    'Wege- oder Leitungsrecht zulasten des Grundstücks','Baulast','Wirtschaftliche Überalterung'],
+  plus:['Mehrmiete (über Marktmiete)','Überdurchschnittlicher Erhaltungszustand','Wegerecht zugunsten des Grundstücks',
+    'Werbefläche / Mobilfunkanlage','Bodenschätze','Besondere Ausstattung (z. B. Schwimmbad)']};
 function buildWK(){
-  let tb=$('wk_tbl').querySelector('tbody'); tb.innerHTML='';
-  for(let i=0;i<N_WK;i++){
-    tb.insertAdjacentHTML('beforeend',
-      `<tr id="wk_row${i}"><td><input id="wk_bez${i}" type="text" placeholder="z.B. Sanierungsstau Dach" style="text-align:left"></td>
-       <td><input id="wk_val${i}" type="text" value="0"></td></tr>`);
-  }
+  let box=$('wk_plaetze'); if(!box) return; box.innerHTML='';
+  for(let i=0;i<N_WK;i++) BETRAG_IDS.set('wk_val'+i,true);   // Euro-Betrag: „12.000“ = zwölftausend (ohne Tabellenkopf mit €)
+  for(let i=0;i<N_WK;i++) box.insertAdjacentHTML('beforeend',
+    `<div class="wk-zeile" id="wk_row${i}"><input id="wk_bez${i}" type="text" placeholder="Merkmal wählen oder eintragen" aria-label="Merkmal">`
+    +`<input id="wk_val${i}" type="text" value="0" inputmode="decimal" aria-label="Betrag in €"><input id="wk_art${i}" type="hidden" value="">`
+    +`<button type="button" class="weg no-print" aria-label="Position entfernen" onclick="wkWeg(${i})">✕</button></div>`);
+  ['minus','plus'].forEach(a=>{ let d=$('wk_vorschlag_'+a); if(d) d.innerHTML=WK_VORSCHLAG[a].map(t=>'<option value="'+sEsc(t)+'">').join(''); });
 }
+function wkBelegt(i){ return !!exV('wk_art'+i)||(exV('wk_bez'+i)||'').trim()!==''||num('wk_val'+i)!==0; }
 function renderWKRows(){
-  let vis=Math.max(3,Math.min(N_WK,parseInt(num('wk_visible'))||3));
   for(let i=0;i<N_WK;i++){
-    let r=$('wk_row'+i); if(!r)continue;
-    let hasVal=(($('wk_bez'+i).value||'').trim()!=='')||num('wk_val'+i)!==0;
-    r.style.display=(i<vis||hasVal)?'':'none';
+    let r=$('wk_row'+i); if(!r) continue;
+    if(!wkBelegt(i)){ if(r.parentElement.id!=='wk_plaetze') $('wk_plaetze').append(r); continue; }
+    let art=exV('wk_art'+i);
+    if(!art){ let v=num('wk_val'+i); art=v<0?'plus':'minus'; $('wk_art'+i).value=art; if(v<0) $('wk_val'+i).value=num2(-v); }   // ältere Bewertung
+    $('wk_bez'+i).setAttribute('list','wk_vorschlag_'+art);
+    let ziel=$(art==='plus'?'wk_plus':'wk_minus'); if(r.parentElement!==ziel) ziel.append(r);
   }
+  ['minus','plus'].forEach(a=>{ let l=$('wk_'+a); if(l) l.classList.toggle('leer',!l.children.length); });
 }
-function addWKRow(){
-  let vis=Math.max(3,Math.min(N_WK,parseInt(num('wk_visible'))||3));
-  $('wk_visible').value=Math.min(vis+1,N_WK); renderWKRows();
+function wkNeu(art){
+  let i=[...Array(N_WK).keys()].find(j=>!wkBelegt(j));
+  if(i===undefined){ alert('Es sind bereits '+N_WK+' Merkmale erfasst — bitte vorhandene zusammenfassen.'); return; }
+  $('wk_art'+i).value=art; $('wk_bez'+i).value=''; $('wk_val'+i).value='0';
+  renderWKRows(); compute(); autosave();
+  let b=$('wk_bez'+i); b.focus(); if(b.showPicker) try{ b.showPicker(); }catch(e){}
 }
-function wkVorlage(){
-  WK_VORLAGE.forEach((v,i)=>{if(i<N_WK && !($('wk_bez'+i).value||'').trim()) $('wk_bez'+i).value=v[0];});
-  $('wk_visible').value=Math.max(WK_VORLAGE.length,parseInt(num('wk_visible'))||3);
-  renderWKRows();compute();
-}
-function wkLines(){let o=[];for(let i=0;i<N_WK;i++){let v=num('wk_val'+i);let b=($('wk_bez'+i).value||'').trim();if(v!==0)o.push([b||'Wertkorrektur',v]);}return o;}
+function wkWeg(i){ $('wk_art'+i).value=''; $('wk_bez'+i).value=''; $('wk_val'+i).value='0'; renderWKRows(); compute(); autosave(); }
+/* Zeilen für Bericht und Excel: [Bezeichnung, Betrag mit Vorzeichen (positiv = Abschlag)] */
+function wkLines(){let o=[];if($('wk_aus')&&$('wk_aus').checked)return o;for(let i=0;i<N_WK;i++){let v=num('wk_val'+i),b=($('wk_bez'+i).value||'').trim();if(exV('wk_art'+i)==='plus')v=-Math.abs(v);if(v!==0)o.push([b||'Wertkorrektur',v]);}return o;}

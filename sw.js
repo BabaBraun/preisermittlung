@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-020d0554d20e';
+const CACHE = 'immoapp-fe5d6c4d5147';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -35,6 +35,7 @@ const ASSETS = [
   './manifest.webmanifest',
   './selbsttest.js',
   './src/app-shell.js',
+  './src/aufnahme.js',
   './src/base.js',
   './src/budget.js',
   './src/buyer-profiles.js',

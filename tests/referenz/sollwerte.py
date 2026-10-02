@@ -218,7 +218,9 @@ def bewerte(f, jahr):
         erbbau = max(roh_abzug * (1 + z('eb_abschlag') / 100), 0)
     r['erbbauAbzug'] = erbbau
 
-    wk = sum(z('wk_val%d' % i) for i in range(14))
+    # § 8 Abs. 3: Abschläge positiv, Zuschläge (wk_art = 'plus') mit umgekehrtem Vorzeichen, ältere Fälle nur mit
+    # Vorzeichen (negativ = Zuschlag); Abschnitt ausgeschaltet (wk_aus): keine Zu- und Abschläge
+    wk = 0.0 if an('wk_aus') else sum(-abs(z('wk_val%d' % i)) if f.get('wk_art%d' % i) == 'plus' else z('wk_val%d' % i) for i in range(14))
     extras = z('xemp1_val') + z('xemp2_val')
     empfehlung = mittel + pv + energie - belastung - erbbau - wk + extras
     vh = z('verhandlung') / 100

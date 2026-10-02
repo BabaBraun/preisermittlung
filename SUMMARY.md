@@ -1,3 +1,9 @@
+# Zusammenfassung — Gliederung der Bewertung neu (2026-10-02)
+
+Eckdaten schlank, Aufnahmebogen als 2., Objektdaten als 3., „Allgemeine Angaben“ (Grundstück, Flächen, Mieten) als 4.
+Abschnitt; der Aufnahmebogen überträgt Standardstufen, Modernisierungen und Technik in die Bewertung; § 8 in zwei Listen
+mit ＋; Schalter je Abschnitt. Keine Zahl ändert sich (D35).
+
 # Zusammenfassung — Erste vollständige Klicktest-Läufe (2026-10-02)
 
 Exposé-Fotos: Haken nicht gewählter Fotos lag unter dem blassen Bild — behoben; Vermarktung zeigt bei ungültigem Datum

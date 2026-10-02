@@ -766,3 +766,66 @@ aktiver Reiter, schon offene Ansicht, leere Eingabe („Hinzufügen“, „Notiz
 Klick in die Fläche eines Fensters, Budget schon leer, „Alle aufklappen“ bei offenen Abschnitten, „Vorige Folie“ auf
 der ersten und „Nächste Folie“ auf der letzten Folie (das Blättern prüft `sonderablaeufe.spec.mjs`).
 
+---
+
+## D35 (2026-10-02) — Gliederung der Bewertung neu; Aufnahmebogen fließt in die Bewertung; Schalter je Abschnitt
+
+**Wunsch des Auftraggebers:** Die Gliederung der Preiseinschätzung verbessern, zuerst beim Wohnhaus, dann ebenso bei
+Eigentumswohnung und Gewerbe: 1. Eckdaten nur mit Vordruck, Gebäudetyp, Auftraggeber (mit Adresse, Telefon …),
+Objektanschrift, Nutzung, Verwendungszweck und Stichtag; 2. Aufnahmebogen, in dem man während der Besichtigung
+erfasst — z. B. wie die Fenster sind — und das in die Bewertung übertragen wird; 3. Objektdaten & Beschreibung;
+4. Allgemeines (Grundstücksflächen usw.); dann Hauptgebäude, Anbau … wie bisher. Bei den besonderen
+objektspezifischen Merkmalen mehr Auswahl für Plus und Minus und mit ＋ einfügen statt vorbereiteter leerer Zeilen.
+Jeder große Punkt mit einem Schalter, um ihn auszuschalten, wenn er nicht mitbewertet werden soll. Der Rest bleibt.
+
+**Gliederung:** Eckdaten · Aufnahmebogen · Objektdaten & Beschreibung · Allgemeine Angaben (neu; Grundstück,
+Wohnung/Gemeinschaft, Flächen & Baujahr, Erträge — vorher in den Eckdaten) · Hauptgebäude · Anbau · Datengrundlagen ·
+Substanz · Vergleichswert · Ertrag · ab Nießbrauch unverändert. Alle Objektarten teilen sich die Abschnitte; was nicht
+passt, ist ausgeblendet — Eigentumswohnung und Gewerbe haben damit dieselbe Reihenfolge. Die Felder behalten ihre
+Kennung, die Rechnung liest sie unabhängig von ihrer Stelle: keine Zahl ändert sich (Golden-Test maschinell
+verglichen, nur Anzeigetexte, golden-aenderungen.md §11). Die Ortsbesichtigung steht jetzt im Aufnahmebogen; das
+doppelte Feld „Besichtigung am“ entfällt (ältere Bewertungen: dessen Datum wird übernommen, wenn die Ortsbesichtigung
+leer ist).
+
+**Auftraggeber:** Anschrift, Telefon und E-Mail zeigen die Eckdaten aus der Kundenakte. Personenbezogene Daten bleiben
+in der Akte gebündelt, mit Auskunft und Löschung (D8); die Bewertung speichert wie bisher nur Name und Zuordnung.
+
+**Aufnahmebogen → Bewertung (Haus):** „Bauteile & Ausstattungsstandard“ — je Bauteil die Beschreibung der
+Standardstufe 1–5 (NHK 2010, Anlage 4 ImmoWertV; dieselben Texte wie die Referenztabelle im Hauptgebäude, jetzt aus
+einer Quelle) → Standardstufe im Gebäudepreis. „Modernisierungen“ — Elemente nach ImmoWertV Anlage 2 mit Umfang und
+Jahr → „vollständig erneuert“ = Höchstpunktzahl des Elements, „nicht modernisiert“ = 0; „teilweise“ und länger
+zurückliegende Maßnahmen legt der Bewerter fest (Anlage 2: dann ggf. weniger als die Höchstpunktzahl), das Jahr steht
+in der Punktetabelle. Technik & Ausstattung → Objektdaten (Heizung und Fenster nur bei eindeutigem Stichwort,
+Energieausweis, Effizienzklasse, Aufzug), Keller → Unterkellerung, Kennwert und Klasse → Energetische Qualität (wie
+bisher der Knopf „Aus Aufnahmebogen“). Übertragen wird nur beim Ändern im Aufnahmebogen, beim Laden nichts; in der
+Bewertung bleibt jeder Wert änderbar, übernommene Felder sind markiert. Keine neue Formel — es werden nur Eingaben
+gesetzt.
+
+**§ 8 Abs. 3:** zwei Listen, „Wertmindernd“ (Abschläge) und „Werterhöhend“ (Zuschläge), jeweils mit ＋ und einer
+Vorschlagsliste typischer Merkmale nach § 8 Abs. 3 ImmoWertV (Baumängel und Bauschäden, besondere
+Ertragsverhältnisse, Rechte und Belastungen, Bodenverunreinigungen, Freilegung, Bodenschätze …); Beträge positiv.
+Gespeichert wie bisher in 14 Plätzen, zusätzlich die Art (`wk_art`). Ein Zuschlag zählt in der Summe negativ —
+genau wie vorher ein negativer Betrag (neuer Fall der Python-Vergleichsrechnung, Gleichheit im Unit-Test). Ältere
+Bewertungen: negative Beträge erscheinen als Zuschlag. Die Anzeige zeigt das Vorzeichen (vorher „− -… €“ bei
+Zuschlägen); die Vorlage „Typische Positionen einfügen“ und die leeren Zeilen entfallen.
+
+**Schalter je Abschnitt:** oben rechts in der Kopfzeile. Aus = fließt nicht in die Bewertung; darstellende Abschnitte
+erscheinen dann auch nicht im Bericht. Die vorhandenen Schalter (Anbau, Vergleichswert, Nießbrauch, Erbbaurecht, PV,
+Energie, Sanierungsweg, Beleihungswert) wandern nach oben — gleiche Felder, gleiche Rechnung. Neu: Aufnahmebogen,
+Objektdaten & Beschreibung, Datengrundlagen, Fotos, Rendite (Bericht) und § 8 (`wk_aus`: keine Zu- und Abschläge).
+Substanz und Ertrag (bei der Wohnung Vergleich und Ertrag) stellen die vorhandene Gewichtung auf „nur …“ und beim
+Einschalten auf die vorige zurück; beide aus geht nicht — keine neue Formel. Die neuen Felder heißen `…_aus`: fehlen sie
+in älteren Bewertungen oder Referenzfällen, ist der Abschnitt an. Ausgeschaltete Abschnitte zeigen nur Kopfzeile und
+Hinweis, ihre Pflichtfelder zählen nicht. Ohne Schalter bleiben Eckdaten, Allgemeine Angaben, Hauptgebäude,
+Preisempfehlung und Ersteller (ohne sie keine Bewertung) sowie Exposé, Präsentation und Vermarktung (eigene Ausgaben,
+fließen nicht in die Bewertung).
+
+**Geprüft:** 94 Unit-Tests (neu: Zuschlag als Art = früherer negativer Betrag; zwei neue Fälle der
+Python-Vergleichsrechnung), 75 Browsertests (neu: Gliederung, Übernahme aus dem Aufnahmebogen, Schalter, § 8,
+ältere Bewertung, Kontaktdaten aus der Akte), Golden-Test (nur Anzeigetexte). Klicktest PC 296 Klappbereiche,
+2.963 Felder, 670 Knöpfe; iPhone 138 / 1.625 / 666 — Listen „ohne Wirkung“ unverändert. Ein Fehlalarm am
+Substanz-Schalter ist im Test behoben: Der Klicktest stellt beim Durchprobieren den Gebäudetyp um, der die Gewichtung
+auf den Standard des Typs setzt (Einfamilienhaus: nur Substanz); dann verweigert die App zu Recht, auch die Substanz
+auszuschalten, und sagt warum. Ein Haken, der mit Meldung stehen bleibt, gilt jetzt als in Ordnung (Nachprüfung der
+Bewertungsbereiche ohne Befund).
+

@@ -107,6 +107,7 @@ test('Übernahme-Knöpfe: Ausstattung ins Exposé, Kennwert in den Sanierungsweg
   await page.evaluate(() => { appOpenObject(); appAlleKlappen(true); $('ex_text_ausstattung').value = ''; $('au_zimmer').value = '5'; });
   await page.getByRole('button', { name: 'Ausstattung aus dem Aufnahmebogen' }).click();
   await expect(page.locator('#ex_text_ausstattung')).toHaveValue(/5 Zimmer/);
+  await page.locator('#san_aktiv').check();   // ausgeschaltete Abschnitte zeigen nur die Kopfzeile (D35)
   await page.evaluate(() => { $('san_e0').value = ''; $('en_kennwert').value = '210'; });
   await page.getByRole('button', { name: 'Aus Aufnahmebogen und Energetischer Qualität übernehmen' }).click();
   await expect(page.locator('#san_e0')).toHaveValue('210');

@@ -1,12 +1,12 @@
 /* ---------- Persistence ---------- */
 function collect(){let o={};document.querySelectorAll('input,select,textarea').forEach(e=>{if(!e.id||e.type==='file'||e.closest('#app_work_header,#app_more,#app_header,#app_object_overview,#lv_overlay'))return;if(e.closest('#mdb_overlay')||e.closest('#suche')||e.closest('#gr_overlay')||e.closest('#kd_overlay')||e.closest('#pq_overlay')||/^(vm_n_|fin_b_|fin_t_)/.test(e.id))return;o[e.id]=(e.type==='checkbox')?e.checked:e.value;});return o;}
-function apply(o){if(o&&!('ni_laufzeit' in o)&&parseFloat(String(o.ni_leben||'0').replace(',','.'))>0)o=Object.assign({},o,{ni_laufzeit:'eigen'});Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
+function apply(o){if(o&&!('ni_laufzeit' in o)&&parseFloat(String(o.ni_leben||'0').replace(',','.'))>0)o=Object.assign({},o,{ni_laufzeit:'eigen'});if(o&&o.au_datum&&!o.ek_besichtigung)o=Object.assign({},o,{ek_besichtigung:o.au_datum});Object.keys(o).forEach(k=>{let e=$(k);if(e&&e.type!=='file'){if(e.type==='checkbox')e.checked=o[k];else e.value=o[k];}});revealUsedExtras();compute();}
 function snapshot(){return {fields:collect(),photos:PHOTOS,signature:SIGNATURE,grundrisse:GRUNDRISSE};}
 function restore(obj){
   if(obj&&obj.fields){GRUNDRISSE=Array.isArray(obj.grundrisse)?obj.grundrisse:[];apply(obj.fields);PHOTOS=Array.isArray(obj.photos)?obj.photos:[];SIGNATURE=obj.signature||null;}
   else{GRUNDRISSE=[];apply(obj);PHOTOS=[];SIGNATURE=null;}   // Altformat (flache Feldliste)
   FOTO_GEAENDERT=!(obj&&obj.fotosInDb);   // Fotos kommen aus Datei/Projekt → in die Datenbank schreiben
-  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();kdAnzeige();vpFolienRender();autosave();
+  renderPhotos();renderSignature();renderWKRows();grListen();rpListeRender();kdAnzeige();vpFolienRender();auModAnzeige();autosave();
 }
 function autosave(){
   if(SILENT)return;

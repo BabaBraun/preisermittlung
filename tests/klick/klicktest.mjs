@@ -7,7 +7,7 @@
    Aufruf:  npm run klicktest                 (PC, Chromium)
             npm run klicktest:iphone          (iPhone-Ansicht, WebKit)
    Optionen: --nur=Regex (nur diese Bereiche)  --ohne=Regex  --nur-knoepfe  --erwartung (Liste „ohne Wirkung“ neu schreiben)
-   Umgebung: KT_URL (statt eigenem Testserver, z. B. die Live-Seite), KT_PORT (Standard 8796)
+   Umgebung: KT_URL (statt eigenem Testserver, z. B. die Live-Seite), KT_PORT (Standard 8796), KT_AUSGABE (Berichtsordner)
 
    Ergebnis: tests/ausgabe/klicktest/<gerät>/ergebnis.json und bericht.md. Rot (Exit-Code 1) bei Skriptfehlern, Feldern
    oder Klappbereichen, die nicht funktionieren, verdeckten Knöpfen und NaN/undefined schon mit dem Musterfall. Knöpfe
@@ -32,7 +32,7 @@ const OHNE = opt('ohne') ? new RegExp(opt('ohne'), 'i') : (GERAET === 'iphone' &
 const NUR_KNOEPFE = !!opt('nur-knoepfe');
 const PORT = Number(process.env.KT_PORT || 8796);
 const BASIS = process.env.KT_URL || 'http://localhost:' + PORT + '/';
-const OUT = path.join(REPO, 'tests', 'ausgabe', 'klicktest', GERAET); mkdirSync(OUT, { recursive: true });
+const OUT = process.env.KT_AUSGABE || path.join(REPO, 'tests', 'ausgabe', 'klicktest', GERAET); mkdirSync(OUT, { recursive: true });
 const ERWARTUNG = path.join(HIER, 'ohne-wirkung-' + GERAET + '.json');
 const FALL_LV = JSON.parse(readFileSync(path.join(REPO, 'tests', 'referenz', 'jahresbewertung_faelle.json'), 'utf8')).faelle[0].vordruck;
 
@@ -219,11 +219,13 @@ async function musterdaten() {
         const b = L.ausVordruck({ id: 'BW_b', art: 'preiseinschaetzung', status: 'entwurf', quelle: '', notiz: '', vordruck: J.fortschreiben(lvFall, '2026-12-31').vordruck });
         await lvSpeichern({ id: 'L_test', name: 'Musterfiliale', strasse: 'Musterweg 1', plz: '74000', ort: 'Musterstadt', art: 'gewerbe', bewertungen: [a, b] }); } } catch (e) { console.warn('lv', e); }
     try { if (!pjLoad().length) { applyVordruck(VORDRUCKE.find(v => v.id === 'wh_bgf')); apply(haus); $('pj_name').value = 'Musterhaus (Test)'; await projektSichern(); } } catch (e) { console.warn('pj', e); }
-    // jedes fehlende Musterfoto nachlegen („Foto löschen“ entfernt eins; mit zwei Objektfotos gibt es „Als Titelbild“)
+    // fehlt ein Musterfoto („Foto löschen“), alle drei in der ursprünglichen Reihenfolge vorn neu anlegen — so bleiben
+    // Titelbild und „Als Titelbild“ bei denselben Fotos und die Knöpfe werden wiedergefunden
     try { const data = 'data:image/png;base64,' + png;
-      const fehlt = [{ id: 'p_muster1', cat: 'objekt', caption: 'Ansicht (Muster)', data }, { id: 'p_muster2', cat: 'objekt', caption: '', data },
-        { id: 'p_muster3', cat: 'schaden', caption: '', data }].filter(m => !PHOTOS.some(p => p.id === m.id));
-      if (fehlt.length) { PHOTOS.push(...fehlt); fotosGeaendert(); renderPhotos(); autosave(); } } catch (e) { console.warn('fotos', e); }
+      const muster = [{ id: 'p_muster1', cat: 'objekt', caption: 'Ansicht (Muster)', data }, { id: 'p_muster2', cat: 'objekt', caption: '', data },
+        { id: 'p_muster3', cat: 'schaden', caption: '', data }];
+      if (muster.some(m => !PHOTOS.some(p => p.id === m.id))) { PHOTOS = muster.concat(PHOTOS.filter(p => !/^p_muster/.test(p.id)));
+        fotosGeaendert(); renderPhotos(); autosave(); } } catch (e) { console.warn('fotos', e); }
   }, { haus: FALL_HAUS, lvFall: FALL_LV, png: PNG.toString('base64') });
 }
 
@@ -365,9 +367,11 @@ async function felder(B) {
           const nach1 = await feld.evaluate(e => e.checked);
           if (info.typ === 'radio') { if (!nach1) throw new Error('lässt sich nicht auswählen'); detail += 'ausgewählt'; }
           else {
-            if (nach1 === info.an) throw new Error('Haken ändert sich nicht');
+            // bleibt der Haken und die App sagt warum (z. B. „Mindestens ein Verfahren …“), ist das gewollt
+            if (nach1 === info.an && LOG.dialoge.length) detail += 'abgelehnt mit Meldung';
+            else if (nach1 === info.an) throw new Error('Haken ändert sich nicht');
             // Schalter bleiben eingeschaltet, damit abhängige Felder sichtbar werden
-            if (!info.an) detail += 'ein (bleibt an)';
+            else if (!info.an) detail += 'ein (bleibt an)';
             else { await klick(); await ruhe(2000); feld = await frisch(feld); if ((await feld.evaluate(e => e.checked)) !== info.an) throw new Error('Haken lässt sich nicht zurücksetzen'); detail += 'aus und wieder an'; }
           }
         } else if (info.tag === 'select') {

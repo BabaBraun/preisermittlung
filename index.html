@@ -334,9 +334,10 @@
     <!-- ECKDATEN -->
     <section class="card eck" id="s-eck" data-nav="① Eckdaten">
       <h2>① Eckdaten des Objekts</h2>
-      <p class="hint">Alle objektspezifischen Pflichtangaben werden hier <b>einmal</b> eingetragen und fließen automatisch in alle Berechnungen.</p>
+      <p class="hint">Vordruck, Auftraggeber und Objekt. Grundstück, Flächen, Baujahr und Mieten stehen unter „Allgemeine Angaben“ —
+        sie werden dort <b>einmal</b> eingetragen und fließen automatisch in alle Berechnungen.</p>
       <div class="grid">
-        <div class="group-title">Vordruck &amp; Objekt</div>
+        <div class="group-title">Vordruck</div>
         <div class="field"><label>Vordruck-Art <span class="u">(bestimmt Formular &amp; Verfahren)</span></label>
           <select id="ek_modus" onchange="modusWechsel()">
             <option value="haus">🏠 Haus / Gebäude (Substanz- + Ertragswert)</option>
@@ -347,68 +348,28 @@
         <input id="ek_vordruck" type="hidden" value="">
         <div class="field wohnung-only"><label>Wohnungstyp</label>
           <select id="ek_wtyp"><option>Etagenwohnung</option><option>Erdgeschosswohnung</option><option>Dachgeschosswohnung</option><option>Maisonette</option><option>Penthouse</option><option>Apartment</option></select></div>
+        <div class="group-title">Auftraggeber</div>
         <div class="field"><label>Auftraggeber(in)</label><input id="ek_ag"></div>
-        <div class="field"><label>Kunde <span class="u">Kundenakte</span></label><div class="kd-eck" id="ek_kunde_anzeige"></div><input type="hidden" id="ek_kunde_id" value=""></div>
+        <div class="field"><label>Kunde <span class="u">Anschrift, Telefon, E-Mail aus der Kundenakte</span></label><div class="kd-eck" id="ek_kunde_anzeige"></div><input type="hidden" id="ek_kunde_id" value=""></div>
+        <div class="group-title">Objekt &amp; Auftrag</div>
         <div class="field full"><label>Objektanschrift</label><input id="ek_anschrift" placeholder="Straße Nr., PLZ Ort"></div>
         <div class="field"><label>Nutzung / Beschreibung</label><input id="ek_nutzung" placeholder="z.B. EG/UG Gewerbe, OG Wohnen"></div>
         <div class="field"><label>Verwendungszweck</label><input id="ek_zweck" value="evtl. Verkauf"></div>
-        <div class="field"><label>Ortsbesichtigung</label><input id="ek_besichtigung" type="date"></div>
         <div class="field"><label>Wertermittlungsstichtag</label><input id="ek_stichtag" type="date"></div>
-
-        <div class="group-title haus-only">Grundstück</div>
-        <div class="field haus-only"><label>Grundstücksfläche <span class="u">m²</span></label><input id="ek_gs_flaeche" type="text" value="0"></div>
-        <div class="field haus-only"><label>Bodenrichtwert <span class="u">€/m² (BORIS-BW)</span></label><input id="ek_brw" type="text" value="0"></div>
-        <div class="field haus-only"><label>Abschlag Bodenwert <span class="u">%</span></label><input id="ek_gs_abschlag" type="text" value="0"></div>
-        <div class="field haus-only"><label>Flurstück-Nr. / Zone</label><input id="ek_flst" placeholder="Flst. / Zone"></div>
-        <div class="group-title wohnung-only">Wohnung / Gemeinschaft</div>
-        <div class="field wohnung-only"><label>Miteigentumsanteil <span class="u">z.B. 78/1000</span></label><input id="ek_mea"></div>
-        <div class="field wohnung-only"><label>Etage / Lage im Haus</label><input id="ek_etage" placeholder="z.B. 2. OG mit Balkon"></div>
-        <div class="field wohnung-only"><label>Hausgeld <span class="u">€/Monat gesamt</span></label><input id="ek_hausgeld" type="text" value="0"></div>
-        <div class="field wohnung-only"><label>davon nicht umlagefähig <span class="u">€/Monat (Verwaltung, Rücklage)</span></label><input id="ek_hausgeld_nu" type="text" value="0"></div>
       </div>
-      <!-- weitere Grundstücksanteile -->
-      <div class="xrow3 haus-only" id="xgs_1">
-        <div class="field"><label>Bezeichnung Anteil II</label><input id="xgs1_label" placeholder="z.B. Gartenland"></div>
-        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs1_flaeche" type="text" value="0"></div>
-        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs1_brw" type="text" value="0"></div>
-        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs1_abschlag" type="text" value="0"></div>
-      </div>
-      <div class="xrow3 haus-only" id="xgs_2">
-        <div class="field"><label>Bezeichnung Anteil III</label><input id="xgs2_label" placeholder="z.B. Wegefläche"></div>
-        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs2_flaeche" type="text" value="0"></div>
-        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs2_brw" type="text" value="0"></div>
-        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs2_abschlag" type="text" value="0"></div>
-      </div>
-      <button class="plus no-print haus-only" onclick="showNext('xgs',2)">＋ weiterer Grundstücksanteil</button>
-
-      <div class="grid" style="margin-top:14px">
-        <div class="group-title">Flächen &amp; Baujahr</div>
-        <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"><span class="feld-info" id="rl_eck_hint"></span></div>
-        <div class="field"><label>Gewerbe-/Nutzfläche <span class="u">m²</span></label><input id="ek_nutzflaeche" type="text" value="0"></div>
-        <div class="field"><label>Baujahr Hauptgebäude</label><input id="ek_baujahr" type="text" value="0"></div>
-        <div class="field"><label>Letzte Sanierung <span class="u">(Jahr, optional)</span></label><input id="ek_sanierung" type="text" placeholder="z.B. 2018"></div>
-        <div class="field"><label>Anzahl Wohneinheiten <span class="u">(WE)</span></label><input id="ek_anz_we" type="text" value="1"></div>
-        <div class="field"><label>Anzahl Stellplätze <span class="u">(Außen/Garage)</span></label><input id="ek_anz_stell" type="text" value="0"></div>
-
-        <div class="group-title">Erträge (Netto-Kaltmiete je Jahr)</div>
-        <div class="field"><label>Miete Wohnen <span class="u">€/Jahr</span></label><input id="ek_miete_wohnen" type="text" value="0"></div>
-        <div class="field"><label>Miete Gewerbe <span class="u">€/Jahr</span></label><input id="ek_miete_gewerbe" type="text" value="0"></div>
-        <div class="field"><label>Außenstellplätze <span class="u">€/Jahr</span></label><input id="ek_miete_stellplatz" type="text" value="0"></div>
-        <div class="field"><label>Grundsteuer <span class="u">€/Jahr</span></label><input id="ek_grundsteuer" type="text" value="0"></div>
-      </div>
-      <div class="flag" id="miete_plausi"></div>
     </section>
 
     <!-- AUFNAHMEBOGEN -->
     <section class="card" id="s-aufnahme" data-nav="①b Aufnahmebogen">
       <h2>①b Aufnahmebogen · Ortsbesichtigung</h2>
+      <input type="checkbox" id="au_aus" hidden>
       <p class="hint">Checkliste für den Ortstermin — am Handy/Tablet direkt ausfüllbar. Die Angaben erscheinen im Bericht unter „Feststellungen der Ortsbesichtigung".
         <button class="plus no-print" style="margin-left:8px" onclick="druckeAufnahmebogen()">🖨 Leer ausdrucken (zum Mitnehmen)</button>
         <button class="plus no-print" style="margin-left:8px" onclick="druckeUnterlagen()" data-ic="file-text">Unterlagenliste für den Eigentümer</button></p>
 
       <div class="grid three">
         <div class="group-title">Termin</div>
-        <div class="field"><label>Besichtigung am</label><input id="au_datum" type="date"></div>
+        <div class="field"><label>Ortsbesichtigung am</label><input id="ek_besichtigung" type="date"></div>
         <div class="field"><label>Uhrzeit / Wetter</label><input id="au_wetter" placeholder="z.B. 14:00, bewölkt"></div>
         <div class="field"><label>Anwesend</label><input id="au_anwesend" placeholder="z.B. Eigentümer, Makler"></div>
       </div>
@@ -458,6 +419,8 @@
       <button class="plus no-print" onclick="addRLRow()">＋ weiterer Raum</button>
 
       <h3>Technik &amp; Ausstattung</h3>
+      <p class="hint">Heizung, Fenster, Energieausweis, Effizienzklasse und Aufzug übernimmt die App in die Objektdaten,
+        Energiekennwert und -klasse in die Energetische Qualität, beim Haus den Keller in das Hauptgebäude.</p>
       <div class="grid four">
         <div class="field"><label>Heizungsart</label><input id="au_heizung_art" placeholder="z.B. Gas-Brennwert"></div>
         <div class="field"><label>Heizung Baujahr / Fabrikat</label><input id="au_heizung_bj" placeholder="z.B. 2018, Vaillant"></div>
@@ -473,6 +436,18 @@
         <div class="field"><label>Barrierefreiheit</label><select id="au_barriere"><option>–</option><option>nicht gegeben</option><option>teilweise</option><option>weitgehend</option></select></div>
       </div>
 
+      <h3 class="haus-only">Bauteile &amp; Ausstattungsstandard <span class="u" style="font-weight:400">(fließt in den Gebäudepreis)</span></h3>
+      <p class="hint haus-only">Je Bauteil die Beschreibung wählen, die vor Ort am besten passt (Standardstufen 1–5 nach NHK 2010,
+        Anlage 4 ImmoWertV). Die Stufe wird in den Gebäudepreis im Abschnitt „Hauptgebäude“ übernommen und lässt sich dort
+        verfeinern, z.&nbsp;B. auf 3,5.</p>
+      <div class="grid au-std haus-only" id="au_std_box"></div>
+
+      <h3 class="haus-only">Modernisierungen <span class="u" style="font-weight:400">(fließen in die Restnutzungsdauer)</span></h3>
+      <p class="hint haus-only">Was wann erneuert wurde. „Vollständig erneuert“ ergibt im Abschnitt „Hauptgebäude“ die volle Punktzahl
+        des Elements nach ImmoWertV Anlage 2, „nicht modernisiert“ 0 Punkte. Bei „teilweise“ und bei länger zurückliegenden
+        Maßnahmen die Punkte dort selbst festlegen.</p>
+      <div class="grid au-mod haus-only" id="au_mod_box"></div>
+
       <h3>Besondere Bauteile <span class="u" style="font-weight:400">(anhaken, was vorhanden ist)</span></h3>
       <div id="au_bauteile" class="grid four"></div>
 
@@ -487,101 +462,10 @@
       </div>
     </section>
 
-    <!-- HAUPTGEBÄUDE -->
-    <section class="card haus-only" id="s-hg" data-nav="② Hauptgebäude">
-      <h2>② Hauptgebäude</h2>
-      <p class="hint">Baujahr <span class="echo" id="e_baujahr">0</span> (aus Eckdaten). BGF über Geschosse; Gebäudepreis €/m² über NHK-Verfahren.</p>
-      <div class="grid">
-        <div class="field"><label>Bauweise</label><input id="hg_bauweise" placeholder="massiv / Satteldach ..."></div>
-        <div class="field"><label>Unterkellerung</label><select id="hg_keller"><option>ja</option><option>teilweise</option><option>nein</option></select></div>
-      </div>
-
-      <h3>2.1 · Bruttogrundfläche (BGF)</h3>
-      <p class="hint">Länge × Breite je Geschoss (Außenmaße), Erker/Anbauten separat als Fläche. Leere Zeilen für weitere Geschosse frei beschriftbar.</p>
-      <table class="nhk" id="bgf_hg_tbl">
-        <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
-        <tbody></tbody>
-        <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Hauptgebäude</th><th id="o_bgf_hg">0</th></tr></tfoot>
-      </table>
-
-      <h3>2.2 · Restnutzungsdauer (Modernisierungspunkte, ImmoWertV Anlage 2)</h3>
-      <p class="hint">Punkte je durchgeführter Modernisierung vergeben (0 bis Maximum). Daraus wird die wirtschaftliche Restnutzungsdauer nach amtlicher Formel abgeleitet: RND = a·Alter²/GND − b·Alter + c·GND. Sie gilt anschließend für Alterswertminderung (Gebäudepreis) und Ertragswert-Vervielfältiger (Preisansatz nach dem Gebäudeertrag).</p>
-      <div class="grid">
-        <div class="field"><label>Gesamtnutzungsdauer <span class="u">Jahre (aus Gebäudetyp)</span></label><input id="nhkhg_gnd" type="text" value="80"></div>
-        <div class="field"><label>Angepasste RND <span class="u">Jahre (0 = aus Punkten berechnen)</span></label><input id="nhkhg_rnd" type="text" value="0"></div>
-      </div>
-      <table class="nhk" id="modpunkte_tbl">
-        <thead><tr><th>Modernisierungselement</th><th>max. Punkte</th><th>vergeben</th></tr></thead>
-        <tbody></tbody>
-        <tfoot>
-          <tr><td colspan="2" style="text-align:right">Summe Modernisierungspunkte (max 20)</td><td id="o_modpunkte">0</td></tr>
-          <tr><td colspan="2" style="text-align:right">Gebäudealter / Gesamtnutzungsdauer</td><td id="o_mod_alter">–</td></tr>
-          <tr class="total"><th colspan="2" style="text-align:right">Restnutzungsdauer (RND)</th><th id="o_mod_rnd">0 Jahre</th></tr>
-        </tfoot>
-      </table>
-
-      <h3>2.3 · Gebäudepreis €/m² (NHK-Verfahren)</h3>
-      <p class="hint">Standardstufe je Bauteil 1–5 eintragen (Kommawerte erlaubt, z.B. 3,5). Die Restnutzungsdauer aus 2.2 fließt als Alterswertminderung ein. Orientierung: Referenztabellen unten aufklappen.</p>
-      <div class="grid three" style="margin-bottom:10px">
-        <div class="field"><label>Baupreisindex <span class="u">(Basis 2021=100) — rechnet NHK 2010 auf Stichtag hoch</span></label><input id="bpi" type="text" value=""></div>
-        <div class="field"><label>Umrechnungsfaktor 2010→2021</label><input id="bpi_faktor" type="text" value=""></div>
-        <div class="field"><label>Regionalfaktor <span class="u">(1,0 = Bundesdurchschnitt)</span></label><input id="nhk_regional" type="text" value="1,0"></div>
-      </div>
-      <div class="grid three bpi-amtlich" style="margin-bottom:10px">
-        <div class="field"><label>Amtlicher Index BW für <span class="u">Gebäudeart</span></label><select id="bpi_art"><option value="wohnen">Wohngebäude</option><option value="buero">Bürogebäude (auch Bank-, Geschäftshaus)</option><option value="gewerbe">Gewerbliche Betriebsgebäude</option></select></div>
-        <div class="field full"><label>&nbsp;</label><div class="bpi-zeile"><button type="button" class="secondary" onclick="bpiAmtlichUebernehmen()">Wert zum Stichtag übernehmen</button> <span id="bpi_amtlich_info" class="u"></span></div></div>
-      </div>
-      <div class="flag" style="margin-top:0">ⓘ Eingebaut: <b>Preisindex für Bauwerke des Statistischen Landesamts Baden-Württemberg</b> (Basis 2021 = 100, Quartale seit 2016, Stand <span id="bpi_stand">Mai 2026</span>). „Wert zum Stichtag übernehmen“ trägt den Quartalswert zum Wertermittlungsstichtag, den Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle ein. Liegt der Stichtag nach dem neuesten Quartal, ist der Wert vorläufig — den neueren Wert aus dem Statistischen Bericht „Preisindex für Bauwerke“ selbst eintragen.</div>
-      <div id="nhk_hg"></div>
-
-      <details class="info">
-        <summary>📖 Referenz: Welche Standardstufe (1–5) trage ich je Bauteil ein?</summary>
-        <table class="ref">
-          <tr><th style="width:14%">Bauteil</th><th>Stufe 1 (einfachst)</th><th>Stufe 2</th><th>Stufe 3 (mittel/Standard)</th><th>Stufe 4 (gehoben)</th><th>Stufe 5 (stark gehoben)</th></tr>
-          <tr><td><b>Außenwände</b></td><td>Holzfachwerk, einfache Putze/Verfugung, kein/minimaler Wärmeschutz</td><td>einschaliges Mauerwerk, einfacher Wärmeschutz, einfacher Putz</td><td>zweischalig/ WDVS, Wärmedämmung nach gültiger EnEV/GEG-Vorgänger, üblicher Putz</td><td>Verblendmauerwerk, hochwertige Dämmung (z.B. KfW-Niveau), hochwertiger Putz</td><td>aufwendige Fassade (Naturstein, vorgehängt), Passivhaus-Niveau</td></tr>
-          <tr><td><b>Dach</b></td><td>Bitumen-/Wellplatten, keine Dämmung</td><td>einfache Betondachsteine, geringe Dämmung</td><td>Betondachsteine/Tonziegel, übliche Zwischensparrendämmung</td><td>hochw. Ziegel, Aufsparren-/hochw. Dämmung, Dachflächenfenster gut</td><td>Schiefer/Kupfer/aufwendige Form, beste Dämmung, aufwendige Gauben</td></tr>
-          <tr><td><b>Außentüren + Fenster</b></td><td>Einfachverglasung, einfache Türen</td><td>Zweifach alt (Bj. vor ~1995), einfache Rahmen</td><td>Zweifachverglasung zeitgemäß, Kunststoff/Holz üblich</td><td>Dreifachverglasung, erhöhter Schall-/Einbruchschutz</td><td>Spezialverglasung, Sicherheitstüren RC-Klasse, aufwendige Elemente</td></tr>
-          <tr><td><b>Innenwände + -türen</b></td><td>Leichtwände, einfachste Türen</td><td>einfache Türblätter, dünne Wände</td><td>massive/übliche Wände, Standardtüren</td><td>schwere Türen, hochwertige Beschläge, tw. Glaselemente</td><td>Edelholz-/Glastüren, raumhohe Elemente, aufwendige Ausführung</td></tr>
-          <tr><td><b>Decken + Treppen</b></td><td>Holzbalkendecke ohne Estrich, einfache Treppe</td><td>Holzbalken mit Estrich, einfache Stahl-/Holztreppe</td><td>Betondecke, schwimmender Estrich, übliche Treppe</td><td>höhere Spannweiten, gute Trittschalldämmung, hochw. Treppenbelag</td><td>Sichtbeton/Naturstein, freitragende Designtreppen</td></tr>
-          <tr><td><b>Fußböden</b></td><td>PVC/Nadelfilz einfach, ohne Belag</td><td>einfacher Teppich/Linoleum</td><td>Fliesen, Laminat, Teppich mittlerer Qualität</td><td>Parkett, hochwertige Fliesen, großformatig</td><td>Naturstein, hochw. Massivparkett, großflächig edel</td></tr>
-          <tr><td><b>Sanitär</b></td><td>1 WC, Bad ohne Komfort, tw. außerhalb</td><td>1 einfaches Bad</td><td>1–2 Bäder mittlerer Qualität, zeitgemäß</td><td>2+ hochwertige Bäder, Gäste-WC, gute Objekte</td><td>mehrere Luxusbäder, Wellness (Sauna/Whirlpool)</td></tr>
-          <tr><td><b>Heizung</b></td><td>Einzelöfen, keine Zentralheizung</td><td>Zentralheizung alt (>30 J.), einfache Radiatoren</td><td>Öl-/Gas-Zentralheizung zeitgemäß, übliche Heizkörper</td><td>Brennwert + Solar, Fußbodenheizung überwiegend</td><td>Wärmepumpe/Pellet/Geothermie, Klimatisierung, Lüftungsanlage mit WRG</td></tr>
-          <tr><td><b>Sonstige techn. Ausstattung</b></td><td>minimale Elektroausstattung (je Raum 1 Steckdose)</td><td>einfache Elektroinstallation, wenige Kreise</td><td>zeitgemäße Elektroinstallation, ausreichend Steckdosen</td><td>viele Kreise, Netzwerk, elektr. Rollläden, ggf. PV klein</td><td>Smart Home/KNX, Aufzug, PV + Speicher, umfangreiche Technik</td></tr>
-        </table>
-        <p style="color:var(--muted)">Quelle: Standardstufen-Beschreibungen NHK 2010 (Anlage 4 ImmoWertV, gekürzt). Zwischenstufen (z.B. 3,5) sind zulässig und werden linear interpoliert.</p>
-      </details>
-
-      <details class="info">
-        <summary>📖 Referenz: NHK-2010-Basiswerte je Gebäudetyp (€/m² BGF)</summary>
-        <table class="ref" id="nhk_ref_tbl"></table>
-        <p style="color:var(--muted)">Stufen 3–5: amtliche Werte lt. Anlage 4 ImmoWertV (Kostenstand 2010, inkl. USt. und Baunebenkosten). Bei Typen ohne amtliche Stufe 1–2 wird Stufe 3 als Untergrenze verwendet. EFH-Zeilen aus NHK 2010 (Sachwertrichtlinie), kreuzvalidiert. Der Baupreisindex rechnet auf den heutigen Stichtag hoch.</p>
-      </details>
-
-    </section>
-
-    <!-- ANBAU -->
-    <section class="card haus-only" id="s-anbau" data-nav="③ Anbau / Nebengebäude">
-      <h2>③ Anbau / Nebengebäude</h2>
-      <label class="toggle no-print"><input type="checkbox" id="anbau_aktiv" onchange="compute()"> Anbau / Nebengebäude vorhanden</label>
-      <div id="anbau_body">
-        <div class="grid">
-          <div class="field"><label>Baujahr Anbau</label><input id="an_baujahr" type="text" value="0"></div>
-          <div class="field"><label>Bauweise</label><input id="an_bauweise"></div>
-        </div>
-        <h3>3.1 · BGF Anbau</h3>
-        <table class="nhk" id="bgf_an_tbl">
-          <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
-          <tbody></tbody>
-          <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Anbau</th><th id="o_bgf_an">0</th></tr></tfoot>
-        </table>
-        <h3>3.2 · Gebäudepreis €/m² Anbau</h3>
-        <div id="nhk_an"></div>
-      </div>
-    </section>
-
     <!-- OBJEKTDATEN & BESCHREIBUNG -->
     <section class="card" id="s-technik" data-nav="④ Objektdaten & Beschreibung">
       <h2>④ Objektdaten &amp; Beschreibung</h2>
+      <input type="checkbox" id="od_aus" hidden>
       <p class="hint">Strukturierte Objektdaten (Grundstück, Recht, Planung, Gebäude) und Freitexte für den Bericht. Leere Felder erscheinen nicht im Bericht.</p>
 
       <h3>4.1 Grundstück, Grundbuch &amp; Recht</h3>
@@ -667,9 +551,140 @@
       </div>
     </section>
 
+    <!-- ALLGEMEINE ANGABEN -->
+    <section class="card eck" id="s-allg" data-nav="Allgemeine Angaben">
+      <h2>Allgemeine Angaben</h2>
+      <p class="hint">Grundstück, Flächen, Baujahr und Mieten — einmal eingetragen, fließen sie automatisch in alle Berechnungen.</p>
+      <div class="grid">
+        <div class="group-title haus-only">Grundstück</div>
+        <div class="field haus-only"><label>Grundstücksfläche <span class="u">m²</span></label><input id="ek_gs_flaeche" type="text" value="0"></div>
+        <div class="field haus-only"><label>Bodenrichtwert <span class="u">€/m² (BORIS-BW)</span></label><input id="ek_brw" type="text" value="0"></div>
+        <div class="field haus-only"><label>Abschlag Bodenwert <span class="u">%</span></label><input id="ek_gs_abschlag" type="text" value="0"></div>
+        <div class="field haus-only"><label>Flurstück-Nr. / Zone</label><input id="ek_flst" placeholder="Flst. / Zone"></div>
+        <div class="group-title wohnung-only">Wohnung / Gemeinschaft</div>
+        <div class="field wohnung-only"><label>Miteigentumsanteil <span class="u">z.B. 78/1000</span></label><input id="ek_mea"></div>
+        <div class="field wohnung-only"><label>Etage / Lage im Haus</label><input id="ek_etage" placeholder="z.B. 2. OG mit Balkon"></div>
+        <div class="field wohnung-only"><label>Hausgeld <span class="u">€/Monat gesamt</span></label><input id="ek_hausgeld" type="text" value="0"></div>
+        <div class="field wohnung-only"><label>davon nicht umlagefähig <span class="u">€/Monat (Verwaltung, Rücklage)</span></label><input id="ek_hausgeld_nu" type="text" value="0"></div>
+      </div>
+      <!-- weitere Grundstücksanteile -->
+      <div class="xrow3 haus-only" id="xgs_1">
+        <div class="field"><label>Bezeichnung Anteil II</label><input id="xgs1_label" placeholder="z.B. Gartenland"></div>
+        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs1_flaeche" type="text" value="0"></div>
+        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs1_brw" type="text" value="0"></div>
+        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs1_abschlag" type="text" value="0"></div>
+      </div>
+      <div class="xrow3 haus-only" id="xgs_2">
+        <div class="field"><label>Bezeichnung Anteil III</label><input id="xgs2_label" placeholder="z.B. Wegefläche"></div>
+        <div class="field"><label>Fläche <span class="u">m²</span></label><input id="xgs2_flaeche" type="text" value="0"></div>
+        <div class="field"><label>BRW <span class="u">€/m²</span></label><input id="xgs2_brw" type="text" value="0"></div>
+        <div class="field"><label>Abschlag <span class="u">%</span></label><input id="xgs2_abschlag" type="text" value="0"></div>
+      </div>
+      <button class="plus no-print haus-only" onclick="showNext('xgs',2)">＋ weiterer Grundstücksanteil</button>
+
+      <div class="grid" style="margin-top:14px">
+        <div class="group-title">Flächen &amp; Baujahr</div>
+        <div class="field"><label>Wohnfläche <span class="u">m²</span></label><input id="ek_wohnflaeche" type="text" value="0"><span class="feld-info" id="rl_eck_hint"></span></div>
+        <div class="field"><label>Gewerbe-/Nutzfläche <span class="u">m²</span></label><input id="ek_nutzflaeche" type="text" value="0"></div>
+        <div class="field"><label>Baujahr Hauptgebäude</label><input id="ek_baujahr" type="text" value="0"></div>
+        <div class="field"><label>Letzte Sanierung <span class="u">(Jahr, optional)</span></label><input id="ek_sanierung" type="text" placeholder="z.B. 2018"></div>
+        <div class="field"><label>Anzahl Wohneinheiten <span class="u">(WE)</span></label><input id="ek_anz_we" type="text" value="1"></div>
+        <div class="field"><label>Anzahl Stellplätze <span class="u">(Außen/Garage)</span></label><input id="ek_anz_stell" type="text" value="0"></div>
+
+        <div class="group-title">Erträge (Netto-Kaltmiete je Jahr)</div>
+        <div class="field"><label>Miete Wohnen <span class="u">€/Jahr</span></label><input id="ek_miete_wohnen" type="text" value="0"></div>
+        <div class="field"><label>Miete Gewerbe <span class="u">€/Jahr</span></label><input id="ek_miete_gewerbe" type="text" value="0"></div>
+        <div class="field"><label>Außenstellplätze <span class="u">€/Jahr</span></label><input id="ek_miete_stellplatz" type="text" value="0"></div>
+        <div class="field"><label>Grundsteuer <span class="u">€/Jahr</span></label><input id="ek_grundsteuer" type="text" value="0"></div>
+      </div>
+      <div class="flag" id="miete_plausi"></div>
+    </section>
+
+    <!-- HAUPTGEBÄUDE -->
+    <section class="card haus-only" id="s-hg" data-nav="② Hauptgebäude">
+      <h2>② Hauptgebäude</h2>
+      <p class="hint">Baujahr <span class="echo" id="e_baujahr">0</span> (aus den Allgemeinen Angaben). BGF über Geschosse; Gebäudepreis €/m² über NHK-Verfahren.</p>
+      <div class="grid">
+        <div class="field"><label>Bauweise</label><input id="hg_bauweise" placeholder="massiv / Satteldach ..."></div>
+        <div class="field"><label>Unterkellerung</label><select id="hg_keller"><option>ja</option><option>teilweise</option><option>nein</option></select></div>
+      </div>
+
+      <h3>2.1 · Bruttogrundfläche (BGF)</h3>
+      <p class="hint">Länge × Breite je Geschoss (Außenmaße), Erker/Anbauten separat als Fläche. Leere Zeilen für weitere Geschosse frei beschriftbar.</p>
+      <table class="nhk" id="bgf_hg_tbl">
+        <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Hauptgebäude</th><th id="o_bgf_hg">0</th></tr></tfoot>
+      </table>
+
+      <h3>2.2 · Restnutzungsdauer (Modernisierungspunkte, ImmoWertV Anlage 2)</h3>
+      <p class="hint">Punkte je durchgeführter Modernisierung vergeben (0 bis Maximum). Daraus wird die wirtschaftliche Restnutzungsdauer nach amtlicher Formel abgeleitet: RND = a·Alter²/GND − b·Alter + c·GND. Sie gilt anschließend für Alterswertminderung (Gebäudepreis) und Ertragswert-Vervielfältiger (Preisansatz nach dem Gebäudeertrag).</p>
+      <div class="grid">
+        <div class="field"><label>Gesamtnutzungsdauer <span class="u">Jahre (aus Gebäudetyp)</span></label><input id="nhkhg_gnd" type="text" value="80"></div>
+        <div class="field"><label>Angepasste RND <span class="u">Jahre (0 = aus Punkten berechnen)</span></label><input id="nhkhg_rnd" type="text" value="0"></div>
+      </div>
+      <table class="nhk" id="modpunkte_tbl">
+        <thead><tr><th>Modernisierungselement</th><th>max. Punkte</th><th>vergeben</th><th>lt. Aufnahmebogen</th></tr></thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr><td colspan="2" style="text-align:right">Summe Modernisierungspunkte (max 20)</td><td id="o_modpunkte">0</td><td></td></tr>
+          <tr><td colspan="2" style="text-align:right">Gebäudealter / Gesamtnutzungsdauer</td><td id="o_mod_alter">–</td><td></td></tr>
+          <tr class="total"><th colspan="2" style="text-align:right">Restnutzungsdauer (RND)</th><th id="o_mod_rnd">0 Jahre</th><th></th></tr>
+        </tfoot>
+      </table>
+
+      <h3>2.3 · Gebäudepreis €/m² (NHK-Verfahren)</h3>
+      <p class="hint">Standardstufe je Bauteil 1–5 eintragen (Kommawerte erlaubt, z.B. 3,5). Die Restnutzungsdauer aus den Modernisierungspunkten (oben) fließt als Alterswertminderung ein. Orientierung: Referenztabellen unten aufklappen.</p>
+      <div class="grid three" style="margin-bottom:10px">
+        <div class="field"><label>Baupreisindex <span class="u">(Basis 2021=100) — rechnet NHK 2010 auf Stichtag hoch</span></label><input id="bpi" type="text" value=""></div>
+        <div class="field"><label>Umrechnungsfaktor 2010→2021</label><input id="bpi_faktor" type="text" value=""></div>
+        <div class="field"><label>Regionalfaktor <span class="u">(1,0 = Bundesdurchschnitt)</span></label><input id="nhk_regional" type="text" value="1,0"></div>
+      </div>
+      <div class="grid three bpi-amtlich" style="margin-bottom:10px">
+        <div class="field"><label>Amtlicher Index BW für <span class="u">Gebäudeart</span></label><select id="bpi_art"><option value="wohnen">Wohngebäude</option><option value="buero">Bürogebäude (auch Bank-, Geschäftshaus)</option><option value="gewerbe">Gewerbliche Betriebsgebäude</option></select></div>
+        <div class="field full"><label>&nbsp;</label><div class="bpi-zeile"><button type="button" class="secondary" onclick="bpiAmtlichUebernehmen()">Wert zum Stichtag übernehmen</button> <span id="bpi_amtlich_info" class="u"></span></div></div>
+      </div>
+      <div class="flag" style="margin-top:0">ⓘ Eingebaut: <b>Preisindex für Bauwerke des Statistischen Landesamts Baden-Württemberg</b> (Basis 2021 = 100, Quartale seit 2016, Stand <span id="bpi_stand">Mai 2026</span>). „Wert zum Stichtag übernehmen“ trägt den Quartalswert zum Wertermittlungsstichtag, den Umrechnungsfaktor auf NHK 2010 (100 / Jahresdurchschnitt 2010) und die Quelle ein. Liegt der Stichtag nach dem neuesten Quartal, ist der Wert vorläufig — den neueren Wert aus dem Statistischen Bericht „Preisindex für Bauwerke“ selbst eintragen.</div>
+      <div id="nhk_hg"></div>
+
+      <details class="info">
+        <summary>📖 Referenz: Welche Standardstufe (1–5) trage ich je Bauteil ein?</summary>
+        <table class="ref" id="nhk_stufen_ref"></table>
+        <p style="color:var(--muted)">Quelle: Standardstufen-Beschreibungen NHK 2010 (Anlage 4 ImmoWertV, gekürzt). Zwischenstufen (z.B. 3,5) sind zulässig und werden linear interpoliert.</p>
+      </details>
+
+      <details class="info">
+        <summary>📖 Referenz: NHK-2010-Basiswerte je Gebäudetyp (€/m² BGF)</summary>
+        <table class="ref" id="nhk_ref_tbl"></table>
+        <p style="color:var(--muted)">Stufen 3–5: amtliche Werte lt. Anlage 4 ImmoWertV (Kostenstand 2010, inkl. USt. und Baunebenkosten). Bei Typen ohne amtliche Stufe 1–2 wird Stufe 3 als Untergrenze verwendet. EFH-Zeilen aus NHK 2010 (Sachwertrichtlinie), kreuzvalidiert. Der Baupreisindex rechnet auf den heutigen Stichtag hoch.</p>
+      </details>
+
+    </section>
+
+    <!-- ANBAU -->
+    <section class="card haus-only" id="s-anbau" data-nav="③ Anbau / Nebengebäude">
+      <h2>③ Anbau / Nebengebäude</h2>
+      <label class="toggle no-print"><input type="checkbox" id="anbau_aktiv" onchange="compute()"> Anbau / Nebengebäude vorhanden</label>
+      <div id="anbau_body">
+        <div class="grid">
+          <div class="field"><label>Baujahr Anbau</label><input id="an_baujahr" type="text" value="0"></div>
+          <div class="field"><label>Bauweise</label><input id="an_bauweise"></div>
+        </div>
+        <h3>3.1 · BGF Anbau</h3>
+        <table class="nhk" id="bgf_an_tbl">
+          <thead><tr><th>Geschoss</th><th>Länge m</th><th>Breite m</th><th>+ Zusatzfläche m²</th><th>Fläche m²</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr class="total"><th colspan="4" style="text-align:right">BGF Anbau</th><th id="o_bgf_an">0</th></tr></tfoot>
+        </table>
+        <h3>3.2 · Gebäudepreis €/m² Anbau</h3>
+        <div id="nhk_an"></div>
+      </div>
+    </section>
+
     <!-- SUBSTANZ -->
     <section class="card" id="s-grundlagen" data-nav="④b Datengrundlagen">
       <h2>④b Datengrundlagen</h2>
+      <input type="checkbox" id="dg_aus" hidden>
       <p class="hint">Woher jeder Ansatz stammt. Sachwertfaktor und Liegenschaftszins kommen aus dem Immobilienmarktbericht des
         zuständigen Gutachterausschusses und gelten nur in dessen Modell (Grundsatz der Modellkonformität, § 10 ImmoWertV).
         Im Bericht erscheint das als „Datengrundlagen und Modellkonformität“.</p>
@@ -711,7 +726,7 @@
       <div class="grid" style="margin-bottom:6px">
         <div class="field"><label>Marktanpassungsfaktor <span class="u">(Sachwertfaktor — lt. Gutachterausschuss)</span></label><input id="markt_faktor" type="text" value=""></div>
       </div>
-      <div class="row-calc"><span>Bodenwert vor Marktanpassung <span class="from">(aus Eckdaten)</span></span><b id="o_sub_boden">0 €</b></div>
+      <div class="row-calc"><span>Bodenwert vor Marktanpassung <span class="from">(aus den Allgemeinen Angaben)</span></span><b id="o_sub_boden">0 €</b></div>
       <div class="row-calc"><span>Hauptgebäude + Außenanlagen vor MA</span><b id="o_sub_hg">0 €</b></div>
       <div class="row-calc"><span>Anbau vor MA</span><b id="o_sub_an">0 €</b></div>
       <div class="row-calc"><span>Vorläufiger Preisansatz</span><b id="o_sub_vorlauf">0 €</b></div>
@@ -730,7 +745,7 @@
     <!-- VERGLEICHSWERT -->
     <section class="card" id="s-vergleich" data-nav="⑤b Vergleichswert">
       <h2 id="h_vergleich">⑤b Preisansatz nach Vergleichswert</h2>
-      <p class="hint">Wohnfläche <span class="echo" id="e_wf">0</span> m² (aus Eckdaten) × marktüblicher Vergleichspreis (§§ 24–26 ImmoWertV). Vergleichspreise aus eigenen Verkäufen, Gutachterausschuss oder Marktdaten.</p>
+      <p class="hint">Wohnfläche <span class="echo" id="e_wf">0</span> m² (aus den Allgemeinen Angaben) × marktüblicher Vergleichspreis (§§ 24–26 ImmoWertV). Vergleichspreise aus eigenen Verkäufen, Gutachterausschuss oder Marktdaten.</p>
 
       <label class="toggle no-print haus-only"><input type="checkbox" id="vw_aktiv" onchange="compute()"> Vergleichswert in die Preisempfehlung einbeziehen</label>
 
@@ -762,7 +777,7 @@
     <!-- ERTRAG -->
     <section class="card" id="s-ertrag" data-nav="⑥ Preis n. Ertrag">
       <h2>⑥ Preisansatz nach dem Gebäudeertrag</h2>
-      <p class="hint">Restnutzungsdauer automatisch aus Modernisierungspunkten (Abschnitt „Hauptgebäude“). Rohertrag aus Eckdaten oder wohnungsweiser Mietrolle.</p>
+      <p class="hint">Restnutzungsdauer automatisch aus Modernisierungspunkten (Abschnitt „Hauptgebäude“). Rohertrag aus den Allgemeinen Angaben oder wohnungsweiser Mietrolle.</p>
 
       <details class="info">
         <summary>📊 Marktmieten-Vergleich (mehrere Quellen gegenüberstellen)</summary>
@@ -774,7 +789,7 @@
         </table>
       </details>
 
-      <label class="toggle no-print"><input type="checkbox" id="er_mietrolle" onchange="compute()"> Mietrolle verwenden (wohnungsweise Erfassung statt Summen aus Eckdaten)</label>
+      <label class="toggle no-print"><input type="checkbox" id="er_mietrolle" onchange="compute()"> Mietrolle verwenden (wohnungsweise Erfassung statt Summen aus den Allgemeinen Angaben)</label>
       <div id="mietrolle_body" style="display:none">
         <table class="nhk" id="mietrolle_tbl">
           <thead><tr><th>Bezeichnung</th><th>Geschoss</th><th>Fläche m²</th><th>€/m²·Mon</th><th>€/Mon pausch.</th><th>Miete p.a.</th></tr></thead>
@@ -808,10 +823,10 @@
           <div class="field"><label>Instandhaltung <span class="u">€/Stellplatz·Jahr</span></label><input id="er_bw_inst_sp" type="text" value="100"></div>
           <div class="field"><label>nicht umlagefähige BK <span class="u">€/Jahr</span></label><input id="er_bw_nuk" type="text" value="0"></div>
         </div>
-        <p class="hint">Grundlage: <span id="o_bw_basis">WE 1 · Stellpl. 0 · Wohnfl. 0 m²</span> (aus Eckdaten). Verwaltung + Instandhaltung + Mietausfallwagnis + n. uml. BK.</p>
+        <p class="hint">Grundlage: <span id="o_bw_basis">WE 1 · Stellpl. 0 · Wohnfl. 0 m²</span> (aus den Allgemeinen Angaben). Verwaltung + Instandhaltung + Mietausfallwagnis + n. uml. BK.</p>
       </div>
 
-      <div class="row-calc" style="margin-top:8px"><span>Jährlicher Rohertrag <span id="o_er_rohsrc" class="from">(aus Eckdaten)</span></span><b id="o_er_roh">0 €</b></div>
+      <div class="row-calc" style="margin-top:8px"><span>Jährlicher Rohertrag <span id="o_er_rohsrc" class="from">(aus den Allgemeinen Angaben)</span></span><b id="o_er_roh">0 €</b></div>
       <div class="row-calc"><span>− Bewirtschaftungskosten <span id="o_er_bwinfo" class="from"></span></span><b id="o_er_bewirt">0 €</b></div>
       <div class="row-calc"><span>− Abschlag gewerbliche Vermietung</span><b id="o_er_gew">0 €</b></div>
       <div class="row-calc"><span>Grundstücksreinertrag</span><b id="o_er_grund">0 €</b></div>
@@ -853,8 +868,8 @@
           <div class="field"><label>Eigene Laufzeit <span class="u">Jahre</span></label><input id="ni_leben" type="text" value="0"></div>
           <div class="field"><label>Kapitalisierungszins <span class="u">% (BewG: 5,5)</span></label><input id="ni_zins" type="text" value=""></div>
           <div class="field"><label>Kapitalwert lebensl. Nutzung <span class="u">(0=autom.)</span></label><input id="ni_kapwert" type="text" value="0"></div>
-          <div class="field"><label>Mietertrag Nießbrauch <span class="u">€/Jahr (0=aus Eckdaten)</span></label><input id="ni_miete" type="text" value="0"></div>
-          <div class="field"><label>Grundsteuer <span class="u">€/Jahr (0=aus Eckdaten)</span></label><input id="ni_grundst" type="text" value="0"></div>
+          <div class="field"><label>Mietertrag Nießbrauch <span class="u">€/Jahr (0 = aus den Allgemeinen Angaben)</span></label><input id="ni_miete" type="text" value="0"></div>
+          <div class="field"><label>Grundsteuer <span class="u">€/Jahr (0 = aus den Allgemeinen Angaben)</span></label><input id="ni_grundst" type="text" value="0"></div>
           <div class="field"><label>nicht umlagef. Kosten <span class="u">% aus Miete</span></label><input id="ni_nuk" type="text" value="20"></div>
         </div>
         <div class="row-calc" id="row_ni_miete"><span id="lbl_ni_miete">Mietertrag / Jahr</span><b id="o_ni_miete">0 €</b></div>
@@ -895,15 +910,21 @@
     <!-- WERTKORREKTUREN § 8 Abs. 3 -->
     <section class="card" id="s-wk" data-nav="⑦d Wertkorrekturen § 8">
       <h2>⑦d Besondere objektspezifische Grundstücksmerkmale (§ 8 Abs. 3 ImmoWertV)</h2>
-      <p class="hint">Sachverständig geschätzte Wertkorrekturen für bauliche Mängel, Schäden und Risiken. Beträge <b>positiv</b> eintragen = Abzug; für Zuschläge negativen Betrag eintragen. Die Summe wird vom gewichteten Ergebnis abgezogen.</p>
-      <table class="nhk" id="wk_tbl">
-        <thead><tr><th style="width:60%">Bezeichnung</th><th>Betrag € (Abzug)</th></tr></thead>
-        <tbody></tbody>
-        <tfoot><tr class="total"><th style="text-align:right">Summe Wertkorrekturen</th><th id="o_wk_summe">0 €</th></tr></tfoot>
-      </table>
-      <input type="hidden" id="wk_visible" value="3">
-      <button class="plus no-print" onclick="addWKRow()">＋ weitere Position</button>
-      <button class="plus no-print" onclick="wkVorlage()">Typische Positionen einfügen</button>
+      <input type="checkbox" id="wk_aus" hidden>
+      <p class="hint">Sachverständig geschätzte Zu- und Abschläge für Merkmale, die erheblich vom Üblichen abweichen — z.&nbsp;B.
+        Baumängel und Bauschäden, besondere Ertragsverhältnisse, Rechte und Belastungen (§ 8 Abs. 3 ImmoWertV). Mit ＋ ein
+        Merkmal hinzufügen, aus der Liste wählen oder selbst benennen und den Betrag positiv eintragen.</p>
+      <div class="wk-gruppe">
+        <div class="wk-kopf"><b>Wertmindernd</b> <span class="u">Abschläge</span><button type="button" class="plus no-print" onclick="wkNeu('minus')">＋ Abschlag</button></div>
+        <div class="wk-liste" id="wk_minus"></div>
+      </div>
+      <div class="wk-gruppe">
+        <div class="wk-kopf"><b>Werterhöhend</b> <span class="u">Zuschläge</span><button type="button" class="plus no-print" onclick="wkNeu('plus')">＋ Zuschlag</button></div>
+        <div class="wk-liste" id="wk_plus"></div>
+      </div>
+      <div class="wk-plaetze" id="wk_plaetze" hidden></div>
+      <datalist id="wk_vorschlag_minus"></datalist><datalist id="wk_vorschlag_plus"></datalist>
+      <div class="subtotal"><span>Saldo der Zu- und Abschläge</span><span id="o_wk_summe">0 €</span></div>
     </section>
 
     <!-- PV-ANLAGE -->
@@ -911,7 +932,7 @@
       <h2>⑦b Photovoltaik-Anlage</h2>
       <label class="toggle no-print"><input type="checkbox" id="pv_aktiv" onchange="compute()"> PV-Anlage vorhanden (Barwert als objektspez. Merkmal)</label>
       <div id="pv_body">
-        <p class="hint">Barwert des Solarertrags = Reinertrag × Barwertfaktor (Restnutzungsdauer/Liegenschaftszins). Fließt als Zuschlag in den Substanzpreis (5.3). Werte als marktübliche Richtwerte vorbelegt.</p>
+        <p class="hint">Barwert des Solarertrags = Reinertrag × Barwertfaktor (Restnutzungsdauer/Liegenschaftszins). Fließt als Zuschlag in die Preisempfehlung. Werte als marktübliche Richtwerte vorbelegt.</p>
         <div class="grid four">
           <div class="field"><label>Anlagenleistung <span class="u">kWp</span></label><input id="pv_kwp" type="text" value="0"></div>
           <div class="field"><label>Jährl. Stromertrag <span class="u">kWh/Jahr</span></label><input id="pv_ertrag_kwh" type="text" value="0"></div>
@@ -1004,6 +1025,7 @@
 
     <section class="card" id="s-fotos" data-nav="⑧ Fotos">
       <h2>⑧ Fotodokumentation</h2>
+      <input type="checkbox" id="fo_aus" hidden>
       <p class="hint">Bilder werden auf max. 1400 px verkleinert. Zum dauerhaften Sichern (inkl. Bilder) bitte <b>💾 Speichern</b> nutzen — Bilder werden in die Projektdatei aufgenommen.</p>
 
       <h3>Objektfotos <span class="u" style="font-weight:400">(Außen-/Innenansichten, Lage)</span></h3>
@@ -1038,7 +1060,7 @@
       <div class="row-calc" id="row_e_energie"><span>± Energetische Qualität <span class="u">(objektspez. Merkmal)</span></span><b id="o_e_energie">0 €</b></div>
       <div class="row-calc"><span>− Belastung Nießbrauch / Wohnrecht</span><b id="o_e_niess">0 €</b></div>
       <div class="row-calc" id="row_e_erbbau"><span>− Korrektur Erbbaurecht</span><b id="o_e_erbbau">0 €</b></div>
-      <div class="row-calc" id="row_e_wk"><span>− Wertkorrekturen § 8 Abs. 3</span><b id="o_e_wk">0 €</b></div>
+      <div class="row-calc" id="row_e_wk"><span>± Besondere objektspezifische Merkmale § 8 Abs. 3</span><b id="o_e_wk">0 €</b></div>
       <div class="grid" style="margin-top:8px">
         <div class="field" id="fld_gew_vergleich" style="display:none"><label>Gewichtung Vergleichswert <span class="u">% am Gesamtergebnis</span></label><input id="gew_vergleich" type="text" value="30"></div>
         <div class="field"><label id="lbl_gew">Gewichtung Substanz : Ertrag</label>
@@ -1052,6 +1074,7 @@
             <option value="0.3">30 : 70</option>
           </select></div>
         <div class="field"><label>Verhandlungsspielraum <span class="u">% (+/−)</span></label><input id="verhandlung" type="text" value="5"></div>
+        <input type="hidden" id="gew_vorher" value="">
       </div>
       <div class="xrow" id="xemp_1"><div class="field"><label>Bezeichnung</label><input id="xemp1_label" placeholder="z.B. Räumungskosten"></div><div class="field"><label>Betrag € (±)</label><input id="xemp1_val" type="text" value="0"></div></div>
       <div class="xrow" id="xemp_2"><div class="field"><label>Bezeichnung</label><input id="xemp2_label"></div><div class="field"><label>Betrag € (±)</label><input id="xemp2_val" type="text" value="0"></div></div>
@@ -1175,6 +1198,7 @@
 
     <section class="card" id="s-rendite" data-nav="⑨b Rendite & Investition">
       <h2>⑨b Rendite &amp; Investitionskosten</h2>
+      <input type="checkbox" id="re_aus" hidden>
       <p class="hint">Kennzahlen für Kapitalanleger. Kaufpreis leer/0 = empfohlener Preisansatz aus der Preisempfehlung wird übernommen.</p>
       <div class="grid four">
         <div class="field"><label>Kaufpreis <span class="u">€ (0 = aus Preisempfehlung)</span></label><input id="re_kaufpreis" type="text" value="0"></div>
@@ -1748,6 +1772,7 @@
 <script src="js/jahresbewertung-editor.js"></script>
 <script src="js/jahresbewertung-dok.js"></script>
 <script src="js/liegenschaften-vergleich.js"></script>
+<script src="src/aufnahme.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>

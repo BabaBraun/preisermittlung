@@ -859,6 +859,25 @@
   #kd_overlay button.kd-loeschen{color:var(--bad)}
   .kd-eck{display:flex;align-items:center;gap:8px;min-height:46px;font-size:13px;flex-wrap:wrap}
   .kd-eck a{color:var(--accent)}
+  .au-mod-zeile{display:flex;gap:8px}
+  .au-mod-zeile select{flex:1 1 auto;min-width:0}
+  .au-mod-zeile input{flex:0 0 84px;width:84px}
+  .au-std select{white-space:nowrap;text-overflow:ellipsis}
+  td.mod-au{font-size:12px;color:var(--text-2)}
+  input.aus-aufnahme,select.aus-aufnahme{border-color:var(--accent)!important;box-shadow:inset 3px 0 0 var(--accent)}
+  .wk-gruppe{margin:10px 0 4px}
+  .wk-kopf{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .wk-kopf .plus{margin-left:auto}
+  .wk-liste{display:flex;flex-direction:column;gap:6px}
+  .wk-liste.leer::before{content:'Keine Merkmale erfasst.';font-size:12.5px;color:var(--muted)}
+  .wk-zeile{display:grid;grid-template-columns:minmax(0,1fr) 130px 40px;gap:8px;align-items:center}
+  .wk-zeile input{text-align:left}
+  .wk-zeile input[inputmode=decimal]{text-align:right}
+  .sec-aus-hinweis{display:none}
+  section.card.sec-aus>.sec-aus-hinweis{display:block;font-size:13px;color:var(--muted);margin:8px 0 0}
+  section.card.sec-aus>*:not(h2):not(.sec-aus-hinweis){display:none!important}
+  section.card.sec-aus>h2 .app-sec-titel{opacity:.55}
+  .kd-eck-kontakt{flex-basis:100%;font-size:12.5px;color:var(--text-2);line-height:1.5;overflow-wrap:anywhere}
   .kd-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--tint);color:var(--accent);font-weight:600}
   .kd-chip svg{width:16px;height:16px}
   @media(max-width:640px){ .kd-marken{display:none} #kd_overlay .modal{padding:18px 14px} }

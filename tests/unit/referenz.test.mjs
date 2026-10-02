@@ -1,7 +1,7 @@
 /* Rechenkern gegen die unabhängige Python-Vergleichsrechnung (tests/referenz/sollwerte.py):
    Gewerbe mit Mietrolle, Wohnhaus mit Nießbrauch/Vergleichswert/Energie, Wohnungsrecht mit Erbbaurecht und PV,
    Eigentumswohnung mit Leibrente, Zins 0 %, sehr altes Gebäude, leere Eingaben, Wohnhaus mit Anbau und Mietertrag
-   je Gebäude (D33). */
+   je Gebäude (D33), § 8 Abs. 3 mit Zuschlag als Art und ausgeschaltet (D35). */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -34,3 +34,13 @@ for (const [name, fall] of Object.entries(FAELLE)) {
     }
   });
 }
+
+/* D35: Zuschlag als Art (positiver Betrag, wk_art 'plus') rechnet genau wie früher der negative Betrag;
+   ausgeschaltete Merkmale (wk_aus) fallen ganz weg */
+test('§ 8 Abs. 3: Zuschlag als Art = negativer Betrag, ausgeschaltet = ohne Zu- und Abschläge', () => {
+  const r = n => K.bewerte(leser(FAELLE[n].felder), { jahr: FAELLE[n].jahr }).R;
+  const alt = r('haus_niessbrauch_vergleich_energie'), art = r('haus_merkmale_zuschlag_als_art'), aus = r('haus_merkmale_ausgeschaltet');
+  assert.equal(alt.wkSumme, 6500); assert.equal(art.wkSumme, 6500); assert.equal(aus.wkSumme, 0);
+  assert.equal(art.empfehlung, alt.empfehlung);
+  nahe(assert, aus.empfehlung - alt.empfehlung, 6500, 1e-6, 'Differenz ausgeschaltet');
+});
