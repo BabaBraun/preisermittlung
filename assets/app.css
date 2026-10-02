@@ -862,6 +862,12 @@
   .au-mod-zeile{display:flex;gap:8px}
   .au-mod-zeile select{flex:1 1 auto;min-width:0}
   .au-mod-zeile input{flex:0 0 84px;width:84px}
+  .au-mod-zeile.au-mod-sonst{flex-wrap:wrap}
+  .au-mod-zeile.au-mod-sonst #au_mod_s_bez{flex:1 1 100%;width:100%}   /* Bezeichnung in eigener Zeile, darunter Umfang und Jahr */
+  .au-mod-zeile.au-mod-sonst select{flex:1 1 0;width:auto}
+  .au-ul-zeile{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .au-ul-zeile input:not([type=checkbox]){flex:1 1 200px;min-width:0}
+  .au-ul-zeile .chk{flex:0 0 auto;margin:0}
   .au-std select{white-space:nowrap;text-overflow:ellipsis}
   td.mod-au{font-size:12px;color:var(--text-2)}
   input.aus-aufnahme,select.aus-aufnahme{border-color:var(--accent)!important;box-shadow:inset 3px 0 0 var(--accent)}
@@ -946,6 +952,8 @@
   .lage-zeile.st-auff{border-color:#f0d29a;background:var(--warn-bg)}
   .lage-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .lage-kopf>div{display:flex;flex-direction:column;gap:2px}
+  .lage-kopf>div:has(input){flex:1 1 auto;gap:6px}   /* eigener Prüfpunkt: Bezeichnung und Quelle in voller Breite */
+  .lage-kopf input{height:36px;font-size:13px}
   .lage-kopf b{font-size:14px}
   .lage-kopf span{font-size:11.5px;color:var(--muted)}
   .lage-kopf button{padding:6px 14px;font-size:12.5px}
