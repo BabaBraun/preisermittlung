@@ -312,3 +312,14 @@ test('Bericht: Objektteile in der Reihenfolge des Formulars (Feststellungen, Lag
  const o=await h2();expect(o).not.toContain('Lage');expect(o).not.toContain('Objektbeschreibung');expect(o).toContain('Lage-Check');
  await keineSkriptfehler(page);
 });
+test('Nummern der Blöcke ohne Lücke, auch wenn der Abschnitt beim Nummerieren zugeklappt war (Haus und Wohnung)',async({page})=>{
+ await appOeffnen(page);
+ for(const [vordruck,anzahlAllg,anzahlAu,erster] of [['etw_vergleich',5,5,'4.1 Wohnung / Gemeinschaft'],['wh_bgf',5,7,'4.1 Grundstück']]){
+  await page.evaluate(v=>{pickVordruck(v);appOpenObject();appAlleKlappen(false);appRefresh();appAbschnittOeffnen($('s-allg'),true);appAbschnittOeffnen($('s-aufnahme'),true);},vordruck);
+  const nr=id=>page.evaluate(id=>[...document.querySelectorAll('#'+id+' details.app-disclosure')].filter(d=>d.checkVisibility()).map(d=>d.querySelector('summary').textContent),id);
+  const allg=await nr('s-allg'), au=await nr('s-aufnahme');
+  expect(allg[0],vordruck).toBe(erster);
+  expect(allg.map(t=>t.split(' ')[0]),vordruck).toEqual(Array.from({length:anzahlAllg},(x,i)=>'4.'+(i+1)));
+  expect(au.map(t=>t.split(' ')[0]),vordruck).toEqual(Array.from({length:anzahlAu},(x,i)=>'2.'+(i+1)));
+ }
+});

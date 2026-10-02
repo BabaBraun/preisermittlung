@@ -102,10 +102,11 @@ function appAbschnittOeffnen(sec,offen){
  const b=sec.querySelector(':scope>h2 .app-sec-toggle');if(b){b.setAttribute('aria-expanded',String(!!offen));b.setAttribute('aria-label',(offen?'Abschnitt zuklappen: ':'Abschnitt aufklappen: ')+navLabel(sec));}
  appZuMerken('s:'+sec.id,!offen);
 }
-function appAbschnittUmschalten(sec){ appAbschnittOeffnen(sec,sec.classList.contains('app-zu')); }
+function appAbschnittUmschalten(sec){ appAbschnittOeffnen(sec,sec.classList.contains('app-zu')); appNummerieren(); }
 function appAlleKlappen(offen){
  document.querySelectorAll('main>section.card').forEach(sec=>appAbschnittOeffnen(sec,offen));
  document.querySelectorAll('main>section.card details.app-disclosure').forEach(d=>{d.open=offen;});
+ appNummerieren();
 }
 function appKopfVorbereiten(sec){
  const h=sec.querySelector(':scope>h2');if(!h)return null;
@@ -121,7 +122,8 @@ function appKopfVorbereiten(sec){
 function appSichtbarIn(el,sec){
  for(let p=el;p&&p!==sec;p=p.parentElement){
   if(p.hidden)return false;
-  if(p.parentElement===sec&&sec.classList.contains('app-zu')){if(p.style.display==='none')return false;continue;}   // nur wegen Zuklappen verborgen
+  // nur wegen Zuklappen verborgen — aber Blöcke nur für Haus bzw. Wohnung zählen in der anderen Objektart nicht mit
+  if(p.parentElement===sec&&sec.classList.contains('app-zu')){if(p.style.display==='none'||p.classList.contains(modus()==='wohnung'?'haus-only':'wohnung-only'))return false;continue;}
   if(getComputedStyle(p).display==='none')return false;
  }
  return true;

@@ -863,3 +863,6 @@ Lage (eigene Überschrift, vorher Teil der Objektbeschreibung) · Lage-Check · 
 Planungsrecht · Objektbeschreibung · danach wie bisher Grundstück & Bodenwert und die Preisansätze. Im Berichtsumfang
 umfasst „Objektbeschreibung (mit Lage)“ auch die Lage.
 
+**Nummern (Fehler behoben):** War ein Abschnitt beim Nummerieren zugeklappt, zählten Blöcke mit, die es nur beim Haus
+gibt — bei der Wohnung begannen die Allgemeinen Angaben mit 4.2, im Aufnahmebogen fehlten 2.3 und 2.4. Jetzt zählen
+solche Blöcke in der anderen Objektart nicht mit; beim Auf- und Zuklappen wird neu nummeriert (Browsertest).
