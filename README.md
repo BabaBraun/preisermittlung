@@ -39,8 +39,7 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
 - **Beratung & Werkzeuge** (eigene Kacheln): Übergeben & Vererben (Schenkung oder Erbe mit Nießbrauch und Freibeträgen
   nach ErbStG/BewG), Wohnen im Alter (Einmalzahlung, Leibrente, Teilverkauf, Rückmiete), Übergabeprotokoll mit Fotos und
   Unterschriften auf dem Gerät, Mein Jahr (Aufträge, Provision, Herkunft), Grundstückspotenzial (Residualwert),
-  ETW-Kaufcheck (Rücklage, Beschlüsse, GEG), Mieterhöhung (§§ 558, 559, 556d BGB), Wertmonitor (gesicherte Bewertungen
-  fortschreiben). Jedes Werkzeug mit Dokument (PDF, Word) und Notiz in der Kundenakte.
+  ETW-Kaufcheck (Rücklage, Beschlüsse, Heizung), Wertmonitor (gesicherte Bewertungen fortschreiben). Jedes Werkzeug mit Dokument (PDF, Word) und Notiz in der Kundenakte.
 
 ## Aufbau
 
@@ -64,7 +63,7 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/jahresbewertung.js`, `js/jahresbewertung-ui.js`, `js/jahresbewertung-editor.js`, `js/jahresbewertung-dok.js` | Preiseinschätzung nach dem Vordruck der Bank: Rechnung und Modell, Übersicht, Vordruck (Deckblatt, Kapitel wie die Excel-Mappe), Dokument (Drucken, PDF, Word), Fortschreibung |
 | `js/liegenschaften-vergleich.js` | Historischer Vergleich zweier Stichtage einer Liegenschaft (Rechnung: `vergleich`, `vergleichSetzen`, `vergleichText` in `js/jahresbewertung.js`) |
 | `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
-| `js/beratung.js` | Rechnungen der Beratungswerkzeuge ohne Bildschirmzugriff: Erbschaft- und Schenkungsteuer, Vervielfältiger nach § 14 BewG, Leibrenten, Mieterhöhung, Residualwert, ETW-Kennzahlen, Vertriebsübersicht |
+| `js/beratung.js` | Rechnungen der Beratungswerkzeuge ohne Bildschirmzugriff: Erbschaft- und Schenkungsteuer, Vervielfältiger nach § 14 BewG (BMF-Tabelle 2026 eingebaut), Leibrenten, Residualwert, ETW-Kennzahlen, Vertriebsübersicht |
 | `src/werkzeuge.js`, `src/wz-*.js` | Beratung & Werkzeuge: gemeinsames Fenster (Felder, Speicher, Dokument, Kundenakte) und die acht Werkzeuge |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
@@ -155,10 +154,9 @@ Geräteverschlüsselung des Betriebssystems.
   Druckansicht („Als PDF sichern“) mit echtem Text vorzuziehen.
 - Keine Synchronisation zwischen Geräten, kein Server (D2).
 - Beratung & Werkzeuge: Orientierungsrechnungen, keine Steuer-, Rechts- oder Anlageberatung. Rechtsstand Oktober 2026,
-  am Wortlaut geprüft (u. a. Gebäudemodernisierungsgesetz statt GEG seit 29.07.2026). Der Vervielfältiger für Nießbrauch
-  und Wohnrecht wird nach § 14 BewG aus der Sterbetafel berechnet; das Finanzamt nimmt die BMF-Tabelle des
-  Bewertungsjahres (Wert eintragbar, ROADMAP #64). Der Wertmonitor braucht für eine marktgerechte Fortschreibung eine
-  Preisindexreihe (Gutachterausschuss oder Häuserpreisindex).
+  am Wortlaut geprüft (u. a. Gebäudemodernisierungsgesetz statt GEG seit 29.07.2026). Vervielfältiger für Nießbrauch und
+  Wohnrecht: für 2026 die amtliche BMF-Tabelle, für spätere Jahre nach dem BMF-Verfahren aus der Sterbetafel berechnet
+  (ROADMAP #64). Der Wertmonitor braucht für eine marktgerechte Fortschreibung eine Preisindexreihe (Grundstücksmarktbericht).
 - Liegenschaften: rechnerische Preiseinschätzung nach dem Vordruck der Bank, kein Verkehrswertgutachten; der
   Baupreisindex zum Stichtag ist vierteljährlich nachzutragen (ROADMAP #50).
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim

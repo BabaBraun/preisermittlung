@@ -295,9 +295,8 @@ const BEREICHE = [
   { name: 'Werkzeug – Mein Jahr', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('jahr')) },
   { name: 'Werkzeug – Grundstückspotenzial', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('grundstueck')) },
   { name: 'Werkzeug – ETW-Kaufcheck', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('etw')) },
-  { name: 'Werkzeug – Mieterhöhung', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('miete')) },
   { name: 'Werkzeug – Wertmonitor', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('wertmonitor')) },
-  { name: 'Werkzeug – Dokument', wurzel: '#report', auf: js(async () => { wzOeffnen('miete'); Object.assign(wzZustand('miete'), { wohnflaeche: '70', miete: '560', vergleichM2: '9' }); await wzDokument(); }) },
+  { name: 'Werkzeug – Dokument', wurzel: '#report', auf: js(async () => { wzOeffnen('grundstueck'); Object.assign(wzZustand('grundstueck'), { grundstueck: '900', gfz: '0,8', verkaufM2: '5000', baukostenM2: '3000' }); await wzDokument(); }) },
   { name: 'Datenschutz', wurzel: '#dsgvo_overlay', auf: js(() => dsgvoOeffnen()) },
   // „Einrichten“ braucht Face ID/Touch ID — mit simuliertem Authenticator geprüft in tests/e2e/sonderablaeufe.spec.mjs
   { name: 'App-Sperre', wurzel: '#lock_setup_overlay', auf: js(() => lockSetupOeffnen()), nicht: /einrichten|aktivieren|Face ID|Touch ID|Gerätecode/i, nichtGrund: 'braucht Face ID / Touch ID — eigener Test (sonderablaeufe.spec.mjs)' },

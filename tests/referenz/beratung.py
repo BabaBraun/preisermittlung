@@ -2,8 +2,10 @@
 """Unabhängige Nachrechnung für die Beratungswerkzeuge (js/beratung.js), D38.
 
 Anderer Rechenweg als im JavaScript:
-- Vervielfältiger nach § 14 Abs. 1 BewG mit Kommutationszahlen D(a) = v^a · l(a), N(x) = Σ D(a) für a ≥ x:
-  vorschüssig ä(x) = N(x)/D(x), nachschüssig a(x) = N(x+1)/D(x), Vervielfältiger = (ä + a) / 2 bei 5,5 %.
+- Vervielfältiger nach § 14 Abs. 1 BewG wie das BMF: Zeitrente über die durchschnittliche Lebenserwartung (zwei Stellen),
+  5,5 %, Mittel aus vorschüssiger (Summe v^k, k = 0 … ) und nachschüssiger Zahlung (Summe v^k, k = 1 … ), für gebrochene
+  Laufzeiten über die geschlossene Formel; dazu der Abgleich mit allen Werten der BMF-Tabelle 2026
+  (tests/fixtures/bmf-vervielfaeltiger-2026.json).
 - Leibrente monatlich vorschüssig (Gleichverteilung der Sterbefälle im Jahr): Summe über Jahre und darin über Monate
   mit der Überlebenswahrscheinlichkeit aus der linear interpolierten Überlebendenzahl; zwei Personen: 1 − (1 − p1)(1 − p2).
 - Erbschaftsteuer nach § 19 ErbStG mit Härteausgleich über eine eigene Tabellensuche.
@@ -28,15 +30,23 @@ def l_funktion(t):
     return lambda a: t['lx'][a] if a <= oben else t['lx'][oben] * p ** (a - oben)
 
 
+def zeitrente(n):
+    q = 1.055
+    nach = (1 - q ** -n) / (q - 1)          # nachschüssig
+    vor = nach * q                          # vorschüssig
+    return round((vor + nach) / 2 + 1e-12, 3)
+
+
 def vervielfaeltiger(t, alter):
-    l = l_funktion(t)
-    x = min(int(math.floor(alter)), len(t['lx']) - 1)
-    v = 1 / 1.055
-    D = lambda a: v ** a * l(a)
-    N = lambda s: math.fsum(D(a) for a in range(s, len(t['lx']) + 300))
-    vor = N(x) / D(x)
-    nach = N(x + 1) / D(x)
-    return round((vor + nach) / 2, 3)
+    x = min(int(math.floor(alter)), len(t['ex']) - 1)
+    return zeitrente(round(t['ex'][x], 2))
+
+
+def bmf_abgleich():
+    pfad = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fixtures', 'bmf-vervielfaeltiger-2026.json')
+    d = json.load(open(pfad, encoding='utf-8'))['alter']
+    return [{'alter': int(a), 'em': w[0], 'vm': w[1], 'ew': w[2], 'vw': w[3], 'vm_neu': zeitrente(w[0]), 'vw_neu': zeitrente(w[2])}
+            for a, w in d.items()]
 
 
 def p_person(t, alter):
@@ -107,7 +117,7 @@ def main():
     st = [{'erwerb': e, 'klasse': k, 'steuer': steuer(e, k)}
           for e in (0, 99, 75000, 75100, 82000, 300000, 310000, 590000, 600100, 650000, 6000000, 6100000, 13100000, 26500000)
           for k in (1, 2, 3)]
-    ausgeben({'vervielfaeltiger': vv, 'renten': renten, 'steuer': st})
+    ausgeben({'vervielfaeltiger': vv, 'renten': renten, 'steuer': st, 'bmf2026': bmf_abgleich()})
 
 
 if __name__ == '__main__':

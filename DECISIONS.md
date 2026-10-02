@@ -1080,3 +1080,22 @@ Nutzen für Bank und Beratung (Einschätzung):
   - Mieterhöhung — Rechtsberatung für Vermieter liegt außerhalb der Kernaufgabe. Als Nebenleistung ist das nur in engen
     Grenzen erlaubt (§ 5 RDG); für gewerbliche Mietverträge (z. B. Bank- und Lagergebäude) gilt § 558 nicht.
   - Die Entscheidung über beide liegt beim Auftraggeber.
+
+**Nachtrag: Vervielfältiger nach der BMF-Tabelle; Kachel „Mieterhöhung“ entfernt (2026-10-03, Entscheidung des
+Auftraggebers).**
+- **Vervielfältiger:** Mit Freigabe des Auftraggebers wurde das BMF-Schreiben vom 21.10.2025 geladen (Vervielfältiger für
+  Stichtage ab 1.1.2026, Sterbetafel 2022/2024). Der Abgleich zeigte einen Fehler im Verfahren der App: Sie rechnete den
+  Barwert einer Leibrente (Überlebenswahrscheinlichkeit Jahr für Jahr). Das BMF rechnet eine **Zeitrente über die
+  durchschnittliche Lebenserwartung** (Mittel aus vor- und nachschüssig, 5,5 %); alle 202 Werte der Tabelle lassen sich so
+  aus der dort genannten Lebenserwartung exakt nachrechnen. Die App lag rund 5 % zu niedrig (Mann 60: 12,075 statt 12,798),
+  der Abzug für Nießbrauch und Wohnrecht war also zu klein, die Steuer zu hoch.
+  - Jetzt: Stichtage 2026 mit der eingebauten amtlichen Tabelle (Prüfdatei `tests/fixtures/bmf-vervielfaeltiger-2026.json`).
+  - Andere Jahre: nach demselben Verfahren mit der Lebenserwartung der eingebauten Sterbetafel; maßgeblich bleibt die
+    BMF-Tabelle des Jahres.
+  - Die Python-Gegenrechnung bildet alle Tabellenwerte nach.
+- **Mieterhöhung:** Die Kachel ist entfernt. Rechtsberatung für Vermieter ist nicht Kernaufgabe des Immobilienberaters
+  (§ 5 RDG), und für gewerbliche Mietverträge gilt § 558 BGB nicht. Rechnungen, Tests und Klicktest-Bereich sind mit
+  entfernt; die Kacheln sind jetzt sieben.
+- **Mein Jahr:** Die Kachel bleibt — der Auftraggeber führt die Vermarktung in der App.
+- **Preisindex:** Den Preisindex für den Wertmonitor trägt der Auftraggeber von Hand ein (Grundstücksmarktbericht des
+  Gutachterausschusses, regional genauer als der Häuserpreisindex des Bundes).

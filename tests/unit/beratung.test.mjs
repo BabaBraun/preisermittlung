@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { nahe } from './hilfen.mjs';
 import { pythonMit, pythonJson } from '../pythonpruefung.mjs';
 
@@ -41,6 +42,21 @@ test('Schenkung an ein Kind: ein Schenker oder Eltern je zur Hälfte (zwei Freib
   assert.equal(zwei.empfaenger[0].teile.length, 2);
   const halb = B.uebertragung({ ...basis, uebertragAnteil: 50 });
   assert.equal(halb.wert, 450000); assert.equal(halb.steuer, 3500);
+});
+
+test('Vervielfältiger 2026 = Tabelle des BMF-Schreibens vom 21.10.2025; Verfahren Zeitrente über die Lebenserwartung', () => {
+  const f = JSON.parse(readFileSync(new URL('../fixtures/bmf-vervielfaeltiger-2026.json', import.meta.url), 'utf8')).alter;
+  for (const [a, w] of Object.entries(f)) {
+    assert.equal(B.vervielfaeltigerBewG(+a, 'm', null, 2026), w[1], 'Männer ' + a);
+    assert.equal(B.vervielfaeltigerBewG(+a, 'w', null, 2026), w[3], 'Frauen ' + a);
+    assert.equal(B.zeitrenteBewG(w[0]), w[1], 'Verfahren Männer ' + a);
+  }
+  assert.equal(B.vervielfaeltigerBewG(60, 'm', null, 2026), 12.798, 'Mann 60 laut Tabelle');
+  assert.equal(B.vervielfaeltigerBewG(104, 'w', null, 2026), 1.897, 'ab 100 der letzte Tabellenwert');
+  assert.match(B.vervielfaeltigerQuelle(2026), /21\.10\.2025/);
+  assert.match(B.vervielfaeltigerQuelle(2027), /Verfahren des BMF/);
+  // Handrechnung: 21,58 Jahre, 1,055^-21,58 = 0,31492 → nachschüssig 12,456, vorschüssig 13,141, Mittel 12,798
+  nahe(assert, B.zeitrenteBewG(21.58), 12.798, 0.0005, 'Zeitrente 21,58 Jahre');
 });
 
 test('Vorbehaltsnießbrauch: Kapitalwert = Jahreswert × Vervielfältiger, Jahreswert höchstens Wert / 18,6 (§§ 14, 16 BewG)', () => {
@@ -93,7 +109,11 @@ test('Vorerwerbe der letzten 10 Jahre, 50-%-Grenze (§ 14 ErbStG) und Kleinbetra
 test('Python-Gegenrechnung: Vervielfältiger (§ 14 BewG), Leibrenten, Lebenserwartung, Steuertabelle', { skip: !PY && !process.env.CI && 'Python fehlt' }, () => {
   const soll = pythonJson(PY || 'python', ['tests/referenz/beratung.py']);
   assert.equal(soll.vervielfaeltiger.length, 20);
-  for (const f of soll.vervielfaeltiger) assert.equal(B.vervielfaeltigerBewG(f.alter, f.geschlecht), f.v, f.alter + ' ' + f.geschlecht);
+  // Jahre ohne eingebaute BMF-Tabelle: Verfahren des BMF mit der Lebenserwartung der eingebauten Sterbetafel
+  for (const f of soll.vervielfaeltiger) assert.equal(B.vervielfaeltigerBewG(f.alter, f.geschlecht, null, 2027), f.v, f.alter + ' ' + f.geschlecht);
+  // Verfahren belegt: jeder Wert der BMF-Tabelle 2026 folgt aus der dort genannten Lebenserwartung
+  assert.equal(soll.bmf2026.length, 101);
+  for (const z of soll.bmf2026) { assert.equal(z.vm_neu, z.vm, 'BMF Männer ' + z.alter); assert.equal(z.vw_neu, z.vw, 'BMF Frauen ' + z.alter); }
   for (const r of soll.renten) {
     nahe(assert, B.rentenfaktor(r.personen, r.zins, r.garantie), r.faktor, 1e-9, 'Rentenfaktor ' + JSON.stringify(r.personen));
     nahe(assert, B.lebenserwartung(r.personen), r.e, 1e-9, 'Lebenserwartung ' + JSON.stringify(r.personen));
@@ -127,34 +147,6 @@ test('Wohnen im Alter: Einmalzahlung = Wert − Wohnrecht, Rente aus derselben S
   assert.equal(kredit.sofort, 250000); nahe(assert, kredit.monatlich, -250000 * 0.035 / 12, 1e-9, 'Zinsen im Monat');
   nahe(assert, kredit.erben, r.wertEnde - 250000, 1e-6, 'Erben: Wert minus Kredit');
   assert.ok(kredit.erben > teil.erben, 'bei 2 % Wertsteigerung bleibt den Erben mit dem Kredit mehr als beim Teilverkauf');
-});
-
-test('Mieterhöhung § 558 BGB: Vergleichsmiete, Kappungsgrenze, Fristen § 558b', () => {
-  const r = B.mieterhoehung558({ wohnflaeche: 80, miete: 640, mieteVor3: 600, vergleichM2: 9.5, zugang: '2026-10-15', letzteErhoehung: '2025-08-01' });
-  assert.equal(r.vergleichsmiete, 760); assert.equal(r.kappGrenze, 720); assert.equal(r.neu, 720); assert.equal(r.begrenzt, 'kappung');
-  assert.equal(r.erhoehung, 80);
-  assert.equal(r.wirksam, '2027-01-01', 'Beginn des dritten Kalendermonats nach Zugang');
-  assert.equal(r.zustimmungBis, '2026-12-31'); assert.equal(r.klageBis, '2027-03-31');
-  assert.equal(r.fristOk, true);
-  const zuFrueh = B.mieterhoehung558({ wohnflaeche: 80, miete: 640, vergleichM2: 9.5, zugang: '2026-10-15', letzteErhoehung: '2025-12-01' });
-  assert.equal(zuFrueh.fristOk, false); assert.equal(zuFrueh.fruehesterZugang, '2026-12-01');
-  assert.equal(B.mieterhoehung558({ wohnflaeche: 80, miete: 640, vergleichM2: 9.5, kappung15: true }).neu, 736, '15 % auf die heutige Miete');
-  assert.equal(B.mieterhoehung558({ wohnflaeche: 80, miete: 800, vergleichM2: 9.5 }).erhoehung, 0, 'Miete schon über der Vergleichsmiete');
-});
-
-test('Modernisierung § 559 BGB: 8 %, Erhaltung, Drittmittel, vereinfachtes Verfahren, Kappung 2 bzw. 3 €/m²', () => {
-  const r = B.modernisierung559({ wohnflaeche: 70, miete: 420, kosten: 20000, erhaltung: 5000, drittmittel: 3000, zugang: '2026-10-15' });
-  assert.equal(r.umlagefaehig, 12000); assert.equal(r.jahr, 960); assert.equal(r.erhoehung, 80); assert.equal(r.grenzeM2, 2, 'unter 7 €/m²');
-  assert.equal(r.wirksam, '2027-01-01');
-  assert.equal(B.modernisierung559({ wohnflaeche: 70, miete: 420, kosten: 20000, zugang: '2026-10-15', angekuendigt: false }).wirksam, '2027-07-01', '+ 6 Monate ohne Ankündigung');
-  const v = B.modernisierung559({ wohnflaeche: 70, miete: 420, kosten: 9000, vereinfacht: true });
-  assert.equal(v.erhaltung, 2700); assert.equal(v.erhoehung, 42);
-  assert.equal(B.modernisierung559({ wohnflaeche: 70, miete: 420, kosten: 12000, vereinfacht: true }).zuVielFuerVereinfacht, true);
-  const k = B.modernisierung559({ wohnflaeche: 70, miete: 700, kosten: 60000 });
-  assert.equal(k.monatRoh, 400); assert.equal(k.erhoehung, 210); assert.equal(k.gekappt, true);
-  assert.equal(B.modernisierung559({ wohnflaeche: 70, miete: 700, kosten: 60000, bisherM2: 1 }).erhoehung, 140, 'frühere Erhöhungen zählen mit');
-  const mb = B.mietpreisbremse({ wohnflaeche: 60, vergleichM2: 10, vormiete: 700 });
-  nahe(assert, mb.grenze, 660, 1e-9, 'Vergleichsmiete + 10 %'); assert.equal(mb.hoechst, 700); assert.equal(mb.vormieteHoeher, true);
 });
 
 test('Grundstückspotenzial: Residualwert nach Handrechnung', () => {

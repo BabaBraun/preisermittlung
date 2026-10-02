@@ -6,7 +6,7 @@ import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
 
 const WERKZEUGE = [['erbe', 'Übergeben & Vererben'], ['rente', 'Wohnen im Alter'], ['uebergabe', 'Übergabeprotokoll'], ['jahr', 'Mein Jahr'],
-  ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['miete', 'Mieterhöhung'], ['wertmonitor', 'Wertmonitor']];
+  ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor']];
 function dialoge(page) {
   const liste = [];
   page.on('dialog', async d => { liste.push(d.message()); await d.accept(d.type() === 'prompt' ? (d.defaultValue() || 'x') : undefined); });
@@ -15,11 +15,11 @@ function dialoge(page) {
 const feld = (page, id) => page.locator('#wz_' + id);
 async function eintragen(page, werte) { for (const [id, v] of Object.entries(werte)) await feld(page, id).fill(v); }
 
-test('Acht Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38)', async ({ page }) => {
+test('Sieben Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38)', async ({ page }) => {
   await appOeffnen(page);
   await page.evaluate(() => appSetTab('home'));
   const kacheln = page.locator('#start_wz .tile');
-  await expect(kacheln).toHaveCount(8);
+  await expect(kacheln).toHaveCount(7);
   for (const [id, titel] of WERKZEUGE) {
     await page.locator(`#start_wz .tile[onclick="wzOeffnen('${id}')"]`).click();
     await expect(page.locator('#wz_overlay')).toHaveClass(/on/);
@@ -30,8 +30,8 @@ test('Acht Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Wer
   await page.evaluate(() => appSetTab('more'));
   for (const [, titel] of WERKZEUGE) await expect(page.locator('#app_more').getByRole('button', { name: titel, exact: true })).toBeVisible();
   // Eingaben der Werkzeuge gehören nicht zur Bewertung
-  await page.evaluate(() => wzOeffnen('miete'));
-  await feld(page, 'miete_wohnflaeche').fill('77');
+  await page.evaluate(() => wzOeffnen('etw'));
+  await feld(page, 'etw_wohnflaeche').fill('77');
   expect(await page.evaluate(() => Object.keys(collect()).filter(k => k.startsWith('wz_')))).toEqual([]);
   await keineSkriptfehler(page);
 });
@@ -118,7 +118,7 @@ test('Übergabeprotokoll: Zähler mit Foto, Unterschriften, Abschließen sperrt,
   await keineSkriptfehler(page);
 });
 
-test('Grundstückspotenzial, ETW-Kaufcheck und Mieterhöhung rechnen wie js/beratung.js (D38)', async ({ page }) => {
+test('Grundstückspotenzial und ETW-Kaufcheck rechnen wie js/beratung.js (D38)', async ({ page }) => {
   await appOeffnen(page);
   await page.evaluate(() => wzOeffnen('grundstueck'));
   await eintragen(page, { grundstueck_grundstueck: '1.000', grundstueck_gfz: '0,8', grundstueck_verkaufM2: '5.000', grundstueck_baukostenM2: '3.000', grundstueck_bodenrichtwert: '300' });
@@ -131,13 +131,6 @@ test('Grundstückspotenzial, ETW-Kaufcheck und Mieterhöhung rechnen wie js/bera
   await expect(page.locator('#wz_etw_ergebnis')).toContainText('§ 43 GModG');
   await expect(page.locator('#wz_etw_ergebnis')).not.toContainText('GEG');
   await expect(page.locator('#wz_etw_ergebnis .wz-ampel').first()).toHaveClass(/wz-gelb/);
-  await page.evaluate(() => wzOeffnen('miete'));
-  await eintragen(page, { miete_wohnflaeche: '78', miete_miete: '640', miete_vergleichM2: '9,50', miete_zugang: '2026-10-15' });
-  await expect(page.locator('#wz_miete_ergebnis .subtotal')).toContainText('741 €');
-  await expect(page.locator('#wz_miete_ergebnis')).toContainText('1.1.2027');
-  await page.locator('#wz_miete_modus').selectOption('559');
-  await eintragen(page, { miete_kosten: '20.000', miete_erhaltung: '5.000', miete_drittmittel: '3.000' });
-  await expect(page.locator('#wz_miete_ergebnis .subtotal')).toContainText('80 €');
   await keineSkriptfehler(page);
 });
 
@@ -193,17 +186,17 @@ test('Gesamtsicherung enthält Übergabeprotokolle und Werkzeug-Eingaben und spi
   await appOeffnen(page); await arbeitsflaeche(page);
   await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz'));
   await page.evaluate(async () => { await projektSichern(); wzOeffnen('uebergabe'); await ubLaden(); ubNeu(); UB.aktiv.anschrift = 'Musterweg 3'; await ubSpeichernJetzt();
-    wzOeffnen('miete'); Object.assign(wzZustand('miete'), { wohnflaeche: '61' }); wzSpeichernJetzt(); wzSchliessen(); });
+    wzOeffnen('etw'); Object.assign(wzZustand('etw'), { wohnflaeche: '61' }); wzSpeichernJetzt(); wzSchliessen(); });
   const [dl] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => pjAlleSichern())]);
   const text = await (await dl.createReadStream()).toArray().then(t => Buffer.concat(t).toString('utf8'));
   const d = JSON.parse(text);
-  expect(d.protokolle.length).toBe(1); expect(d.werkzeuge.miete.wohnflaeche).toBe('61');
+  expect(d.protokolle.length).toBe(1); expect(d.werkzeuge.etw.wohnflaeche).toBe('61');
   const ctx = await browser.newContext(); const p2 = await ctx.newPage(); const m2 = dialoge(p2);
   await appOeffnen(p2);
   await p2.evaluate(t => pjSicherungAusText(t), text);
   await expect.poll(() => m2.join('|')).toContain('Übergabeprotokolle: 1');
   expect(await p2.evaluate(async () => (await iaAlle('protokolle'))[0].anschrift)).toBe('Musterweg 3');
-  expect(await p2.evaluate(() => wzZustand('miete').wohnflaeche)).toBe('61');
+  expect(await p2.evaluate(() => wzZustand('etw').wohnflaeche)).toBe('61');
   // fremde Datei darf keine Prototypen verändern
   await p2.evaluate(() => wzEinspielen(JSON.parse('{"__proto__":{"boese":1},"x":{"constructor":{"prototype":{"boese":1}}}}')));
   expect(await p2.evaluate(() => ({}).boese)).toBeUndefined();

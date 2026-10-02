@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die acht Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die sieben Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Acht Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
+Sieben Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
 - **Beim Kunden ablegen:** schreibt eine kurze Zusammenfassung als Gesprächsnotiz in die Kundenakte.
@@ -142,7 +142,8 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
     vom Letztversterbenden gibt es nur einen Freibetrag je Kind.
   - Frühere Schenkungen der letzten 10 Jahre werden zusammengerechnet; die Steuer auf die neue Schenkung allein ist
     die Untergrenze (Mindeststeuer).
-  - Der Vervielfältiger lässt sich aus der BMF-Tabelle des Jahres eintragen (für 2026: BMF-Schreiben vom 21.10.2025).
+  - Der Vervielfältiger für Nießbrauch und Wohnrecht kommt für 2026 aus der eingebauten BMF-Tabelle (BMF-Schreiben vom
+    21.10.2025); für spätere Jahre rechnet die App nach demselben Verfahren, den Tabellenwert kannst du eintragen.
   - Orientierung mit den gesetzlichen Tarifen zur Vorbereitung des Gesprächs mit Steuerberatung und Notar — keine
     Steuerberatung.
 - **Wohnen im Alter:** Alter (eine oder zwei Personen), Verkehrswert, ortsübliche Miete. Die Karten zeigen sechs Wege:
@@ -171,10 +172,6 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   Risiken, zwölf Unterlagen zum Abhaken. Ergebnis: Ampel, Anteile der Wohnung, Vergleich mit der Peters'schen Formel und
   Erneuerungsbedarf der Heizung. Seit dem Gebäudemodernisierungsgesetz (29.07.2026) gibt es keine Austauschpflicht für alte
   Kessel mehr; neue Öl- und Gasheizungen brauchen ab 2029 steigende Anteile klimafreundlicher Brennstoffe (§ 43 GModG).
-- **Mieterhöhung:** drei Rechnungen.
-  - Anpassung an die Vergleichsmiete: Kappungsgrenze, Fristen und Hinweis, wenn es zu früh ist.
-  - Modernisierungsumlage: 8 %, Erhaltung, Fördermittel, vereinfachtes Verfahren, Kappung.
-  - Neuvermietung mit Mietpreisbremse.
 - **Wertmonitor:** Oben die Preisindexreihe des Marktes eintragen — Jahreswerte aus dem Grundstücksmarktbericht des
   Gutachterausschusses oder dem Häuserpreisindex, getrennt für Häuser und Wohnungen.
   - Jede gesicherte Bewertung wird damit auf heute fortgeschrieben: Wert × Index heute / Index im Jahr des Stichtags.

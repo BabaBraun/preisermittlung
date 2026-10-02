@@ -5,7 +5,6 @@
    - Übergeben & Vererben: ErbStG §§ 10, 13, 13d, 14, 15, 16, 19, 22; BewG §§ 14, 16
    - Wohnen im Alter: Barwert von Leibrenten nach Sterbetafel (Statistisches Bundesamt), monatlich vorschüssig, Kredit mit Grundschuld,
      Gleichverteilung der Sterbefälle im Jahr; zwei Personen: Rente bis zum Tod des Letztversterbenden
-   - Mieterhöhung: BGB §§ 556d–556f, 558, 558b, 559, 559a, 559b, 559c
    - Grundstückspotenzial: Bauträgerkalkulation (Residualwert); als Bodenwert nur deduktiv nach § 40 Abs. 3 ImmoWertV
    - ETW-Kaufcheck: Peters'sche Formel (Instandhaltung), Heizung nach GModG §§ 42a, 43 und VDI 2067 (Nutzungsdauer)
    - Mein Jahr: Provision bei Halbteilung, § 656c BGB */
@@ -57,26 +56,39 @@ function erbstSteuer(erwerb,klasse){
     if(grenze<steuer-1e-9){ steuer=grenze; haerte=true; } }
   return {erwerb:e,satz:p*100,steuer:Math.floor(steuer+1e-9),haerteausgleich:haerte};
 }
-/* Vervielfältiger einer lebenslänglichen Nutzung (§ 14 Abs. 1 BewG): Sterbetafel des Statistischen Bundesamts,
-   5,5 % Zins, Mittelwert aus jährlich vorschüssiger und nachschüssiger Zahlung = a(x) + 0,5; vollendetes Lebensalter.
-   Das Finanzamt nimmt die vom BMF veröffentlichte Tabelle des Bewertungsjahres — sie kann auf einer älteren
-   Sterbetafel beruhen; deshalb lässt die Oberfläche den Tabellenwert eintragen. */
-function vervielfaeltigerBewG(alter,g,tafel){
-  const t=tafelFuer(g,tafel); if(!t||!(alter>=0)||!Number.isFinite(+alter)) return 0;
-  const x=Math.min(Math.floor(alter),t.lx.length-1), v=1/1.055;
-  let a=0, vt=1;
-  for(let k=1;k<=200;k++){ vt*=v; const term=vt*lx(t,x+k)/lx(t,x); a+=term; if(term<1e-12) break; }
-  return Math.round((a+0.5)*1000)/1000;
+/* Vervielfältiger einer lebenslänglichen Nutzung (§ 14 Abs. 1 BewG). Das BMF rechnet ihn als Barwert einer Zeitrente über die
+   durchschnittliche Lebenserwartung der Sterbetafel (vollendetes Lebensalter), 5,5 % Zins, Mittelwert aus jährlich vorschüssiger
+   und nachschüssiger Zahlung; alle 202 Werte der Tabelle 2026 lassen sich so aus der dort genannten Lebenserwartung exakt
+   nachrechnen (Test). Für Stichtage 2026 gilt die eingebaute Tabelle des BMF-Schreibens vom 21.10.2025 (Sterbetafel 2022/2024);
+   für andere Jahre rechnet die App nach demselben Verfahren mit der Lebenserwartung der eingebauten Sterbetafel — maßgeblich
+   bleibt die BMF-Tabelle des jeweiligen Jahres (Wert eintragbar). */
+const BMF_VERVIELFAELTIGER={
+  2026:{quelle:'BMF-Schreiben vom 21.10.2025 (IV D 4 - S 3104/00002/013/003), Sterbetafel 2022/2024',
+    m:[18.402,18.391,18.375,18.359,18.341,18.322,18.303,18.282,18.26,18.237,18.213,18.187,18.16,18.132,18.101,18.07,18.037,18.002,17.965,17.926,17.886,17.843,17.799,17.751,17.701,17.649,17.593,17.535,17.473,17.409,17.34,17.269,17.193,17.113,17.03,16.942,16.85,16.753,16.652,16.545,16.434,16.317,16.193,16.065,15.93,15.788,15.64,15.485,15.323,15.155,14.977,14.794,14.605,14.406,14.199,13.983,13.762,13.533,13.293,13.048,12.798,12.538,12.272,12.002,11.725,11.444,11.155,10.86,10.561,10.251,9.938,9.619,9.293,8.96,8.627,8.282,7.936,7.586,7.23,6.868,6.509,6.158,5.798,5.441,5.089,4.743,4.411,4.086,3.778,3.496,3.234,2.984,2.764,2.566,2.393,2.226,2.076,1.951,1.843,1.771,1.68],
+    w:[18.465,18.456,18.443,18.43,18.417,18.402,18.387,18.371,18.354,18.336,18.317,18.297,18.276,18.254,18.23,18.206,18.18,18.152,18.124,18.093,18.062,18.028,17.992,17.955,17.915,17.873,17.829,17.783,17.735,17.683,17.629,17.572,17.511,17.448,17.382,17.312,17.238,17.16,17.078,16.993,16.903,16.808,16.709,16.604,16.494,16.379,16.258,16.13,15.997,15.856,15.711,15.557,15.398,15.23,15.054,14.873,14.68,14.481,14.273,14.058,13.832,13.601,13.359,13.108,12.849,12.583,12.306,12.02,11.725,11.421,11.107,10.78,10.447,10.105,9.754,9.393,9.022,8.648,8.271,7.885,7.49,7.1,6.703,6.305,5.908,5.512,5.133,4.765,4.418,4.086,3.77,3.48,3.217,2.975,2.764,2.558,2.384,2.226,2.094,1.987,1.897]}
+};
+function zeitrenteBewG(n){ n=Math.max(0,+n||0); const an=(1-Math.pow(1/1.055,n))/0.055; return Math.round(an*(1+1.055)/2*1000)/1000; }
+function vervielfaeltigerBewG(alter,g,tafel,jahr){
+  if(!(alter>=0)||!Number.isFinite(+alter)) return 0;
+  const x=Math.min(Math.floor(alter),100), tab=BMF_VERVIELFAELTIGER[jahr||new Date().getFullYear()];
+  if(tab) return tab[g==='m'?'m':'w'][x];
+  const t=tafelFuer(g,tafel); if(!t) return 0;
+  return zeitrenteBewG(Math.round(t.ex[Math.min(x,t.ex.length-1)]*100)/100);   // Lebenserwartung wie das BMF auf zwei Stellen
+}
+function vervielfaeltigerQuelle(jahr,tafel){
+  const tab=BMF_VERVIELFAELTIGER[jahr||new Date().getFullYear()], T=tafel||Tafel;
+  return tab?'BMF-Tabelle: '+tab.quelle:'nach dem Verfahren des BMF berechnet aus der Sterbetafel '+(T&&T.zeitraum||'')+' — maßgeblich ist die BMF-Tabelle des Jahres';
 }
 /* Kapitalwert von Nießbrauch oder Wohnrecht: Jahreswert höchstens Steuerwert / 18,6 (§ 16 BewG); bei zwei Berechtigten,
    wenn das Recht mit dem Tod des Letztversterbenden erlischt, gilt der höchste Vervielfältiger (§ 14 Abs. 3 BewG) */
 function kapitalwertNutzung(o){
   const steuerwert=pos(o.steuerwert), roh=pos(o.jahreswert), grenze=steuerwert>0?steuerwert/18.6:roh;
   const jahreswert=Math.min(roh,grenze);
-  const vs=(o.personen||[]).filter(p=>p&&zahl(p.alter)>0).map(p=>vervielfaeltigerBewG(zahl(p.alter),p.g,o.tafel));
+  const vs=(o.personen||[]).filter(p=>p&&zahl(p.alter)>0).map(p=>vervielfaeltigerBewG(zahl(p.alter),p.g,o.tafel,o.jahr));
   const manuell=pos(o.vManuell);
   const v=manuell>0?manuell:(vs.length?(o.erstVersterbend?Math.min(...vs):Math.max(...vs)):0);
-  return {jahreswert,begrenzt:roh>jahreswert+1e-9,vervielfaeltiger:v,vervielfaeltigerBerechnet:vs,kapitalwert:jahreswert*v};
+  return {jahreswert,begrenzt:roh>jahreswert+1e-9,vervielfaeltiger:v,vervielfaeltigerBerechnet:vs,kapitalwert:jahreswert*v,
+    quelle:manuell>0?'eingetragen':vervielfaeltigerQuelle(o.jahr,o.tafel)};
 }
 /* Steuerfreier Anteil des Familienheims (§ 13 Abs. 1 Nr. 4a, 4b, 4c ErbStG) */
 function familienheimFrei(art,verh,selbstnutzung,wohnflaeche){
@@ -111,7 +123,7 @@ function uebertragung(e,tafel){
   const ua=e.uebertragAnteil==null||e.uebertragAnteil===''?1:anteil(e.uebertragAnteil);
   const wert=pos(e.wert)*ua;
   const vorbehalt=art==='schenkung'&&['niessbrauch','wohnrecht'].includes(e.vorbehalt)?e.vorbehalt:'keiner';
-  const recht=vorbehalt!=='keiner'?kapitalwertNutzung({steuerwert:wert,jahreswert:pos(e.jahreswert)*ua,personen:e.personen,vManuell:e.vManuell,tafel}):null;
+  const recht=vorbehalt!=='keiner'?kapitalwertNutzung({steuerwert:wert,jahreswert:pos(e.jahreswert)*ua,personen:e.personen,vManuell:e.vManuell,tafel,jahr:e.jahr}):null;
   const K=recht?recht.kapitalwert:0;
   const schenker=art==='schenkung'&&e.zweiSchenker?2:1;
   const liste=(e.empfaenger||[]).filter(r=>r&&anteil(r.anteil)>0);
@@ -185,50 +197,9 @@ function verrentung(o,tafel){
   return {n,fLeben,fGarantie,wohnrecht,wertEnde,auszahlung,rente,wege};
 }
 
-/* ========== Mieterhöhung ========== */
-const iso=d=>d instanceof Date&&!isNaN(d)?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):'';
+/* ========== Datumshilfen ========== */
 const datum=s=>{ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||'')); return m?new Date(+m[1],+m[2]-1,+m[3]):null; };
-const monatsErster=(d,plus)=>new Date(d.getFullYear(),d.getMonth()+plus,1);
-const monatsLetzter=(d,plus)=>new Date(d.getFullYear(),d.getMonth()+plus+1,0);
 function plusMonate(d,m){ const r=new Date(d.getFullYear(),d.getMonth()+m,d.getDate()); if(r.getDate()!==d.getDate()) r.setDate(0); return r; }
-/* § 558 BGB: bis zur ortsüblichen Vergleichsmiete, Kappungsgrenze 20 % (15 % in Gebieten nach Landesverordnung) in drei
-   Jahren ohne Erhöhungen nach §§ 559–560; Wirkung ab Beginn des dritten Kalendermonats nach Zugang (§ 558b Abs. 1),
-   Zustimmungsfrist bis Ende des zweiten Kalendermonats (§ 558b Abs. 2); Miete seit 15 Monaten unverändert und
-   Verlangen frühestens ein Jahr nach der letzten Erhöhung (§ 558 Abs. 1) */
-function mieterhoehung558(o){
-  const wfl=pos(o.wohnflaeche), alt=pos(o.miete), vor3=pos(o.mieteVor3)>0?pos(o.mieteVor3):alt, vgl=pos(o.vergleichM2)*wfl;
-  const kappung=o.kappung15?0.15:0.2, kappGrenze=vor3*(1+kappung);
-  const ziel=Math.min(vgl,kappGrenze), neu=Math.max(alt,ziel);
-  const zugang=datum(o.zugang), letzte=datum(o.letzteErhoehung);
-  const wirksam=zugang?monatsErster(zugang,3):null, zustimmungBis=zugang?monatsLetzter(zugang,2):null, klageBis=zugang?monatsLetzter(zugang,5):null;
-  const sperre=letzte?plusMonate(letzte,12):null, unveraendertAb=letzte?plusMonate(letzte,15):null;
-  const fristOk=!letzte||!zugang||(zugang>=sperre&&wirksam>=unveraendertAb);
-  const begrenzt=vgl>kappGrenze+1e-9?'kappung':(vgl<=alt+1e-9?'vergleichsmiete':'');
-  return {wohnflaeche:wfl,alt,vergleichsmiete:vgl,kappungProzent:kappung*100,kappGrenze,neu,erhoehung:neu-alt,prozent:alt>0?(neu-alt)/alt*100:0,
-    neuM2:wfl>0?neu/wfl:0,altM2:wfl>0?alt/wfl:0,begrenzt,wirksam:iso(wirksam),zustimmungBis:iso(zustimmungBis),klageBis:iso(klageBis),
-    fruehesterZugang:letzte?iso(sperre>monatsErster(unveraendertAb,-3)?sperre:monatsErster(unveraendertAb,-3)):'',fristOk};
-}
-/* § 559 BGB: 8 % der für die Wohnung aufgewendeten Kosten jährlich, ohne Erhaltungsanteil (Abs. 2) und Drittmittel
-   (§ 559a); vereinfachtes Verfahren bis 10.000 € mit 30 % Erhaltungspauschale (§ 559c); Kappung in sechs Jahren
-   3 €/m², bei Miete unter 7 €/m² 2 €/m² (§ 559 Abs. 3a); Wirkung ab Beginn des dritten Monats nach Zugang, sechs Monate
-   später ohne ordnungsgemäße Ankündigung (§ 559b Abs. 2) */
-function modernisierung559(o){
-  const wfl=pos(o.wohnflaeche), alt=pos(o.miete), kosten=pos(o.kosten), vereinfacht=!!o.vereinfacht&&kosten<=10000;
-  const erhaltung=vereinfacht?0.3*kosten:Math.min(pos(o.erhaltung),kosten), dritt=Math.min(pos(o.drittmittel),kosten-erhaltung);
-  const umlage=Math.max(0,kosten-erhaltung-dritt), jahr=umlage*0.08, monat=jahr/12;
-  const altM2=wfl>0?alt/wfl:0, grenzeM2=altM2>0&&altM2<7?2:3, schon=pos(o.bisherM2);
-  const kappMonat=Math.max(0,(grenzeM2-schon)*wfl), erhoehung=wfl>0?Math.min(monat,kappMonat):monat;
-  const zugang=datum(o.zugang), wirksam=zugang?monatsErster(zugang,3+(o.angekuendigt===false?6:0)):null;
-  return {kosten,erhaltung,drittmittel:dritt,umlagefaehig:umlage,jahr,monatRoh:monat,grenzeM2,kappMonat,erhoehung,gekappt:erhoehung<monat-1e-9,
-    neu:alt+erhoehung,neuM2:wfl>0?(alt+erhoehung)/wfl:0,vereinfacht,wirksam:iso(wirksam),zuVielFuerVereinfacht:!!o.vereinfacht&&kosten>10000};
-}
-/* § 556d BGB: Wiedervermietung in Gebieten mit Mietpreisbremse höchstens 10 % über der Vergleichsmiete; höhere Vormiete
-   bleibt zulässig (§ 556e); nicht bei Neubau oder erster Vermietung nach umfassender Modernisierung (§ 556f) */
-function mietpreisbremse(o){
-  const wfl=pos(o.wohnflaeche), grenze=pos(o.vergleichM2)*wfl*1.1, vormiete=pos(o.vormiete);
-  if(o.ausnahme) return {gilt:false,grenze:0,hoechst:0};
-  return {gilt:true,grenze,hoechst:Math.max(grenze,vormiete),vormieteHoeher:vormiete>grenze};
-}
 
 /* ========== Grundstückspotenzial (Residualwert) ========== */
 /* Was kann ein Bauträger für das Grundstück zahlen? Erlös − Baukosten − Nebenkosten − Finanzierung − Vermarktung −
@@ -321,9 +292,9 @@ function pipeline(objekte,e){
   return {jahr,zeilen,phasen,realisiert,offen,prognose:realisiert+offen,ziel,zielQuote:ziel>0?(realisiert+offen)/ziel*100:null,realisiertQuote:ziel>0?realisiert/ziel*100:null,herkunft};
 }
 
-const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,vervielfaeltigerBewG,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
-  ueberleben,rentenfaktor,lebenserwartung,verrentung,mieterhoehung558,modernisierung559,mietpreisbremse,residualwert,residualSpanne,
-  petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,iso,plusMonate};
+const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
+  ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
+  petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

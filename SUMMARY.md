@@ -1,3 +1,10 @@
+# Zusammenfassung — Kacheln gegen die Quellen geprüft (2026-10-03)
+
+Alle Rechtsgrundlagen am Wortlaut geprüft. Korrigiert: Heizung nach dem Gebäudemodernisierungsgesetz (seit 29.07.2026 statt
+GEG), Mindeststeuer § 14 Abs. 1 Satz 4 ErbStG, Vervielfältiger nach der BMF-Tabelle 2026 (vorher rund 5 % zu niedrig),
+Wertmonitor mit Preisindexreihe statt Baupreisindex, Kredit als Weg in „Wohnen im Alter“, Grundstückspotenzial als
+Bauträgerkalkulation. Die Kachel „Mieterhöhung“ ist entfernt, „Mein Jahr“ bleibt (D38, Nachträge).
+
 # Zusammenfassung — Beratung & Werkzeuge: acht neue Kacheln (2026-10-02)
 
 Neue Kacheln auf der Startseite und unter „Mehr“: Übergeben & Vererben (Schenkung oder Erbe mit Nießbrauch, Freibeträgen,

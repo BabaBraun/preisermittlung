@@ -45,7 +45,7 @@ function erbZeichnen(S){
     +(schenkung?wzBox('Vorbehalt der Schenkenden','<div class="grid">'
       +wzFeld('vorbehalt','Recht',{typ:'wahl',zeichnen:true,optionen:[['keiner','kein Vorbehalt'],['niessbrauch','Nießbrauch (weiter wohnen oder vermieten)'],['wohnrecht','Wohnrecht']]})
       +(S.vorbehalt!=='keiner'?wzFeld('jahreswert','Jahreswert',{typ:'betrag',einheit:'€/Jahr',hinweis:S.vorbehalt==='niessbrauch'?'Jahresmiete (ortsüblich) abzüglich der Kosten, die die Schenkenden tragen':'Mietwert der genutzten Räume im Jahr'}):'')
-      +(S.vorbehalt!=='keiner'?wzFeld('vManuell','Vervielfältiger laut BMF-Tabelle',{typ:'zahl',hinweis:'leer = aus der Sterbetafel berechnet'}):'')
+      +(S.vorbehalt!=='keiner'?wzFeld('vManuell','Vervielfältiger von Hand',{typ:'zahl',hinweis:'leer = BMF-Tabelle 2026 (eingebaut), in anderen Jahren nach dem BMF-Verfahren berechnet'}):'')
       +'</div>'):'')
     +wzBox(schenkung?'Schenkende / Berechtigte':'Für den Vergleich','<div class="grid">'+wzFeld('zweiPersonen','zwei Personen (Recht erlischt mit dem Tod des Letztversterbenden)',{typ:'check',voll:true,zeichnen:true})+'</div>'+personen
       +(schenkung?'<div class="grid">'+wzFeld('jahre','Jahre bis zum Erbfall',{typ:'zahl',ph:'Lebenserwartung',hinweis:'leer = Lebenserwartung nach Sterbetafel'})
@@ -61,7 +61,7 @@ function erbHinweise(S){
   return ['Orientierungsrechnung mit den gesetzlichen Tarifen zur Vorbereitung des Gesprächs mit Steuerberatung und Notar — keine Hilfeleistung in Steuersachen (§ 5 StBerG). Die konkrete Gestaltung gehört zu Steuerberatung und Notar.',
     'Das Finanzamt bewertet nach §§ 176 ff. BewG; ist der Verkehrswert nachweislich niedriger (Gutachten), gilt dieser (§ 198 BewG).',
     'Freibeträge (§ 16 ErbStG) gelten je Schenker und Empfänger und alle 10 Jahre neu; frühere Schenkungen innerhalb von 10 Jahren werden zusammengerechnet. Die Steuer auf den neuen Erwerb allein ist dabei die Untergrenze (§ 14 Abs. 1 Satz 4 ErbStG).',
-    'Nießbrauch und Wohnrecht: Kapitalwert = Jahreswert × Vervielfältiger (§ 14 Abs. 1 BewG, 5,5 %, Sterbetafel), Jahreswert höchstens Wert / 18,6 (§ 16 BewG). Endet das Recht durch frühen Tod, wird auf Antrag berichtigt (§ 14 Abs. 2 BewG). Die App rechnet nach diesem Verfahren mit der Sterbetafel '+(window.ImmoSterbetafel?ImmoSterbetafel.zeitraum:'')+'; das Finanzamt nimmt die BMF-Tabelle des Bewertungsjahres (Stichtage 2026: BMF-Schreiben vom 21.10.2025, Sterbetafel 2022/2024) — den Tabellenwert eintragen.',
+    'Nießbrauch und Wohnrecht: Kapitalwert = Jahreswert × Vervielfältiger (§ 14 Abs. 1 BewG, 5,5 %, Sterbetafel), Jahreswert höchstens Wert / 18,6 (§ 16 BewG). Endet das Recht durch frühen Tod, wird auf Antrag berichtigt (§ 14 Abs. 2 BewG). Für Stichtage 2026 ist die Tabelle des BMF-Schreibens vom 21.10.2025 eingebaut; für spätere Jahre rechnet die App nach demselben Verfahren (Zeitrente über die Lebenserwartung der Sterbetafel '+(window.ImmoSterbetafel?ImmoSterbetafel.zeitraum:'')+') — maßgeblich ist die BMF-Tabelle des jeweiligen Jahres.',
     'Familienheim: Schenkung an den Ehegatten steuerfrei (§ 13 Abs. 1 Nr. 4a). Beim Erbe steuerfrei für den Ehegatten (4b) und für Kinder bis 200 m² Wohnfläche (4c) — nur, wenn der Erblasser selbst darin gewohnt hat und der Erbe unverzüglich einzieht und 10 Jahre selbst wohnt; sonst entfällt die Befreiung rückwirkend.',
     'Zu Wohnzwecken vermietet: 10 % des Werts steuerfrei (§ 13d ErbStG). Versorgungsfreibetrag beim Erbe (§ 17 ErbStG) ist hier nicht berücksichtigt.',
     'Grunderwerbsteuer: Schenkung und Erbe sind befreit (§ 3 Nr. 2 GrEStG), zwischen Ehegatten und Verwandten in gerader Linie auch ein entgeltlicher Teil (§ 3 Nr. 4 und 6 GrEStG).'];
@@ -87,7 +87,7 @@ function erbRechnen(S){
   wzT('wz_erbe_anteile',Math.abs(summe-100)>0.01&&summe>0?'Die Anteile ergeben zusammen '+wzZ(summe,0)+' % — gerechnet wird mit den eingetragenen Anteilen.':'');
   if(!(E.wert>0)){ wzH('wz_erbe_ergebnis','<p class="hint" style="margin:0">Wert der Immobilie eintragen (oder „Aus Bewertung“).</p>'); wzH('wz_erbe_vergleich',''); return; }
   let recht=r.recht?'<div class="row-calc"><span>'+(r.vorbehalt==='niessbrauch'?'Nießbrauch':'Wohnrecht')+': Jahreswert '+wzEur(r.recht.jahreswert)+(r.recht.begrenzt?' (begrenzt auf Wert / 18,6)':'')+' × Vervielfältiger '+wzZ(r.recht.vervielfaeltiger,3)+'</span><b>'+wzEur(r.recht.kapitalwert)+'</b></div>'
-    +(r.recht.vervielfaeltiger>0?'':'<p class="hint">Alter der Berechtigten eintragen — ohne Alter kein Abzug.</p>'):'';
+    +(r.recht.vervielfaeltiger>0?'<p class="hint wz-quelle">Vervielfältiger: '+sEsc(r.recht.quelle)+'</p>':'<p class="hint">Alter der Berechtigten eintragen — ohne Alter kein Abzug.</p>'):'';
   wzH('wz_erbe_ergebnis',(r.art==='schenkung'?'<div class="row-calc"><span>Übertragen</span><b>'+wzEur(r.wert)+'</b></div>':'')+recht+erbTabelle(r)
     +(r.steuer===0?'<p class="hint wz-gut">Keine Steuer — die Freibeträge reichen.</p>':''));
   if(r.art==='schenkung') erbVergleich(S,r);
