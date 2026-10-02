@@ -1,3 +1,10 @@
+# Zusammenfassung — Foto an der Feststellung, fehlende Bauteile, Prüfhinweise, Vergleichswert im Beleihungswert (2026-10-02)
+
+Feststellungen im Aufnahmebogen mit Foto, im Bericht beieinander; Bauteile mit „fehlt“ zählen mit Kostenanteil 0 (wie
+der Vordruck der Bank); Plausibilisierung und Gegenproben aus dem Aufnahmebogen in den Prüfhinweisen; Vergleichswert im
+Beleihungswert nach § 19 BelWertV (Abschlag mind. 10 %), auch als Kontrollwert nach § 4. Ohne neue Eingaben ändert sich
+keine Zahl. Baupreisindex August 2026 noch nicht veröffentlicht (D37).
+
 # Zusammenfassung — Raumliste zu den Flächen, Wohnfläche änderbar, Sonstiges (2026-10-02)
 
 Grundrisse und Raumliste stehen unter „Allgemeine Angaben“ hinter „Flächen & Baujahr“; die Wohnfläche übernimmt die

@@ -128,3 +128,19 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
 - Tests: neue Fälle `haus_merkmale_zuschlag_als_art` und `haus_merkmale_ausgeschaltet` der Python-Vergleichsrechnung,
   `tests/unit/referenz.test.mjs` (Zuschlag als Art = früherer negativer Betrag), Browsertests der neuen Gliederung.
 
+
+## 12. Vergleichswert im Beleihungswert, fehlende Bauteile — nur neue Felder und ein Hinweistext (2026-10-02)
+
+- Quelle: BelWertV § 19 Abs. 1 (Vergleichswert mit Sicherheitsabschlag von mindestens 10 %), § 4 Abs. 1 und 2
+  (Vergleichswert statt Sachwert als Kontrollwert bei Ein- und Zweifamilienhäusern und Wohnungseigentum,
+  Orientierung bei Eignung zur Eigennutzung); fehlende Bauteile: Vordruck der Bank / Jahresbewertung (D24) —
+  Kostenanteil 0, die übrigen Anteile werden nicht hochgerechnet; D37.
+- Keine Zahl der zehn Vergleichsfälle ändert sich (maschinell verglichen): Keiner hat einen Vergleichswert im
+  Beleihungswert eingetragen oder ein Bauteil als fehlend markiert.
+- Neu in `zahlen`: `bwVgl`, `bwVglSicherP` (10 — Mindestsatz), `bwVglSicherBetrag`, `bwVergleich` (0), `bwKontroll`
+  („sach“ — wie bisher). Neu in `texte`: `o_bw_vgl_sicher_p`, `o_bw_vgl_sicherbetrag`, `o_bw_vergleich`, `o_bw_e_vgl`.
+- Geändert (Fälle `leer` und `extremwerte`, `plTxt` / `o_pl_text`): „Wohn-/Nutzfläche in ① eintragen …“ →
+  „Wohn-/Nutzfläche unter „Allgemeine Angaben“ eintragen …“ — die Fläche steht seit D35 nicht mehr in ①.
+- Tests: `tests/unit/kern.test.mjs` (fehlende Bauteile), `tests/unit/modellkorrekturen.test.mjs` (Vergleichswert,
+  Mindestabschlag, Prüfungen nach § 4), neuer Fall `gewerbe_ohne_heizung_sanitaer` der Python-Vergleichsrechnung,
+  Browsertests (D37) in `tests/e2e/app-bedienung.spec.mjs`.

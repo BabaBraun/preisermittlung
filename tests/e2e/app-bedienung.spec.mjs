@@ -323,3 +323,86 @@ test('Nummern der Blöcke ohne Lücke, auch wenn der Abschnitt beim Nummerieren 
   expect(au.map(t=>t.split(' ')[0]),vordruck).toEqual(Array.from({length:anzahlAu},(x,i)=>'2.'+(i+1)));
  }
 });
+/* ---------- D37: Foto an der Feststellung, fehlende Bauteile, Prüfhinweise, Vergleichswert im Beleihungswert ---------- */
+test('Feststellung mit Foto: Foto bei der Feststellung im Bericht, nicht doppelt unter den Schadensfotos (D37)',async({page})=>{
+ page.on('dialog',d=>d.accept());
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);});
+ await page.getByRole('button',{name:'Feststellung mit Foto'}).click();
+ await page.locator('#au_fest_liste textarea').first().fill('Feuchtefleck Kellerwand Nordseite');
+ const wahl=page.waitForEvent('filechooser');
+ await page.locator('#au_fest_liste button',{hasText:'Foto'}).first().click();
+ await (await wahl).setFiles({name:'mangel.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64')});
+ await expect.poll(()=>page.evaluate(()=>PHOTOS.filter(p=>p.fest).length)).toBe(1);
+ await expect(page.locator('#au_fest_liste img')).toHaveCount(1);
+ expect(await page.evaluate(()=>PHOTOS.find(p=>p.fest).caption)).toBe('Feuchtefleck Kellerwand Nordseite');
+ // Text nachträglich ergänzt: Die Bildunterschrift folgt (auch in der Fotodokumentation), das Textfeld behält den Fokus
+ const feld=page.locator('#au_fest_liste textarea').first();
+ await feld.fill('Feuchtefleck Kellerwand Nordseite, ca. 1 m²');
+ await expect(feld).toBeFocused();
+ const fotoId=await page.evaluate(()=>PHOTOS.find(p=>p.fest).id);
+ await expect(page.locator('#gal_schaden .photo[data-foto="'+fotoId+'"] input')).toHaveValue('Feuchtefleck Kellerwand Nordseite, ca. 1 m²');
+ // selbst geänderte Bildunterschrift bleibt
+ await page.locator('#gal_schaden .photo[data-foto="'+fotoId+'"] input').fill('Wasserschaden Keller');
+ await feld.fill('Feuchtefleck Kellerwand Nordseite');
+ expect(await page.evaluate(()=>PHOTOS.find(p=>p.fest).caption)).toBe('Wasserschaden Keller');
+ await page.evaluate(()=>druckbericht());
+ await expect(page.locator('#report')).toContainText('Feststellungen mit Foto');
+ await expect(page.locator('#report .fest-bericht img')).toHaveCount(1);
+ await expect(page.locator('#report .fest-bericht figcaption')).toHaveText('Wasserschaden Keller');   // eigene Bildunterschrift
+ await expect(page.locator('#report h3',{hasText:'Schadensfotos'})).toHaveCount(0);
+ await page.evaluate(()=>document.body.classList.remove('report-mode'));
+ await page.locator('#au_fest_liste button[aria-label="Feststellung entfernen"]').first().click();
+ expect(await page.evaluate(()=>[auFestDaten().length,PHOTOS.filter(p=>p.fest).length])).toEqual([0,0]);
+ await keineSkriptfehler(page);
+});
+test('Fehlende Bauteile: Haken „fehlt“ setzt den Kostenanteil auf 0, auch aus dem Aufnahmebogen (D37)',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);for(let i=0;i<9;i++){$('nhkhg_s'+i).value='3';$('nhkhg_f'+i).checked=false;}compute();});
+ const vorher=await page.evaluate(()=>_MODELL_DETAIL.nhkHG.nhk);
+ await page.locator('#nhkhg_f7').check();   // Heizung fehlt
+ expect(await page.evaluate(()=>_MODELL_DETAIL.nhkHG.nhk)).toBeCloseTo(vorher*(1-0.09),6);
+ await expect(page.locator('#nhkhg_k7')).toHaveText('0,00 (fehlt)');
+ await page.locator('#au_std6').selectOption('f');   // Sanitär fehlt laut Aufnahmebogen
+ await expect(page.locator('#nhkhg_f6')).toBeChecked();
+ expect(await page.evaluate(()=>_MODELL_DETAIL.nhkHG.nhk)).toBeCloseTo(vorher*(1-0.09-0.09),6);
+ await page.locator('#au_std6').selectOption('3');   // doch vorhanden
+ await expect(page.locator('#nhkhg_f6')).not.toBeChecked();
+ await keineSkriptfehler(page);
+});
+test('Prüfhinweise: Plausibilisierung und Gegenproben aus dem Aufnahmebogen in einer Liste (D37)',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,SZENARIEN.find(s=>s.name==='haus_referenz'));
+ const texte=()=>page.evaluate(()=>plausiPruefen().map(h=>h.stufe+': '+h.text));
+ await page.evaluate(()=>{$('ek_typ').value='EFH freistehend · unterkellert, DG ausgebaut';$('ek_baujahr').value='1985';compute();});
+ const vorher=await texte();
+ expect(vorher.some(t=>/Plausibilisierung|Aufnahmebogen|Effizienzklasse/.test(t))).toBe(false);
+ await page.evaluate(()=>{ $('pl_markt').value=String(Math.round(_R.eigenM2/1.3));
+  $('au_mod_j1').value='1970';$('au_mod_u1').value='voll';$('nhkhg_s2').value='2';
+  $('au_keller').value='nicht unterkellert';$('au_energiewert').value='145';$('au_energieklasse').value='B';compute(); });
+ const t=await texte();
+ expect(t.some(x=>/^fehler: Plausibilisierung: .*über dem Vergleichspreis/.test(x))).toBe(true);
+ expect(t.some(x=>/^fehler: „Fenster- und Außentürmodernisierung“ \(1970, Aufnahmebogen\) liegt vor dem Baujahr/.test(x))).toBe(true);
+ expect(t.some(x=>/vollständig erneuert.*Standardstufe für Außentüren und Fenster ist aber 2/.test(x))).toBe(true);
+ expect(t.some(x=>/laut Aufnahmebogen aber nicht unterkellert/.test(x))).toBe(true);
+ expect(t.some(x=>/Effizienzklasse B passt nicht zum Energiekennwert/.test(x))).toBe(true);
+ // Aufnahmebogen ausgeschaltet: seine Gegenproben entfallen, die Plausibilisierung bleibt
+ await page.evaluate(()=>{$('au_aus').checked=true;compute();});
+ const aus=await texte();expect(aus.some(x=>/Aufnahmebogen|Effizienzklasse/.test(x))).toBe(false);expect(aus.some(x=>/Plausibilisierung/.test(x))).toBe(true);
+ await keineSkriptfehler(page);
+});
+test('Beleihungswert: Vergleichswert nach § 19 BelWertV mit Sicherheitsabschlag, Übernahme aus der Bewertung (D37)',async({page})=>{
+ await appOeffnen(page);await fallAnwenden(page,{...SZENARIEN.find(s=>s.name==='etw_referenz'),});
+ await page.evaluate(()=>{appOpenObject();appAlleKlappen(true);});
+ await page.locator('#bw_aktiv').check();
+ await page.evaluate(()=>bwAusBewertung());
+ const vgl=await page.evaluate(()=>_R.vergleichWert);expect(vgl).toBeGreaterThan(0);
+ expect(await page.evaluate(()=>num('bw_vgl'))).toBe(Math.round(vgl));
+ await page.locator('#bw_vgl_sicher').fill('5');await page.locator('#bw_vgl_sicher').blur();
+ expect(await page.evaluate(()=>_R.bwVglSicherP)).toBe(10);   // mindestens 10 %
+ expect(await page.evaluate(()=>_R.bwVergleich)).toBeCloseTo(Math.round(vgl)*0.9,6);
+ await page.locator('#bw_ansatz').selectOption('vergleich');
+ expect(await page.evaluate(()=>[_R.bwAnsatz,_R.bwAusgang===_R.bwVergleich])).toEqual(['vergleich',true]);
+ await expect(page.locator('#o_bw_vergleich')).not.toHaveText('0 €');
+ await page.evaluate(()=>druckbericht());await expect(page.locator('#report')).toContainText('− Sicherheitsabschlag (§ 19 Abs. 1, 10,00 %)');
+ await keineSkriptfehler(page);
+});

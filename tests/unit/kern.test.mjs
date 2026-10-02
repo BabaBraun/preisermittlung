@@ -267,3 +267,15 @@ test('Mietertrag je Gebäude (D33): Anbau mit eigener Restnutzungsdauer, Handrec
   const p = K.pruefen(leser(Object.assign({}, basis, { er_miete_anbau: 20000 })), zuviel.R, zuviel.D, new Set(['er_miete_anbau']));
   assert.ok(p.hinweise.some(h => h.feld === 'er_miete_anbau' && /größer als der Rohertrag/.test(h.text)));
 });
+
+/* D37: fehlendes Bauteil — Kostenanteil 0 wie im Vordruck der Bank (Jahresbewertung, D24); keine Hochrechnung der übrigen */
+test('NHK: fehlende Bauteile (Heizung, Sanitär) tragen nichts bei — Handrechnung', () => {
+  const basis = { nhkhg_base: '615, 685, 785, 945, 1180' };
+  const alle3 = K.nhkRechnen(leser(basis), 'nhkhg', 2000, 0, 2026).detail;
+  nahe(assert, alle3.nhk, 785, 1e-9, 'alle Bauteile Stufe 3');
+  const ohne = K.nhkRechnen(leser({ ...basis, nhkhg_f6: true, nhkhg_f7: true }), 'nhkhg', 2000, 0, 2026).detail;
+  nahe(assert, ohne.nhk, 785 * (1 - 0.09 - 0.09), 1e-9, 'ohne Sanitär (0,09) und Heizung (0,09)');
+  assert.equal(ohne.k[6], 0); assert.equal(ohne.k[7], 0);
+  nahe(assert, ohne.k[0], 0.23 * 785, 1e-9, 'Außenwände unverändert');
+});
+

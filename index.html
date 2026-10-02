@@ -434,6 +434,12 @@
       <div class="flag" id="o_unterlagen_fehlt"></div>
 
       <h3>Feststellungen vor Ort</h3>
+      <p class="hint">Feststellung mit Foto: Mangel oder Auffälligkeit kurz beschreiben und mit „Foto“ gleich ein Bild aufnehmen —
+        im Bericht steht das Foto bei der Feststellung. Die Fotos erscheinen auch unter „Fotodokumentation“ als Schadensfotos.</p>
+      <div class="au-fest-liste" id="au_fest_liste"></div>
+      <input type="hidden" id="au_fest" value="">
+      <input type="file" id="au_fest_datei" accept="image/*" capture="environment" style="display:none" onchange="auFestFotos(this.files)">
+      <button type="button" class="plus no-print" onclick="auFestNeu()">＋ Feststellung mit Foto</button>
       <div class="grid">
         <div class="field full"><label>Mängel / Auffälligkeiten <span class="u">(Stichworte — Details unter „Objektdaten &amp; Beschreibung“)</span></label><textarea id="au_maengel" placeholder="z.B. Feuchtefleck Kellerwand Nordseite; Dachrinne undicht"></textarea></div>
         <div class="field full"><label>Sonstige Notizen</label><textarea id="au_notizen"></textarea></div>
@@ -1176,6 +1182,20 @@
         <div class="row-calc"><span>− Sicherheitsabschlag <span class="from" id="o_bw_sicher_p"></span></span><b id="o_bw_sicherbetrag">0 €</b></div>
         <div class="row-calc"><span>+ Bodenwert</span><b id="o_bw_boden2">0 €</b></div>
         <div class="subtotal"><span>Sachwert nach BelWertV</span><span id="o_bw_sachwert">0 €</span></div>
+
+        <h3>Vergleichswert nach BelWertV (§ 19)</h3>
+        <p class="hint">Aus nachhaltig erzielbaren Vergleichspreisen von Objekten, die in Lage, Ausstattung und Nutzung hinreichend
+          übereinstimmen (Kaufpreis- oder Marktdatensammlung), abzüglich eines Sicherheitsabschlags von mindestens 10 %.
+          Bei Ein- und Zweifamilienhäusern sowie Wohnungs- und Teileigentum anstelle des Sachwerts (§ 4 Abs. 1); beim Ein- und
+          Zweifamilienhaus als Ausgangswert nur mit mindestens fünf aktuellen Vergleichspreisen (§ 4 Abs. 2).</p>
+        <div class="grid">
+          <div class="field"><label>Vergleichswert <span class="u">€ vor Sicherheitsabschlag</span></label><input id="bw_vgl" type="text" value="0"></div>
+          <div class="field"><label>Anzahl Vergleichspreise</label><input id="bw_vgl_anzahl" type="text" value="0" inputmode="numeric"></div>
+          <div class="field"><label>Sicherheitsabschlag <span class="u">% — mind. 10</span></label><input id="bw_vgl_sicher" type="text" value="10"></div>
+          <div class="field"><label>Quelle der Vergleichspreise</label><input id="bw_vgl_quelle" placeholder="z. B. Kaufpreissammlung des Gutachterausschusses, eigene Marktdaten"></div>
+        </div>
+        <div class="row-calc"><span>− Sicherheitsabschlag <span class="from" id="o_bw_vgl_sicher_p"></span></span><b id="o_bw_vgl_sicherbetrag">0 €</b></div>
+        <div class="subtotal"><span>Vergleichswert nach BelWertV</span><span id="o_bw_vergleich">0 €</span></div>
         <div class="flag" id="bw_sicher_warn" style="display:none"></div>
 
         <h3>9c.4 · Ableitung des Beleihungswerts</h3>
@@ -1184,6 +1204,7 @@
             <select id="bw_ansatz" onchange="compute()">
               <option value="min">Niedrigerer aus Ertrags- und Sachwert (Regelfall, § 4 Abs. 1)</option>
               <option value="sach">Sachwertorientiert — EFH/ZFH/ETW, eigennutzungsgeeignet (§ 4 Abs. 2)</option>
+              <option value="vergleich">Vergleichswertorientiert — EFH/ZFH/ETW, eigennutzungsgeeignet (§ 4 Abs. 2)</option>
               <option value="ertrag">Ertragswert allein</option>
             </select></div>
           <div class="field"><label>Abschlag Besichtigung <span class="u">% — § 24</span></label>
@@ -1193,9 +1214,15 @@
               <option value="10">Ohne Innenbesichtigung — mind. 10 %</option>
             </select></div>
           <div class="field"><label>Weiterer Abschlag <span class="u">% (Begründung im Bericht)</span></label><input id="bw_abschlag" type="text" value="0"></div>
+          <div class="field"><label>Kontrollwert zum Ertragswert <span class="u">§ 4 Abs. 1</span></label>
+            <select id="bw_kontrollwert" onchange="compute()">
+              <option value="sach">Sachwert</option>
+              <option value="vergleich">Vergleichswert — nur EFH/ZFH und Wohnungseigentum</option>
+            </select></div>
         </div>
         <div class="row-calc"><span>Ertragswert</span><b id="o_bw_e_ertrag">0 €</b></div>
         <div class="row-calc"><span>Sachwert</span><b id="o_bw_e_sach">0 €</b></div>
+        <div class="row-calc"><span>Vergleichswert</span><b id="o_bw_e_vgl">0 €</b></div>
         <div class="row-calc"><span>Ausgangswert <span class="from" id="o_bw_ansatz_txt"></span></span><b id="o_bw_ausgang">0 €</b></div>
         <div class="row-calc"><span>− Abschläge <span class="from" id="o_bw_abschlag_p"></span></span><b id="o_bw_abschlag_betrag">0 €</b></div>
         <div class="subtotal" style="font-size:16px"><span>Beleihungswert</span><span id="o_beleihungswert">0 €</span></div>

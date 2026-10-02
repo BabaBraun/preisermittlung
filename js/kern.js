@@ -188,7 +188,9 @@ function nhkBasis(text){
 }
 function nhkRechnen(e,prefix,baujahr,punkte,jahr){
   let basis=nhkBasis(e.v(prefix+'_base')), nhk=0, k=[];
-  NHK_ELEMENTS.forEach((el,i)=>{ let s=e.n(prefix+'_s'+i)||3; let w=el[1]*interp(basis,s); k.push(w); nhk+=w; });
+  // fehlt ein Bauteil (z. B. keine Heizung), trägt es nichts bei — Kostenanteil 0 wie im Vordruck der Bank (D24, D37);
+  // die übrigen Wägungsanteile werden nicht hochgerechnet
+  NHK_ELEMENTS.forEach((el,i)=>{ let s=e.n(prefix+'_s'+i)||3; let w=e.an(prefix+'_f'+i)?0:el[1]*interp(basis,s); k.push(w); nhk+=w; });
   let gnd=e.n(prefix+'_gnd')||80;
   let alter=(baujahr>0)?Math.max(jahr-baujahr,0):0;
   let rndEingabe=e.n(prefix+'_rnd');
@@ -394,7 +396,7 @@ function bewerte(e,k){
   let vh=e.n('verhandlung')/100;
   // Beleihungswert nach BelWertV
   const bw=Modell.beleihung(e);
-  const {bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,beleihungswert}=bw.R;
+  const {bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,beleihungswert,bwVgl,bwVglSicherP,bwVglSicherBetrag,bwVergleich,bwKontroll}=bw.R;
   Object.assign(D,bw.D);
   // Plausibilisierung (Ergebnis €/m² gegen Marktbericht)
   let wf=e.n('ek_wohnflaeche');
@@ -403,7 +405,7 @@ function bewerte(e,k){
   let marktM2=e.n('pl_markt');
   let plAbw=(eigenM2>0&&marktM2>0)?(eigenM2-marktM2)/marktM2*100:null;
   let plTxt;
-  if(flaecheGes<=0) plTxt='Wohn-/Nutzfläche in ① eintragen, damit der Preis je m² berechnet werden kann.';
+  if(flaecheGes<=0) plTxt='Wohn-/Nutzfläche unter „Allgemeine Angaben“ eintragen, damit der Preis je m² berechnet werden kann.';
   else if(marktM2<=0) plTxt='Vergleichspreis eintragen für die Plausibilitätsprüfung.';
   else {
     let a=Math.abs(plAbw), ri=plAbw<0?'unter':'über', q=e.v('pl_quelle');
@@ -425,7 +427,7 @@ function bewerte(e,k){
   let reNetto=reInvest>0?reRein/reInvest*100:0;
   let reFaktor=roh>0?reKP/roh:0;
 
-  const R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,erGeb,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,beleihungswert,bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte:modP,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
+  const R={bodenwert,bgfHG,bgfAN,hg,an,hgVor,anVor,vorlauf,nachMA,substanz,roh,grundRein,gebRein,vf,gebWert,erGeb,ertrag,bodenMA,niessWert,niRein,kw,mittel,empfehlung,mf,g,vh,pvWert,pvRein,pvVf,beleihungswert,bwAktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwVgl,bwVglSicherP,bwVglSicherBetrag,bwVergleich,bwKontroll,bwAnsatz,energieWert,enAktiv,enModus,enStufen,enPct,enMehrKwh,enMehrJahr,enVf,enKennwert,enRefKw,modPunkte:modP,rndModHG,erRND,effLZ,bewirt,mietrolleAktiv,mrSumme,bwDetail,anzWE,anzSP,
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};

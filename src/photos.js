@@ -30,12 +30,13 @@ function renderPhotos(){
   ['objekt','schaden','karte'].forEach(cat=>{
     let g=$('gal_'+cat); if(!g)return; g.innerHTML='';
     PHOTOS.filter(p=>p.cat===cat).forEach(p=>{
-      let d=document.createElement('div'); d.className='photo';
+      let d=document.createElement('div'); d.className='photo'; d.dataset.foto=idSicher(p.id);
       d.innerHTML=`<button class="del no-print" aria-label="Foto löschen" onclick="delPhoto('${idSicher(p.id)}')">✕</button><img src="${bildUrl(p.data)}" alt="${sEsc(p.caption||FOTO_LABEL[p.cat]||'Foto')}"><input class="no-print" placeholder="Bildunterschrift…" value="${sEsc(p.caption||'')}" oninput="capPhoto('${idSicher(p.id)}',this.value)">`;
       g.appendChild(d);
     });
   });
   try{ exFotoWahlRender(); }catch(e){}
+  try{ auFestRender(); }catch(e){}
 }
 function delPhoto(id){PHOTOS=PHOTOS.filter(p=>p.id!==id);fotosGeaendert();renderPhotos();autosave();}
 function capPhoto(id,v){let p=PHOTOS.find(x=>x.id===id);if(p){p.caption=v;fotosGeaendert();autosave();}}

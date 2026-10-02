@@ -866,3 +866,64 @@ umfasst „Objektbeschreibung (mit Lage)“ auch die Lage.
 **Nummern (Fehler behoben):** War ein Abschnitt beim Nummerieren zugeklappt, zählten Blöcke mit, die es nur beim Haus
 gibt — bei der Wohnung begannen die Allgemeinen Angaben mit 4.2, im Aufnahmebogen fehlten 2.3 und 2.4. Jetzt zählen
 solche Blöcke in der anderen Objektart nicht mit; beim Auf- und Zuklappen wird neu nummeriert (Browsertest).
+
+## D37 (2026-10-02) — Foto an der Feststellung, fehlende Bauteile, Prüfhinweise zusammengeführt, Vergleichswert im Beleihungswert
+
+**Auftrag:** Vorschläge 1, 2, 4, 5 und 7 aus der Liste „Was könnte man noch verbessern“.
+
+**1 · Foto direkt an der Feststellung:** Im Aufnahmebogen („Feststellungen vor Ort“) gibt es Feststellungen mit Foto:
+kurzer Text, Foto mit der Kamera, mehrere Fotos je Feststellung. Die Feststellungen stehen als Liste im versteckten Feld
+`au_fest` und reisen damit in Speicherstand, Sicherung und Teilen mit. Die Fotos sind gewöhnliche Schadensfotos mit
+Verweis auf ihre Feststellung (`fest`) — sie bleiben in der Fotodokumentation sichtbar und liegen wie alle Fotos nur
+lokal auf dem Gerät.
+Der Bericht zeigt sie unter „Feststellungen mit Foto“ bei ihrem Text und nicht noch einmal unter den Schadensfotos;
+ist der Aufnahmebogen ausgeschaltet, stehen sie wie bisher unter den Schadensfotos. Die Bildunterschrift folgt dem Text
+der Feststellung (vor Ort wird oft zuerst fotografiert), bis sie in der Fotodokumentation selbst geändert wird; eine
+eigene Bildunterschrift zeigt der Bericht unter dem Foto. Löschen der Feststellung löscht nach Rückfrage auch ihre
+Fotos. Keine Rechnung ändert sich.
+
+**2 · Fehlende Bauteile (Roadmap #51, offener Teil):** Bisher zählte ein leeres Bauteil in der Preisermittlung wie
+Stufe 3 — eine Lagerhalle ohne Heizung bekam Heizungskosten. Jetzt hat jedes Bauteil der Standardstufen den Haken
+„fehlt“ (Hauptgebäude und Anbau), im Aufnahmebogen die Auswahl „fehlt“. Quelle: Vordruck der Bank in der
+Jahresbewertung (D24) — ein fehlendes Bauteil hat dort die Anteile 0; seine Kosten entfallen, die übrigen Anteile
+werden **nicht** auf 100 % hochgerechnet. So rechnet jetzt auch die Preisermittlung (`nhkRechnen`: Anteil × Kennwert,
+fehlend = 0). Die Python-Vergleichsrechnung hat dafür den Fall `gewerbe_ohne_heizung_sanitaer`, der Unittest eine
+Handrechnung (785 €/m² × 0,82). Ohne Haken ändert sich nichts (golden-aenderungen §12).
+
+**4 · Prüfhinweise zusammengeführt (Roadmap #28) und erweitert:** Die Ergebnis-Plausibilisierung gegen den Marktbericht
+stand nur im Abschnitt Preisempfehlung und als Anzeige oben, unverbunden mit der Eingabeprüfung. Sie steht jetzt mit
+denselben Stufen wie dort (bis 10 % plausibel, bis 25 % erklärungsbedürftig, darüber erheblich) auch in der Liste der
+Prüfhinweise. Neu sind außerdem Gegenproben, die Widersprüche zwischen Aufnahmebogen und Bewertung zeigen:
+- Keller und Dachgeschoss laut Aufnahmebogen gegen den Gebäudetyp — an ihm hängen die NHK-Basiswerte;
+- Effizienzklasse gegen den Energiekennwert (GEG-Skala, wie die bestehende Klassenermittlung);
+- Modernisierungsjahr vor dem Baujahr (Fehler) oder nach dem Stichtag (Warnung);
+- „vollständig erneuert“ bei Standardstufe 1–2 des Bauteils (Dach, Fenster und Außentüren, Heizung, Außenwände) —
+  die Stufen 1–2 beschreiben alte Bauteile (Anlage 4 ImmoWertV);
+- Wohnfläche gegen die Summe der Raumliste (ab 5 % Abweichung), wenn die Übernahme ausgeschaltet ist.
+
+Die Gegenproben gelten nur, solange der Aufnahmebogen eingeschaltet ist. Es sind reine Hinweise, keine Rechnung ändert
+sich. Der alte Hinweis „Wohn-/Nutzfläche in ① eintragen“ verweist jetzt auf „Allgemeine Angaben“, wo die Fläche seit
+D35 steht (golden-aenderungen §12).
+
+**5 · Vergleichswert im Beleihungswert (Roadmap #29):** Quelle: BelWertV (gesetze-im-internet.de).
+- § 19 Abs. 1: Vergleichswert aus nachhaltig erzielbaren Vergleichspreisen, Sicherheitsabschlag von mindestens 10 %.
+  Eine kleinere Eingabe rechnet die App mit 10 % und meldet die Korrektur, wie beim Sicherheitsabschlag des Sachwerts
+  (§ 16 Abs. 2).
+- § 4 Abs. 1: Der Ertragswert ist maßgeblich. Als Kontrollwert dient der Sachwert, bei Ein- und Zweifamilienhäusern
+  und Wohnungs- und Teileigentum anstelle des Sachwerts der Vergleichswert. Liegt der Kontrollwert mehr als 20 % unter
+  dem Ertragswert, verlangt die App wie bisher die besondere Nachhaltigkeitsprüfung.
+- § 4 Abs. 2: Orientierung am Sach- oder Vergleichswert nur bei zweifelsfreier Eignung zur Eigennutzung. Beim Ein- und
+  Zweifamilienhaus verlangt die App mindestens fünf aktuelle Vergleichspreise.
+- Der Vergleichswert außerhalb von EFH/ZFH und Wohnungseigentum (als Ausgangs- oder Kontrollwert) ist ein Fehler.
+- Der Abzug für bestehende Vermietung gilt für Sach- und Vergleichswertorientierung.
+
+„Werte übernehmen“ holt Vergleichswert und Anzahl der Vergleichsobjekte aus dem Abschnitt Vergleichswert. Vorgabe bleibt
+Ertragswert mit Sachwert als Kontrolle — bestehende Bewertungen rechnen unverändert (golden-aenderungen §12, neue
+Felder mit 0).
+
+**7 · Baupreisindex:** Der Wert für August 2026 (3. Vierteljahr) ist noch nicht veröffentlicht; die neueste
+Pressemitteilung des Statistischen Landesamts (17.07.2026) betrifft das 2. Vierteljahr (Mai 2026), der eingebaute
+Stand. Stichtage danach sind in der App weiter als „vorläufig“ gekennzeichnet. Roadmap #50 bleibt offen.
+
+**Tests:** Unit- und Python-Vergleichsrechnung wie oben; Browsertests (D37) für Feststellung mit Foto, fehlende
+Bauteile, Prüfhinweise und Vergleichswert im Beleihungswert; Klicktest der Bewertungen und des Berichts.

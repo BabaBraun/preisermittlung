@@ -40,18 +40,24 @@ function beleihung(e){
  const aussen=has(e,'bw_aussen_grund')?aussenAntrag:Math.min(aussenAntrag,Math.max(herstell,0)*.05);
  const bwHerstell=herstell+aussen,bwSicherP=Math.max(e.n('bw_sicher'),10),bwSicherBetrag=bwHerstell*bwSicherP/100;
  const bwSachwert=bwHerstell>0?Math.max(bwHerstell-bwSicherBetrag+bwBoden-(bwRnd<30?abbruch:0),0):0;
- const bwAnsatz=e.v('bw_ansatz')==='sach'?'sach':'ertrag';
- const bwAusgang=bwAnsatz==='sach'?bwSachwert:bwErtrag;
+ // Vergleichswert nach § 19 Abs. 1 BelWertV: nachhaltig erzielbare Vergleichspreise, Sicherheitsabschlag mindestens 10 %
+ const bwVgl=Math.max(e.n('bw_vgl'),0),bwVglSicherP=Math.max(e.n('bw_vgl_sicher'),10),bwVglSicherBetrag=bwVgl*bwVglSicherP/100;
+ const bwVergleich=bwVgl>0?Math.max(bwVgl-bwVglSicherBetrag,0):0;
+ // Ausgangswert: Ertragswert (Regelfall, § 4 Abs. 1) oder — bei EFH/ZFH und Wohnungseigentum — Sach- bzw. Vergleichswert (§ 4 Abs. 2)
+ const bwAnsatz=['sach','vergleich'].includes(e.v('bw_ansatz'))?e.v('bw_ansatz'):'ertrag';
+ const bwKontroll=e.v('bw_kontrollwert')==='vergleich'?'vergleich':'sach';   // Kontrolle zum Ertragswert: Sach- oder Vergleichswert (§ 4 Abs. 1)
+ const bwAusgang=bwAnsatz==='sach'?bwSachwert:bwAnsatz==='vergleich'?bwVergleich:bwErtrag;
  const bwAbschlagP=Math.max(e.n('bw_besichtigung'),0)+Math.max(e.n('bw_abschlag'),0),bwAbschlagBetrag=bwAusgang*bwAbschlagP/100;
- const vermietAbzug=bwAnsatz==='sach'&&rentiert?Math.max(e.n('bw_vermiet_abzug'),0):0;
+ const vermietAbzug=bwAnsatz!=='ertrag'&&rentiert?Math.max(e.n('bw_vermiet_abzug'),0):0;
  const beleihungswert=aktiv?Math.max(bwAusgang-bwAbschlagBetrag-vermietAbzug,0):0;
  const korrekturen=[];
  if(beantragt<bwZins)korrekturen.push('Kapitalisierungszins: '+beantragt+' % angefragt, '+bwZins+' % Mindestansatz verwendet.');
  if(e.n('bw_bewirt')<15)korrekturen.push('Verwaltung/Instandhaltung/Mietausfall: Mindestansatz 15 % statt '+e.n('bw_bewirt')+' %.');
  if(e.n('bw_sicher')<10)korrekturen.push('Sicherheitsabschlag: mindestens 10 % statt '+e.n('bw_sicher')+' %.');
+ if(bwVgl>0&&e.n('bw_vgl_sicher')<10)korrekturen.push('Sicherheitsabschlag Vergleichswert: mindestens 10 % statt '+e.n('bw_vgl_sicher')+' % (§ 19 Abs. 1).');
  if(aussen<aussenAntrag)korrekturen.push('Außenanlagen auf 5 % des Herstellungswerts begrenzt; höherer Ansatz nur mit Begründung.');
  if(bwRoh<rohAntrag)korrekturen.push('Nachhaltige Miete auf die erfasste Vertragsmiete begrenzt.');
- return {R:{bwAktiv:aktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt:effektivKosten,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,beleihungswert},D:{bwWohnen:wohnen,bwSpanneMin:minBase,bwSpanneMax:maxBase,bwZinsOk:beantragt>=erlaubterZins,bwRndMax,bwBewirtP,bwBoden,bwBodenZins,bwAnsatzTxt:bwAnsatz==='sach'?'(Sachwertorientierung, Voraussetzungen prüfen)':'(Ertragswert — regulärer Ausgangswert)',bwSonderfall:sonderfall,bwAbbruchBarwert:abbruch,bwKosten:{verwaltung:verw,instandhaltung:inst,mietausfall:ausfall,modernisierung:modern,nuk},bwKorrekturen:korrekturen,bwPremium:premium,bwZinsBeantragt:beantragt,bwNutzart:art,bwVermietAbzug:vermietAbzug}};
+ return {R:{bwAktiv:aktiv,bwErtrag,bwSachwert,bwAusgang,bwAbschlagP,bwAbschlagBetrag,bwZins,bwZinsMin,bwRnd,bwVf,bwRoh,bwBewirt:effektivKosten,bwRein,bwGebRein,bwHerstell,bwSicherP,bwSicherBetrag,bwAnsatz,beleihungswert,bwVgl,bwVglSicherP,bwVglSicherBetrag,bwVergleich,bwKontroll},D:{bwWohnen:wohnen,bwSpanneMin:minBase,bwSpanneMax:maxBase,bwZinsOk:beantragt>=erlaubterZins,bwRndMax,bwBewirtP,bwBoden,bwBodenZins,bwAnsatzTxt:bwAnsatz==='sach'?'(Sachwertorientierung, Voraussetzungen prüfen)':bwAnsatz==='vergleich'?'(Vergleichswertorientierung, Voraussetzungen prüfen)':'(Ertragswert — regulärer Ausgangswert)',bwSonderfall:sonderfall,bwAbbruchBarwert:abbruch,bwKosten:{verwaltung:verw,instandhaltung:inst,mietausfall:ausfall,modernisierung:modern,nuk},bwKorrekturen:korrekturen,bwPremium:premium,bwZinsBeantragt:beantragt,bwNutzart:art,bwVermietAbzug:vermietAbzug}};
 }
 function pruefeBeleihung(e,R,D){
  const fehlend=[],hinweise=[];const need=(id,txt)=>{if(!has(e,id))fehlend.push({feld:id,text:txt});};const fail=(id,txt)=>hinweise.push({feld:id,stufe:'fehler',text:txt});
@@ -78,19 +84,31 @@ function pruefeBeleihung(e,R,D){
   need('bw_abbruch_quelle','Abbruchkosten/Zeitpunkt für die Sachwertkontrolle unter 30 Jahren belegen.');
   if(!present(e,'bw_abbruch')||!present(e,'bw_freilegung'))fehlend.push({feld:'bw_abbruch',text:'Freilegungskosten und Zeitpunkt erfassen; null nur mit Begründung.'});
  }
- if(R.bwAnsatz==='sach'){
-  if(!e.an('bw_eigennutzung'))fehlend.push({feld:'bw_eigennutzung',text:'Dauerhafte Eigennutzungseignung für Sachwertorientierung bestätigen.'});
+ // § 4 Abs. 1 / 2: Vergleichswert anstelle des Sachwerts nur bei Ein- und Zweifamilienhäusern sowie Wohnungs- und Teileigentum
+ const mitVergleich=R.bwAnsatz==='vergleich'||(R.bwAnsatz==='ertrag'&&R.bwKontroll==='vergleich');
+ const wohnungseigentum=e.v('ek_modus')==='wohnung', efh=/^(EFH|Doppel|Reihen)/.test(text(e,'ek_typ'))&&e.n('ek_anz_we')<=2;
+ if(mitVergleich){
+  if(!wohnungseigentum&&!efh)fail(R.bwAnsatz==='vergleich'?'bw_ansatz':'bw_kontrollwert','Vergleichswert anstelle des Sachwerts nur bei Ein- und Zweifamilienhäusern sowie Wohnungs- und Teileigentum (§ 4 Abs. 1 BelWertV).');
+  if(!(e.n('bw_vgl')>0))fehlend.push({feld:'bw_vgl',text:'Vergleichswert aus nachhaltig erzielbaren Vergleichspreisen erfassen (§ 19 Abs. 1).'});
+  need('bw_vgl_quelle','Herkunft der Vergleichspreise (Kaufpreis- oder Marktdatensammlung) angeben.');
+ }
+ if(R.bwAnsatz==='vergleich'&&efh&&!wohnungseigentum&&!(e.n('bw_vgl_anzahl')>=5))
+  fehlend.push({feld:'bw_vgl_anzahl',text:'Beim Ein- und Zweifamilienhaus mindestens fünf aktuelle Vergleichspreise, auch nach der Wohnfläche vergleichbar (§ 4 Abs. 2 Satz 3).'});
+ if(R.bwAnsatz==='sach'||R.bwAnsatz==='vergleich'){
+  const was=R.bwAnsatz==='sach'?'Sachwertorientierung':'Vergleichswertorientierung';
+  if(!e.an('bw_eigennutzung'))fehlend.push({feld:'bw_eigennutzung',text:'Dauerhafte Eigennutzungseignung für '+was+' bestätigen.'});
   need('bw_eigennutzung_grund','Eigennutzungseignung und nachhaltige Nachfrage begründen.');
   if(e.v('bw_vermietet')==='ja'&&(!has(e,'bw_mietabschlag_grund')||!present(e,'bw_vermiet_abzug')))fehlend.push({feld:'bw_mietabschlag_grund',text:'Wertminderung durch bestehende Vermietung nach § 4 Absatz 2 begründen und berücksichtigen.'});
  }
- if(R.bwAnsatz==='ertrag'&&R.bwErtrag>0&&R.bwSachwert<R.bwErtrag*.8){
-  if(!e.an('bw_kontrolle'))fehlend.push({feld:'bw_kontrolle',text:'Sachwert liegt mehr als 20 % unter Ertragswert: Nachhaltigkeitskontrolle durchführen.'});
+ const kontrollwert=R.bwKontroll==='vergleich'?R.bwVergleich:R.bwSachwert;
+ if(R.bwAnsatz==='ertrag'&&R.bwErtrag>0&&kontrollwert<R.bwErtrag*.8){
+  if(!e.an('bw_kontrolle'))fehlend.push({feld:'bw_kontrolle',text:(R.bwKontroll==='vergleich'?'Vergleichswert':'Sachwert')+' liegt mehr als 20 % unter Ertragswert: Nachhaltigkeitskontrolle durchführen.'});
   need('bw_kontrolle_grund','Ergebnis der besonderen Nachhaltigkeitskontrolle begründen.');
  }
- const numberIds=['bw_verw_sp_anz','bw_besichtigung','bw_roh','bw_bewirt','bw_kosten_gesamt','bw_neubau','bw_verw_satz','bw_verw_sp_satz','bw_verw','bw_inst','bw_inst_satz','bw_ausfall','bw_modern','bw_modern_satz','bw_nuk','bw_min_offiziell','bw_zins','bw_rnd','bw_bodenwert','bw_herstell','bw_aussen','bw_sicher','bw_abbruch','bw_freilegung','bw_abschlag','bw_vermiet_abzug'];
+ const numberIds=['bw_vgl','bw_vgl_anzahl','bw_vgl_sicher','bw_verw_sp_anz','bw_besichtigung','bw_roh','bw_bewirt','bw_kosten_gesamt','bw_neubau','bw_verw_satz','bw_verw_sp_satz','bw_verw','bw_inst','bw_inst_satz','bw_ausfall','bw_modern','bw_modern_satz','bw_nuk','bw_min_offiziell','bw_zins','bw_rnd','bw_bodenwert','bw_herstell','bw_aussen','bw_sicher','bw_abbruch','bw_freilegung','bw_abschlag','bw_vermiet_abzug'];
  for(const id of numberIds){const raw=text(e,id);if(raw&&!/^-?(?:\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)$/.test(raw.replace(/\s+/g,'')))fail(id,'Gültige Zahl eingeben.');if(e.n(id)<0||!Number.isFinite(e.n(id)))fail(id,'Nichtnegative endliche Zahl eingeben.');}
  if(e.n('bw_min_offiziell')>0&&e.n('bw_min_offiziell')<(D.bwWohnen?3.5:4.5))fail('bw_min_offiziell','Der veröffentlichte Grund-Mindestsatz darf nicht unter der gesetzlichen Grunduntergrenze liegen.');
- if(R.bwAbschlagP>100||e.n('bw_sicher')>100||e.n('bw_bewirt')>100)fail('bw_abschlag','Prozentansätze und die Summe der Abschläge dürfen 100 % nicht überschreiten.');
+ if(R.bwAbschlagP>100||e.n('bw_sicher')>100||e.n('bw_vgl_sicher')>100||e.n('bw_bewirt')>100)fail('bw_abschlag','Prozentansätze und die Summe der Abschläge dürfen 100 % nicht überschreiten.');
  if(!present(e,'bw_zins_stand'))fehlend.push({feld:'bw_zins_stand',text:'Geltungsdatum des veröffentlichten Mindestsatzes fehlt.'});
  if(!(R.bwRnd>0)||!(R.bwBodenwert>0)&&!(D.bwBoden>0))fehlend.push({feld:'bw_rnd',text:'Restnutzungsdauer und Bodenwert vollständig erfassen.'});
  for(const [id,value] of [['bw_min_offiziell',e.n('bw_min_offiziell')],['bw_inst_satz',e.n('bw_inst_satz')],['bw_modern_satz',e.n('bw_modern_satz')]])if(value<0||!Number.isFinite(value))fail(id,'Ungültiger Kosten- oder Zinssatz.');

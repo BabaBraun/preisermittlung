@@ -84,6 +84,37 @@ Restnutzungsdauer des Anbaus kapitalisiert, der Rest mit der des Hauptgebäudes 
 nach dem Mietanteil, wie im Vordruck der Bank für Bank- und Lagergebäude. Die Bewertung und der Bericht zeigen beide
 Gebäude einzeln. 0 (Vorgabe) = alles beim Hauptgebäude wie bisher.
 
+**Feststellung mit Foto (seit 02.10.2026):** Im Aufnahmebogen unter „Feststellungen vor Ort“ legt „＋ Feststellung mit
+Foto“ eine Zeile an: kurz beschreiben (z. B. „Feuchtefleck Kellerwand Nordseite“), dann mit „Foto“ ein Bild aufnehmen —
+am Handy öffnet sich die Kamera, mehrere Fotos je Feststellung gehen. Im Bericht steht das Foto unter „Feststellungen mit
+Foto“ bei seinem Text und nicht noch einmal unter den Schadensfotos. In der Fotodokumentation erscheint es als
+Schadensfoto mit dem Text als Bildunterschrift — sie folgt dem Text, auch wenn er erst nach dem Foto geschrieben wird,
+bis man sie dort selbst ändert; eine eigene Bildunterschrift steht im Bericht unter dem Foto. ✕ entfernt die
+Feststellung samt ihren Fotos (mit Rückfrage).
+
+**Fehlende Bauteile:** In der Tabelle der Standardstufen (Hauptgebäude, Anbau) hat jedes Bauteil den Haken „fehlt“ —
+z. B. ein Lager ohne Heizung oder Sanitär. Das Bauteil zählt dann mit dem Kostenanteil 0, die übrigen Anteile werden
+nicht hochgerechnet (wie im Vordruck der Bank). Im Aufnahmebogen gibt es dafür bei jedem Bauteil die Auswahl „fehlt“.
+
+**Prüfhinweise:** Rechts unter „Prüfhinweise“ stehen jetzt auch
+- die Plausibilisierung gegen den Marktbericht: über 10 % Abweichung „erklärungsbedürftig“, über 25 % „Ansätze prüfen“;
+- eine Wohnfläche, die um 5 % oder mehr von der Raumliste abweicht (wenn die Übernahme aus ist);
+- Widersprüche zwischen Aufnahmebogen und Bewertung: Keller oder Dachgeschoss passt nicht zum Gebäudetyp,
+  Effizienzklasse passt nicht zum Energiekennwert, Modernisierungsjahr vor dem Baujahr oder nach dem Stichtag,
+  „vollständig erneuert“ bei Standardstufe 1 oder 2 des Bauteils.
+
+Ein Tipp auf den Hinweis springt zum Feld. Ist der Aufnahmebogen ausgeschaltet, entfallen seine Gegenproben.
+
+**Beleihungswert — Vergleichswert (§ 19 BelWertV):** Im Block „Vergleichswert nach BelWertV (§ 19)“ den Vergleichswert
+aus nachhaltig erzielbaren Vergleichspreisen eintragen, dazu die Anzahl der Vergleichspreise und ihre Quelle; „Werte
+übernehmen“ holt Vergleichswert und Anzahl aus dem Abschnitt Vergleichswert. Der Sicherheitsabschlag beträgt mindestens
+10 % — eine kleinere Eingabe rechnet die App mit 10 % und meldet das.
+- Ausgangswert: Ertragswert (Regelfall), Sachwert oder Vergleichswert. Sach- und Vergleichswert gehen nur, wenn das
+  Objekt zweifelsfrei zur Eigennutzung geeignet ist. Der Vergleichswert geht nur bei Ein- und Zweifamilienhäusern und
+  Wohnungseigentum, beim Haus mit mindestens fünf aktuellen Vergleichspreisen.
+- „Kontrollwert zum Ertragswert“: Sachwert (Vorgabe) oder Vergleichswert. Liegt er mehr als 20 % unter dem
+  Ertragswert, verlangt die App die besondere Prüfung der Nachhaltigkeit.
+
 ## Baupreisindex
 
 Im Abschnitt „Hauptgebäude“ (Block „Gebäudepreis“) die Gebäudeart wählen (Wohngebäude; Bürogebäude, auch für Bank- und

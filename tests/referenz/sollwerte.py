@@ -86,7 +86,8 @@ def bewerte(f, jahr):
     basis = [float(x.strip().replace(',', '.')) for x in basis_txt.replace(';', ',').split(',') if x.strip()] if basis_txt else []
     if len(basis) < 5:
         basis = [615, 685, 785, 945, 1180]
-    nhk2010 = sum(g * kostenkennwert(basis, z('nhkhg_s%d' % i) or 3) for i, g in enumerate(GEWICHTE))
+    # fehlendes Bauteil (nhkhg_f<i>): Kostenanteil 0, die übrigen Anteile bleiben (Vordruck der Bank)
+    nhk2010 = sum(0 if an('nhkhg_f%d' % i) else g * kostenkennwert(basis, z('nhkhg_s%d' % i) or 3) for i, g in enumerate(GEWICHTE))
     punkte = sum(min(max(z('mod_p%d' % i), 0), h) for i, h in enumerate(HOECHSTPUNKTE))
     gnd = z('nhkhg_gnd') or 80
     baujahr = z('ek_baujahr')
@@ -111,7 +112,7 @@ def bewerte(f, jahr):
         basis_an = [float(x.strip().replace(',', '.')) for x in txt_an.replace(';', ',').split(',') if x.strip()] if txt_an else []
         if len(basis_an) < 5:
             basis_an = [615, 685, 785, 945, 1180]
-        nhk_an = sum(g * kostenkennwert(basis_an, z('nhkan_s%d' % i) or 3) for i, g in enumerate(GEWICHTE))
+        nhk_an = sum(0 if an('nhkan_f%d' % i) else g * kostenkennwert(basis_an, z('nhkan_s%d' % i) or 3) for i, g in enumerate(GEWICHTE))
         gnd_an = z('nhkan_gnd') or 80
         alter_an = max(jahr - z('an_baujahr'), 0) if z('an_baujahr') > 0 else 0
         rnd_anbau = z('nhkan_rnd') if z('nhkan_rnd') > 0 else restnutzungsdauer(alter_an, gnd_an, punkte)

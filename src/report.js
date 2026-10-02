@@ -75,10 +75,13 @@ function druckbericht(){
   ].join('');
   if(beschreibungBlock) beschreibungBlock='<h2>Objektbeschreibung</h2>'+beschreibungBlock;
   const IA_FOTOLABEL={objekt:'Objektfoto',schaden:'Schadensfoto',karte:'Kartenausschnitt'};
-  const fotoGrid=cat=>{let ph=PHOTOS.filter(p=>p.cat===cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${bildUrl(p.data)}" alt="${esc(p.caption||IA_FOTOLABEL[cat]||'Foto')}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
-  let fotoBlock=PHOTOS.some(p=>p.cat==='objekt'||p.cat==='schaden')?('<h2>Fotodokumentation</h2>'+
-    (PHOTOS.some(p=>p.cat==='objekt')?'<h3>Objektfotos</h3>'+fotoGrid('objekt'):'')+
-    (PHOTOS.some(p=>p.cat==='schaden')?'<h3>Schadensfotos</h3>'+fotoGrid('schaden'):'')):'';
+  // Fotos, die bei ihrer Feststellung stehen (D37), nicht noch einmal unter den Schadensfotos — außer der Aufnahmebogen ist aus
+  const auAusB=$('au_aus')&&$('au_aus').checked, festIds=new Set(auAusB?[]:auFestDaten().map(x=>x.id));
+  const fotoListe=cat=>PHOTOS.filter(p=>p.cat===cat&&!(p.fest&&festIds.has(p.fest)));
+  const fotoGrid=cat=>{let ph=fotoListe(cat);return ph.length?`<div class="fotos">${ph.map(p=>`<figure><img src="${bildUrl(p.data)}" alt="${esc(p.caption||IA_FOTOLABEL[cat]||'Foto')}">${p.caption?`<figcaption>${esc(p.caption)}</figcaption>`:''}</figure>`).join('')}</div>`:'';};
+  let fotoBlock=(fotoListe('objekt').length||fotoListe('schaden').length)?('<h2>Fotodokumentation</h2>'+
+    (fotoListe('objekt').length?'<h3>Objektfotos</h3>'+fotoGrid('objekt'):'')+
+    (fotoListe('schaden').length?'<h3>Schadensfotos</h3>'+fotoGrid('schaden'):'')):'';
   let kartenBlock=PHOTOS.some(p=>p.cat==='karte')?'<h2>Karten &amp; Pläne</h2>'+fotoGrid('karte'):'';
   let grBlock=GRUNDRISSE.length?'<h2>Grundrisse</h2>'+GRUNDRISSE.map(p=>{ let N=grNorm(p.d);
       return '<figure class="gr-fig">'+grSVG(N,p.darst)+'<figcaption>'+esc(grTitel(N))+(p.d.quelle?' · Grundlage: '+esc(p.d.quelle):'')
@@ -114,14 +117,16 @@ function druckbericht(){
   // Aufnahmebogen ausgeschaltet (D35): keine Feststellungen; die Wohnflächenberechnung (Raumliste, jetzt unter
   // „Allgemeine Angaben“, D36) erscheint dann als eigener Teil
   let auAus=$('au_aus')&&$('au_aus').checked;
-  let auBt=auAus?[]:aufnahmeBauteileListe(), auMod=auAus?[]:auModBericht();
+  let auBt=auAus?[]:aufnahmeBauteileListe(), auMod=auAus?[]:auModBericht(), auFest=auAus?[]:auFestBericht();
   if(auAus) auRows='';
   let auBlock='';
-  if(auRows||auBt.length||auMod.length||(!auAus&&(($('au_maengel').value||'').trim()||($('au_notizen').value||'').trim()))){
+  if(auRows||auBt.length||auMod.length||auFest.length||(!auAus&&(($('au_maengel').value||'').trim()||($('au_notizen').value||'').trim()))){
     auBlock='<h2>Feststellungen der Ortsbesichtigung</h2>';
     if(auRows) auBlock+='<table>'+auRows+'</table>';
     if(auBt.length) auBlock+='<h3>Besondere Bauteile</h3><div class="beschr">'+esc(auBt.join(' · '))+'</div>';
     if(auMod.length) auBlock+='<h3>Modernisierungen</h3><div class="beschr">'+esc(auMod.join('\n'))+'</div>';
+    if(auFest.length) auBlock+='<h3>Feststellungen mit Foto</h3>'+auFest.map(x=>'<div class="fest-bericht">'+(x.text?'<div class="beschr">'+esc(x.text)+'</div>':'')
+      +(x.fotos.length?'<div class="fotos">'+x.fotos.map(p=>'<figure><img src="'+bildUrl(p.data)+'" alt="'+esc(p.caption||x.text||'Foto zur Feststellung')+'">'+(p.caption&&p.caption!==x.text?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>').join('')+'</div>':'')+'</div>').join('');
     auBlock+=bt('Mängel / Auffälligkeiten','au_maengel')+bt('Sonstige Notizen','au_notizen');
   }
   let rlBlock=raumlisteBericht(esc);
@@ -283,6 +288,7 @@ function druckbericht(){
     ${L('Restnutzungsdauer',num2(R.bwRnd)+' Jahre')}
     ${R.bwRoh>0?L('Nachhaltiger Rohertrag',eur(R.bwRoh))+L('− Bewirtschaftungskosten (§ 11 Abs. 2)',eur(R.bwBewirt))+L('× Vervielfältiger',num2(R.bwVf))+L('Ertragswert',eur(R.bwErtrag)):''}
     ${R.bwHerstell>0?L('Herstellungswert inkl. Außenanlagen',eur(R.bwHerstell))+L('− Sicherheitsabschlag (§ 16 Abs. 2, '+num2(R.bwSicherP)+' %)',eur(R.bwSicherBetrag))+L('Sachwert',eur(R.bwSachwert)):''}
+    ${R.bwVgl>0?L('Vergleichswert aus Vergleichspreisen'+(num('bw_vgl_anzahl')>0?' ('+num('bw_vgl_anzahl')+' Objekte)':''),eur(R.bwVgl))+L('− Sicherheitsabschlag (§ 19 Abs. 1, '+num2(R.bwVglSicherP)+' %)',eur(R.bwVglSicherBetrag))+L('Vergleichswert',eur(R.bwVergleich)):''}
     ${L('Ausgangswert',eur(R.bwAusgang))}
     ${R.bwAbschlagP>0?L('− Abschläge ('+num2(R.bwAbschlagP)+' %)',eur(R.bwAbschlagBetrag)):''}
     <tr class="total"><td>${window._BW?.status==='ok'?'Beleihungswert – dokumentierter Ansatz':'Beleihungsszenario (Entwurf)'}</td><td>${eur(R.beleihungswert)}</td></tr>

@@ -62,15 +62,16 @@ function buildNHK(prefix, ownRND){
    : `<div class="grid" style="margin-bottom:8px">
      <div class="field full"><label>NHK Basiswerte €/m² Stufe 1–5 <span class="u">(aus Gebäudetyp)</span></label><input id="${prefix}_base" type="text" value="615, 685, 785, 945, 1180"></div>
    </div>`;
-  h += `<table class="nhk"><thead><tr><th>Bauteil</th><th>Wägung</th><th>Standardstufe 1–5</th><th>Kostenkennwert €/m²</th></tr></thead><tbody>`;
+  h += `<table class="nhk"><thead><tr><th>Bauteil</th><th>Wägung</th><th>Standardstufe 1–5</th><th>fehlt</th><th>Kostenkennwert €/m²</th></tr></thead><tbody>`;
   NHK_ELEMENTS.forEach((el,i)=>{
-    h += `<tr><td>${el[0]}</td><td>${num2(el[1])}</td><td><input id="${prefix}_s${i}" type="text" value="3" style="width:70px"></td><td id="${prefix}_k${i}">0</td></tr>`;
+    h += `<tr id="${prefix}_z${i}"><td>${el[0]}</td><td>${num2(el[1])}</td><td><input id="${prefix}_s${i}" type="text" value="3" style="width:70px"></td>`
+      +`<td><input type="checkbox" id="${prefix}_f${i}" aria-label="${el[0]} fehlt (Kostenanteil 0)" title="Bauteil nicht vorhanden — Kostenanteil 0 (Vordruck der Bank)"></td><td id="${prefix}_k${i}">0</td></tr>`;
   });
   h += `</tbody><tfoot>
-    <tr class="total"><th colspan="3" style="text-align:right">NHK 2010 (Kostenkennwert)</th><th id="${prefix}_nhk">0 €/m²</th></tr>
-    <tr><td colspan="3" style="text-align:right">NHK zum Stichtag (× Baupreisindex × Regionalfaktor)</td><td id="${prefix}_nhkheute">0 €/m²</td></tr>
-    <tr><td colspan="3" style="text-align:right" id="${prefix}_wmlbl">Alterswertminderung</td><td id="${prefix}_wm">0 %</td></tr>
-    <tr class="total"><th colspan="3" style="text-align:right">Gebäudepreis €/m²</th><th id="${prefix}_preis">0 €/m²</th></tr>
+    <tr class="total"><th colspan="4" style="text-align:right">NHK 2010 (Kostenkennwert)</th><th id="${prefix}_nhk">0 €/m²</th></tr>
+    <tr><td colspan="4" style="text-align:right">NHK zum Stichtag (× Baupreisindex × Regionalfaktor)</td><td id="${prefix}_nhkheute">0 €/m²</td></tr>
+    <tr><td colspan="4" style="text-align:right" id="${prefix}_wmlbl">Alterswertminderung</td><td id="${prefix}_wm">0 %</td></tr>
+    <tr class="total"><th colspan="4" style="text-align:right">Gebäudepreis €/m²</th><th id="${prefix}_preis">0 €/m²</th></tr>
     </tfoot></table>`;
   return h;
 }
@@ -139,11 +140,14 @@ function bwAusBewertung(){
   let herstell=(R.hgVor||0)+(R.anVor||0);
   if(herstell>0) $('bw_herstell').value=Math.round(herstell);
   if(R.erRND>0) $('bw_rnd').value=num2(R.erRND);
+  // Vergleichswert der Bewertung und Zahl der Vergleichsobjekte (D37) — Sicherheitsabschlag nach § 19 rechnet das Modell
+  let D=window._MODELL_DETAIL||{};
+  if(R.vergleichWert>0){ $('bw_vgl').value=Math.round(R.vergleichWert); if(D.vergleich&&D.vergleich.anz>0) $('bw_vgl_anzahl').value=D.vergleich.anz; }
   /* Nutzungsart aus dem Vordruck ableiten */
   let typ=((($('ek_typ')||{}).value)||'').toLowerCase();
   if(/b(ü|ue)ro|laden|gesch(ä|ae)ft|gewerbe|betrieb|halle/.test(typ)){ $('bw_nutzung').value='gewerbe'; $('bw_objektart').value='60'; }
   compute();
-  if(!(R.roh>0)&&!(herstell>0)) alert('In der Bewertung stehen noch keine übernehmbaren Werte — bitte zuerst Allgemeine Angaben, Bruttogrundfläche und Miete erfassen.');
+  if(!(R.roh>0)&&!(herstell>0)&&!(R.vergleichWert>0)) alert('In der Bewertung stehen noch keine übernehmbaren Werte — bitte zuerst Allgemeine Angaben, Bruttogrundfläche und Miete erfassen.');
 }
 
 /* ---------- Aufgaben und Wiedervorlagen ------------------------------------------------
@@ -398,6 +402,47 @@ var PLAUSI_REGELN=[
    m:()=>{let R=window._R||{}, m=num('ek_miete_wohnen')+num('ek_miete_gewerbe');
      return 'Kaufpreisfaktor von '+num2(R.empfehlung/m)+' Jahresmieten — außerhalb der üblichen Bandbreite.';}}
 ];
+/* ---------- Ergebnis-Plausibilisierung und Gegenproben aus dem Aufnahmebogen (D37, Roadmap #28) ----------
+   Die Plausibilisierung gegen den Marktbericht stand bisher nur im Abschnitt Preisempfehlung und als Anzeige oben;
+   jetzt steht sie mit denselben Stufen (bis 10 % plausibel, bis 25 % erklärungsbedürftig, darüber erheblich) auch in der
+   Liste der Prüfhinweise. Dazu Widersprüche zwischen Aufnahmebogen und Bewertung — nur, wo er verwendet wird. */
+function plAbweichung(){ let R=window._R||{}; return (typeof R.plAbw==='number'&&isFinite(R.plAbw))?R.plAbw:null; }
+function auAktiv(){ return !($('au_aus')&&$('au_aus').checked); }
+function auHaus(){ return auAktiv()&&modus()==='haus'; }
+function stichtagJahr(){ let y=parseInt((exV('ek_stichtag')||'').slice(0,4),10); return y>1800?y:new Date().getFullYear(); }
+PLAUSI_REGELN.push(
+  {f:'pl_markt', s:'warn', t:()=>{ let a=plAbweichung(); return a!==null&&Math.abs(a)>10&&Math.abs(a)<=25; },
+   m:()=>{ let a=plAbweichung(); return 'Plausibilisierung: Das Ergebnis liegt '+num2(Math.abs(a))+' % '+(a<0?'unter':'über')+' dem Vergleichspreis des Marktberichts — erklärungsbedürftig, im Bericht begründen.'; }},
+  {f:'pl_markt', s:'fehler', t:()=>{ let a=plAbweichung(); return a!==null&&Math.abs(a)>25; },
+   m:()=>{ let a=plAbweichung(); return 'Plausibilisierung: Das Ergebnis liegt '+num2(Math.abs(a))+' % '+(a<0?'unter':'über')+' dem Vergleichspreis des Marktberichts — Ansätze prüfen und begründen.'; }},
+  {f:'ek_wohnflaeche', s:'warn', t:()=>{ if(typeof rlDaten!=='function'||($('rl_aktiv')&&$('rl_aktiv').checked)) return false;
+     let d=rlDaten(), w=num('ek_wohnflaeche'); return d.zeilen.length>0&&d.wfl>0&&w>0&&Math.abs(w-d.wfl)/d.wfl>=0.05; },
+   m:()=>{ let d=rlDaten(), w=num('ek_wohnflaeche'); return 'Wohnfläche ('+num2(w)+' m²) weicht um '+num2(Math.abs(w-d.wfl)/d.wfl*100)+' % von der Raumliste ('+num2(d.wfl)+' m²) ab.'; }},
+  {f:'au_energieklasse', s:'warn', t:()=>{ if(!auAktiv()) return false; let k=num('au_energiewert'), kl=exV('au_energieklasse');
+     return k>0&&!!kl&&kl!=='–'&&enKlasseAusKennwert(k)!==kl; },
+   m:()=>'Effizienzklasse '+exV('au_energieklasse')+' passt nicht zum Energiekennwert '+num2(num('au_energiewert'))+' kWh/(m²·a) — das wäre Klasse '+enKlasseAusKennwert(num('au_energiewert'))+' (GEG-Skala).'},
+  // Keller und Dachgeschoss laut Aufnahmebogen gegen den Gebäudetyp — die NHK-Basiswerte hängen daran
+  {f:'ek_typ', s:'warn', t:()=>{ if(!auHaus()) return false; let t=exV('ek_typ'), k=exV('au_keller'); if(!/unterkellert/.test(t)||!k||k==='–') return false;
+     let typNicht=/nicht unterkellert/.test(t); return (k==='nicht unterkellert'&&!typNicht)||(k==='voll unterkellert'&&typNicht); },
+   m:()=>'Gebäudetyp „'+exV('ek_typ')+'“, laut Aufnahmebogen aber '+exV('au_keller')+' — die NHK-Basiswerte hängen davon ab.'},
+  {f:'ek_typ', s:'warn', t:()=>{ if(!auHaus()) return false; let t=exV('ek_typ'), dg=exV('au_dg'); if(!dg||dg==='–') return false;
+     let tAus=/DG ausgeb/.test(t), tNicht=/DG nicht ausgeb/.test(t), tFlach=/Flachdach/.test(t); if(!(tAus||tNicht||tFlach)) return false;
+     if(dg==='Flachdach') return !tFlach; if(tFlach) return true; if(dg==='ausgebaut') return tNicht; if(dg==='nicht ausgebaut') return tAus; return false; },
+   m:()=>'Gebäudetyp „'+exV('ek_typ')+'“, laut Aufnahmebogen Dachgeschoss: '+exV('au_dg')+' — die NHK-Basiswerte hängen davon ab.'}
+);
+/* Modernisierungen laut Aufnahmebogen: Jahr gegen Baujahr und Stichtag; „vollständig erneuert“ gegen die Standardstufe
+   des Bauteils (Stufe 1–2 beschreibt alte bzw. fehlende Dämmung, Einfach- oder alte Zweifachverglasung, alte Heizung) */
+const AU_MOD_BAUTEIL={0:1,1:2,3:7,4:0};   // Dach, Fenster und Außentüren, Heizung, Außenwände
+const AU_MOD_JAHR=[...MOD_ELEMENTS.map(([name],i)=>['au_mod_j'+i,name]),['au_mod_s_j','Sonstige Modernisierung']];
+AU_MOD_JAHR.forEach(([id,name])=>PLAUSI_REGELN.push(
+  {f:id, s:'fehler', t:()=>{ if(!auHaus()) return false; let j=num(id), b=num('ek_baujahr'); return j>0&&b>0&&j<b; },
+   m:()=>'„'+name+'“ ('+num(id)+', Aufnahmebogen) liegt vor dem Baujahr.'},
+  {f:id, s:'warn', t:()=>{ if(!auHaus()) return false; let j=num(id); return j>0&&j>stichtagJahr(); },
+   m:()=>'„'+name+'“ ('+num(id)+', Aufnahmebogen) liegt nach dem Wertermittlungsstichtag — zählt noch nicht als durchgeführt.'}));
+Object.keys(AU_MOD_BAUTEIL).forEach(i=>{ let b=AU_MOD_BAUTEIL[i]; PLAUSI_REGELN.push(
+  {f:'nhkhg_s'+b, s:'warn', t:()=>{ if(!auHaus()||exV('au_mod_u'+i)!=='voll'||($('nhkhg_f'+b)&&$('nhkhg_f'+b).checked)) return false; let s=num('nhkhg_s'+b); return s>0&&s<=2; },
+   m:()=>'„'+MOD_ELEMENTS[i][0]+'“ ist im Aufnahmebogen als vollständig erneuert erfasst, die Standardstufe für '+NHK_ELEMENTS[b][0]+' ist aber '+String(num('nhkhg_s'+b)).replace('.',',')+' — passt das zusammen?'}); });
+
 function plausiPruefen(){
   let hinweise=[], P=window._PRUEF;
   if(P){

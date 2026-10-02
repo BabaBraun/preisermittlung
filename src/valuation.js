@@ -177,7 +177,9 @@ function anzeigen(R,D){
   setT('o_bw_sachwert',eur(R.bwSachwert));
   $('bw_sicher_warn').style.display=(bwAktiv&&R.bwSicherP<10&&R.bwHerstell>0)?'':'none';
   $('bw_sicher_warn').textContent='Der Sicherheitsabschlag von '+num2(R.bwSicherP)+' % unterschreitet den Mindestabschlag von 10 % nach § 16 Abs. 2 BelWertV.';
-  setT('o_bw_e_ertrag',eur(R.bwErtrag)); setT('o_bw_e_sach',eur(R.bwSachwert));
+  setT('o_bw_vgl_sicherbetrag','− '+eur(R.bwVglSicherBetrag)); setT('o_bw_vgl_sicher_p','('+num2(R.bwVglSicherP)+' %, mind. 10 % nach § 19 Abs. 1)');
+  setT('o_bw_vergleich',eur(R.bwVergleich));
+  setT('o_bw_e_ertrag',eur(R.bwErtrag)); setT('o_bw_e_sach',eur(R.bwSachwert)); setT('o_bw_e_vgl',eur(R.bwVergleich));
   setT('o_bw_ausgang',eur(R.bwAusgang)); setT('o_bw_ansatz_txt',D.bwAnsatzTxt);
   setT('o_bw_abschlag_betrag','− '+eur(R.bwAbschlagBetrag)); setT('o_bw_abschlag_p',R.bwAbschlagP>0?'('+num2(R.bwAbschlagP)+' %)':'');
   setT('o_beleihungswert',eur(R.beleihungswert));
@@ -186,8 +188,10 @@ function anzeigen(R,D){
   if(bwAktiv){
     if(bwAnsatz==='min'&&R.bwErtrag>0&&R.bwSachwert>0&&R.bwSachwert<R.bwErtrag)
       bwHin.push('Der Sachwert liegt unter dem Ertragswert und ist damit maßgeblich. Nach § 4 Abs. 1 darf der Ertragswert ohnehin nicht überschritten werden.');
-    if(bwAnsatz==='sach')
-      bwHin.push('Sachwertorientierung nach § 4 Abs. 2 ist nur zulässig, wenn das Objekt nach Objekt- und Standortqualität zweifelsfrei zur Eigennutzung geeignet ist — im Bericht festhalten.');
+    if(bwAnsatz==='sach'||bwAnsatz==='vergleich')
+      bwHin.push((bwAnsatz==='sach'?'Sachwertorientierung':'Vergleichswertorientierung')+' nach § 4 Abs. 2 ist nur zulässig, wenn das Objekt nach Objekt- und Standortqualität zweifelsfrei zur Eigennutzung geeignet ist — im Bericht festhalten.');
+    if(bwAnsatz==='ertrag'&&R.bwKontroll==='vergleich'&&R.bwVergleich>0&&R.bwErtrag>0&&R.bwVergleich<R.bwErtrag*.8)
+      bwHin.push('Der Vergleichswert liegt mehr als 20 % unter dem Ertragswert — die Nachhaltigkeit der Erträge und ihrer Kapitalisierung ist besonders zu prüfen (§ 4 Abs. 1).');
     if(R.beleihungswert>0&&R.empfehlung>0&&R.beleihungswert>R.empfehlung)
       bwHin.push('Der Beleihungswert liegt über der Preisempfehlung. Das widerspricht dem nachhaltigen Wertbegriff des § 3 BelWertV und ist zu prüfen.');
     if(R.beleihungswert>0&&R.beleihungswert<=600000)
@@ -257,7 +261,8 @@ function feldName(id){
   return id;
 }
 function nhkAnzeigen(prefix,d,erg){
-  d.k.forEach((w,i)=>setT(prefix+'_k'+i,num2(w)));
+  d.k.forEach((w,i)=>{ let f=$(prefix+'_f'+i), z=$(prefix+'_z'+i), fehlt=!!(f&&f.checked);
+    setT(prefix+'_k'+i,fehlt?'0,00 (fehlt)':num2(w)); if(z) z.classList.toggle('nhk-fehlt',fehlt); });
   setT(prefix+'_nhk',num2(d.nhk)+' €/m²');
   setT(prefix+'_nhkheute',num2(d.nhkHeute)+' €/m²');
   setT(prefix+'_wmlbl','Alterswertminderung bei RND '+num2(erg.rnd)+' Jahre');

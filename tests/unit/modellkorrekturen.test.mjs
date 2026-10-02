@@ -35,3 +35,31 @@ test('Widersprüchliche Nutzungsarten dürfen nicht vollständig geprüft ersche
 test('Fehlender nachhaltiger Ertrag bleibt beim Ertragsverfahren unvollständig',()=>{const{e,R,D}=value({bw_roh:''});assert.notEqual(K.pruefeBeleihung(e,R,D).status,'ok');});
 test('Negative Kosten-Garagenzahl und negativer Besichtigungsabschlag werden erkannt',()=>{const{e,R,D}=value({bw_verw_sp_anz:-100,bw_besichtigung:-50});assert.equal(K.pruefeBeleihung(e,R,D).status,'fehler');assert.ok(D.bwKosten.verwaltung>=300);});
 test('Sachwertorientierung verlangt einen Herstellungsansatz',()=>{const{e,R,D}=value({bw_ansatz:'sach',bw_herstell:0,bw_eigennutzung:true,bw_eigennutzung_grund:'Dokumentierter synthetischer Fall.'});assert.notEqual(K.pruefeBeleihung(e,R,D).status,'ok');});
+
+/* D37: Vergleichswert im Beleihungswert — § 19 Abs. 1 (Sicherheitsabschlag mind. 10 %), § 4 Abs. 1 und 2 BelWertV */
+test('Beleihung: Vergleichswert mit Sicherheitsabschlag, nie unter zehn Prozent (§ 19 Abs. 1)',()=>{
+  const a=value({bw_vgl:500000,bw_vgl_sicher:15});assert.equal(a.R.bwVglSicherP,15);nahe(assert,a.R.bwVergleich,425000,1e-6);
+  const b=value({bw_vgl:500000,bw_vgl_sicher:5});assert.equal(b.R.bwVglSicherP,10);nahe(assert,b.R.bwVergleich,450000,1e-6);
+  assert.ok(b.D.bwKorrekturen.some(t=>/Vergleichswert: mindestens 10 %/.test(t)));
+  const ohne=value({bw_vgl:0});assert.equal(ohne.R.bwVergleich,0);});
+test('Beleihung: Vergleichswertorientierung als Ausgangswert, Vermietungsabzug wie beim Sachwert (§ 4 Abs. 2)',()=>{
+  const{R}=value({bw_ansatz:'vergleich',bw_vgl:500000,bw_vgl_sicher:10,bw_vermietet:'ja',bw_vermiet_abzug:20000,bw_besichtigung:0,bw_abschlag:0});
+  assert.equal(R.bwAnsatz,'vergleich');nahe(assert,R.bwAusgang,450000,1e-6);nahe(assert,R.beleihungswert,430000,1e-6);});
+test('Beleihung: Vergleichswert nur bei EFH/ZFH und Wohnungseigentum, beim EFH mit mindestens fünf Vergleichspreisen',()=>{
+  const mfh=value({bw_ansatz:'vergleich',bw_vgl:500000,ek_typ:'Mehrfamilienhaus · bis 6 WE',ek_anz_we:4});
+  assert.ok(K.pruefeBeleihung(mfh.e,mfh.R,mfh.D).hinweise.some(h=>h.feld==='bw_ansatz'&&/§ 4 Abs. 1/.test(h.text)));
+  const efh=value({bw_ansatz:'vergleich',bw_vgl:500000,ek_typ:'EFH freistehend · unterkellert, DG ausgebaut',ek_anz_we:1,bw_vgl_anzahl:3});
+  const p=K.pruefeBeleihung(efh.e,efh.R,efh.D);
+  assert.ok(!p.hinweise.some(h=>h.feld==='bw_ansatz'));assert.ok(p.fehlend.some(f=>f.feld==='bw_vgl_anzahl'));
+  const efh5=value({bw_ansatz:'vergleich',bw_vgl:500000,ek_typ:'EFH freistehend · unterkellert, DG ausgebaut',ek_anz_we:1,bw_vgl_anzahl:5});
+  assert.ok(!K.pruefeBeleihung(efh5.e,efh5.R,efh5.D).fehlend.some(f=>f.feld==='bw_vgl_anzahl'));
+  const etw=value({ek_modus:'wohnung',bw_ansatz:'vergleich',bw_vgl:300000,bw_vgl_anzahl:2});
+  const pe=K.pruefeBeleihung(etw.e,etw.R,etw.D);assert.ok(!pe.hinweise.some(h=>h.feld==='bw_ansatz'));assert.ok(!pe.fehlend.some(f=>f.feld==='bw_vgl_anzahl'));});
+test('Beleihung: Vergleichswert als Kontrollwert — mehr als 20 % unter dem Ertragswert verlangt die Nachhaltigkeitskontrolle',()=>{
+  const{R}=value({bw_zins:5,bw_min_offiziell:5});assert.ok(R.bwErtrag>0);
+  const niedrig=value({bw_zins:5,bw_min_offiziell:5,bw_kontrollwert:'vergleich',bw_vgl:R.bwErtrag*0.5,ek_typ:'EFH freistehend · unterkellert, DG ausgebaut',ek_anz_we:1,bw_kontrolle:false});
+  assert.equal(niedrig.R.bwKontroll,'vergleich');assert.equal(niedrig.R.bwAusgang,niedrig.R.bwErtrag);
+  assert.ok(K.pruefeBeleihung(niedrig.e,niedrig.R,niedrig.D).fehlend.some(f=>f.feld==='bw_kontrolle'&&/Vergleichswert/.test(f.text)));
+  const hoch=value({bw_zins:5,bw_min_offiziell:5,bw_kontrollwert:'vergleich',bw_vgl:R.bwErtrag*1.5,ek_typ:'EFH freistehend · unterkellert, DG ausgebaut',ek_anz_we:1,bw_kontrolle:false});
+  assert.ok(!K.pruefeBeleihung(hoch.e,hoch.R,hoch.D).fehlend.some(f=>f.feld==='bw_kontrolle'));});
+
