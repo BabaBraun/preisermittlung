@@ -817,8 +817,9 @@ Substanz und Ertrag (bei der Wohnung Vergleich und Ertrag) stellen die vorhanden
 Einschalten auf die vorige zurück; beide aus geht nicht — keine neue Formel. Die neuen Felder heißen `…_aus`: fehlen sie
 in älteren Bewertungen oder Referenzfällen, ist der Abschnitt an. Ausgeschaltete Abschnitte zeigen nur Kopfzeile und
 Hinweis, ihre Pflichtfelder zählen nicht. Ohne Schalter bleiben Eckdaten, Allgemeine Angaben, Hauptgebäude,
-Preisempfehlung und Ersteller (ohne sie keine Bewertung) sowie Exposé, Präsentation und Vermarktung (eigene Ausgaben,
-fließen nicht in die Bewertung).
+Preisempfehlung und Ersteller (ohne sie keine Bewertung). Exposé, Präsentation und Vermarktung fließen ohnehin nicht in
+die Bewertung ein; auf Wunsch des Auftraggebers blendet ihr Schalter sie aus (`ex_aus`, `vp_aus`, `vm_aus`), die
+Eingaben bleiben erhalten.
 
 **Geprüft:** 94 Unit-Tests (neu: Zuschlag als Art = früherer negativer Betrag; zwei neue Fälle der
 Python-Vergleichsrechnung), 75 Browsertests (neu: Gliederung, Übernahme aus dem Aufnahmebogen, Schalter, § 8,

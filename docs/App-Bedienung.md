@@ -48,8 +48,9 @@ und Blöcke automatisch. Beim Drucken wird alles aufgeklappt. Die Eingaben und R
 in die Bewertung (Aufnahmebogen, Objektdaten, Datengrundlagen, Fotos und Rendite erscheinen dann auch nicht im
 Bericht); der Abschnitt zeigt nur noch seine Kopfzeile, seine Pflichtfelder zählen nicht. „Preis nach Substanz“ und
 „Preis nach Ertrag“ (bei der Wohnung „Vergleichswert“ und „Preis nach Ertrag“) stellen die Gewichtung auf „nur …“ —
-beide aus geht nicht; beim Wiedereinschalten gilt die vorige Gewichtung. Ohne Schalter: Eckdaten, Allgemeine Angaben,
-Hauptgebäude, Preisempfehlung, Ersteller sowie Exposé, Präsentation und Vermarktung.
+beide aus geht nicht; beim Wiedereinschalten gilt die vorige Gewichtung. Exposé, Präsentation und Vermarktung lassen
+sich mit ihrem Schalter ausblenden (die Eingaben bleiben). Ohne Schalter: Eckdaten, Allgemeine Angaben, Hauptgebäude,
+Preisempfehlung und Ersteller.
 
 **Aufnahmebogen → Bewertung:** Was vor Ort eingetragen wird, landet in der Bewertung:
 - „Bauteile & Ausstattungsstandard“: je Bauteil die passende Beschreibung wählen (z. B. Fenster: „Dreifachverglasung,

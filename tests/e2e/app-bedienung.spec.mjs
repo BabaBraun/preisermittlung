@@ -228,7 +228,7 @@ test('Ältere Bewertung: negativer Betrag erscheint als Zuschlag, Besichtigung a
  expect(await page.evaluate(()=>[_R.wkSumme,$('ek_besichtigung').value])).toEqual([9000,'2026-09-12']);
  await expect(page.locator('#wk_plus input[aria-label="Merkmal"]')).toHaveValue('Carport');
  await expect(page.locator('#wk_plus input[aria-label="Betrag in €"]')).toHaveValue('3.000,00');
- expect(await page.evaluate(()=>Object.keys(APP_SCHALTER).filter(id=>APP_SCHALTER[id].aus).map(id=>appSchalterAn(id)))).toEqual([true,true,true,true,true,true]);
+ expect(await page.evaluate(()=>Object.keys(APP_SCHALTER).filter(id=>APP_SCHALTER[id].aus).map(id=>appSchalterAn(id)))).toEqual(Array(9).fill(true));
 });
 test('Eckdaten: Anschrift, Telefon und E-Mail des Auftraggebers aus der Kundenakte',async({page})=>{
  await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appOpenObject();});
@@ -239,4 +239,19 @@ test('Eckdaten: Anschrift, Telefon und E-Mail des Auftraggebers aus der Kundenak
  await expect(z.locator('a[href^="tel:"]')).toHaveText('07062 000000');await expect(z.locator('a[href^="mailto:"]')).toHaveText('erika@example.org');
  // die Kontaktdaten stehen nur in der Akte, nicht in der Bewertung (D8)
  expect(await page.evaluate(()=>JSON.stringify(collect()))).not.toContain('Musterweg');
+});
+test('Exposé, Präsentation und Vermarktung lassen sich ausblenden, die Eingaben bleiben',async({page})=>{
+ await appOeffnen(page);await page.evaluate(()=>{pickVordruck('wh_bgf');appOpenObject();appAlleKlappen(true);});
+ await page.locator('#ex_titel').fill('Sonniges Einfamilienhaus');
+ for(const id of ['s-expose','s-praesentation','s-vermarktung']){
+  const sw=page.locator('#'+id+'>h2 .sec-schalter input');await expect(sw).toBeChecked();
+  await sw.uncheck();await expect(page.locator('#'+id)).toHaveClass(/sec-aus/);
+  await expect(page.locator('#'+id+'>.sec-aus-hinweis')).toContainText('Ausgeblendet');
+  await expect(page.locator('nav.side a[data-sec="'+id+'"] em')).toHaveText('aus');
+ }
+ await expect(page.locator('#ex_titel')).toBeHidden();
+ expect(await page.evaluate(()=>[$('ex_aus').checked,$('vp_aus').checked,$('vm_aus').checked,collect().ex_aus])).toEqual([true,true,true,true]);
+ await page.locator('#s-expose>h2 .sec-schalter input').check();
+ await expect(page.locator('#ex_titel')).toBeVisible();await expect(page.locator('#ex_titel')).toHaveValue('Sonniges Einfamilienhaus');
+ await keineSkriptfehler(page);
 });

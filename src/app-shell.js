@@ -160,8 +160,10 @@ function appAbschnitteKlappbar(){
    aus:  verstecktes Feld „…_aus“ (neu). Fehlt es in älteren Bewertungen, ist der Abschnitt an;
    gew:  Verfahren in der Gewichtung Substanz (bei der Wohnung: Vergleich) : Ertrag — der Schalter stellt die vorhandene
          Auswahl „Gewichtung“ auf „nur …“ und beim Einschalten zurück; keine neue Formel.
+   ausblenden: Exposé, Präsentation, Vermarktung fließen ohnehin nicht in die Bewertung ein — aus = ausgeblendet
+         (auf Wunsch des Auftraggebers), die Eingaben bleiben erhalten.
    Ohne Schalter bleiben Abschnitte, ohne die es keine Bewertung gibt (Eckdaten, Allgemeine Angaben, Hauptgebäude,
-   Preisempfehlung, Ersteller), und Exposé, Präsentation, Vermarktung — sie fließen nicht in die Bewertung ein. */
+   Preisempfehlung, Ersteller). */
 const APP_SCHALTER={
  's-aufnahme':{aus:'au_aus',text:'Aufnahmebogen verwenden',bericht:['besichtigung']},
  's-technik':{aus:'od_aus',text:'Objektdaten und Beschreibung verwenden',bericht:['objektdaten','beschreibung','lagecheck']},
@@ -178,7 +180,10 @@ const APP_SCHALTER={
  's-sanierung':{feld:'san_aktiv'},
  's-fotos':{aus:'fo_aus',text:'Fotos, Grundrisse und Karten verwenden',bericht:['fotos','karten','grundrisse']},
  's-belwert':{feld:'bw_aktiv'},
- 's-rendite':{aus:'re_aus',text:'Rendite und Investitionsrechnung verwenden',bericht:['rendite','investition']}
+ 's-rendite':{aus:'re_aus',text:'Rendite und Investitionsrechnung verwenden',bericht:['rendite','investition']},
+ 's-expose':{aus:'ex_aus',text:'Exposé verwenden',ausblenden:true},
+ 's-praesentation':{aus:'vp_aus',text:'Verkäufer-Präsentation verwenden',ausblenden:true},
+ 's-vermarktung':{aus:'vm_aus',text:'Vermarktung verwenden',ausblenden:true}
 };
 function appSchalterCfg(id){ const c=APP_SCHALTER[id]; if(!c) return null; return (c.wohnung&&modus()==='wohnung')?c.wohnung:c; }
 function appGewWert(){ let g=parseFloat(exV('gewichtung')); return g>=0&&g<=1?g:0.5; }
@@ -204,7 +209,8 @@ function appSchalterBauen(sec){
   else { cb=document.createElement('input'); cb.type='checkbox'; cb.addEventListener('input',()=>appSchalterGesetzt(sec.id,c,cb)); }
   cb.setAttribute('aria-label',text); lab.title=text; lab.append(cb); h.insertBefore(lab,vor);
   const hw=document.createElement('p'); hw.className='sec-aus-hinweis'+(klasse?' '+klasse:'');
-  hw.textContent='Ausgeschaltet'+(text?' („'+text+'“)':'')+' — fließt nicht in die Bewertung'+(c.bericht?' und nicht in den Bericht':'')+' ein. Zum Einbeziehen den Schalter oben rechts einschalten.';
+  hw.textContent=c.ausblenden?'Ausgeblendet — die Eingaben bleiben erhalten. Zum Bearbeiten den Schalter oben rechts einschalten.'
+   :'Ausgeschaltet'+(text?' („'+text+'“)':'')+' — fließt nicht in die Bewertung'+(c.bericht?' und nicht in den Bericht':'')+' ein. Zum Einbeziehen den Schalter oben rechts einschalten.';
   h.after(hw);
  };
  if(c0.wohnung){ bau(c0,'haus-only'); bau(c0.wohnung,'wohnung-only'); } else bau(c0,'');
