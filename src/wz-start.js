@@ -1,26 +1,36 @@
 /* ---------- Kacheln auf der Startseite und unter „Mehr“, nach Bereichen (D40) ----------
    Eine Liste für beide Stellen: Bereich → Kacheln [id, Name (weiche Trennstellen erlaubt), Symbol, Text Startseite, Text „Mehr“].
    Jeder Bereich hat eine eigene Farbe (assets/werkzeuge.css, data-gruppe). Kacheln, deren Werkzeug nicht geladen ist,
-   entfallen. Die Kacheln der Bewertung und der Liegenschaften stehen unverändert darüber. */
+   entfallen. Die Kacheln der Bewertung und der Liegenschaften stehen unverändert darüber. Seit D54–D61 fünf Bereiche: „Objekt & Unterlagen“
+   bündelt, was je Verkauf am Objekt zu klären ist (Kacheln nur verschoben). */
 const WZ_GRUPPEN=[
   {id:'vermarkten',titel:'Akquise & Vermarktung',kacheln:[
+    ['tipps','Tipps','store','Hinweise aus Filialen und von Partnern — Stand, Datenschutzinformation, Rückmeldung an den Tippgeber.','Hinweise aus Filialen, Rückmeldung, Auswertung je Filiale'],
     ['akquise','Akquise','sign','Eigentümer vom ersten Kontakt bis zum Auftrag — mit Termin, Wiedervorlage und Bewertung.','Eigentümer bis zum Auftrag'],
-    ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
+    ['maklervertrag','Makler­verträge','shield','Je Vertrag Abschlussweg, Textform, Belehrung und Widerrufsfrist — mit Ampel zur Provision.','Abschluss, Belehrung, Widerrufsfrist'],
     ['interessenten','Interessenten','inbox','Anfragen, Besichtigungen und der Abgleich aller Suchprofile mit den Objekten in Vermarktung.','Anfragen, Abgleich mit Suchprofilen'],
     ['bieter','Bieter­verfahren','trending-up','Gebote sammeln und vergleichen — Übersicht für den Eigentümer ohne Namen.','Gebote sammeln und vergleichen'],
     ['eigentuemerbericht','Eigentümer­bericht','file-text','Anfragen, Besichtigungen und Gebote aus allen Kacheln — als Bericht ohne Namen.','Vermarktungsbericht aus allen Quellen'],
-    ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],
-    ['schwaerzen','PDF schwärzen','file','Unterlagen vor der Weitergabe unkenntlich machen — Namen, Kontonummern, Geburtsdaten; als neue PDF.','Unterlagen als PDF schwärzen'],
     ['portal','Portal-Export','upload','Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.','Objekte mit Bildern für Immobilienportale'],
     ['aushang','Aushang','printer','Eine Seite für Schaufenster und Filiale — Bild, Preis, Pflichtangaben, Ansprechpartner.','Aushang für Schaufenster und Filiale'],
     ['social','Social Media','megaphone','Bild und Text für Instagram, Facebook und Status — im Farbschema, mit Pflichtangaben.','Bild und Text je Objekt'],
     ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails'],
     ['rundschreiben','Rund­schreiben','send','Ein Schreiben an viele: Suchkunden zum Objekt oder alle mit Einwilligung — Serienbrief oder E-Mail in Bcc.','Serienbrief und E-Mail an viele']]},
+  {id:'objekt',titel:'Objekt & Unterlagen',kacheln:[
+    ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
+    ['objektauskunft','Objekt­auskunft','clipboard','Angaben des Eigentümers zu Mängeln, Rechten und Vermietung — mit Unterschrift auf dem Gerät.','Angaben des Eigentümers mit Unterschrift'],
+    ['befugnis','Wer verkauft?','users','Erben, Betreuer, Eltern, Vollmacht, Ehegatte — Nachweise und Genehmigungen je Verkauf, direkt in „Unterlagen“.','Verfügungsbefugnis: Nachweise und Genehmigungen'],
+    ['vermietet','Vermietet verkaufen','building','Mieter ohne Namen: Vorkaufsrecht mit Frist, Sperrfrist, Eigenbedarf, Kaution und Übergang — als Ampel.','Vorkaufsrecht, Sperrfrist, Kaution bei vermieteten Objekten'],
+    ['schluessel','Schlüssel­buch','key','Welche Schlüssel du vom Eigentümer hast, wer welchen gerade hat und wann er zurückkommt — mit Quittung.','Übernahme, Ausgabe, Rückgabe mit Quittung'],
+    ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],
+    ['schwaerzen','PDF schwärzen','file','Unterlagen vor der Weitergabe unkenntlich machen — Namen, Kontonummern, Geburtsdaten; als neue PDF.','Unterlagen als PDF schwärzen']]},
   {id:'abschluss',titel:'Abschluss',kacheln:[
     ['fahrplan','Verkaufs­fahrplan','list-check','Jeder Auftrag Schritt für Schritt — vom Auftrag bis zur Übergabe, mit Fortschritt.','Schritte je Auftrag bis zur Übergabe'],
     ['notar','Notarauftrag','pen','Alle Angaben für den Kaufvertragsentwurf — Datenblatt, Termin im Kalender, Übergabe.','Angaben für den Kaufvertragsentwurf, Termin, Übergabe'],
+    ['gwg','Geld­wäsche-Prüfung','shield','Je Verkauf: Käufer und Verkäufer identifiziert? Ampel nach Stand, Abgleich mit dem Notarauftrag — ohne Ausweisdaten.','Identifizierung je Verkauf, Ampel, Notar-Abgleich'],
     ['provision','Provision','receipt','Abrechnung je Verkauf — Teilung geprüft, Rechnung mit Pflichtangaben, Zahlungseingang.','Abrechnung, Rechnung, Zahlungseingang'],
-    ['uebergabe','Übergabe­protokoll','key','Zählerstände, Schlüssel und Mängel mit Fotos — beide Seiten unterschreiben auf dem Gerät.','Zähler, Schlüssel, Mängel, Unterschriften']]},
+    ['uebergabe','Übergabe­protokoll','key','Zählerstände, Schlüssel und Mängel mit Fotos — beide Seiten unterschreiben auf dem Gerät.','Zähler, Schlüssel, Mängel, Unterschriften'],
+    ['weitergabe','Weiter­gaben','arrow-right','Kunden mit Einwilligung an Kollegen übergeben — Baufinanzierung, Versicherung, Bausparen, Geldanlage — und den Rücklauf verfolgen.','Übergabe an Kollegen, Rücklauf, Auswertung']]},
   {id:'beraten',titel:'Beratung',kacheln:[
     ['erbe','Übergeben & Vererben','gift','Schenkung oder Erbe, mit Nießbrauch oder Wohnrecht — Freibeträge und Steuer im Vergleich.','Schenkung oder Erbe, Nießbrauch, Freibeträge'],
     ['rente','Wohnen im Alter','hourglass','Einmalzahlung, Leibrente, Teilverkauf oder Rückmiete — was bleibt monatlich und für die Erben?','Einmalzahlung, Leibrente, Teilverkauf, Rückmiete'],

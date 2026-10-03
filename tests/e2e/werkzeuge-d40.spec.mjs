@@ -156,8 +156,8 @@ test('Verkaufsfahrplan erkennt Schritte selbst; Kaufen oder Mieten rechnet wie I
   await page.locator('.fp-karte').getByRole('button', { name: 'Öffnen' }).click();
   for (const t of ['Bewertung erstellt', 'Fotos aufgenommen und bearbeitet', 'Angebotspreis mit dem Eigentümer abgestimmt'])
     await expect(page.locator('.fp-schritt', { hasText: t })).toContainText('erkannt');
-  await page.locator('.fp-schritt', { hasText: 'Maklervertrag in Textform' }).locator('input[type="checkbox"]').check();
-  await expect(page.locator('.fp-schritt', { hasText: 'Maklervertrag in Textform' })).toHaveClass(/ok/);
+  await page.locator('.fp-schritt', { hasText: 'Maklervertrag geschlossen' }).locator('input[type="checkbox"]').check();
+  await expect(page.locator('.fp-schritt', { hasText: 'Maklervertrag geschlossen' })).toHaveClass(/ok/);
   expect(await page.evaluate(() => wzAlle().fahrplan[FP.aktiv].maklervertrag.ok)).toBe(true);
   // Kaufen oder Mieten
   await page.evaluate(() => wzOeffnen('kaufmiete'));

@@ -352,8 +352,56 @@ const BEREICHE = [
   { name: 'Werkzeug – Social Media', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
     if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
     wzOeffnen('social'); }) },
+  { name: 'Werkzeug – Maklerverträge', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('maklervertrag'); await wzdLaden(); MV.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Maklervertrag', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('maklervertrag'); await wzdLaden();
+    let a = wzdAkten('maklervertrag')[0];
+    if (!a) { await mvNeu('verkaeufer', { projektId: (pjLoad()[0] || {}).id || '', kundeId: 'k_test' }); a = MV.aktiv;
+      Object.assign(a, { abschluss: '2026-09-28', weg: 'online' }); Object.assign(a.belehrung, { datum: '2026-09-28', form: 'datentraeger' }); await wzdSpeichernSofort('akten', a); }
+    await mvOeffnen(a.id); }) },
+  { name: 'Werkzeug – Tipps', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('tipps'); await wzdLaden(); TP.aktiv = null; tpSetz('ansicht', 'liste'); }) },
+  { name: 'Werkzeug – Tipps-Auswertung', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('tipps'); await wzdLaden(); TP.aktiv = null; tpSetz('ansicht', 'auswertung'); }) },
+  { name: 'Werkzeug – Tippgeber', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('tipps'); await wzdLaden(); TP.aktiv = null;
+    if (!tpS().geber.length) tpS().geber.push({ id: 'tg_kt', name: 'Erika Beispiel', filiale: 'Filiale Musterstadt', art: 'kundenberater', email: 'erika.beispiel@example.org' });
+    tpSetz('ansicht', 'tippgeber'); }) },
+  { name: 'Werkzeug – Tipp', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('tipps'); await wzdLaden();
+    if (!tpS().geber.length) { tpS().geber.push({ id: 'tg_kt', name: 'Erika Beispiel', filiale: 'Filiale Musterstadt', art: 'kundenberater', email: 'erika.beispiel@example.org' }); wzSpeichern(); }
+    let t = wzdAkten('tipp').find(x => x.kundeId);
+    if (!t) { t = tpLeer({ datum: '2026-09-25', geberId: tpS().geber[0].id, quelle: { name: tpS().geber[0].name, filiale: tpS().geber[0].filiale, art: tpS().geber[0].art }, kundeId: 'k_test' }); await wzdSpeichern('akten', t); }
+    await tpOeffnen(t.id); }) },
   { name: 'Werkzeug – Unterlagen', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('unterlagen'); await wzdLaden(); UL.aktiv = null; wzZeichnen(); }) },
   { name: 'Werkzeug – Unterlagen je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('unterlagen'); await wzdLaden(); if (p) await ulOeffnen(p.id); }) },
+  { name: 'Werkzeug – Objektauskunft', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('objektauskunft'); await wzdLaden(); OA.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Objektauskunft je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('objektauskunft'); await wzdLaden(); if (!p) return; await oaOeffnen(p.id);
+    const r = OA.aktiv; if (!r.kundeIds.includes('k_test')) r.kundeIds.push('k_test');
+    for (const q of ImmoObjektauskunftRegeln.fragenFuer(r)) if (!(r.antworten[q.key] || {}).wert) r.antworten[q.key] = Object.assign({ text: '' }, r.antworten[q.key], { wert: 'nein' });
+    await wzdSpeichernSofort('akten', r); wzZeichnen(); }) },
+  { name: 'Werkzeug – Schlüsselbuch', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('schluessel'); await wzdLaden(); SK.aktiv = null; SK.offen = ''; wzZeichnen(); }) },
+  { name: 'Werkzeug – Schlüsselbuch je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('schluessel'); await wzdLaden(); if (!p) return;
+    await skOeffnen(p.id); const r = SK.aktiv; if (!r) return;
+    if (!r.schluessel.length) r.schluessel.push(skSchluesselNeu('Haustür'));
+    if (!(+r.schluessel[0].anzahl > 1)) r.schluessel[0].anzahl = '2';
+    if (!r.ausgaben.length) r.ausgaben.push({ id: 'sa_kt', schluesselId: r.schluessel[0].id, anzahl: '1', rolle: 'handwerker', modus: 'firma', kundeId: '', firma: 'Malerbetrieb Muster GmbH',
+      datum: '2026-09-20', rueckgabeBis: '2026-09-25', zurueckAm: '', notiz: '', unterschrift: '', zeit: '', stand: '', wv: '' });
+    await wzdSpeichern('akten', r); SK.offen = r.ausgaben[0].id; wzZeichnen(); }) },
+  { name: 'Werkzeug – Wer verkauft?', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('befugnis'); await wzdLaden(); BF.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Wer verkauft? je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('befugnis'); await wzdLaden();
+    if (p) { await bfOeffnen(p.id); if (BF.aktiv && !BF.aktiv.eigentuemer) { Object.assign(BF.aktiv, { eigentuemer: 'verstorben', erben: 'mehrere', tv: 'nein', nacherbfolge: 'nein', nachweis: 'enz' }); bfAenderung(); } } }) },
+  { name: 'Werkzeug – Vermietet verkaufen', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('vermietet'); await vvLaden(true); VV.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Vermietet verkaufen je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('vermietet'); if (p) await vvNeu(p.id); }) },
+  { name: 'Werkzeug – Geldwäsche-Prüfung', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('gwg'); await wzdLaden(); GW.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Geldwäsche-Prüfung je Verkauf', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('gwg'); await wzdLaden(); if (!p) return; await gwgOeffnen(p.id);
+    if (GW.aktiv && !GW.aktiv.personen.length && KD_CACHE[0]) { const k = KD_CACHE[0].id;
+      await gwPersonHinzu('verkaeufer', 'verkaeufer', k); await gwPersonHinzu('kaeufer', 'kaeufer', k); await gwPersonHinzu('kaeufer', 'vertreter', k); await gwPersonHinzu('kaeufer', 'wb', k); } }) },
+  { name: 'Werkzeug – Weitergaben', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('weitergabe'); await wzdLaden(); WG.aktiv = null; WG.neu = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Neue Weitergabe', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('weitergabe'); await wzdLaden(); await wgNeu({ kundeId: 'k_test' }); }) },
+  { name: 'Werkzeug – Weitergabe', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('weitergabe'); await wzdLaden(); let w = wzdAkten('weitergabe')[0];
+    if (!w) { w = wgLeer({ id: 'we_kt', kundeId: 'k_test', datum: '2026-09-20', einwilligung: { ja: true, datum: '2026-09-20', form: 'vordruck', rueckmeldung: true, widerrufen: '' }, freigabe: { kontakt: true } });
+      delete w.wvAnlegen; await wzdSpeichern('akten', w); }
+    await wgOeffnen(w.id); }) },
   { name: 'Werkzeug – Kaufnebenkosten', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'kaeufer'; wzZeichnen(); }) },
   { name: 'Werkzeug – Erlös des Verkäufers', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'verkaeufer'; wzZeichnen(); }) },
   { name: 'Werkzeug – Provision', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('provision'); await wzdLaden(); PA.aktiv = null; wzZeichnen(); }) },

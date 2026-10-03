@@ -256,6 +256,7 @@ async function kdLoeschen(id){
   if(!kwLoeschenErlaubt(k)) return;   // D51: § 7a UWG
   if(!confirm('„'+kdName(k)+'“ mit allen Notizen und Finanzierungsrechnungen endgültig löschen?'
     +'\nAnfragen, Akquise-Einträge und Gebote dieses Kunden werden mitgelöscht, aus Terminen wird er ausgetragen, in Provisionsabrechnungen, Notaraufträgen und Übergabeprotokollen werden Name, Kontaktdaten und Unterschrift entfernt, ebenso in Vollmachten für Unterlagen.'
+    +'\nIn Maklerverträgen, Tipps, Weitergaben, „Wer verkauft?“, „Vermietet verkaufen“, Schlüsselbuch, Objektauskünften und der Geldwäsche-Prüfung wird der Kunde ausgetragen, Unterschriften werden entfernt. Nachweise im Banksystem bleiben unberührt.'
     +(bew.length?'\n\n'+bew.length+' zugeordnete Bewertung'+(bew.length===1?' bleibt':'en bleiben')+' erhalten, die Zuordnung wird gelöst.':''))) return;
   let aufWeg=auf.length?confirm('Auch die '+auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+' zu diesem Kunden löschen?\n„Abbrechen“ behält sie ohne Kundenbezug.'):false;
   try{

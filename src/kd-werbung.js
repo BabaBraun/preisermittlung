@@ -7,9 +7,11 @@ const KW_DS_LEER={art:'direkt',erhobenAm:'',erteiltAm:'',bereits:false,fundstell
 function kwModell(k){ let w=ImmoWerbung.norm(k); delete w.migriert; if(!w.dsinfo) delete w.dsinfo; return w; }
 function kwKunde(){ return KD_CACHE.find(x=>x.id===KD_AKTIV)||null; }
 function kwDe(s){ return s?String(s).split('-').reverse().join('.'):''; }
-/* neue Kunden: Verbraucher, Datenschutzinformation bei der Erhebung fällig (Art. 13 Abs. 1 DSGVO) */
+/* neue Kunden: Verbraucher, Datenschutzinformation bei der Erhebung fällig (Art. 13 Abs. 1 DSGVO); aus einem Tipp: von Dritten
+   mit Quelle und Datum (Art. 14 DSGVO) — d.dsinfoArt, d.quelle, d.erlangtAm */
 function kwNeu(d){
-  d=d||{}; let heute=aufHeute(), w={verbraucher:d.anrede!=='Firma',dsinfo:Object.assign({},KW_DS_LEER,{erhobenAm:heute,erteiltAm:d.dsinfo?heute:''})};
+  d=d||{}; let heute=aufHeute(), w={verbraucher:d.anrede!=='Firma',dsinfo:Object.assign({},KW_DS_LEER,{art:d.dsinfoArt==='dritter'?'dritter':'direkt',erhobenAm:heute,
+    erteiltAm:d.dsinfo?heute:'',quelle:String(d.quelle||''),erlangtAm:String(d.erlangtAm||'')})};
   const ein=x=>({stand:'einwilligung',erteiltAm:heute,erfasstAm:heute,form:d.einwilligungForm||'',nachweis:'',zweck:'Angebote zu Immobilien',widerrufAm:'',widerrufWeg:''});
   if(d.einwilligungEmail||d.einwilligung) w.email=ein();
   if(d.einwilligungTelefon||d.einwilligung) w.telefon=Object.assign(ein(),{mutmasslichGrund:'',verwendungen:[]});

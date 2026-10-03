@@ -142,10 +142,12 @@
 /* ---------- Bereiche der Kacheln mit eigener Farbe (D40) ---------- */
 .wz-gruppe{margin:0 0 6px}
 .wz-gruppe[data-gruppe="vermarkten"],.app-actions-list[data-gruppe="vermarkten"]{--gruppe:#0f62a0;--gruppe-tint:#e2eef8}
+.wz-gruppe[data-gruppe="objekt"],.app-actions-list[data-gruppe="objekt"]{--gruppe:#00796b;--gruppe-tint:#dcf1ed}
 .wz-gruppe[data-gruppe="abschluss"],.app-actions-list[data-gruppe="abschluss"]{--gruppe:#6a3fbf;--gruppe-tint:#efe8fb}
 .wz-gruppe[data-gruppe="beraten"],.app-actions-list[data-gruppe="beraten"]{--gruppe:#9a4a00;--gruppe-tint:#fcecd8}
 .wz-gruppe[data-gruppe="organisieren"],.app-actions-list[data-gruppe="organisieren"]{--gruppe:#2f6b2a;--gruppe-tint:#e4f1e1}
 [data-theme="dark"] .wz-gruppe[data-gruppe="vermarkten"],[data-theme="dark"] .app-actions-list[data-gruppe="vermarkten"]{--gruppe:#8cc4f0;--gruppe-tint:#17324a}
+[data-theme="dark"] .wz-gruppe[data-gruppe="objekt"],[data-theme="dark"] .app-actions-list[data-gruppe="objekt"]{--gruppe:#7fd3c6;--gruppe-tint:#12352f}
 [data-theme="dark"] .wz-gruppe[data-gruppe="abschluss"],[data-theme="dark"] .app-actions-list[data-gruppe="abschluss"]{--gruppe:#c4b0f5;--gruppe-tint:#2e2450}
 [data-theme="dark"] .wz-gruppe[data-gruppe="beraten"],[data-theme="dark"] .app-actions-list[data-gruppe="beraten"]{--gruppe:#f3b979;--gruppe-tint:#3d2914}
 [data-theme="dark"] .wz-gruppe[data-gruppe="organisieren"],[data-theme="dark"] .app-actions-list[data-gruppe="organisieren"]{--gruppe:#a6d99e;--gruppe-tint:#1f3a1d}
@@ -397,3 +399,127 @@
 .ab-vorschau{font-size:12.5px;line-height:1.5;color:var(--text-2);background:var(--surface-2);border-radius:var(--rs);padding:10px 12px;min-height:40px}
 
 .ds-turnus{max-width:460px;margin:8px 0 0}
+
+/* Maklerverträge (D54) */
+.mv-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mv-chip{display:inline-block;font-size:11.5px;line-height:1.3;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--line)}
+.mv-chip.mv-rot{color:var(--bad);border-color:currentColor}
+.mv-chip.mv-gelb{color:var(--warn);border-color:currentColor}
+.mv-chip.mv-gruen{color:var(--ok);border-color:currentColor}
+.mv-folge{margin:2px 0 6px;font-size:12.5px;line-height:1.45;color:var(--text-2);border-left:3px solid var(--line);padding-left:10px}
+.mv-unter{margin:14px 0 6px;font-size:13px}
+.mv-zusatz{margin:8px 0 0}
+
+/* Kachel „Geldwäsche-Prüfung“ (D55) */
+.gwg-seiten .wz-ampel{margin:6px 0}
+.gwg-zeile{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line-2);border-radius:var(--rs);padding:10px 12px;margin:8px 0 12px}
+.gwg-zeile.gwg-rot{border-left-color:#c0392b}.gwg-zeile.gwg-gelb{border-left-color:#d69e0b}.gwg-zeile.gwg-gruen{border-left-color:#2f8a4e}
+.gwg-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.gwg-kopf b{display:block;font-size:14px}.gwg-kopf span{display:block;font-size:12px;color:var(--muted)}
+.gwg-kopf button.weg{border:none;background:none;color:var(--muted);padding:4px 8px;height:auto;cursor:pointer}
+.gwg-liste{margin:8px 0 4px;padding-left:22px}
+.gwg-zeile.gwg-grau .gwg-liste{display:none}
+.gwg-liste>li{padding:6px 0;border-top:1px solid var(--line)}.gwg-liste>li:first-child{border-top:none}
+.gwg-haken .wz-check{padding:2px 0}.gwg-haken .grid{margin-top:4px}
+.wz-ampel.gwg-orange{border-left:4px solid #e67e22}.gwg-orange .wz-punkt{background:#e67e22}
+.pa-chip.gwg-rot{color:var(--bad);border-color:currentColor}.pa-chip.gwg-gelb{color:var(--warn);border-color:currentColor}
+.pa-chip.gwg-gruen{color:var(--ok);border-color:currentColor}.pa-chip.gwg-orange{color:#b9600f;border-color:currentColor}
+.gwg-abgleich{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:6px 0 6px 10px;border-left:3px solid var(--line-2);margin:4px 0}
+.gwg-abgleich.gwg-rot{border-left-color:#c0392b}.gwg-abgleich.gwg-gruen{border-left-color:#2f8a4e}
+.gwg-abgleich span{flex:1 1 220px;min-width:0}.gwg-abgleich small{color:var(--muted)}
+.gwg-abgleich button{height:auto;padding:5px 12px}
+.gwg-gwb{font-size:13px;margin:8px 0 0}
+.fp-auto.gwg-fp-offen{color:var(--bad);background:var(--bad-bg)}   /* Schritt „Geldwäsche“ im Verkaufsfahrplan, solange offen */
+
+/* Tipps */
+.tp-text{white-space:pre-wrap;font:inherit;font-size:13.5px;line-height:1.5;margin:4px 0 8px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:var(--rs);background:var(--surface-2)}
+.tp-betreff{margin:0;font-size:13.5px}
+.tp-zelle small{display:block;color:var(--muted);font-size:11.5px;white-space:nowrap}
+.tp-geber{align-items:end;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--line-soft)}
+.tp-weg button{height:auto;padding:7px 12px}
+.tp-schmal{max-width:560px}
+
+/* Kachel „Weitergaben“ (D57) */
+.wg-kollegen>summary,.wg-schnell>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);padding:4px 0}
+.wg-kollegen>summary{font-size:14px;color:var(--text)}
+.wg-kollege{border-top:1px solid var(--line);padding-top:8px;margin-top:8px;align-items:end}
+.wg-schnell{margin-top:8px}
+.wg-vorschlag{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}
+.wg-vorschlag>span{flex:1 1 260px}
+.wg-vorschlag button{height:auto;padding:6px 12px}
+.wg-auswertung tr.wg-summe td{font-weight:600;border-top:2px solid var(--line)}
+.wg-pruefung:empty{display:none}
+
+/* Kachel „Wer verkauft?“ */
+.bf-chip{display:inline-block;font-size:11.5px;line-height:1.3;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--line)}
+.bf-chip.bf-rot{color:var(--bad);border-color:currentColor}
+.bf-chip.bf-gelb{color:var(--warn);border-color:currentColor}
+.bf-chip.bf-gruen{color:var(--ok);border-color:currentColor}
+.bf-vertreter{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0}
+.bf-name{display:inline-flex;align-items:center;gap:2px;font-weight:600;font-size:13px;padding:2px 2px 2px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+.bf-name button.weg,.bf-rolle button.weg{border:none;background:none;color:var(--muted);padding:2px 8px;height:auto;cursor:pointer}
+.bf-name button.weg:hover,.bf-rolle button.weg:hover{color:var(--bad)}
+.bf-frist{font-size:13px;margin:6px 0;color:var(--text-2)}
+.bf-pr:empty{display:none}
+.bf-person .grid{margin-top:6px}
+.bf-person .pa-unter{margin-top:12px}
+
+/* Kachel „Vermietet verkaufen“ (D59) — sonst nur vorhandene Klassen (no-person, kd-karte, pa-chip, wz-ampel, wz-kpis) */
+.vv-vorkauf{border-top:1px dashed var(--line);margin-top:12px;padding-top:10px}
+.vv-vorkauf[hidden]{display:none}
+.vv-vorkauf h4{font-size:13.5px;margin:0 0 6px}
+.vv-bereich{font-size:13px;font-weight:600;margin:12px 0 4px;color:var(--text-2)}
+.vv-bereich:first-child{margin-top:0}
+.vv-frist{font-size:13px;margin:8px 0 4px}
+.vv-frist:empty{display:none}
+
+/* Schlüsselbuch: Schlüssel, Ausgaben mit Status, Bestand */
+.sk-reihe{grid-template-columns:minmax(0,1.3fr) minmax(70px,.45fr) minmax(0,1fr) auto}
+.sk-reihe-rueck{grid-template-columns:minmax(0,1.3fr) minmax(90px,.6fr) minmax(0,1fr)}
+.sk-rueck-name{display:flex;flex-direction:column;gap:2px;align-self:center}
+.sk-rueck-name small{color:var(--muted);font-size:12px}
+.sk-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sk-chip{display:inline-block;font-size:11.5px;line-height:1.3;padding:3px 8px;border-radius:999px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--line);white-space:nowrap}
+.sk-chip.sk-rot{color:var(--bad);border-color:currentColor}
+.sk-chip.sk-gelb{color:var(--warn);border-color:currentColor}
+.sk-chip.sk-gruen{color:var(--ok);border-color:currentColor}
+.sk-ausgabe{border:1px solid var(--line);border-left:4px solid var(--line-2);border-radius:var(--rs);padding:10px 12px;margin:8px 0;background:var(--card)}
+.sk-ausgabe.sk-ueberfaellig{border-left-color:#c0392b}
+.sk-ausgabe.sk-heute,.sk-ausgabe.sk-ohneFrist{border-left-color:#d69e0b}
+.sk-ausgabe.sk-offen,.sk-ausgabe.sk-zurueck{border-left-color:#2f8a4e}
+.sk-ausgabe-kopf{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.sk-ausgabe-kopf>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sk-ausgabe-kopf>div>span{font-size:12px;color:var(--muted)}
+.sk-knoepfe{margin:8px 0 0}
+.sk-auf>.grid{margin-top:10px}
+.sk-vorschlag{align-items:center;margin:6px 0 10px}
+.sk-vorschlag>span{font-size:12.5px;color:var(--muted)}
+.sk-tab tr.sk-fehler td{color:var(--bad)}
+.sk-mitgeben{font-size:13px;margin:6px 0}
+.sk-los{margin-left:8px;padding:3px 10px;height:auto}
+.sk-details>summary{cursor:pointer;font-weight:600;font-size:14px}
+@media (max-width:700px){
+  .sk-reihe{grid-template-columns:minmax(0,1fr) minmax(70px,.5fr) auto}
+  .sk-reihe>.field:nth-child(3){grid-column:1/-1;order:3}
+  .sk-reihe-rueck{grid-template-columns:1fr 1fr}
+  .sk-rueck-name{grid-column:1/-1}
+}
+
+/* ---------- Objektauskunft (D61) ---------- */
+.oa-frage{padding:10px 0 6px;border-top:1px solid var(--line)}
+.oa-gruppe h3+.oa-frage{border-top:none;padding-top:2px}
+.oa-frage-kopf{display:flex;gap:6px 12px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.oa-frage-kopf>span:first-child{flex:1 1 320px;font-size:13.5px;font-weight:600;line-height:1.45}
+.oa-herkunft{flex:0 0 auto;font-size:11.5px;line-height:1.3;padding:2px 8px;border-radius:999px;border:1px solid currentColor;color:var(--accent);white-space:nowrap}
+.oa-herkunft.oa-geaendert{color:var(--muted)}
+.oa-herkunft[hidden],.oa-aendern[hidden],.oa-vorbelegen[hidden]{display:none!important}
+.oa-wahl{margin-bottom:6px}
+.oa-zusatz{margin-top:6px}
+.oa-gesperrt .oa-wahl button:disabled{opacity:.6;cursor:not-allowed}
+.oa-verlauf{margin:0}
+/* Dokument: gleiche Spalten in allen Abschnitten; die letzte Spalte ist Text (der Bericht setzt sie sonst rechtsbündig ohne Umbruch) */
+#report.wz-dok .oa-tab{table-layout:fixed}
+#report.wz-dok .oa-tab .oa-sp-frage{width:50%}
+#report.wz-dok .oa-tab .oa-sp-antwort{width:6.5em}
+#report.wz-dok .oa-tab td{white-space:normal;text-align:left;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
+@media (max-width:600px){ #report.wz-dok .oa-tab .oa-sp-frage{width:40%} #report.wz-dok .oa-tab .oa-sp-antwort{width:5.5em} }

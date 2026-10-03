@@ -242,6 +242,46 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   setzt alles auf „angefordert“. Unten unterschreibt der Eigentümer die Vollmacht auf dem Gerät; „Vollmacht als Dokument“.
 - **Aushang:** ein Objekt groß oder bis zu vier als Übersicht für Schaufenster und Filiale — mit Preis, Pflichtangaben zum
   Energieausweis und Ansprechpartner; „Aushang anzeigen“, dann Drucken oder PDF.
+- **Maklerverträge:** „Vertrag mit Verkäufer“ oder „Vertrag mit Käufer“ wählen, dann das Objekt. Den Eigentümer übernimmt die App aus der Bewertung, sonst „Aus der Kundenakte“. Vertragsschluss und Abschlussweg eintragen; darunter steht, ob ein Widerrufsrecht besteht. Dann vermerken, wann Textform, Belehrung mit Muster-Widerrufsformular und Abschrift übergeben wurden (auf Papier oder mit Zustimmung per E-Mail). Beim Käufer kommen Exposé, erste Bitte um Besichtigung und Vereinbarung dazu. Oben zeigen Widerrufsfrist, Höchstfrist und die Ampel zur Provision, was fehlt. Liegt der Notartermin vor dem Fristende und fehlt das Verlangen auf vorzeitigen Beginn, wird es rot. „Fristen vormerken“ legt Wiedervorlagen im Kalender an, „In die Kundenakte“ einen Vermerk. Bei einem Widerruf „Widerruf in Kundenakte und Kalender“ wählen; die App merkt die Rückzahlungsfrist vor. „Dokument“ gibt den Prüfbogen aus, in der Liste die Übersicht ohne Namen. Die Texte selbst sind die Vordrucke der Bank.
+- **Geldwäsche-Prüfung:** Ein Objekt öffnen. Die Ampeln zeigen je Seite, ob die Identifizierung bald fällig (gelb) oder fällig ist (rot). Personen kommen aus den Vorschlägen (Eigentümer aus der Bewertung, Käufer mit angenommenem Gebot), aus dem Abgleich mit dem Notarauftrag („Übernehmen“ oder „Aus der Kundenakte zuordnen“) oder über „Käufer hinzufügen“, „Auftretende Person“ und „Wirtschaftlich Berechtigter“. Die Punkte je Person abhaken, sobald sie im Banksystem erledigt sind, jeweils mit Datum und Kürzel. Ausweisdaten gehören nicht in die App. Zum Schluss „Sorgfaltspflichten im Banksystem vollständig dokumentiert“ abhaken: Die Zeile wird grün. Hat die Gegenseite einen eigenen Makler, „Prüfung erforderlich: nein“ wählen und den Firmennamen eintragen. Den Tag der Übermittlung an das Notariat eintragen: Spätere Identifizierungen markiert die App als „nachträglich“. Einen Verdacht nie in der App festhalten, sondern direkt an den Geldwäschebeauftragten geben. Seinen Namen und seine Telefonnummer trägt man in der Übersicht unter „Einstellungen“ ein. Ist die Provision eingegangen, schlägt die Kachel vor, den Vorgang zu löschen.
+- **Tipps:** einmal unter „Tippgeber“ die Kolleginnen, Kollegen und Partner mit Filiale oder Bereich, Art und E-Mail eintragen. „Neuer Tipp“:
+  Datum, Tippgeber, Art und Stand wählen, den Kunden aus der Kundenakte holen oder neu erfassen und das Einverständnis mit der Kontaktaufnahme
+  eintragen. Die Ampel „Datenschutzinformation“ nennt die Frist (ein Monat, früher beim ersten Kontakt oder bei einer Weitergabe): erteilt am,
+  Weg und Vordruck eintragen oder „bereits informiert“ mit Fundstelle; „Wiedervorlage zur Frist“. „Akquise-Kontakt anlegen“ (bei Kaufwunsch
+  „Anfrage anlegen“) öffnet den Eintrag in der passenden Kachel; zurück in „Tipps“ ist er verknüpft, und die App schlägt dessen Stand vor.
+  „Rückmeldung an den Tippgeber“ als E-Mail oder zum Kopieren, nur mit dem Stand, ohne Einzelheiten zum Kunden. „Auswertung“ zeigt die Tipps je
+  Filiale, Quartal und Art bis Auftrag und Verkauf, ohne Namen; „Dokument“ gibt sie aus. In der Kundenakte stehen die Tipps des Kunden mit Quelle.
+- **Weitergaben:** Zuerst einmal unten die Ansprechpartner der Bank eintragen (Name, Bereich, Filiale, Telefon, E-Mail).
+  - Neue Weitergabe: über „Neue Weitergabe“, in der Kundenakte über „An Kollegen weitergeben“ oder über einen Vorschlag unter „Nach dem Kauf“.
+  - Kunde (oder eine Anfrage übernehmen), Anlass, Objekt, Kollege und Anliegen eintragen.
+  - Die Einwilligung des Kunden mit Datum und Form anhaken. Ohne sie speichert die App nichts.
+  - Anhaken, was auf das Übergabeblatt darf. „Speichern“ legt die Wiedervorlage „Rücklauf prüfen“ an.
+  - „Übergabeblatt“ (PDF, Word) ist für den Kollegen.
+  - Rückmeldungen unter „Stand“ eintragen, auf Wunsch mit Volumen. Einen Widerruf mit Datum erfassen.
+  - Die Auswertung zählt je Anlass und Stand, nicht je Kollege. „Dokument“ in der Übersicht gibt sie ohne Namen aus.
+- **Wer verkauft?** (Abschluss): Klärt je Verkauf, wer verkaufen darf und was dafür vorliegen muss.
+  - **Öffnen:** Objekt öffnen („Prüfen“) und die Einstiegsfragen beantworten: Lebt der eingetragene Eigentümer? Wer hat geerbt? Gibt es Testamentsvollstreckung oder Vor- und Nacherbfolge?
+  - **Personen:** Verkäufer, Erben oder Miterben aus der Kundenakte wählen. Je Person die Vertretung (Bevollmächtigter, Betreuer, Eltern, Ergänzungspfleger) mit Vertreter angeben, außerdem Familienstand und Güterstand. Steht der Güterstand schon im Notarauftrag, übernimmt die App ihn.
+  - **Ampeln:** Je Abschnitt Prüfpunkte mit Normangabe, oben eine Gesamtampel. Rot heißt: Die Verkäuferseite ist unvollständig. Gelb heißt: Nachweise oder Genehmigungen stehen aus. Grün heißt: alles liegt vor.
+  - **Genehmigungen:** Bei Betreuer, Eltern oder Nachlasspfleger die Daten von Antrag, Beschluss, letzter Bekanntgabe und Mitteilung an den Käufer eintragen. Die App zeigt „frühestens rechtskräftig“ und, wenn der Käufer aufgefordert hat, „Mitteilung spätestens am“, mit Knopf „Wiedervorlage“.
+  - **Unterlagen:** Nachweise und Genehmigungen stehen automatisch auch in der Kachel „Unterlagen“; den Stand kann man hier oder dort setzen.
+  - **Erbfall:** Datum eintragen. Die App legt eine Wiedervorlage für die gebührenfreie Grundbuchberichtigung an.
+  - **Für das Notariat:** Gibt die Verkäuferseite als Dokument aus, mit Vertretenen und Vertretern getrennt.
+  - **Schwelle:** Unter der Liste die Schwelle „Kaufpreis deutlich unter Bewertung“ nach Vorgabe der Bank eintragen.
+  - **Datenschutz:** Keine Angaben zu Krankheit oder Gründen einer Betreuung, keine Geburtsdaten, keine Kopien von Urkunden.
+- **Vermietet verkaufen:** Objekt wählen oder bei einem Notarauftrag mit „vermietet“ auf „Anlegen“ tippen. Je Mieteinheit nur Bezeichnung (z. B. „EG links“), Einzug, Kaltmiete, Kaution und Ja/Nein-Angaben eintragen — keine Namen der Mieter. Dazu die Aufteilung in Wohnungseigentum, den Käufer (ohne Namen) und die Daten nach der Beurkundung. Oben zeigt die Prüfung Vorkaufsrecht, Sperrfrist, Eigenbedarf, Kaution und Übergang als Ampel. Ist die Mitteilung an den Mieter zugegangen, rechnet die App das Ende der Vorkaufsfrist aus und trägt es in den Kalender ein (Wiedervorlage eine Woche vorher). Die nötigen Unterlagen erscheinen in der Kachel „Unterlagen“; „Dokument“ gibt die Prüfliste ohne Namen aus. Unter „Anzeigen“ lässt sich ein Anzeigentext einfügen und prüfen.
+- **Schlüsselbuch:** Objekt öffnen. Der Eigentümer kommt aus der Bewertung. Schlüssel mit Anzahl und Nummer der Schließanlage eintragen; Eigentümer und Berater unterschreiben auf dem Gerät. „Übernahmequittung“ gibt die Quittung aus.
+  „Schlüssel ausgeben“: Schlüssel und Empfänger wählen (eine Firma als Text oder einen Kunden aus der Kundenakte; Interessenten immer aus der Kundenakte). Rückgabe vereinbaren (am selben Tag, nächster Werktag, in einer Woche), dann unterschreibt der Empfänger die Quittung. Danach „Ausgabequittung“, „Wiedervorlage zur Rückgabe“ oder „Heute zurück“.
+  Überfällige Rückgaben stehen rot, auch in der Liste aller Objekte und in der Kundenakte. Unten „Alles beim Berater zurück an den Eigentümer“ (mit seiner Unterschrift) und „Übergabeprotokoll öffnen“ für die Übergabe an den Käufer. „Dokument“ ist die Übersicht für den Eigentümer, ohne Namen von Privatpersonen.
+- **Objektauskunft:** Zu Beginn des Auftrags das Objekt öffnen.
+  - Was die gesicherte Bewertung schon enthält, steht als Vorschlag „aus der Bewertung“ drin: Mängel, Baulasten, Altlasten, Rechte, Denkmalschutz, ob vermietet.
+  - Mit dem Eigentümer jede Frage durchgehen: ja, nein oder unbekannt, dazu kurz erläutern.
+  - Bei Vermietung nur die Zahl der Einheiten und die Summen eintragen, keine Namen.
+  - Bei Wohnungseigentum kommen die Fragen zu Sonderumlagen und Verfahren dazu.
+  - Die Prüfung zeigt, was fehlt. Bei „unbekannt“ verweist sie auf die Kachel „Unterlagen“.
+  - Sind alle Fragen beantwortet, unterschreibt der Eigentümer auf dem Gerät. Danach sind die Angaben gesperrt; „Angaben ändern“ entfernt die Unterschrift.
+  - „Objektauskunft als Dokument“ für Interessenten und die Akte.
+  - Den Text der Bestätigung hinterlegt die Bank in der Übersicht der Kachel. Ihn mit der Rechtsabteilung abstimmen.
 - **PDF schwärzen:** PDF wählen, dann Stellen schwärzen — über die Suche (Name, Anschrift) oder die Knöpfe IBAN, E-Mail-Adressen,
   Telefonnummern und Daten, oder ein Rechteck aufziehen. Seiten lassen sich weglassen. „Geschwärzte PDF speichern“ erzeugt eine
   neue PDF aus Bildern der Seiten: Der Text unter den Balken ist weg. Gescannte Seiten findet die Suche nicht — dort von Hand.

@@ -1611,3 +1611,275 @@ Höchstens 40 Seiten je Durchgang. Gescannte Seiten enthalten keinen Text — do
 **Tests:** `tests/unit/pdfbild.test.mjs` (Aufbau der PDF mit Querverweisen, keine Metadaten; Suche und Muster),
 `tests/e2e/werkzeuge-d53.spec.mjs` (Text-PDF im Test erzeugt: Suche, Muster, Rechteck, Seite weglassen; die neue PDF enthält weder
 den Namen noch Schrift noch Autor, pdf.js findet darin keinen Text), WebKit-Test in `tests/e2e/iphone.spec.mjs`.
+
+## D54 (2026-10-03) — Kachel „Maklerverträge“: Abschlussweg, Textform, Belehrung und Widerrufsfrist
+**Maklerverträge** (`src/wz-maklervertrag.js`, Regeln `js/maklervertrag-regeln.js`): Ob der Anspruch auf Provision steht, hängt am Maklervertrag. Bei Wohnung und Einfamilienhaus braucht er Textform (§ 656a BGB). Besteht ein Widerrufsrecht, braucht er eine ordnungsgemäße Belehrung; ohne sie ist ein Widerruf noch nach Notartermin und Zahlung möglich (BGH I ZR 30/15, I ZR 169/19, I ZR 28/22). Die neue Kachel im Bereich „Akquise & Vermarktung“ hält je Vertrag fest:
+- Seite und Vertragspartner (Kunden-Id), Objekt (gesicherte Bewertung oder frei) und Art (Alleinauftrag, einfacher Auftrag, Nachweis- oder Vermittlungsvertrag)
+- Verbraucher (§ 13), Provision vereinbart (§ 312 Abs. 1), Wohnung oder Einfamilienhaus (§ 656a; BGH I ZR 32/24) und Vertragsschluss
+- Abschlussweg als Auswahl mit Folge:
+  - Filiale ohne vorherige Ansprache außerhalb: kein Widerrufsrecht
+  - beim Kunden oder nach Ansprache außerhalb: § 312b
+  - nur E-Mail, Brief oder Telefon: Fernabsatz nach § 312c
+  - Online-Oberfläche: zusätzlich § 312j Abs. 3/4 und § 356a
+  - noch offen: Die App nimmt ein Widerrufsrecht an.
+- Textform mit Form, Datum und Bestimmtheit (BGH I ZR 202/25)
+- Belehrung mit Muster-Widerrufsformular: Datum, Form, Zustimmung zum dauerhaften Datenträger und Stand des Bank-Vordrucks
+- Verlangen auf vorzeitigen Beginn, Bestätigung zum Erlöschen, Beginn der Tätigkeit
+- Abschrift oder Bestätigung (§ 312f), Widerruf (Absendung, Eingang) und Laufzeit des Alleinauftrags
+
+Auf der Käuferseite kommen Exposé, Link, erste Bitte um Besichtigung und Vereinbarung dazu. Die erste Bitte um Besichtigung ist der Vorschlag für den Vertragsschluss (BGH I ZR 30/15). Für das Fristende zählt das späteste Datum.
+
+Die App rechnet:
+- **Fristbeginn:** das spätere Datum von Vertragsschluss und ordnungsgemäßer Belehrung. Außerhalb der Geschäftsräume zählt die Belehrung nur auf Papier oder auf einem Datenträger mit Zustimmung, immer mit Formular.
+- **Fristende:** nach §§ 187, 188, 193 BGB mit den Feiertagen in Baden-Württemberg (`ImmoFristen`).
+- **Höchstfrist** nach § 356 Abs. 4 Satz 1 BGB auf beiden Rechenwegen (BGH I ZR 169/19 Rn. 35 und § 188 Abs. 2/3). Das spätere Datum gilt, danach § 193.
+- **Puffer:** 5 Werktage nach dem Fristende, weil für die Frist die Absendung zählt. Das ist eine Empfehlung, keine Norm.
+- **Erlöschen und Wertersatz:** Erlöschen (§ 356 Abs. 5 Nr. 2) und Wertersatz (§ 357a Abs. 2) erkennt die App nur, wenn alles dokumentiert ist.
+- **Rückzahlung** nach einem Widerruf bis Eingang + 14 Tage.
+
+Ampel zur Provision:
+- Rot: Textform fehlt, Schaltfläche „zahlungspflichtig …“ nicht geprüft (BGH I ZR 159/24), Belehrung fehlt, Vertrag widerrufen.
+- Rot auch, wenn der Notartermin (aus dem Notarauftrag, nur gelesen) vor dem Fristende liegt und kein Verlangen vermerkt ist.
+- Gelb, solange Frist oder Puffer laufen oder der Fristbeginn beim Online-Abschluss unsicher ist.
+- Sonst grün.
+
+Die Normzitate folgen der Neufassung vom 19.06.2026 (BGBl. 2026 I Nr. 28). Bei älteren Verträgen nennt die App zusätzlich die alte Stelle. Sie weist darauf hin, wenn der Vordruck älter als die Neufassung ist. Eigene Rechtstexte gibt es nicht.
+
+Fristen gehen als Wiedervorlagen in den Kalender. Die App legt sie nicht doppelt an und schreibt sie beim Verlassen fort. Dazu kommen ein Vermerk in der Kundenakte, ein Prüfbogen und eine Übersicht ohne Namen als Dokument. Gespeichert wird im Speicher „akten“ mit der Art „maklervertrag“, Personen nur als Kunden-Id. Auskunft und Löschen beim Kunden sind angemeldet; beim Löschen bleibt der Vermerk ohne Kunden-Id und Notiz. Der Verkaufsfahrplan erkennt den Schritt „Maklervertrag“ (FP_AUTO_HOOKS). Bewertungen, Notaraufträge und Abrechnungen werden nur gelesen.
+
+Offen, mit Rechtsabteilung oder Verband klären: Freigabe des Belehrungs-Vordrucks, Bedeutung von „unmittelbar zuvor“, gemischte Wege, Rechenweg der Höchstfrist und ob § 193 dafür gilt, Feiertage außerhalb von BW, Laufzeitregeln des Alleinauftrags, Höhe des Wertersatzes.
+
+**Tests:** `tests/unit/maklervertrag.test.mjs` (11 Tests mit allen Fristbeispielen der Rechtsprüfung, auch dem Schaltjahr-Sonderfall) und `tests/e2e/werkzeuge-maklervertrag.spec.mjs` (3 Abläufe).
+
+## D55 (2026-10-03) — Kachel „Geldwäsche-Prüfung“
+Als Immobilienmakler muss die Bank die Vertragsparteien des vermittelten Kaufs identifizieren, sobald ernsthaftes Interesse besteht und die Parteien feststehen (§ 11 Abs. 2 GwG; § 2 Abs. 1 Nr. 14, § 10 Abs. 6 Nr. 1); als Kreditinstitut ist sie ohnehin Verpflichtete (§ 2 Abs. 1 Nr. 1). Die Regeln wurden am Wortlaut geprüft (GwG, zuletzt geändert durch Art. 12 Abs. 4 G v. 29.06.2026).
+
+**Kachel** (`src/wz-gwg.js`, Prüfregeln `js/gwg-regeln.js`, Speicher „akten“, Art „gwg“): ein Vorgang je Verkauf (gesicherte Bewertung), darin je Person eine Zeile — Verkäufer, Käufer, auftretende Person (Bevollmächtigter, Betreuer, Testamentsvollstrecker, Eltern, Geschäftsführer) und wirtschaftlich Berechtigter, jede Person einzeln und nur als Verweis auf die Kundenakte. Checkliste je Zeile: Identifizierung „im Banksystem erledigt“ oder „bereits früher identifiziert“ mit Vermerk (§ 11 Abs. 3, § 8 Abs. 2 Satz 6), jeweils mit Datum und Kürzel; Berechtigung der auftretenden Person (§ 10 Abs. 1 Nr. 1); wirtschaftlich Berechtigter abgefragt bzw. bei Gesellschaften beim Vertragspartner erhoben und mit dem Transparenzregister abgeglichen (Nr. 2, § 11 Abs. 5 und 6); Zweck (Nr. 3); PEP-Abgleich im Banksystem, ohne Ergebnis (Nr. 4). Der Abschluss „im Banksystem vollständig dokumentiert“ macht die Zeile grün und geht erst, wenn alles erledigt ist. Grau statt rot: Gegenseite mit eigenem Makler, mit Firmenname (§ 11 Abs. 2 Satz 2), und Mietvermittlung unter 10.000 € Nettokaltmiete (§ 10 Abs. 6 Nr. 2). Ein Datum in der Zukunft lehnt die App ab; wer nach der Übermittlung an das Notariat identifiziert wird, ist orange „nachträglich“ markiert (§ 56 Abs. 1 Satz 1 Nr. 27).
+
+**Ampeln** (Datentabelle `REGELWERKE`): Käufer gelb bei angenommenem Gebot oder Reservierung, rot mit Notarauftrag (§ 11 Abs. 2, § 10 Abs. 9). Verkäufer gelb ab „Auftrag erteilt“ oder dem Haken „Maklervertrag“, rot ab „Reserviert“ und mit Notarauftrag (§ 10 Abs. 3 Nr. 1, § 11 Abs. 1 für das Kreditinstitut). Abgleich mit dem Notarauftrag über die Kunden-Id oder den Namen (`wzdNameGleich`): Jede Person dort braucht eine Zeile, deren Identifizierung nicht mehr offen ist. Kommt eine Person hinzu oder wechselt der Käufer, wird die Seite rot. Wechselt der Notarauftrag von „Entwurf“ auf übermittelt, warnt die App mit den fehlenden Personen; sie sperrt nicht. Die EU-Geldwäscheverordnung (AMLR, ab 10.07.2027, Auslöser: angenommenes Angebot) ist als zweites Regelwerk hinterlegt; umgestellt wird mit einer Einstellung. Der Verkaufsfahrplan erkennt den internen Schritt „Geldwäsche: alle Vertragsparteien identifiziert“ (FP_AUTO_HOOKS). Andere Kacheln wie „Wer verkauft?“ schlagen Personen über `GWG_VORSCHLAG_HOOKS` vor.
+
+**Keine Ausweisdaten auf dem Gerät, nichts nach außen:** Für Ausweisdaten, Geburtsdaten, Staatsangehörigkeit, PEP-Ergebnis, Herkunft der Mittel und Verdacht gibt es keine Felder, auch kein Freitextfeld. Fremde Felder (z. B. aus einer eingespielten Sicherung) entfernt die App beim Öffnen (`bereinigen`). Die Aufzeichnung nach § 8 GwG liegt im Banksystem. Nach Abschluss (Provision eingegangen) schlägt die Kachel deshalb die Löschprüfung vor: Im Banksystem wird 5 Jahre ab Jahresende aufbewahrt und spätestens nach 10 Jahren vernichtet (§ 8 Abs. 3 und 4). Die Daten stehen in keinem Dokument für Dritte und in keiner Notiz (§ 47 Abs. 1). Sie erscheinen nur in der Kachel, in der Gesamtsicherung (die Sicherungserinnerung zählt sie unter „Weitere Akten“) und in der Auskunft: Rolle, Status, Datum, Kürzel. Feste Hinweise: Verdacht nur an den Geldwäschebeauftragten, nichts in der App, niemanden informieren (§ 43, § 47); Barzahlungsverbot (§ 16a Abs. 1); bei Kauf ohne Finanzierung der Zahlungsnachweis (§ 16a Abs. 2 Satz 2). Name und Telefon des Geldwäschebeauftragten sind eine Einstellung. Das Kürzel „durch wen“ wird nicht ausgewertet.
+
+**Offen** (mit Geldwäschebeauftragtem, Datenschutz und Betriebsrat klären): Freigabe der App im GwG-Ablauf (§ 6 Abs. 2 Nr. 4); Grenzen für Gelb; ob die eG selbst vermittelt (§ 11 Abs. 3 oder § 17); Zeitpunkt beim Verkäufer (§ 11 Abs. 1 oder Abs. 2); Auslegungshinweise der BaFin; Sperre statt Warnung; das Kürzel; GwG-Status in der Auskunft; Normen vor Juli 2027 erneut prüfen.
+
+**Tests:** `tests/unit/gwg.test.mjs` (Auslöser, Checkliste, Ausnahmen, Abgleich, nachträglich, Aufbewahrung, Regelwerk, erlaubte Felder); `tests/e2e/werkzeuge-gwg.spec.mjs` (Vorschlag und Kundenakte, Ampeln, Zukunftsdatum, Bestandskunde, eigener Makler, Gesellschaft, Notar-Abgleich mit Warnung, Fahrplan-Hook, Löschprüfung, Auskunft und Löschen, keine Daten im Eigentümerbericht, in der Fahrplan-Übersicht und im Notar-Datenblatt).
+
+## D56 (2026-10-03) — Kachel „Tipps“: Hinweise aus Filialen, von Kollegen und Partnern
+Neue Kachel „Tipps“ (`src/wz-tipps.js`, Regeln in `js/tipps-regeln.js`) im Bereich „Akquise & Vermarktung“. Je Tipp: Datum, Tippgeber, Art
+(Verkaufsabsicht, Bewertungswunsch, Kaufwunsch, Vermietung), Kunde aus der Kundenakte (oder dort neu angelegt, ohne Werbe-Einwilligung),
+Einverständnis des Kunden mit der Kontaktaufnahme (Datum), Stand (neu, Kontakt aufgenommen, Termin, Auftrag, Verkauf, kein Interesse; für die
+Auswertung zählt die höchste erreichte Stufe), Verweis auf einen Akquise- oder Anfrage-Eintrag und die Tippgeberprämie als Stand „nach Vorgaben
+der Bank“, ohne Berechnung. Der Verweis wird nur gelesen: „Akquise-Kontakt anlegen“ (bei Kaufwunsch „Anfrage anlegen“) öffnet den Entwurf der
+passenden Kachel mit Kunde, Quelle (Filiale bzw. Empfehlung), Anlass und Notiz; zurück in „Tipps“ verknüpft die App den neuen Eintrag und schlägt
+dessen Stand zur Übernahme vor. Speicher „akten“ mit art 'tipp', Personen nur als Kunden-Id. Die Tippgeber-Liste (Name, Filiale oder Bereich,
+Art: Kundenberater, Baufinanzierung, extern; E-Mail für die Rückmeldung) liegt in den Werkzeug-Eingaben auf dem Gerät; der Tipp merkt sich die
+Quelle zusätzlich, damit Datenschutzinformation und Auskunft sie auch nennen, wenn ein Tippgeber aus der Liste entfernt ist.
+
+**Datenschutzinformation bei Dritterhebung** (vor dem Einbau am Wortlaut geprüft): längstens einen Monat nach Erlangung der Daten
+(Art. 14 Abs. 3 lit. a DSGVO), spätestens beim ersten Kontakt (lit. b) und bei der ersten Weitergabe an einen anderen Empfänger, z. B. die
+Baufinanzierung (lit. c). Es zählt der früheste Zeitpunkt, ein geplanter Kontakt schon. Die Monatsfrist rechnet die App vorsichtig: gleiche
+Tageszahl, sonst Monatsletzter, ohne Verschiebung vom Wochenende (ob die VO 1182/71 gilt, ist offen). Ampel: gelb ab dem Tipp, rot nach
+Fristende oder sobald ein Kontakt ohne Information eingetragen ist („Kontakt aufgenommen“ setzt das Datum des ersten Kontakts). Nachweis mit
+Datum, Weg und Version des Bank-Vordrucks (Art. 5 Abs. 2); „bereits informiert“ nur mit Fundstelle (Art. 14 Abs. 5 lit. a, Art. 13 Abs. 4).
+Wahlweise Herkunft „Daten aus der Kundenbeziehung der Bank“: Information vor der Weiterverarbeitung (Art. 13 Abs. 3), rot bis erteilt. Die
+Quelle gehört in die Information (Art. 14 Abs. 2 lit. f) und in die Auskunft (Art. 15 Abs. 1 lit. g). Wiedervorlage zur Frist. Keine eigenen
+Rechtstexte: Der Text der Information kommt aus dem Vordruck der Bank.
+
+**Offen für die Bank** (als Hinweis in der Kachel): Ist ein Tipp aus der Filiale Dritterhebung (Art. 14) oder Zweckänderung (Art. 13 Abs. 3)?
+Darf der Kundenberater den Tipp ohne Einverständnis des Kunden weitergeben (Bankgeheimnis)? Ohne vermerktes Einverständnis zeigt die App gelb
+„mit Rechtsabteilung und Datenschutzbeauftragtem klären“. Rechtsgrundlage für Kunden, die aus einem Tipp angelegt werden (Vorgabe der
+Schnellerfassung: Anbahnung, Art. 6 Abs. 1 lit. b), mit dem Datenschutzbeauftragten klären.
+
+**Rückmeldung an den Tippgeber**: Text mit Datum, Art und Stand, ohne Einzelheiten zum Kunden; „Als E-Mail öffnen“ oder „Kopieren“, mit den
+Pflichtangaben der Genossenschaft (D48). Die App merkt sich, zu welchem Stand zuletzt zurückgemeldet wurde („Rückmeldung offen“).
+
+**Auswertung nur je Filiale, nie je Person** (Beschäftigtendatenschutz, Betriebsrat): Tipps je Filiale bis Kontakt, Termin, Auftrag und Verkauf
+(Jahr oder Quartal), je Quartal mit Aufträgen und Verkäufen, je Art des Tippgebers und des Tipps; als Dokument ohne Namen. Filialen mit nur einem
+Tippgeber im Zeitraum sind markiert, weil die Zeile auf eine Person schließen lässt. Keine Rangliste und keine Zahlen je Tippgeber; die Prämie
+steht nicht in der Auswertung.
+
+**Kundenakte**: Abschnitt „Tipps“ mit Quelle und „Öffnen“. Die Auskunft „TIPPS (HINWEISE AUS FILIALEN UND VON PARTNERN)“ nennt Herkunft der Daten,
+Einverständnis, Datenschutzinformation, ersten Kontakt, Weitergabe mit Empfänger, Stand und Notiz. Löschen des Kunden entfernt den Personenbezug
+(Kunden-Id, Notiz, Einverständnis, Kontakt- und Weitergabedaten, Datenschutzinformation, Verweis); Datum, Art, Quelle und Stand bleiben für die
+Auswertung.
+
+**Tests:** `tests/unit/tipps.test.mjs` (Fristen nach Art. 14 Abs. 3 mit den Beispielen der Rechtsprüfung, Ampeln, Prüfpunkte, Stand, Rückmeldung,
+Stand aus Akquise und Anfrage, Auswertung ohne Personen); `tests/e2e/werkzeuge-tipps.spec.mjs` (Tippgeber, Tipp mit neuem Kunden, Ampeln,
+Rückmeldung ohne Kundendaten, Akquise anlegen und verknüpfen, Auswertung und Dokument ohne Namen, Akte, Auskunft und Löschen); Klicktest-Bereiche
+„Tipps“, „Tipps-Auswertung“, „Tippgeber“, „Tipp“; `tests/e2e/werkzeuge.spec.mjs` zählt 27 Kacheln.
+
+## D57 (2026-10-03) — Kachel „Weitergaben“
+**Weitergaben** (`src/wz-weitergabe.js`, Regeln `js/weitergabe-regeln.js` → `ImmoWeitergabeRegeln`): Kunden auf ihren Wunsch an Kollegen der Bank übergeben und verfolgen, was daraus wird.
+- Anlässe: Baufinanzierung für den Kauf. Nach dem Kauf: Gebäudeversicherung, Modernisierungskredit, Bausparen, Geldanlage des Verkaufserlöses. Dazu Sonstiges.
+- Stand: übergeben, Termin vereinbart, Finanzierung zugesagt (bei Anlässen ohne Finanzierung nur „zugesagt“), abgeschlossen, nicht zustande gekommen. Dazu Tag der Rückmeldung, Volumen (optional), Notiz und Verlauf.
+- Einwilligung oder Wunsch des Kunden mit Datum und Form ist Pflicht vor dem Speichern. Formen: schriftlich auf dem Vordruck der Bank, elektronisch, mündlich. Grundlage: „Beruht die Verarbeitung auf einer Einwilligung, muss der Verantwortliche nachweisen können, dass die betroffene Person … eingewilligt hat“ (Art. 7 Abs. 1 DSGVO, Wortlaut geprüft).
+  - Ein Entwurf wird erst gespeichert, wenn alles vollständig ist.
+  - Unvollständige Änderungen an einer gespeicherten Weitergabe speichert die App nicht; beim Verlassen gilt der letzte vollständige Stand.
+  - Das Datum darf nicht in der Zukunft und nicht nach der Weitergabe liegen.
+  - Mündlich erteilt: gelber Hinweis, den Nachweis zu sichern.
+- Ob die Einwilligung auch die Rückmeldung des Kollegen an den Berater umfasst, wird eigens festgehalten.
+- Widerruf mit Datum (jederzeit möglich, Art. 7 Abs. 3 DSGVO, Wortlaut geprüft): Die Ampel wird rot, es gibt kein Übergabeblatt mehr, und die Wiedervorlage ist erledigt. Was mit bereits übergebenen Angaben geschieht, klärt der Datenschutzbeauftragte der Bank.
+- Keine eigenen Einwilligungstexte: Es gilt der Vordruck der Bank.
+- Übergabeblatt: Schreiben an den Kollegen mit den Pflichtangaben der Genossenschaft. Der Name steht immer darauf, alles andere nur mit Freigabe:
+  - Telefon und E-Mail, Anschrift (aus der Kundenakte)
+  - Ort ohne Straße, Objektart, Wohnfläche, Baujahr, Kaufpreis bzw. Angebotspreis (aus der gesicherten Bewertung, nur gelesen)
+  - Anliegen, Einwilligung mit Datum und Form, „Rückmeldung bitte bis“
+- Rücklauf: Wiedervorlage „Rücklauf prüfen“ 7 bis 30 Tage (Vorgabe 14) nach der Übergabe oder der letzten Rückmeldung. Fällt der Tag auf ein Wochenende oder einen Feiertag in Baden-Württemberg, gilt der nächste Werktag (`js/fristen.js`). Das ist eine Arbeitsfrist, keine gesetzliche. Die Wiedervorlage zieht mit dem Stand nach. Sie ist erledigt bei „abgeschlossen“, „nicht zustande gekommen“ oder einem Widerruf. Neu angelegt liegt sie nie vor dem heutigen Tag.
+- Ansprechpartner (Name, Bereich, Filiale, Telefon, E-Mail) stehen in den Eingaben der Werkzeuge. Kollegen, die zum Anlass passen, stehen zuerst in der Auswahl. Im Entwurf lässt sich ein neuer Ansprechpartner schnell anlegen.
+- Auswertung je Anlass und Stand mit Erfolgsquote und Volumen, je Jahr, auch als Dokument ohne Namen. Bewusst nicht je Kollege: keine Rangliste (Beschäftigtendatenschutz, Betriebsrat).
+- Anlässe nach dem Kauf als Vorschläge, ausblendbar:
+  - Quellen: beurkundete Notaraufträge, Anfragen „Gekauft“ und verkaufte Objekte der letzten zwölf Monate.
+  - Käufer: Versicherung, Modernisierung, Bausparen. Verkäufer: Geldanlage.
+  - Keine Aussagen zu Fristen der Versicherungen.
+- Wege in die Kachel: Kundenakte („An Kollegen weitergeben“, mit Liste der Weitergaben), Übernahme einer Anfrage aus „Interessenten“, Vorschlag nach dem Kauf.
+- Verkaufsfahrplan: Erkennungsschlüssel `wg_finanzierung`. Er wirkt, sobald der Schritt „Finanzierungsbestätigung des Käufers“ diesen Schlüssel trägt.
+
+**Daten und Datenschutz:**
+- Speicher „akten“ (art 'weitergabe'). Personen stehen nur als Kunden-Id darin. Teil der Gesamtsicherung.
+- Kunde gelöscht: Die App entfernt den Personenbezug (Kunde, Anliegen, Notiz, Einwilligungsdaten); die Zählung bleibt.
+- Die Auskunft führt alle Weitergaben mit Einwilligung, Freigaben und Stand auf.
+- Erledigte Weitergaben, die älter als zwölf Monate sind, meldet die Kachel zum Entfernen des Personenbezugs.
+- Hinweis an Anliegen und Notiz: keine Angaben zu Einkommen, Vermögen oder Gesundheit.
+
+**Tests:**
+- `tests/unit/weitergabe.test.mjs`: Einwilligung, Pflicht vor dem Speichern, Rücklauf mit Feiertagen, Ampeln, Freigaben, Auswertung ohne Kollegen, Vorschläge, Fahrplan, Personenbezug.
+- Browser `tests/e2e/werkzeuge-weitergabe.spec.mjs`.
+- Klicktest-Bereiche „Weitergaben“, „Neue Weitergabe“, „Weitergabe“.
+
+## D58 (2026-10-03) — Kachel „Wer verkauft?“ (Verfügungsbefugnis)
+Auf dem Land kommen viele Verkäufe aus Nachlässen, oft mit mehreren Erben, Betreuern oder minderjährigen Miterben. Fehlt eine Unterschrift oder Genehmigung, platzt der Notartermin oder der Vertrag bleibt schwebend unwirksam. Die neue Kachel „Wer verkauft?“ (`src/wz-befugnis.js`, Prüfregeln `js/befugnis-regeln.js` als `ImmoBefugnisRegeln`) klärt je Verkauf, wer verfügen darf und was dafür vorliegen muss. Alle Rechtsaussagen kommen aus der Rechtsprüfung vom 03.10.2026, die die Normen am Wortlaut gelesen hat. Unklares steht als grauer Hinweis „mit Notariat oder Rechtsabteilung klären“.
+
+**Aufbau:** Ein Datensatz je Verkauf (gesicherte Bewertung) in der Gerätedatenbank, Speicher „akten“, `art: 'befugnis'`. Einstiegsfragen: (1) Lebt der eingetragene Eigentümer? (2) Wer hat geerbt: ein Erbe, mehrere Erben oder unbekannte Erben (dann Nachlasspfleger)? (3) Testamentsvollstreckung? (4) Vor- und Nacherbfolge? Vertretung (5) und Güterstand (6) werden je Person erfasst. Ein Vermerk zur Testamentsvollstreckung oder ein Nacherbenvermerk in Abt. II (Text aus Bewertung oder Notarauftrag) schaltet den Fall zu (§§ 51, 52 GBO). Ebenso ein Haken „Erbschein nennt …“ (§ 352b FamFG). Personen stehen nur als Kunden-Id darin. Gespeichert werden Rolle, Vertretung, Stand und Daten. Keine Kopien von Urkunden, keine Geburtsdaten, keine Angaben zu Krankheit oder Gründen einer Betreuung (Art. 5 Abs. 1 lit. c, Art. 9 DSGVO).
+
+**Fälle und Ampeln:**
+- **Erbengemeinschaft:** Alle Miterben müssen erfasst sein und zustimmen, die Vertretung muss geklärt sein, sonst Rot (§ 2040 Abs. 1 BGB). Bei Streit zeigt die App nur einen Hinweis auf die Teilungsversteigerung.
+- **Nachweis der Erbfolge:** Gewählt werden a) bis d) (§ 35 GBO); Gelb, bis der Nachweis vorliegt. Beim Europäischen Nachlasszeugnis ist „gültig bis“ Pflicht: Gelb 30 Tage vorher, Rot nach Ablauf oder wenn der Notartermin danach liegt (Art. 70 Abs. 3 EuErbVO).
+- **Erbfall:** Aus dem Datum legt die App eine Wiedervorlage an, drei Monate bevor die zwei gebührenfreien Jahre für die Grundbuchberichtigung enden (Nr. 14110 KV GNotKG).
+- **Testamentsvollstrecker:** Er ist Vertragspartner. Gelb, wenn sein Nachweis mehr als 30 Tage vor der Beurkundung geprüft wurde.
+- **Vorerbe:** Rot ohne Zustimmung der Nacherben oder Bestätigung des Notariats.
+- **Kaufpreis:** Bei Testamentsvollstrecker und Vorerbe Gelb, wenn der Kaufpreis um eine Schwelle unter dem Wert der Bewertung liegt. Die Schwelle legt die Bank fest; es gibt keine Vorgabe.
+- **Betreuer:** Geprüft werden Aufgabenkreis, vorläufige Betreuung und selbst genutzter Wohnraum (§ 1833 BGB).
+- **Eltern:** Sorge gemeinsam oder allein. Wird das Kind vor dem Vollzug volljährig, genehmigt es selbst.
+- **Bevollmächtigter:** Geprüft werden Form, Tod des Vollmachtgebers, Untersagung und § 181 BGB.
+- **Interessenkonflikt:** Kauft ein naher Angehöriger des Vertreters, zeigt die App Rot (Ergänzungsbetreuer oder Ergänzungspfleger nötig).
+- **Ehegatte:** Zugewinngemeinschaft mit Haken „ganzes Vermögen“ oder Gütergemeinschaft führt zum Posten „Einwilligung“, mit der Frist des § 1366 Abs. 3 BGB. Familien- und Güterstand liest die App aus dem Notarauftrag, wenn die Person dort verknüpft ist.
+
+**Genehmigungskette** (Betreuungs-, Familien- und Nachlassgericht): Erfasst werden beantragt, Beschluss, letzte Bekanntgabe, Rechtskraftzeugnis und Mitteilung an den Käufer. „Frühestens rechtskräftig“ ist die letzte Bekanntgabe plus 2 Wochen (§ 63 FamFG). Hat der Käufer aufgefordert, steht dort „Mitteilung spätestens am“ (Ablauf des zweiten Monats). Ab 14 Tagen vorher zeigt die App Rot (§ 1856 Abs. 2 BGB). Grün erst mit Rechtskraftzeugnis und Mitteilung.
+
+**Unterlagen:** Jeder Nachweis und jede Genehmigung wird über `ulPostenErgaenzen` ein Posten in „Unterlagen“, mit den Stellen Nachlassgericht, Betreuungs- und Familiengericht, Notariat oder Eigentümer. Der Stand ist dort und hier derselbe. „Beantragt“ setzt die Genehmigung auf „angefordert“, „Beschluss“ auf „liegt vor“. Posten ohne Namen (z. B. „Miterbe 3“). Löscht man den Datensatz, verschwinden die Posten.
+
+**Ausgabe:** Das Dokument „Für das Notariat“ zeigt Vertretene und Vertreter getrennt, mit Nachweisen, Genehmigungen und offenen Punkten. Es trägt die Pflichtangaben der Genossenschaft.
+
+**Kundenakte:** Auskunft und Löschen sind angemeldet (`KD_AUSKUNFT_HOOKS`, `KD_LOESCH_HOOKS`). Beim Löschen verliert die Person alle Angaben im Datensatz; Vertreter, Testamentsvollstrecker und Nachlasspfleger werden ausgetragen.
+
+**Nicht umgesetzt** (bestehende Kacheln unverändert, Umbau-Grenze):
+- Ampel im Notarauftrag und Übernahme der Verkäuferdaten dorthin;
+- Provision „Anspruch noch nicht entstanden“, bis die Genehmigung grün ist (die Kachel zeigt das nur als Hinweis);
+- Schritt im Verkaufsfahrplan.
+
+Die Schnittstellen `bfAmpel(projektId)` und `FP_AUTO_HOOKS` (Schlüssel `befugnis`) sind dafür bereit.
+
+**Offen:** Ob der Vermerk „Betreuung“ ein Gesundheitsdatum ist und welche Löschfristen gelten, klärt der Datenschutzbeauftragte. Die Schwelle legt die Bank fest. Weitere offene Fragen erscheinen in der Kachel als graue Hinweise:
+- Unterschriften der Erbengemeinschaft unter dem Maklervertrag;
+- Genehmigung des Maklervertrags durch den Betreuer;
+- Minderjähriger Miterbe;
+- Voreintragung für die Finanzierungsgrundschuld;
+- Auslandsbezug.
+
+**Tests:** Einheitstests `tests/unit/befugnis.test.mjs` und Browsertest `tests/e2e/werkzeuge-befugnis.spec.mjs`:
+- Erbengemeinschaft bis Grün, mit Posten in „Unterlagen“ und Dokument;
+- Betreuer und Ehegatte aus dem Notarauftrag, Löschen;
+- Testamentsvollstrecker aus Abt. II mit Schwelle und Erbfall-Wiedervorlage;
+- Auskunft und Löschen beim Kunden.
+
+## D59 (2026-10-03) — Kachel „Vermietet verkaufen“
+**Warum:** Beim Verkauf vermieteter Wohnungen und Häuser hängen Vorkaufsrecht des Mieters, Kündigungssperrfrist und der Eintritt des Käufers in Mietvertrag und Kaution an wenigen Daten. Bisher kannte die App nur „vermietet“ im Notarauftrag.
+
+**Was:** Neue Kachel im Bereich „Abschluss“ (`src/wz-vermietet.js`). Je Verkauf ein Eintrag im Speicher „akten“ (art `vermietet`): Mieteinheiten ohne Namen (Bezeichnung, überlassen am, Kaltmiete, Kaution mit Art und getrennter Anlage, Schriftform mit Nachträgen, Befristung oder Kündigungsverzicht, Vorauszahlung oder Abtretung), Angaben zum Objekt (Wohnungs- oder Teileigentum, begründet am, Teileigentum zu Wohnzwecken, schon einmal verkauft, erste Veräußerung, Paket oder Aufteilungsabsicht, Wohnungen im Gebäude), zum Käufer als Auswahl ohne Namen (Familien- oder Haushaltsangehöriger, gesetzlicher Erbe, Zwangsversteigerung, Käuferseite, geplante Nutzung) und zum Ablauf (Beurkundung, Übergabe, Umschreibung, Mitteilung an den Mieter, Kaution übertragen). Die Regeln stehen ohne Seitenbezug in `js/vermietet-regeln.js` (Einheitstests), die Gebietsliste der KSpVO BW als Daten in `js/vermietet-gebiete.js`.
+
+**Ampeln:** Vorkaufsrecht (§ 577 BGB) je Mieteinheit: grün ohne Aufteilung, bei Aufteilung vor dem Einzug, bei Familienangehörigen (Abs. 1 Satz 2) oder Zwangsversteigerung (§ 471); gelb „mit Notar klären“ bei gesetzlichem Erben (§ 470), schon verkauft oder unbekannt, Paket (§ 467), Teileigentum zu Wohnzwecken (BGH VIII ZR 201/23) und fehlendem Mietbeginn; rot nach der Beurkundung, solange die Mitteilung fehlt (§ 577 Abs. 2, § 469 Abs. 1). Fristrechner: Zugang plus zwei Monate, Monatsletzter, § 193 BGB mit den Feiertagen BW (`js/fristen.js`); bis zum Ende gelb mit Countdown, danach grün; Termin im Kalender und Wiedervorlage sieben Tage vorher. Eine Ausübung zählt nur schriftlich (§ 577 Abs. 3, § 126); dann rot (§§ 464 Abs. 2, 465). Kündigungssperrfrist (§ 577a Abs. 1 und 1a): vorsichtig ab der Umschreibung, fünf Jahre in Gemeinden der KSpVO BW (Heilbronn), sonst drei (Beilstein, Ilsfeld, Abstatt); ohne gültige Liste gelb „Gebietsliste nicht aktuell“ und vorsichtig fünf Jahre; Hinweise zum Außerkrafttreten am 31.12.2026 und zu Abs. 1a. Eigenbedarf: rot während der Sperrfrist, sonst gelb mit der Kündigungsfrist nach § 573c (3, 6 oder 9 Monate), §§ 573, 574 und beim Zweifamilienhaus § 573a; Kapitalanlage grün (§ 566 Abs. 1). Kaution und Vertrag: §§ 550, 551, 566b und Abgleich mit „Kautionen gesamt“ im Notarauftrag. Nach der Umschreibung: verfrühte Mitteilung rot (§ 566e), fehlende Mitteilung gelb (§ 566 Abs. 2), Kaution nicht übertragen rot (§ 566a). „Leer verkaufen“ gelb (§ 573 Abs. 2 Nr. 3). Anzeigen: Exposé-Text der Bewertung und eingefügte Texte — „bezugsfrei“, „sofort frei“, „frei ab“ rot, fehlendes „vermietet“ und „Mietsteigerungspotenzial“ gelb (§ 558 Abs. 3).
+
+**Verknüpfungen:** Posten für „Unterlagen“ über `ulPostenErgaenzen` (Kautionsnachweis, Mieterhöhungen der letzten drei Jahre, Nachweis der Mitteilung nach § 577 Abs. 2 nur bei Vorkaufsrecht, Nachweis der Mitteilung des Eigentumsübergangs); Verkaufsfahrplan über `FP_AUTO_HOOKS` (Schlüssel `vv_vorkauf`); Notaraufträge mit „vermietet“ stehen in der Liste mit „Anlegen“; `vvNotarHinweis` und `vvAusNotar` für den Notarauftrag. Einmalige Wiedervorlage am 15.12.2026: Neufassung der KSpVO verkündet? Bewertungen, Liegenschaften und Notaraufträge werden nur gelesen.
+
+**Datenschutz:** Keine Namen oder Kontaktdaten der Mieter. Der Eigentümer steht nur als Kunden-Id im Eintrag; Löschen beim Kunden entfernt Verweis und Notiz, die Auskunft hat den Abschnitt „VERMIETET VERKAUFEN“. Keine eigenen Rechtstexte: Mitteilungen kommen vom Notariat oder aus den Vordrucken der Bank.
+
+**Offen:** Die Gebietsliste enthält nur den in der Rechtsprüfung gelesenen Auszug (25 von 130 Namen); andere Gemeinden zeigen gelb, bis die Liste aus dem GBl. 2025 Nr. 146 vollständig übertragen ist. Den Entwurf ab 2027 erst nach der Verkündung übernehmen. Für Rechtsabteilung oder Notariat: fünf Jahre nach dem Außerkrafttreten, § 2 KSpVO bei § 577a Abs. 1a, Vorkaufsrecht nur beim ersten Verkauf, Veräußerung gleich Umschreibung, Verzicht des Mieters, Provision bei Ausübung, Text der Kappungsgrenzenverordnung BW, Vordrucke der Bank für beide Mitteilungen.
+
+**Tests:** `tests/unit/vermietet.test.mjs` (Fristrechner, Gebietsliste, alle Ampeln, Anzeigen, Posten); `tests/e2e/werkzeuge-vermietet.spec.mjs` (Wohnung in Heilbronn mit Frist, Kalender, Unterlagen, Fahrplan und Dokument; Haus in Beilstein aus dem Notarauftrag mit GbR, Eigenbedarf, Kautionen und Übergang; Auskunft und Löschen).
+
+## D60 (2026-10-03) — Kachel „Schlüsselbuch“
+**Schlüsselbuch** (`src/wz-schluessel.js`, Regeln `js/schluessel-regeln.js`): je Objekt in Vermarktung, welche Schlüssel der Berater vom Eigentümer übernommen hat, an wen er sie ausgibt und wann sie zurückkommen. Das ist wie die Schlüsselverwaltung einer Maklersoftware, nur mit Quittung auf dem Gerät.
+- Übernahme: Der Eigentümer kommt aus der Kundenakte, vorgewählt aus der Bewertung. Die Liste hält Art, Anzahl und Nummer der Schließanlage. Der Eigentümer unterschreibt „übergeben“, der Berater „übernommen“. Beim Unterschreiben merkt sich die App den Stand der Liste. Wer sie danach ändert, bekommt den Hinweis, neu unterschreiben zu lassen. Dokument „Übernahmequittung“ mit den Pflichtangaben der Genossenschaft.
+- Ausgaben an Handwerker, Fotograf, Energieberater, Hausverwaltung, Interessent oder Sonstige. Den Empfänger wählt man aus der Kundenakte; nur Firmen gehen auch als Freitext, Interessenten immer aus der Kundenakte. Sieht ein Freitext nach einer Privatperson aus (keine Rechtsform, kein Branchenwort), meldet die Prüfung das gelb. Erfasst werden Datum, vereinbarte Rückgabe, Quittung per Unterschrift des Empfängers und Rückgabe mit Datum. Für die Rückgabe gibt es Vorschläge: am selben Tag, nächster Werktag, in einer Woche. Wochenende und Feiertage in Baden-Württemberg kommen aus `js/fristen.js`; das ist eine Vereinbarung, keine gesetzliche Frist. Dokument „Ausgabequittung“ mit Pflichtangaben.
+- Ampel: Eine überfällige Rückgabe steht rot, auch in der Liste aller Objekte und in der Kundenakte des Empfängers. Gelb sind: heute fällig, keine Rückgabe vereinbart, Quittung fehlt oder passt nicht mehr. Die Wiedervorlage zur Rückgabe liegt bei Überfälligkeit auf heute.
+- Bestand je Schlüssel: beim Berater, ausgegeben, zurück an den Eigentümer. „Alles beim Berater zurück an den Eigentümer“ trägt die Rückgabe ein, der Eigentümer unterschreibt.
+- Übergabe an den Käufer: Die Kachel verweist nur auf das Übergabeprotokoll („Übergabeprotokoll öffnen“) und hält das Datum fest. Danach zählt, was beim Berater lag, als „an den Käufer“. Sind dann noch Schlüssel ausgegeben, steht die Prüfung rot, beim Stand „Notartermin“ gelb.
+- „Dokument“: Übersicht für den Eigentümer mit Bestand und Ausgaben, Privatpersonen nur mit ihrer Rolle.
+- Keine eigenen Rechtstexte. Verwahrung und Haftung regeln die Vordrucke der Bank; Unklares mit der Rechtsabteilung klären.
+- Verkaufsfahrplan: meldet `schluessel_uebernommen` und `schluessel_zurueck` über `FP_AUTO_HOOKS`. Die Schritte selbst fehlen in `FP_PHASEN` noch.
+
+**Daten und Datenschutz:** Speicher „akten“ (art 'schluessel'), ein Eintrag je Objekt, Teil der Gesamtsicherung. Personen stehen nur als Kunden-Id darin, Unterschriften als Bild; keine Ausweisdaten. Löscht man einen Kunden, entfernt die App die Verknüpfung und seine Unterschriften: als Eigentümer bei Übernahme und Rückgabe, als Empfänger die Quittung. Schlüssel, Anzahl und Daten der Ausgabe bleiben für den Bestand. Die Auskunft nennt Übernahmen und Ausgaben („SCHLÜSSELBUCH“). Die Kundenakte zeigt Schlüssel, die der Kunde gerade hat. Wiedervorlagen nennen Privatpersonen nur mit ihrer Rolle. Die Bewertung wird nur gelesen.
+
+**Tests:** `tests/unit/schluessel.test.mjs` prüft Bestand, Status, Vorschläge mit Feiertagen in BW, fällige Rückgaben, Firma oder Privatperson, den Stand beim Unterschreiben und die Prüfpunkte. `tests/e2e/werkzeuge-schluessel.spec.mjs` prüft:
+- Übernahme mit Unterschrift, geänderte Liste und Übernahmequittung
+- Ausgabe an eine Firma, überfällig, mit Wiedervorlage und Ausgabequittung
+- Interessent aus der Kundenakte, Rückgabe an den Eigentümer, Übergabe an den Käufer
+- Fahrplan, Kundenakte, Auskunft, Löschen, Sicherung
+
+Klicktest-Bereiche „Schlüsselbuch“ und „Schlüsselbuch je Objekt“.
+
+## D61 (2026-10-03) — Kachel „Objektauskunft“ (Angaben des Eigentümers)
+**Objektauskunft** (`src/wz-objektauskunft.js`, Regeln `js/objektauskunft-regeln.js`): Fragebogen zu Beginn des Auftrags. Der Eigentümer unterschreibt ihn auf dem Gerät. Jede Frage hat ja, nein oder unbekannt und eine Erläuterung. Die Fragen:
+- bekannte Mängel, Feuchtigkeit, Schädlinge
+- Umbauten; die Nachfrage „ohne Genehmigung“ entfällt bei „nein“
+- Baulasten, Altlasten, Wege- und Leitungsrechte, Denkmalschutz
+- Vermietung: nur Zahl der Einheiten, Nettokaltmiete und Kautionen zusammen, keine Namen der Mieter. Die Prüfung warnt bei „Herr …“ oder „Frau …“.
+- bei Wohnungs- oder Teileigentum: Sonderumlagen mit dem Anteil der Wohnung und laufende Verfahren der Gemeinschaft
+- Sonstiges
+
+- **Vorbelegung** nur lesend aus der gesicherten Bewertung. Markiert ist sie mit „aus der Bewertung“, nach einer Änderung mit „aus der Bewertung, geändert“.
+  - Übernommen: Mängel aus Aufnahmebogen und Objektdaten; Feuchtigkeit und Schädlinge aus Stichworten darin, verneinte Stellen nicht; Baulasten; Altlasten; Rechte aus Abt. II und „Rechte & Lasten“; Denkmalschutz; ob vermietet; Wohnungseigentum.
+  - Nicht übernommen: der Standardsatz zu Baumängeln (Beobachtung des Bewerters, keine Angabe des Eigentümers); „nein“ beim Denkmalschutz (Vorgabe des Auswahlfelds, ob jemand es geprüft hat, ist nicht erkennbar); Texte zur Vermietung (sie können Namen enthalten).
+  - Vorbelegt werden nur leere Antworten. Die Bewertung bleibt unverändert; der Browsertest vergleicht die gespeicherten Felder vorher und nachher.
+- **Prüfung als Ampel:**
+  - Rot: offene Fragen, kein Eigentümer.
+  - Gelb: „ja“ ohne Erläuterung; Vermietung ohne Zahl und Summen; Namen von Mietern; Sonderumlage ohne Betrag; Umbauten ohne Genehmigung („vor dem Notartermin mit dem Notariat klären“); „unbekannt“ mit Verweis auf die passende Unterlage in der Kachel „Unterlagen“; Denkmalschutz unbekannt („bei der Gemeinde nachfragen“); vorbelegte Antworten („mit dem Eigentümer durchgehen“); Text der Bestätigung ist noch der Vorschlag der App.
+  - Grün: unterschrieben.
+  - Gelb nach sechs Monaten, berechnet mit der Monatsfrist nach §§ 187, 188 BGB (`ImmoFristen.fristMonate`). Das ist eine Arbeitsregel der App, keine gesetzliche Frist.
+- **Unterschrift:** Die Eigentümer kommen aus der Kundenakte, mehrere sind möglich. Die Unterschriftsfelder erscheinen erst, wenn alle Fragen beantwortet sind.
+  - Eine Unterschrift gilt für einen Stand: Prüfsumme über Objekt, Antworten, Mieten und Text. Beim Unterschreiben wird der Text eingefroren.
+  - Danach sind die Angaben gesperrt. „Angaben ändern“ entfernt die Unterschrift. Das tut auch jede andere Änderung am Stand (z. B. aus einer Sicherung) und eine Änderung des Texts.
+  - Ein Verlauf hält fest, was geschah, ohne Namen.
+- **Text der Bestätigung:** ein Vorschlag der App ohne Aussagen zur Haftung. Die Bank hinterlegt ihre Vorgabe in der Kachel, mit dem Hinweis „Text mit der Rechtsabteilung abstimmen“. Je Objekt lässt er sich anpassen.
+- **Dokument** für Interessenten und Akte: Fragen, Antworten, Erläuterungen, Bestätigung, Unterschrift und die Pflichtangaben der Genossenschaft (§ 25a GenG, `pflicht:true`). Ohne Unterschrift trägt es den Vermerk „Entwurf“.
+- **Daten:** Speicher „akten“ mit `art:'objektauskunft'`, ein Eintrag je Objekt, Personen nur als Kunden-Id.
+  - Kundenakte: Die Auskunft erscheint mit „Öffnen“.
+  - Auskunft nach Art. 15 DSGVO: Abschnitt OBJEKTAUSKÜNFTE mit allen Antworten.
+  - Löschen: Verweis und Unterschrift der Person werden entfernt; die übrigen Unterschriften bleiben gültig.
+  - Verkaufsfahrplan: Ein Erweiterungspunkt meldet „objektauskunft“, sobald alle Eigentümer gültig unterschrieben haben.
+
+**Tests:**
+- `tests/unit/objektauskunft.test.mjs`: Vorbelegung, Fragen, Prüfung, Prüfsumme, Regel nach sechs Monaten.
+- Browser `tests/e2e/werkzeuge-objektauskunft.spec.mjs`: Vorbelegung und Herkunft, Ampeln, Unterschrift und Sperre, Dokument mit Pflichtangaben, Änderung entfernt die Unterschrift, Vorgabe der Bank bleibt mit der Unterschrift eingefroren, zwei Eigentümer, Wohnungseigentum, Fahrplan, Kundenakte, Auskunft und Löschen.
+- Klicktest: Bereiche „Werkzeug – Objektauskunft“ und „… je Objekt“.
+
+## D54–D61 Zusammenführung (2026-10-03)
+Die acht Kacheln sind parallel in eigenen Arbeitskopien entstanden (je Kachel Regeln in `js/*-regeln.js`, Kachel in `src/wz-*.js`,
+Einheits- und Browsertests) und hier zusammengeführt:
+- **Bereiche:** fünf statt vier. Neu „Objekt & Unterlagen“ (eigene Farbe Petrol-Grün): Unterlagen, Objektauskunft, Wer verkauft?,
+  Vermietet verkaufen, Schlüsselbuch, Fotostudio, PDF schwärzen. Tipps und Maklerverträge stehen bei „Akquise & Vermarktung“,
+  Geldwäsche-Prüfung und Weitergaben bei „Abschluss“. Bestehende Kacheln sind nur verschoben.
+- **Verkaufsfahrplan:** neue Schritte mit Erkennung aus den Kacheln — Maklervertrag (jetzt erkannt), Objektauskunft, Schlüssel
+  übernommen und zurück (nur mit Eintrag im Schlüsselbuch), Finanzierungsbestätigung (aus Weitergaben), Geldwäsche (nur intern:
+  nicht von Hand abzuhaken und nicht in der Übersicht für den Eigentümer, § 47 Abs. 1 GwG), Verkäuferseite geklärt, Vorkaufsrecht
+  des Mieters (nur mit Eintrag in „Vermietet verkaufen“).
+- **Notarauftrag:** Feld „Aus anderen Kacheln“ (nur in der Ansicht, nie im Datenblatt): Geldwäsche-Prüfung offen, „Wer verkauft?“
+  nicht grün, vermietet ohne Prüfung oder Vorkaufsrecht offen, rote Punkte der Maklerverträge (Widerruf, Textform, Notartermin in
+  der Widerrufsfrist) — jeweils mit Knopf in die Kachel.
+- **Kundenakte:** Ein Kunde aus einem Tipp bekommt die Datenschutzinformation „von Dritten“ mit Quelle (Filiale, ohne Namen von
+  Beschäftigten) und Datum (Art. 14 DSGVO, D51). Der Hinweis beim Löschen nennt die neuen Kacheln.
+- **Tests:** `tests/e2e/werkzeuge-d54-d61.spec.mjs` (Fahrplan, Notarauftrag, Tipp → Kundenakte); Kachelliste in
+  `tests/e2e/werkzeuge.spec.mjs` mit 35 Kacheln in fünf Bereichen; Klicktest-Bereiche je Kachel.
+- **Offen (Bank, Fabian):** Provision „widerrufen“ bzw. „Anspruch noch nicht entstanden“ automatisch aus Maklerverträgen und
+  „Wer verkauft?“; Zahlungsweg im Notarauftrag (§ 16a GwG); vollständige Gebietsliste der Kappungs- und Kündigungssperrfrist-
+  Verordnung BW (bisher nur geprüfte Gemeinden, sonst gelb); Vordrucke der Bank für Belehrung, Objektauskunft und Weitergabe.

@@ -142,6 +142,7 @@ function noEditor(p){
   return '<div class="ub-kopfzeile"><button type="button" class="secondary" onclick="noZurListe()" data-ic="arrow-left">Alle Aufträge</button>'
       +'<span class="ub-status">'+sEsc(p.stand||'Entwurf')+(p.projekt?' · '+sEsc(p.projekt):'')+'</span>'
       +'<div class="no-stand">'+wzFeld('stand','Stand',{typ:'wahl',optionen:NO_STAENDE.map(a=>[a,a]),zeichnen:true})+'</div></div>'
+    +'<div id="no_pruef" class="no-pruef"></div>'   // D54–D61: Prüfungen aus anderen Kacheln, nur in der Ansicht (nie im Datenblatt)
     +wzBox('Objekt','<div class="grid">'+wzFeld('anschrift','Anschrift',{typ:'text'})
       +wzFeld('art','Art',{typ:'wahl',optionen:NO_ARTEN.map(a=>[a,a]),zeichnen:true})
       +wzFeld('grundbuch','Amtsgericht / Grundbuch von',{typ:'text'})+wzFeld('blatt','Blatt',{typ:'text'})
@@ -192,7 +193,26 @@ function noEditor(p){
 function noRechnen(){
   let p=NO.aktiv; if(!p) return;
   wzH('no_prov',noProvisionPruefen(p)||''); wzH('no_frist',noFristPruefen(p)); wzH('no_ea',noEaPruefen(p));
+  if(typeof wzdBereit==='function'&&!wzdBereit()) wzdLaden().then(()=>{ if(NO.aktiv===p&&$('no_pruef')){ wzH('no_pruef',noPruefHtml(p)); iconify($('no_pruef')); } });
+  else wzH('no_pruef',noPruefHtml(p));
   iconify($('wz_body'));
+}
+/* Was andere Kacheln zu diesem Verkauf melden (D54–D61): Geldwäsche-Prüfung, „Wer verkauft?“, Vorkaufsrecht des Mieters und
+   Widerrufsfrist der Maklerverträge. Zuordnung über Anschrift oder Projektname wie im Verkaufsfahrplan. Nur rote und gelbe Punkte. */
+function noPruefHtml(p){
+  if(typeof wzdObjekte!=='function') return '';
+  let n=x=>String(x||'').toLowerCase().replace(/[^a-z0-9äöüß]/g,''), gleich=(a,b)=>!!n(a)&&n(a)===n(b);
+  let o=wzdObjekte(true).find(x=>gleich(p.anschrift,x.anschrift)||gleich(p.projekt,x.name))||null, l=[];
+  const los=(t,fn)=>' <button type="button" class="secondary fp-los" onclick="'+fn+'">'+t+'</button>';
+  try{ if(typeof gwgNotarAmpelHtml==='function') l.push(gwgNotarAmpelHtml(p)); }catch(e){}
+  try{ let a=o&&typeof bfAmpel==='function'?bfAmpel(o.id):null;
+    if(a&&a.stufe!=='gruen') l.push(wzAmpel(a.stufe==='rot'?'rot':'gelb','Wer verkauft?: '+sEsc(a.text)+los('Wer verkauft?',"wzOeffnen('befugnis');bfOeffnen('"+idSicher(o.id)+"')"))); }catch(e){}
+  try{ if(p.raeumung&&p.raeumung!=='geräumt'&&typeof vvNotarHinweis==='function'){ let h=vvNotarHinweis(p);
+    if(h) l.push(h.replace(/<\/div>$/,'')+(typeof vvAusNotar==='function'?los('Vermietet verkaufen',"noSpeichernJetzt().then(()=>vvAusNotar('"+idSicher(p.id)+"'))"):'')+'</div>'); } }catch(e){}
+  try{ if(o&&typeof mvPruef==='function') wzdAkten('maklervertrag',o.id).forEach(a=>((mvPruef(a)||{}).ampeln||[]).filter(x=>x.stufe==='rot'&&['notar','widerruf','textform'].includes(x.id))
+    .forEach(x=>l.push(wzAmpel('rot','Maklervertrag '+sEsc(typeof mvTitel==='function'?mvTitel(a):'')+': '+sEsc(x.text)+los('Maklerverträge',"wzOeffnen('maklervertrag');mvOeffnen('"+idSicher(a.id)+"')"))))); }catch(e){}
+  l=l.filter(Boolean);
+  return l.length?wzBox('Aus anderen Kacheln',l.join('')+wzHinweis('Nur für dich — erscheint nicht im Datenblatt für das Notariat.')):'';
 }
 
 /* Unverzüglich nach Abschluss des Kaufvertrags erhält der Käufer den Energieausweis oder eine Kopie (§ 80 Abs. 4 Satz 5 GModG),

@@ -1,3 +1,10 @@
+# Zusammenfassung — acht neue Kacheln (2026-10-03)
+
+Neu: Maklerverträge (Abschlussweg, Textform, Belehrung, Widerrufsfrist), Geldwäsche-Prüfung (ohne Ausweisdaten), Tipps aus Filialen,
+Weitergaben an Kollegen, „Wer verkauft?“ (Erben, Betreuer, Vollmacht, Genehmigungen), Vermietet verkaufen (Vorkaufsrecht,
+Sperrfrist, Kaution), Schlüsselbuch mit Quittungen und Objektauskunft des Eigentümers mit Unterschrift (D54–D61). Neuer Bereich
+„Objekt & Unterlagen“; Verkaufsfahrplan und Notarauftrag zeigen, was die Kacheln melden.
+
 # Zusammenfassung — Anfrage-Mail und PDF schwärzen (2026-10-03)
 
 Anfrage-Mails lassen sich bei den Interessenten einfügen; die App übernimmt Name, Kontakt, Objekt und Nachricht ins Formular (D52).
