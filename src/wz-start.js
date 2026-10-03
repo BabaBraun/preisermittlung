@@ -12,7 +12,8 @@ const WZ_GRUPPEN=[
     ['portal','Portal-Export','upload','Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.','Objekte mit Bildern für Immobilienportale'],
     ['aushang','Aushang','printer','Eine Seite für Schaufenster und Filiale — Bild, Preis, Pflichtangaben, Ansprechpartner.','Aushang für Schaufenster und Filiale'],
     ['social','Social Media','megaphone','Bild und Text für Instagram, Facebook und Status — im Farbschema, mit Pflichtangaben.','Bild und Text je Objekt'],
-    ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails']]},
+    ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails'],
+    ['rundschreiben','Rund­schreiben','send','Ein Schreiben an viele: Suchkunden zum Objekt oder alle mit Einwilligung — Serienbrief oder E-Mail in Bcc.','Serienbrief und E-Mail an viele']]},
   {id:'abschluss',titel:'Abschluss',kacheln:[
     ['fahrplan','Verkaufs­fahrplan','list-check','Jeder Auftrag Schritt für Schritt — vom Auftrag bis zur Übergabe, mit Fortschritt.','Schritte je Auftrag bis zur Übergabe'],
     ['notar','Notarauftrag','pen','Alle Angaben für den Kaufvertragsentwurf — Datenblatt, Termin im Kalender, Übergabe.','Angaben für den Kaufvertragsentwurf, Termin, Übergabe'],

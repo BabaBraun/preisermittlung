@@ -1,3 +1,8 @@
+# Zusammenfassung — Rundschreiben (2026-10-03)
+
+Neue Kachel „Rundschreiben“ (D46): ein Schreiben an viele — Suchkunden zu einem Objekt, alle mit Einwilligung zur Werbung,
+Eigentümer oder selbst gewählt; als Serienbrief (je Empfänger eine Seite) oder E-Mail in Bcc, nur mit Einwilligung (§ 7 UWG).
+
 # Zusammenfassung — Verknüpfungen (2026-10-03)
 
 Zahlungsziele der Provision stehen im Kalender, Rechnungen, Zahlungseingänge und Unterlagen in den Aktivitäten, Abrechnungen

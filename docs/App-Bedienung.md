@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 24 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 25 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Vierundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
+Fünfundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
 Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -220,6 +220,8 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   einstellen, mit „Schwärzen“ oder „Verpixeln“ Rechtecke über Personen, Kennzeichen oder Namen ziehen, „Als JPEG speichern“.
 - **Vorlagen:** Vorlage wählen, Empfänger aus der Kundenakte, Objekt und Termin wählen — der Text füllt sich, lässt sich ändern
   und als E-Mail öffnen, kopieren, als Word speichern oder in der Kundenakte vermerken. Eigene Vorlagen mit Platzhaltern.
+- **Rundschreiben:** Empfänger wählen (Suchkunden zu einem Objekt, alle mit Einwilligung, Eigentümer oder selbst gewählt), dann
+  die Vorlage. „Serienbrief“ gibt je Empfänger eine Seite aus; „E-Mail an alle (Bcc)“ nur an Kunden mit Einwilligung.
 - **Verkaufsfahrplan:** je Auftrag die Schritte vom Maklervertrag bis zur Nachbetreuung; „erkannt“ hakt die App selbst ab.
 - **Unterlagen:** Objekt öffnen — die Liste passt zur Objektart, was im Aufnahmebogen angehakt ist, liegt schon vor. Je Unterlage
   den Stand wählen (offen, angefordert, liegt vor, entfällt). „Anfordern“ bei einer Stelle schreibt das Anforderungsschreiben und

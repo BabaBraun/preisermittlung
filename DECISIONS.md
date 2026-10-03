@@ -1425,3 +1425,20 @@ Wie in einer Maklersoftware sollen Vorgänge dort auftauchen, wo man sie sucht:
 
 **Tests:** `tests/unit/d45.test.mjs` (Datenstand), Browser `tests/e2e/werkzeuge-d45.spec.mjs` (Kalender, Aktivitäten, Suche,
 Datenstand, Löschen).
+
+## D46 (2026-10-03) — Kachel „Rundschreiben“
+
+**Rundschreiben** (`src/wz-rundschreiben.js`): ein Schreiben an viele, wie Serienbrief und Massen-E-Mail einer Maklersoftware.
+- Empfänger: Suchkunden, deren Suchprofil zum gewählten Objekt passt (gleiche Prüfung wie der Abgleich, ohne den Eigentümer);
+  alle Kunden mit Einwilligung zur Werbung; Eigentümer der Objekte in Vermarktung; oder selbst gewählt. Einzelne lassen sich
+  abwählen; die Tabelle zeigt Einwilligung, E-Mail und Anschrift.
+- Text aus den Vorlagen (auch eigene), Platzhalter je Empfänger; Objekt für alle.
+- Serienbrief: je Empfänger mit Anschrift eine Seite mit eigener Anrede (Drucken, PDF, Word mit Seitenumbrüchen).
+- E-Mail: an alle in Bcc mit neutraler Anrede „Guten Tag,“ — nur an Kunden mit Einwilligung zur Werbung, denn Werbung per E-Mail
+  braucht die vorherige ausdrückliche Einwilligung (§ 7 Abs. 2 Nr. 2 UWG); am Ende der Hinweis, wie man sich abmeldet
+  (§ 7 Abs. 2 Nr. 3 Buchst. c UWG). Wortlaut geprüft. Ist der Link für ein Mailprogramm zu lang: „E-Mail-Adressen kopieren“.
+- „In der Kundenakte vermerken“ legt bei allen Empfängern eine Notiz „Rundschreiben“ ab. Gespeichert werden nur Auswahl
+  (Kunden-Ids) und Einstellungen.
+
+**Tests:** Browser `tests/e2e/werkzeuge-d46.spec.mjs` (Suchkunden zum Objekt, Einwilligung, Serienbrief mit einer Seite je
+Empfänger, Bcc nur mit Einwilligung, Notiz in der Kundenakte); Klicktest-Bereich „Rundschreiben“.
