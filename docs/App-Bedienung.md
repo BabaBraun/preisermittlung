@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 23 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 24 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Dreiundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
+Vierundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
 Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -226,6 +226,9 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   setzt alles auf „angefordert“. Unten unterschreibt der Eigentümer die Vollmacht auf dem Gerät; „Vollmacht als Dokument“.
 - **Aushang:** ein Objekt groß oder bis zu vier als Übersicht für Schaufenster und Filiale — mit Preis, Pflichtangaben zum
   Energieausweis und Ansprechpartner; „Aushang anzeigen“, dann Drucken oder PDF.
+- **Social Media:** Objekt, Format (Quadrat, Hochformat, Story) und Hinweis wählen — die Vorschau zeigt das Bild mit Titelbild,
+  Preis und Pflichtangaben. „Bild speichern“ oder „Teilen“, darunter der Text zum Kopieren. Veröffentlicht wird nur, was du
+  selbst teilst.
 - **Kalender:** Liste oder Monat; „Neuer Termin“ mit Objekt und Teilnehmern; „Kalenderdatei“ für den Gerätekalender. Bei einer
   Besichtigung unterschreiben die Teilnehmer im Termin den **Besichtigungsnachweis**; „Nachweis als Dokument“ gibt ihn aus.
 - **Aktivitäten:** Woche, Monat, Quartal oder Jahr wählen — was ist passiert (Anfragen, Exposés, Besichtigungen, Gebote,

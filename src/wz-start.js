@@ -11,6 +11,7 @@ const WZ_GRUPPEN=[
     ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],
     ['portal','Portal-Export','upload','Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.','Objekte mit Bildern für Immobilienportale'],
     ['aushang','Aushang','printer','Eine Seite für Schaufenster und Filiale — Bild, Preis, Pflichtangaben, Ansprechpartner.','Aushang für Schaufenster und Filiale'],
+    ['social','Social Media','megaphone','Bild und Text für Instagram, Facebook und Status — im Farbschema, mit Pflichtangaben.','Bild und Text je Objekt'],
     ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails']]},
   {id:'abschluss',titel:'Abschluss',kacheln:[
     ['fahrplan','Verkaufs­fahrplan','list-check','Jeder Auftrag Schritt für Schritt — vom Auftrag bis zur Übergabe, mit Fortschritt.','Schritte je Auftrag bis zur Übergabe'],

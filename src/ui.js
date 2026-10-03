@@ -65,7 +65,8 @@ var IA_ICONS={
   'list-check':'<path d="m4 6 2 2 3-3"/><path d="m4 13 2 2 3-3"/><path d="M12 7h8M12 14h8M4 20h16"/>',
   scale:'<path d="M12 3v18M7 21h10M4 7h16"/><path d="M6.5 7 3.5 14a3 3 0 0 0 6 0z"/><path d="M17.5 7l-3 7a3 3 0 0 0 6 0z"/>',
   percent:'<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',
-  receipt:'<path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>'
+  receipt:'<path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  megaphone:'<path d="M3 10.5v3a1 1 0 0 0 1 1h2.5L12 18V6L6.5 9.5H4a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18.5 6.5a8 8 0 0 1 0 11"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',

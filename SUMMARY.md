@@ -1,3 +1,8 @@
+# Zusammenfassung — Social Media (2026-10-03)
+
+Neue Kachel „Social Media“ (D44): Bild (Quadrat, Hochformat, Story) und Text je Objekt aus Titelbild und Exposé, mit Hinweis wie
+„Neu im Angebot“ in der Farbe des Farbschemas und den Pflichtangaben zum Energieausweis; speichern, teilen, Text kopieren.
+
 # Zusammenfassung — Unterlagen (2026-10-03)
 
 Neue Kachel „Unterlagen“ (D43): je Verkauf alle Unterlagen nach Objektart mit Stelle, Zweck und Stand; was im Aufnahmebogen

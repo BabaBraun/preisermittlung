@@ -1391,3 +1391,21 @@ der Gesamtsicherung. Löscht man den Kunden, entfernt die App Name und Unterschr
 **Tests:** Browser `tests/e2e/werkzeuge-d43.spec.mjs` (Aufnahmebogen, Stand, Anforderung bei der Gemeinde, Vollmacht mit
 Unterschrift, Objektart, Fahrplan, Auskunft, Sicherung, Löschen); Klicktest-Bereiche „Unterlagen“ und „Unterlagen je Objekt“.
 Das Unterschriftsfeld steht als `wzUnterschriftPad` in `src/werkzeuge.js` für weitere Werkzeuge bereit.
+
+## D44 (2026-10-03) — Kachel „Social Media“
+
+**Social Media** (`src/wz-social.js`): Bild und Begleittext je Objekt für Instagram, Facebook, LinkedIn oder den Status in
+Messengern — die App veröffentlicht nichts selbst (kein Server, keine Zugänge); „Bild speichern“, „Teilen“ (Teilen-Menü des
+Geräts) und „Text kopieren“.
+- Quelle wie beim Aushang: gesicherte Bewertungen in Vermarktung, Titelbild und Texte des Exposés (`ahDaten`, `js/portal.js`).
+- Formate: quadratisch 1080 × 1080, hoch 1080 × 1350, Story 1080 × 1920 (JPEG). Das Foto füllt die Fläche; unten ein dunkler
+  Verlauf mit Titel, Ort, Eckdaten, Preis (abschaltbar, bei „Verkauft“ aus) und Pflichtangaben, oben links ein Hinweis (Neu im
+  Angebot, Besichtigung, Reserviert, Verkauft, eigener Text) in der Akzentfarbe des gewählten Farbschemas.
+- Pflichtangaben: Ein Beitrag in sozialen Medien ist eine Anzeige in einem kommerziellen Medium — die Angaben zum Energieausweis
+  (§ 87 GModG, wie Aushang und Portal-Export) stehen im Bild und im Text; fehlen sie, zeigt die Kachel das rot.
+- Text: Vorschlag aus Titel, Ort, Eckdaten, Preis mit Käuferprovision, Energieausweis, Ansprechpartner und Schlagworten; eigene
+  Änderungen bleiben je Objekt gespeichert, „Vorschlag neu“ setzt zurück. Keine Kundennamen; die Anschrift nur, wenn sie im
+  Exposé freigegeben ist.
+
+**Tests:** Browser `tests/e2e/werkzeuge-d44.spec.mjs` (Titelbild im Bild, drei Formate, Hinweis „Verkauft“ ohne Preis, eigener
+Text bleibt, JPEG-Datei); Klicktest-Bereich „Social Media“.
