@@ -62,8 +62,13 @@ test('Datenstand: Sterbetafel, BMF-Tabelle, Bodenrichtwerte (§ 196 Abs. 1 Satz 
   assert.equal(ST({ bmfJahre: [2026] }, '2027-01-01').bmf, 'faellig');
   assert.equal(ST({ bmfJahre: [2026, 2027] }, '2026-12-01').bmf, 'ok');
   const b26 = B.datenstand({}, '2026-10-03').liste.find(z => z.id === 'brw'), b27 = B.datenstand({ bewertungenVorBrw: 2 }, '2027-03-01').liste.find(z => z.id === 'brw');
-  assert.deepEqual([b26.stand, b26.naechste, b26.status], ['Stichtag 01.01.2026', 'Stichtag 01.01.2028', 'ok']);
-  assert.deepEqual([b27.stand, b27.status], ['Stichtag 01.01.2026', 'bald']); assert.match(b27.text, /^2 Objekte in Vermarktung/);
+  // D48: Baden-Württemberg — Stichtag 01.01. ungerader Jahre, veröffentlicht bis 30.06. (§ 196 Abs. 1 Satz 5 BauGB, § 12 GuAVO BW)
+  assert.deepEqual([b26.stand, b26.naechste, b26.status], ['Stichtag 01.01.2025', 'Stichtag 01.01.2027, veröffentlicht bis 30.06.2027', 'ok']);
+  assert.deepEqual([b27.stand, b27.status], ['Stichtag 01.01.2025', 'bald']); assert.match(b27.text, /^Neue Bodenrichtwerte zum Stichtag 01\.01\.2027 erscheinen spätestens am 30\.06\.2027/); assert.match(b27.text, /2 Objekte in Vermarktung/);
+  const b27j = B.datenstand({}, '2027-07-01').liste.find(z => z.id === 'brw'), b28 = B.datenstand({}, '2028-02-01').liste.find(z => z.id === 'brw');
+  assert.deepEqual([b27j.stand, b27j.status, b28.stand], ['Stichtag 01.01.2027', 'ok', 'Stichtag 01.01.2027']);
+  assert.deepEqual(B.brwStand('2026-10-03'), { turnus: 'bw2', stand: 2025, naechster: 2027, veroeffentlichtBis: '2027-06-30', wartet: false });
+  assert.deepEqual(B.brwStand('2027-03-01', 'jaehrlich'), { turnus: 'jaehrlich', stand: 2026, naechster: 2027, veroeffentlichtBis: '2027-06-30', wartet: true });
 });
 
 test('Datenstand: Marktdaten, Preisindex, Sicherung, Liegenschaften, Löschprüfung, Rechtsstand', () => {

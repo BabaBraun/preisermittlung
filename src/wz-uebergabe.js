@@ -183,3 +183,38 @@ function ubDokument(){
 wzRegistrieren({id:'uebergabe',titel:'Übergabeprotokoll',sub:'Zähler · Schlüssel · Mängel mit Foto · Unterschriften',icon:'key',ohneNeu:true,
   zustand:()=>UB.aktiv,speichern:ubGeaendert,zeichnen:ubZeichnen,rechnen:ubRechnen,dokument:ubDokument,
   schliessen:()=>{ ubSpeichernJetzt(); }});
+
+/* ---------- Kundenakte: Auskunft und Löschen (D48) ----------
+   Ein Kunde steckt in einem Protokoll, wenn es mit seiner Kunden-Id verknüpft ist (angelegt aus dem Notarauftrag) oder sein Name
+   bei Übergeber, Übernehmer oder Anwesenden steht. Beim Löschen ersetzt die App seinen Namen durch „(Kunde gelöscht)“ und
+   entfernt die Unterschrift der betroffenen Seite; Zählerstände, Schlüssel und Mängel bleiben. */
+function ubRollenFuer(u,k){
+  let ids=Array.isArray(u.kundeIds)?u.kundeIds:[];
+  return UB_ROLLEN.filter(([r])=>wzdNameGleich(u[r],k)||(ids.includes(k.id)&&!String(u[r]||'').trim()));
+}
+function ubTreffer(k){ return (UB.liste||[]).map(u=>({u,rollen:ubRollenFuer(u,k),anwesend:wzdNameGleich(u.anwesend,k),id:(u.kundeIds||[]).includes(k.id)})).filter(x=>x.rollen.length||x.anwesend||x.id); }
+function ubNameWeg(text,k){
+  let t=wzdNamenTeile(text); if(!t.length) return text;
+  if(!t.some(x=>wzdNameGleich(x,k))) return wzdNameGleich(text,k)?'(Kunde gelöscht)':text;   // „Muster, Erika“ als Ganzes
+  return t.map(x=>wzdNameGleich(x,k)?'(Kunde gelöscht)':x).join(', ');
+}
+KD_AUSKUNFT_HOOKS.push(async id=>{
+  let k=wzdKunde(id); if(!k) return [];
+  await ubLaden();
+  let l=ubTreffer(k);
+  return ['','ÜBERGABEPROTOKOLLE'].concat(l.length?l.map(({u,rollen,anwesend})=>'- '+wzDatum(u.datum)+' '+(u.anschrift||'Objekt')+': '
+    +(rollen.length?rollen.map(r=>r[1]).join(' und '):anwesend?'anwesend':'verknüpft')+(u.abgeschlossen?', abgeschlossen':', Entwurf')
+    +(rollen.some(([r])=>u.unterschrift&&u.unterschrift[r])?'; Unterschrift gespeichert':'')):['- keine']);
+});
+KD_LOESCH_HOOKS.push(async id=>{
+  let k=wzdKunde(id); if(!k) return;
+  await ubLaden();
+  for(const {u,rollen} of ubTreffer(k)){
+    rollen.forEach(([r])=>{ u[r]=ubNameWeg(u[r],k)||'(Kunde gelöscht)'; if(u.unterschrift) u.unterschrift[r]=''; });
+    u.anwesend=ubNameWeg(u.anwesend,k);
+    u.kundeIds=(u.kundeIds||[]).filter(x=>x!==id);
+    u.geaendert=Date.now();
+    try{ await iaPut('protokolle',JSON.parse(JSON.stringify(u))); }catch(e){}
+  }
+  UB.liste=null;
+});

@@ -53,7 +53,56 @@ function wzdObjektOptionen(wahl,leer){
     +(rest.length?'<optgroup label="Weitere gesicherte Bewertungen">'+rest.map(opt).join('')+'</optgroup>':'');
 }
 
+/* ---------- Vermarktung je Objekt aus allen Quellen (D48) ----------
+   Protokoll der Bewertung (vm_daten, nur gelesen), Anfragen der Kachel „Interessenten“ (mit Exposé-Versand und Absagegrund),
+   Besichtigungen im Kalender und Gebote im Bieterverfahren. Doppelt Erfasstes zählt einmal: gleiche Art, gleicher Tag, gleicher
+   Kunde (Protokolleinträge mit Kunde aus der Kundenakte). Besichtigungen nach heute gelten als geplant. Ohne Namen — „wer“ ist
+   eine Kunden-Id oder ein Schlüssel und wird im Bericht zu „Interessent 1, 2, …“. ab = nur Ereignisse ab diesem Tag zählen. */
+function wzdVermarktung(o,ab,heute){
+  heute=heute||aufHeute(); let f=(o&&o.f)||{}, ev=[], vm=[];
+  try{ vm=(JSON.parse(f.vm_daten||'{}').ev)||[]; }catch(e){}
+  const gruppe=a=>/Besichtigung/.test(a||'')?'Besichtigung':a==='Kaufangebot'||a==='Reservierung'||a==='Gebot'?'Angebot':a;
+  (Array.isArray(vm)?vm:[]).filter(e=>e&&wzdDatum(e.d)).forEach((e,i)=>ev.push({d:e.d,art:e.art||'Sonstiges',gruppe:gruppe(e.art),kid:e.kid||'',
+    wer:e.kid||(e.wer?'vm:'+e.wer:''),rueck:e.rueck||'',preis:+e.preis||0,quelle:'Bewertung'}));
+  const dabei=(g,d,kid)=>kid?ev.find(x=>x.gruppe===g&&x.d===d&&x.kid===kid)||null:null;   // doppelt erfasst → vorhandenen Eintrag ergänzen
+  if(o&&o.id){
+    wzdListe('vorgaenge').filter(v=>v.typ==='anfrage'&&v.projektId===o.id).forEach(v=>{
+      let grund=v.abgesagt&&v.grund?v.grund:'', da=wzdDatum(v.datum)?dabei('Anfrage',v.datum,v.kundeId):null;
+      if(da){ da.herkunft=da.herkunft||v.quelle||''; da.rueck=da.rueck||grund; }
+      else if(wzdDatum(v.datum)) ev.push({d:v.datum,art:'Anfrage',gruppe:'Anfrage',kid:v.kundeId||'',wer:v.kundeId||'vg:'+v.id,herkunft:v.quelle||'',rueck:grund,quelle:'Interessenten'});
+      (v.verlauf||[]).forEach(h=>{ if(h&&h.text==='Exposé versendet'&&wzdDatum(h.datum)) ev.push({d:h.datum,art:'Exposé versendet',gruppe:'Exposé',kid:v.kundeId||'',wer:v.kundeId||'vg:'+v.id,quelle:'Interessenten'}); });
+    });
+    wzdListe('termine').filter(t=>t.projektId===o.id&&t.art==='Besichtigung'&&wzdDatum(t.datum)).forEach(t=>{
+      ((t.kundeIds||[]).length?t.kundeIds:['']).forEach(kid=>{ if(!dabei('Besichtigung',t.datum,kid))
+        ev.push({d:t.datum,art:'Besichtigung',gruppe:'Besichtigung',kid,wer:kid||'t:'+t.id,geplant:t.datum>heute,quelle:'Kalender'}); }); });
+    wzdListe('bieter').filter(b=>b.projektId===o.id).forEach(b=>(b.gebote||[]).filter(g=>g&&wzdDatum(g.datum)&&g.status!=='zurückgezogen').forEach(g=>{
+      if(!dabei('Angebot',g.datum,g.kundeId)) ev.push({d:g.datum,art:'Gebot',gruppe:'Angebot',kid:g.kundeId||'',wer:g.kundeId||'g:'+g.id,preis:+g.betrag||0,quelle:'Bieterverfahren'}); }));
+  }
+  ev.sort((a,b)=>a.d.localeCompare(b.d));
+  let nr={}, n=0; ev.forEach(e=>{ if(e.wer&&!nr[e.wer]) nr[e.wer]=++n; e.interessent=e.wer?nr[e.wer]:0; });
+  let im=ev.filter(e=>(!ab||e.d>=ab)&&!e.geplant);
+  const zahl=(l,g)=>l.filter(e=>e.gruppe===g).length;
+  let rueck={}, herkunft={};
+  ev.forEach(e=>{ if(e.rueck) rueck[e.rueck]=(rueck[e.rueck]||0)+1; if(e.herkunft) herkunft[e.herkunft]=(herkunft[e.herkunft]||0)+1; });
+  let preise=ev.filter(e=>e.gruppe==='Angebot'&&e.preis>0).map(e=>e.preis);
+  return {ev,im,geplant:ev.filter(e=>e.geplant),anfragen:zahl(im,'Anfrage'),exposes:zahl(im,'Exposé'),besicht:zahl(im,'Besichtigung'),angebote:zahl(im,'Angebot'),
+    gesamt:{anfragen:zahl(ev,'Anfrage'),exposes:zahl(ev,'Exposé'),besicht:zahl(ev.filter(e=>!e.geplant),'Besichtigung'),angebote:zahl(ev,'Angebot')},
+    rueck,herkunft,hoechstes:preise.length?Math.max(...preise):0,tage:wzdDatum(f.vm_start)?Math.max(0,ImmoBeratung.tageZwischen(f.vm_start,heute)):0};
+}
+
 /* ---------- Kunden ---------- */
+/* Gleicher Name wie der Kunde? Für ältere Einträge ohne Kunden-Id (D48). Reihenfolge und Satzzeichen egal („Muster, Erika“ =
+   „Erika Muster“); in einem Feld mit mehreren Namen („Erika Muster und Max Probe“) genügt ein Teil. */
+function wzdNamenTeile(text){ return String(text||'').split(/\s*(?:[,;&+\/]|\bund\b)\s*/i).map(x=>x.trim()).filter(Boolean); }
+function wzdNameSchluessel(text){ return String(text||'').toLowerCase().split(/[^a-zäöüß]+/).filter(t=>t.length>1).sort().join(' '); }
+function wzdNameGleich(text,k){
+  if(!k||!text) return false;
+  let ziele=[wzdNameSchluessel([k.vorname,k.nachname].filter(Boolean).join(' ')),wzdNameSchluessel(k.firma)].filter(Boolean);
+  if(!ziele.length) return false;
+  let ganz=wzdNameSchluessel(text);
+  if(ziele.includes(ganz)) return true;
+  return wzdNamenTeile(text).some(t=>ziele.includes(wzdNameSchluessel(t)));
+}
 function wzdKunde(id){ return id&&typeof KD_CACHE!=='undefined'?KD_CACHE.find(k=>k.id===id)||null:null; }
 function wzdKundeName(id){ let k=wzdKunde(id); return k?kdName(k):(id?'(Kunde gelöscht)':''); }
 function wzdKundeKontakt(id){ let k=wzdKunde(id); return k?[k.telefon,k.email].filter(Boolean).join(' · '):''; }

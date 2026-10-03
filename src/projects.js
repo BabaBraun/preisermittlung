@@ -239,17 +239,35 @@ async function pjSicherungAusText(text){
         +(n.kunden!=null?'\nKunden: '+n.kunden+' neu oder aktualisiert.':'')+(n.aufgaben?'\nWiedervorlagen: '+n.aufgaben+' neu.':'')
         +(n.protokolle?'\nÜbergabeprotokolle: '+n.protokolle+' neu oder aktualisiert.':'')+(n.notar?'\nNotaraufträge: '+n.notar+' neu oder aktualisiert.':'')+(n.zusatz&&n.zusatz.length?'\n'+n.zusatz.join('\n'):'')+(n.werkzeuge?'\nWerkzeuge: Eingaben ergänzt.':''));
 }
-/* Erinnerung auf der Startseite, wenn die Projekte länger nicht gesichert wurden */
+/* Was hat sich seit der letzten Gesamtsicherung geändert? Über alle Daten, die sie enthält (D48): Projekte, Kunden,
+   Übergabeprotokolle, Notaraufträge, die Speicher aus IA_ZUSATZ, Wiedervorlagen und die Eingaben der Werkzeuge.
+   ts = Zeitpunkt der letzten Sicherung (0 = noch nie). Liefert {gesamt, vorhanden, je:[[Name, Anzahl|null]], text}. */
+async function pjAenderungenSeit(ts){
+  let je=[], gesamt=0, vorhanden=0;
+  const zaehl=(name,l,zeit)=>{ l=Array.isArray(l)?l:[]; vorhanden+=l.length; let n=l.filter(x=>!ts||(zeit(x)||0)>ts).length; if(n){ je.push([name,n]); gesamt+=n; } };
+  zaehl('Projekte',pjLoad(),p=>p.geaendert);
+  if(IA_DB_BEREIT){
+    for(const [s,name] of [['kunden','Kunden'],['protokolle','Übergabeprotokolle'],['notar','Notaraufträge']].concat(IA_ZUSATZ)){
+      try{ zaehl(name,await iaAlle(s),x=>x.geaendert||x.ts); }catch(e){} }
+  }
+  try{ zaehl('Wiedervorlagen',aufLoad(),a=>Math.max(+a.angelegt||0,+a.erledigtAm||0)); }catch(e){}
+  try{ let w=typeof wzAlle==='function'?wzAlle():{}, z=+localStorage.getItem('ia_wz_geaendert')||0;
+    if(w&&Object.keys(w).length){ vorhanden++; if(!ts||z>ts){ je.push(['Eingaben der Werkzeuge',null]); gesamt++; } } }catch(e){}
+  const EINZAHL={Projekte:'Projekt',Kunden:'Kunde','Übergabeprotokolle':'Übergabeprotokoll','Notaraufträge':'Notarauftrag',Termine:'Termin','Anfragen und Akquise':'Anfrage oder Akquise-Eintrag',
+    Provisionsabrechnungen:'Provisionsabrechnung',Unterlagen:'Unterlagen-Eintrag',Wiedervorlagen:'Wiedervorlage'};
+  return {gesamt,vorhanden,je,text:je.map(([n,k])=>k==null?n:k+' '+(k===1&&EINZAHL[n]?EINZAHL[n]:n)).join(', ')};
+}
+/* Erinnerung auf der Startseite, wenn Daten länger nicht gesichert wurden (D48: alle Daten, nicht nur Projekte) */
 async function pjSicherungsHinweis(){
   let el=$('start_pj_backup'); if(!el) return;
   await IA_BEREIT_P;
-  let n=pjLoad().length, lb=null;
+  let lb=null;
   if(IA_DB_BEREIT){ try{ lb=await iaGet('meta','lastBackup'); }catch(e){} }
-  let alt=!lb||!lb.ts||(Date.now()-lb.ts)>14*864e5, neuSeit=lb&&lb.ts?pjLoad().filter(p=>(p.geaendert||0)>lb.ts).length:n;
-  if(n&&alt&&neuSeit){
-    el.querySelector('span:last-child').textContent=lb&&lb.ts
-      ?'Projekte zuletzt am '+new Date(lb.ts).toLocaleDateString('de-DE')+' gesichert, '+neuSeit+' seitdem geändert — jetzt sichern'
-      :n+' Projekt'+(n===1?'':'e')+' noch nie als Datei gesichert — jetzt sichern';
+  let ts=lb&&lb.ts||0, alt=!ts||(Date.now()-ts)>14*864e5, ae=await pjAenderungenSeit(ts);
+  if(ae.vorhanden&&alt&&ae.gesamt){
+    el.querySelector('span:last-child').textContent=ts
+      ?'Zuletzt am '+new Date(ts).toLocaleDateString('de-DE')+' gesichert, seitdem geändert: '+ae.text+' — jetzt sichern'
+      :'Noch nie als Datei gesichert ('+ae.text+') — jetzt sichern';
     el.hidden=false;
   } else el.hidden=true;
 }

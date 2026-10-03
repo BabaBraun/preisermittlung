@@ -19,7 +19,7 @@ const NO_UNTERLAGEN_WEG=['Teilungserklärung mit Aufteilungsplan','Protokolle de
 const NO_ROLLEN=[['verkaeufer','Verkäufer'],['kaeufer','Käufer']];
 /* nur echte Kalenderdaten: ein Datumsfeld kann je nach Browser und Eingabe auch Unfertiges liefern */
 function noDatum(x){ x=String(x||''); return /^\d{4}-\d{2}-\d{2}$/.test(x)&&isFinite(new Date(x+'T00:00:00'))?x:''; }
-function noPerson(){ return {name:'',anschrift:'',telefon:'',email:'',familienstand:'',gueterstand:''}; }
+function noPerson(){ return {kundeId:'',name:'',anschrift:'',telefon:'',email:'',familienstand:'',gueterstand:''}; }
 function noLeer(){
   return {id:'no'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),ts:Date.now(),geaendert:Date.now(),stand:'Entwurf',projekt:'',kundeId:'',
     anschrift:'',art:NO_ARTEN[0],grundbuch:'',blatt:'',flurstuecke:'',flaeche:'',mea:'',wohnungNr:'',sondernutzung:'',verwaltung:'',zustimmung:'unbekannt',
@@ -44,7 +44,7 @@ async function noSpeichernJetzt(){
   try{ await iaPut('notar',JSON.parse(JSON.stringify(NO.aktiv))); speicherFehler('notar',''); }
   catch(e){ speicherFehler('notar','Der Notarauftrag konnte nicht gespeichert werden: '+iaFehlerText(e)+'.'); }
 }
-function noPersonAus(k){ return Object.assign(noPerson(),{name:kdName(k),anschrift:[k.strasse,k.plzort].filter(Boolean).join(', '),telefon:k.telefon||'',email:k.email||''}); }
+function noPersonAus(k){ return Object.assign(noPerson(),{kundeId:k.id,name:kdName(k),anschrift:[k.strasse,k.plzort].filter(Boolean).join(', '),telefon:k.telefon||'',email:k.email||''}); }
 /* Vorbelegung aus der geöffneten Bewertung: Objektdaten, Kunde als Verkäufer, Interessent mit Reservierung/Kaufangebot als Käufer */
 function noAusBewertung(p){
   let w=modus()==='wohnung', t=exV('ek_typ');
@@ -81,6 +81,9 @@ async function noLoeschen(id){
   await noLaden(); wzZeichnen();
 }
 function noPersonNeu(rolle){ let p=NO.aktiv; if(!p) return; p[rolle].push(noPerson()); noSpeichernBald(); wzZeichnen(); }
+/* Person aus der Kundenakte übernehmen (D48): verknüpft den Auftrag mit dem Kunden für Auskunft und Löschen */
+function noPersonKunde(rolle,i){ wzdKundeWaehlen(id=>{ let p=NO.aktiv, k=wzdKunde(id); if(!p||!k||!p[rolle][i]) return;
+  let alt=p[rolle][i]; p[rolle][i]=Object.assign(noPersonAus(k),{familienstand:alt.familienstand||'',gueterstand:alt.gueterstand||''}); noSpeichernBald(); wzZeichnen(); }); }
 function noPersonWeg(rolle,i){ let p=NO.aktiv; if(!p||p[rolle].length<2) return; p[rolle].splice(i,1); noSpeichernBald(); wzZeichnen(); }
 function noUnterlageNeu(){ let p=NO.aktiv; if(!p) return; p.unterlagen.push({name:'',ok:false}); noSpeichernBald(); wzZeichnen(); }
 function noUnterlageWeg(i){ let p=NO.aktiv; if(!p) return; p.unterlagen.splice(i,1); noSpeichernBald(); wzZeichnen(); }
@@ -129,7 +132,8 @@ function noPersonen(p,rolle,titel){
     +'<div class="grid">'+wzFeld(rolle+'.'+i+'.name','Name, Vorname bzw. Firma',{typ:'text'})+wzFeld(rolle+'.'+i+'.anschrift','Anschrift',{typ:'text'})
     +wzFeld(rolle+'.'+i+'.telefon','Telefon',{typ:'text'})+wzFeld(rolle+'.'+i+'.email','E-Mail',{typ:'text'})
     +wzFeld(rolle+'.'+i+'.familienstand','Familienstand',{typ:'wahl',optionen:NO_FAMILIE.map(a=>[a,a||'–'])})
-    +wzFeld(rolle+'.'+i+'.gueterstand','Güterstand',{typ:'wahl',optionen:NO_GUETER.map(a=>[a,a||'–'])})+'</div></div>').join('')
+    +wzFeld(rolle+'.'+i+'.gueterstand','Güterstand',{typ:'wahl',optionen:NO_GUETER.map(a=>[a,a||'–'])})+'</div>'
+    +'<div class="gr-zeile"><button type="button" class="secondary" onclick="noPersonKunde(\''+rolle+'\','+i+')" data-ic="users">'+(x.kundeId&&wzdKunde(x.kundeId)?'Verknüpft mit der Kundenakte — ändern':'Aus der Kundenakte')+'</button></div></div>').join('')
     +'<button type="button" class="plus" onclick="noPersonNeu(\''+rolle+'\')">＋ '+titel+'</button>';
 }
 function noEditor(p){
@@ -221,6 +225,7 @@ async function noUebergabe(){
   u.art='Verkauf (Besitzübergang)'; u.datum=noDatum(p.uebergabeDatum)||aufHeute(); u.anschrift=p.anschrift||'';
   u.lage=p.wohnungNr?'Wohnung Nr. '+p.wohnungNr+' laut Aufteilungsplan':'';
   u.uebergeber=noNamen(p.verkaeufer).join(', '); u.uebernehmer=noNamen(p.kaeufer).join(', ');
+  u.kundeIds=p.verkaeufer.concat(p.kaeufer).map(x=>x.kundeId).filter(Boolean).concat(p.kundeId?[p.kundeId]:[]).filter((x,i,a)=>a.indexOf(x)===i);   // D48
   UB.aktiv=u; UB.liste.unshift(u); await ubSpeichernJetzt();
   wzOeffnen('uebergabe');
 }
@@ -232,7 +237,7 @@ function noDokument(){
   const person=(x,t)=>'<h3>'+t+'</h3>'+wzDokTabelle([z('Name',x.name),z('Anschrift',x.anschrift),z('Telefon',x.telefon),z('E-Mail',x.email),z('Familienstand',x.familienstand),z('Güterstand',x.gueterstand)]);
   let w=p.art==='Wohnung', vermietet=p.raeumung!=='geräumt';
   let unterlagen=p.unterlagen.filter(u=>u.name);
-  return {titel:'Notarauftrag '+(p.anschrift||''),
+  return {titel:'Notarauftrag '+(p.anschrift||''),pflicht:true,
     html:'<h1>Angaben für den Kaufvertragsentwurf</h1><p class="wzd-unter">'+(noOrt(p)?'An: '+sEsc(noOrt(p))+' · ':'')+'Stand '+new Date().toLocaleDateString('de-DE')+'</p>'
       +'<h2>Objekt</h2>'+wzDokTabelle([z('Anschrift',p.anschrift),z('Art',p.art),z('Grundbuch',[p.grundbuch,p.blatt?'Blatt '+p.blatt:''].filter(Boolean).join(', ')),z('Flurstück(e)',p.flurstuecke),
         w?z('Miteigentumsanteil',p.mea):z('Grundstücksfläche',wzN(p.flaeche,true)>0?wzZ(wzN(p.flaeche,true),0)+' m²':''),w?z('Nr. laut Aufteilungsplan',p.wohnungNr):null,
@@ -263,3 +268,27 @@ function noKundeText(){
 wzRegistrieren({id:'notar',titel:'Notarauftrag',sub:'Angaben für den Kaufvertragsentwurf · Termin · Übergabe',icon:'pen',ohneNeu:true,
   zustand:()=>NO.aktiv,speichern:noSpeichernBald,zeichnen:noZeichnen,rechnen:noRechnen,dokument:noDokument,kundeText:noKundeText,
   schliessen:()=>{ noSpeichernJetzt(); }});
+
+/* ---------- Kundenakte: Auskunft und Löschen (D48) ----------
+   Ein Kunde steckt in einem Notarauftrag, wenn eine Person mit seiner Kunden-Id verknüpft ist oder — bei älteren Aufträgen —
+   denselben Namen trägt. Beim Löschen bleiben vom Eintrag nur „(Kunde gelöscht)“ und die Rolle; der Auftrag selbst bleibt. */
+function noTrifft(x,k){ return !!x&&((!!x.kundeId&&x.kundeId===k.id)||wzdNameGleich(x.name,k)); }
+function noTreffer(k){ return (NO.liste||[]).map(p=>({p,rollen:NO_ROLLEN.filter(([r])=>(p[r]||[]).some(x=>noTrifft(x,k))||(r==='verkaeufer'&&p.kundeId===k.id))})).filter(x=>x.rollen.length); }
+KD_AUSKUNFT_HOOKS.push(async id=>{
+  let k=wzdKunde(id); if(!k) return [];
+  await noLaden();
+  let l=noTreffer(k);
+  return ['','NOTARAUFTRÄGE'].concat(l.length?l.map(({p,rollen})=>'- '+(p.anschrift||'Objekt')+': '+rollen.map(r=>r[1]).join(' und ')+', Stand '+(p.stand||'–')
+    +(noDatum(p.termin)?', Termin '+wzDatum(p.termin):'')+'; gespeichert: Name, Anschrift, Telefon, E-Mail, Familienstand, Güterstand'):['- keine']);
+});
+KD_LOESCH_HOOKS.push(async id=>{
+  let k=wzdKunde(id); if(!k) return;
+  await noLaden();
+  for(const {p} of noTreffer(k)){
+    NO_ROLLEN.forEach(([r])=>{ p[r]=(p[r]||[]).map(x=>noTrifft(x,k)?Object.assign(noPerson(),{name:'(Kunde gelöscht)'}):x); });
+    if(p.kundeId===id) p.kundeId='';
+    p.geaendert=Date.now();
+    try{ await iaPut('notar',JSON.parse(JSON.stringify(p))); }catch(e){}
+  }
+  NO.liste=null;
+});

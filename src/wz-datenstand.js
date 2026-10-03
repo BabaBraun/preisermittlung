@@ -9,10 +9,11 @@ const DS_STATUS={ok:['gruen','aktuell'],bald:['gelb','bald prüfen'],faellig:['r
 const DS_AKTION={sicherung:['Jetzt sichern','dsSichern()','download'],markt:['Marktdaten öffnen','wzSchliessen();pqOeffnen()','book'],
   index:['Wertmonitor öffnen',"wzOeffnen('wertmonitor')",'activity'],liegenschaften:['Liegenschaften öffnen',"wzSchliessen();lvOeffnen('uebersicht')",'building'],
   loeschen:['Kunden öffnen','wzSchliessen();kdOeffnen()','users'],notar:['Notaraufträge öffnen',"wzOeffnen('notar')",'pen'],
+  brw:['BORIS-BW öffnen',"window.open('https://www.gutachterausschuesse-bw.de/borisbw/?lang=de','_blank','noopener')",'map'],
   abrechnungen:['Provision öffnen',"wzOeffnen('provision')",'receipt'],vollmachten:['Unterlagen öffnen',"wzOeffnen('unterlagen')",'folder-open']};   // D45
 async function dsEingaben(){
   await IA_BEREIT_P;
-  const pj=typeof pjLoad==='function'?pjLoad():[], heute=aufHeute(), J=+heute.slice(0,4), brw=(J%2===0?J:J-1)+'-01-01';
+  const pj=typeof pjLoad==='function'?pjLoad():[], heute=aufHeute(), J=+heute.slice(0,4), brwTurnus=(wzAlle().datenstand||{}).brwTurnus||'bw2', brw=ImmoBeratung.brwStand(heute,brwTurnus).stand+'-01-01';   // D48
   const kunden=typeof KD_CACHE!=='undefined'?KD_CACHE:[];
   let lb=null, notar=[], lg=[];
   if(IA_DB_BEREIT){ try{ lb=await iaGet('meta','lastBackup'); }catch(e){} try{ notar=await iaAlle('notar'); }catch(e){} }
@@ -24,14 +25,16 @@ async function dsEingaben(){
   const jahre=o=>Object.keys(o&&typeof o==='object'?o:{}).filter(j=>/^\d{4}$/.test(j)&&wzN(o[j])>0).map(Number);
   const aktiv=pj.filter(p=>['Auftrag erteilt','In Vermarktung','Reserviert'].includes(((p.data&&p.data.fields)||{}).vm_status));
   const ts=lb&&lb.ts||0;
+  let ae=null; try{ if(typeof pjAenderungenSeit==='function') ae=await pjAenderungenSeit(ts); }catch(e){}   // D48: alle Daten
   const BPI=window.ImmoBaupreisindex||{}, ST=window.ImmoSterbetafel||{}, BER=window.ImmoBeratung||{};
   return {bpiStand:BPI.STAND||'',tafelZeitraum:ST.zeitraum||'',bmfJahre:Object.keys(BER.BMF_VERVIELFAELTIGER||{}).map(Number),
     marktdaten:typeof pqSets==='function'?pqSets().map(s=>({name:s.titel||s.gebiet||s.quelle||'',stand:s.stand||''})):[],
     indexJahre:{haus:jahre(idx.haus),wohnung:jahre(idx.wohnung)},
     bewertungenVorBrw:aktiv.filter(p=>{ let s=typeof wmStichtag==='function'?wmStichtag(p,(p.data&&p.data.fields)||{}):''; return s&&s<brw; }).length,
-    projekte:pj.length,kunden:kunden.length,sicherung:ts,geaendertSeitSicherung:ts?pj.filter(p=>(p.geaendert||0)>ts).length:pj.length,
+    projekte:pj.length,kunden:kunden.length,sicherung:ts,geaendertSeitSicherung:ae?ae.gesamt:(ts?pj.filter(p=>(p.geaendert||0)>ts).length:pj.length),
+    geaendertText:ae?ae.text:'',datenVorhanden:ae?ae.vorhanden:0,
     liegenschaften:lg,loeschpruefungFaellig:kunden.filter(k=>k.loeschpruefung&&k.loeschpruefung<=heute).length,
-    notarErledigtAlt:notar.filter(n=>n.stand==='Erledigt'&&(Date.now()-(n.geaendert||0))>182*864e5).length,
+    brwTurnus,notarErledigtAlt:notar.filter(n=>n.stand==='Erledigt'&&(Date.now()-(n.geaendert||0))>182*864e5).length,
     abrechnungenAlt:abr.filter(a=>{ let b=(a.parteien||[]).filter(p=>p.bezahltAm).map(p=>p.bezahltAm).sort().pop(); return typeof paErledigt==='function'&&paErledigt(a)&&b&&b<=vor12; }).length,
     vollmachtenAlt:ul.filter(r=>{ let p=pj.find(x=>x.id===r.projektId), st=p&&((p.data&&p.data.fields)||{}).vm_status; return r.vollmacht&&r.vollmacht.unterschrift&&(!p||st==='Verkauft')&&(Date.now()-(r.geaendert||0))>182*864e5; }).length};
 }
@@ -58,10 +61,14 @@ function dsZeichnen(){
       return '<div class="ds-zeile wz-ampel wz-'+st[0]+'"><span class="wz-punkt" aria-hidden="true"></span><div class="ds-inhalt"><div class="ds-kopf"><b>'+sEsc(x.titel)+'</b><span class="ds-st">'+st[1]+'</span></div>'
         +'<div class="ds-werte"><span>Stand: '+sEsc(x.stand)+'</span><span>Nächste: '+sEsc(x.naechste)+'</span></div>'
         +'<div>'+sEsc(x.text)+'</div><small>Quelle: '+sEsc(x.quelle)+'</small>'
+        +(x.id==='brw'?'<div class="field ds-turnus"><label for="ds_brw_turnus">Turnus des Gutachterausschusses</label><select id="ds_brw_turnus" onchange="dsBrwTurnus(this.value)">'
+          +[['bw2','alle zwei Jahre (Baden-Württemberg, z. B. südwestlicher Landkreis Heilbronn)'],['jaehrlich','jährlich']].map(([v,t])=>'<option value="'+v+'"'+(((wzAlle().datenstand||{}).brwTurnus||'bw2')===v?' selected':'')+'>'+t+'</option>').join('')+'</select></div>':'')
         +(a&&x.status!=='ok'?'<div class="gr-zeile"><button type="button" class="secondary" onclick="'+a[1]+'" data-ic="'+a[2]+'">'+a[0]+'</button></div>':'')+'</div></div>'; }).join('')); }).join('')
     +wzHinweis('Die Zeitpunkte der nächsten Veröffentlichungen sind Erfahrungswerte (Baupreisindex vierteljährlich etwa sechs Wochen nach dem Berichtsmonat, Sterbetafel im Sommer, BMF-Tabelle im Herbst). Neue Werte der Rechengrundlagen kommen mit einer neuen Fassung der App.');
 }
 function dsRechnen(){ iconify($('wz_body')); }
+/* Turnus der Bodenrichtwerte je Gutachterausschuss (D48) — das Gesetz setzt nur ein Minimum */
+function dsBrwTurnus(v){ let a=wzAlle(); if(!a.datenstand||typeof a.datenstand!=='object'||Array.isArray(a.datenstand)) a.datenstand={}; a.datenstand.brwTurnus=v==='jaehrlich'?'jaehrlich':'bw2'; wzSpeichern(); DS.erg=null; wzZeichnen(); }
 async function dsSichern(){ await pjAlleSichern(); DS.erg=null; if(WZ.aktiv==='datenstand') wzZeichnen(); else dsAktualisieren(); }
 function dsDokument(){
   if(!DS.erg){ alert('Die Datenstände werden noch gelesen.'); return null; }

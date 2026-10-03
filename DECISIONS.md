@@ -1448,3 +1448,52 @@ Empfänger, Bcc nur mit Einwilligung, Notiz in der Kundenakte); Klicktest-Bereic
 „Mein Jahr“ rechnet die realisierte Provision weiter aus Kaufpreis und Sätzen der verkauften Aufträge (Prognose). Neu daneben:
 „Eingegangen {Jahr}“ — die Summe der Zahlungseingänge aus der Kachel „Provision“ im gewählten Jahr (Beträge inklusive
 Umsatzsteuer wie die Prognose; erfasster Betrag, sonst der Rechnungsbetrag). So stehen Plan und Ist nebeneinander.
+
+## D48 (2026-10-03) — Vier Fehler behoben, Pflichtangaben der Genossenschaft, Eigentümerbericht aus allen Quellen
+
+Eine Prüfung der App aus fünf Blickwinkeln (FIO, andere Maklersoftware, Bankalltag, Code, Rechtsänderungen) mit Gegenprüfung
+fand vier Fehler und eine fehlende Pflicht. Alle Rechtsaussagen wurden vor dem Einbau am Wortlaut geprüft.
+
+**Eigentümerbericht** (`src/wz-eigentuemerbericht.js`, Zusammenführung `wzdVermarktung` in `src/wz-daten.js`): Der Bericht der
+Bewertung liest nur deren Protokoll (`vm_daten`). Wer Anfragen in der Kachel „Interessenten“ pflegt, schickte dem Eigentümer
+„0 Anfragen“; Gebote und Kalender-Besichtigungen fehlten. Neue Kachel „Eigentümerbericht“ führt Protokoll, Anfragen (Herkunft,
+Exposé-Versand, Absagegrund), Besichtigungen (künftige als „geplant“) und Gebote zusammen. Doppelt Erfasstes (gleiche Art,
+gleicher Tag, gleicher Kunde) zählt einmal und wird ergänzt. Ohne Namen („Interessent 1, 2, …“), Zeitraum wählbar, Einschätzung
+mit Vorschlag aus den Zahlen, Wiedervorlage. Der Verkaufsfahrplan erkennt den Bericht; die Vorlage „Stand der Vermarktung“ zählt
+alle Quellen. Der Bericht in der Bewertung bleibt unverändert (Umbau-Grenze).
+
+**Sicherungserinnerung** (`pjAenderungenSeit` in `src/projects.js`): Startseite und Datenstand zählten nur Projekte und meldeten
+„Gesichert.“, obwohl Kunden, Termine, Anfragen, Gebote, Abrechnungen, Unterlagen, Notaraufträge, Protokolle, Wiedervorlagen oder
+Werkzeug-Eingaben geändert waren. Jetzt zählt die Erinnerung alle Daten der Gesamtsicherung und nennt sie („1 Kunde, 1 Termin“).
+Die Werkzeug-Eingaben tragen dafür einen Zeitstempel (`ia_wz_geaendert`).
+
+**Auskunft und Löschen** (Kundenakte): Notarauftrag und Übergabeprotokoll speicherten Namen ohne Bezug zur Kundenakte; sie fehlten
+in der Auskunft und blieben nach dem Löschen stehen. Jetzt: Personen im Notarauftrag lassen sich „Aus der Kundenakte“ übernehmen
+(Kunden-Id), das daraus angelegte Übergabeprotokoll erbt die Ids. Auskunft und Löschen finden Einträge über die Id oder — bei
+älteren Einträgen — den gleichen Namen (Reihenfolge und Satzzeichen egal, `wzdNameGleich`). Beim Löschen ersetzt die App Name und
+Kontaktdaten durch „(Kunde gelöscht)“ und entfernt die Unterschrift der betroffenen Seite; der Hinweis beim Löschen nennt das.
+
+**Bodenrichtwerte** (`brwStand` in `js/beratung.js`): Die App nahm Stichtage in geraden Jahren an (01.01.2026) und zitierte
+§ 196 Abs. 1 Satz 4 BauGB. Richtig: Die Regel steht in Satz 5 („zu Beginn jedes zweiten Kalenderjahres“); Baden-Württemberg legt
+fest: „mindestens auf das Ende jedes geraden Kalenderjahres bis zum 30. Juni des folgenden Jahres“ (§ 12 GuAVO BW) — also
+Stichtag 01.01. eines ungeraden Jahres. Für Beilstein, Ilsfeld und Abstatt ist der Gemeinsame Gutachterausschuss südwestlicher
+Landkreis Heilbronn (Geschäftsstelle Eppingen) zuständig; aktueller Stichtag 01.01.2025, nächster 01.01.2027, veröffentlicht bis
+30.06.2027. Zwischen Stichtag und Veröffentlichung meldet der Datenstand „bald prüfen“. Turnus je Gutachterausschuss einstellbar
+(alle zwei Jahre oder jährlich), Knopf „BORIS-BW öffnen“.
+
+**Pflichtangaben der Genossenschaft** (`src/wz-absender.js`, Prüfregeln `pflichtangabenPruefen` in `js/beratung.js`):
+§ 25a Abs. 1 GenG verlangt auf Geschäftsbriefen „gleichviel welcher Form“ an einen bestimmten Empfänger — auch E-Mails
+(BT-Drs. 16/960 S. 48) — Rechtsform und Sitz, Registergericht und Registernummer, alle Vorstandsmitglieder (auch Stellvertreter,
+§ 35 GenG) und den Vorsitzenden des Aufsichtsrats mit Familiennamen und mindestens einem ausgeschriebenen Vornamen. Neue Seite
+„Absender und Pflichtangaben“ unter „Mehr“ mit Prüfung: fehlende Felder, Firma ohne „eG“ (§ 3 GenG), Vorname nur als Initiale,
+weniger als zwei Vorstandsmitglieder (§ 24 Abs. 2 GenG). Die Rechtsform wird immer ausgeschrieben. Die Ausnahme des § 25a Abs. 2
+wendet die App nicht an. Der Baustein steht unter Vorlagen (E-Mail, Zwischenablage, Word, Dokument), Rundschreiben (jede Seite des
+Serienbriefs, E-Mail), Rechnung der Provision, Anforderungsschreiben und Liste der Unterlagen, Datenblatt für das Notariat,
+Gebotsübersicht und Eigentümerbericht; als kompakte Zeile in der Fußzeile aller anderen Werkzeug-Dokumente. Nicht unter Aushang und
+Social Media (unbestimmter Personenkreis) und nicht unter der Vollmacht (Erklärung des Eigentümers). Enthält die Signatur des
+Mailprogramms die Angaben, lässt die App sie bei E-Mails und kopierten Texten weg (Bestätigung mit Datum). Die Provision übernimmt
+leere Aussteller-Angaben aus dem Absender. Offen: Exposé und Bewertungsbericht (Umbau-Grenze) — Fabian entscheidet.
+
+**Tests:** `tests/e2e/werkzeuge-d48.spec.mjs` (Bericht aus allen Quellen mit Dublettenabgleich, Pflichtangaben in E-Mail, Word,
+Rechnung, Bericht und Fußzeile, Signatur-Schalter, Sicherungserinnerung, Auskunft und Löschen, Bodenrichtwert-Stichtag);
+`tests/unit/d48.test.mjs` (Prüfregeln § 25a GenG, Bodenrichtwert-Turnus); `tests/unit/notar-datenstand.test.mjs` angepasst.

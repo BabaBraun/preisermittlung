@@ -154,7 +154,7 @@ function ulRechnen(){
 function ulSpeichern(){ if(UL.aktiv) wzdSpeichernBald('unterlagen',UL.aktiv); }
 
 /* ---------- Dokumente: Liste, Liste für den Eigentümer, Anforderung je Stelle, Vollmacht ---------- */
-function ulAbsender(){ let ber=typeof exKontaktGemerkt==='function'?exKontaktGemerkt():{}, pk=(wzAlle().portal||{}).kontakt||{};
+function ulAbsender(){ if(typeof wzAbsenderKontakt==='function') return wzAbsenderKontakt(); let ber=typeof exKontaktGemerkt==='function'?exKontaktGemerkt():{}, pk=(wzAlle().portal||{}).kontakt||{};
   return {name:ber.name||pk.name||'',firma:ber.firma||(((wzAlle().portal||{}).anbieter)||{}).firma||'',tel:ber.tel||pk.tel||'',mail:ber.mail||pk.mail||''}; }
 function ulObjektZeilen(r){
   let o=wzdObjekt(r.projektId), f=o?o.f:{}, z=[];
@@ -179,7 +179,7 @@ function ulDokument(){
   }
   if(was&&was.startsWith('anf:')){
     let [,stelle,keys]=was.split(':'), l=keys.split(',').map(k=>UL_LISTE.find(x=>x[0]===k)).filter(Boolean);
-    return {titel:'Anforderung '+ulStellenName(stelle)+' '+name,ohneFuss:true,
+    return {titel:'Anforderung '+ulStellenName(stelle)+' '+name,ohneFuss:true,pflicht:true,
       html:'<div class="pa-briefkopf"><div class="pa-absender">'+sEsc([abs.name,abs.firma].filter(Boolean).join(' · ')||'[Absender]')+'</div>'
         +'<div class="pa-empfaenger">'+sEsc(ulStellenName(stelle))+'<br>[Anschrift]</div><div class="pa-daten">'+wzDokTabelle([['Datum',new Date().toLocaleDateString('de-DE')]].concat(abs.tel?[['Telefon',sEsc(abs.tel)]]:[]).concat(abs.mail?[['E-Mail',sEsc(abs.mail)]]:[]))+'</div></div>'
         +'<h1>Anforderung von Unterlagen</h1>'+wzDokTabelle(ulObjektZeilen(r))
@@ -189,7 +189,7 @@ function ulDokument(){
   }
   if(was==='eigentuemer'){
     let l=posten.filter(p=>p.x[2]==='eigentuemer'&&p.s.stand!=='da'&&p.s.stand!=='entfaellt'), andere=posten.filter(p=>p.x[2]!=='eigentuemer'&&p.s.stand!=='da'&&p.s.stand!=='entfaellt');
-    return {titel:'Unterlagen für den Verkauf '+name,
+    return {titel:'Unterlagen für den Verkauf '+name,pflicht:true,
       html:'<h1>Unterlagen für den Verkauf</h1><p class="wzd-unter">'+sEsc(name)+' · Stand '+new Date().toLocaleDateString('de-DE')+'</p>'
         +(l.length?'<h2>Bitte heraussuchen</h2><ul>'+l.map(p=>'<li>'+sEsc(p.x[1])+(p.x[5]?' <span class="wzd-klein">('+sEsc(p.x[5])+')</span>':'')+'</li>').join('')+'</ul>':'<p>Von Ihnen wird nichts mehr gebraucht — vielen Dank.</p>')
         +(andere.length?'<h2>Das hole ich mit Ihrer Vollmacht ein</h2><ul>'+andere.map(p=>'<li>'+sEsc(p.x[1])+' — '+sEsc(ulStellenName(p.x[2]))+'</li>').join('')+'</ul>':''),

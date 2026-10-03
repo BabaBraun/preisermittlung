@@ -19,7 +19,7 @@ const FP_PHASEN=[
 const FP_STAENDE=['Akquise','Auftrag erteilt','In Vermarktung','Reserviert','Notartermin','Verkauft'];
 const FP_UL="wzOeffnen('unterlagen');ulOeffnen(FP.aktiv)";
 const FP_LINK={unterlagen:FP_UL,grundbuch:FP_UL,flurkarte:FP_UL,baulasten:FP_UL,weg:FP_UL,fotos:"wzOeffnen('foto')",portal:"wzOeffnen('portal')",gesuche:"wzOeffnen('interessenten');vgSetz('ansicht','abgleich')",
-  bericht:"vlOeffnenMit({vorlage:'stand',projektId:FP.aktiv})",notarauftrag:"wzOeffnen('notar')",entwurf:"wzOeffnen('notar')",uebergabe:"wzOeffnen('uebergabe')",nachbetreuung:"vlOeffnenMit({vorlage:'glueckwunsch',projektId:FP.aktiv})"};
+  bericht:"wzOeffnen('eigentuemerbericht');ebObjekt(FP.aktiv)",notarauftrag:"wzOeffnen('notar')",entwurf:"wzOeffnen('notar')",uebergabe:"wzOeffnen('uebergabe')",nachbetreuung:"vlOeffnenMit({vorlage:'glueckwunsch',projektId:FP.aktiv})"};
 function fpS(){ let a=wzAlle(); if(!a.fahrplan||typeof a.fahrplan!=='object'||Array.isArray(a.fahrplan)) a.fahrplan={}; return a.fahrplan; }
 function fpLaden(){
   if(!FP.laeuft) FP.laeuft=(async()=>{ try{ await wzdLaden(); let notar=[],prot=[];
@@ -49,7 +49,7 @@ function fpAuto(o){
     portal:!!(portal&&portal.aktion!=='DELETE'),
     gesuche:wzdListe('vorgaenge').some(v=>v.typ==='anfrage'&&v.projektId===o.id&&v.quelle==='Suchprofil (Abgleich)'),
     besichtigung:ev.some(e=>/Besichtigung/.test(e&&e.art||''))||wzdListe('vorgaenge').some(v=>v.typ==='anfrage'&&v.projektId===o.id&&(+v.stufe||0)>=3),
-    bericht:!!f.vm_letzter,
+    bericht:!!f.vm_letzter||!!(((wzAlle().eigentuemerbericht||{}).letzter||{})[o.id]),
     kaeufer:st>=3,
     notar1:stand>=1||st>=4, notar2:stand>=2, notar3:stand>=3||st>=5,
     uebergabe:ex.prot.some(x=>x.abgeschlossen&&fpGleich(x.anschrift,o.anschrift)),

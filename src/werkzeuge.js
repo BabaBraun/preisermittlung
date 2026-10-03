@@ -25,7 +25,7 @@ function wzSpeichernJetzt(){
   try{ localStorage.setItem(WZ_KEY,JSON.stringify(wzAlle())); if(typeof speicherFehler==='function') speicherFehler('wz',''); }
   catch(e){ if(typeof speicherFehler==='function') speicherFehler('wz','Die Eingaben der Werkzeuge konnten nicht gespeichert werden (Speicher voll?).'); }
 }
-function wzSpeichern(){ clearTimeout(WZ.timer); WZ.timer=setTimeout(wzSpeichernJetzt,300); }
+function wzSpeichern(){ clearTimeout(WZ.timer); WZ.timer=setTimeout(wzSpeichernJetzt,300); try{ localStorage.setItem('ia_wz_geaendert',String(Date.now())); }catch(e){} }   // D48: für die Sicherungserinnerung
 
 /* ---------- Pfade, Zahlen, Formate ---------- */
 function wzHol(o,pfad){ return String(pfad).split('.').reduce((a,k)=>a==null?undefined:a[k],o); }
@@ -143,8 +143,8 @@ async function wzDokument(){
   r.className='wz-dok'; r.dataset.pdfname=wzDateiname(dok.titel);
   r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="wzDokZurueck()">← zurück</button><button onclick="window.print()">Drucken</button>'
     +'<button onclick="downloadPDF()">PDF herunterladen</button><button onclick="wzDokWord()">Word</button><button onclick="pdfTeilen()">Teilen</button></div>'
-    +'<div class="wzd">'+dok.html+(dok.ohneFuss?'':'<p class="wzd-fuss">Erstellt mit der ImmoApp am '+new Date().toLocaleDateString('de-DE')+'. '
-    +(dok.fuss||'Modellrechnung zur Orientierung im Beratungsgespräch.')+'</p>')+'</div>';
+    +'<div class="wzd">'+dok.html+(dok.pflicht&&typeof wzPflichtFussHtml==='function'?wzPflichtFussHtml():'')+(dok.ohneFuss?'':'<p class="wzd-fuss">Erstellt mit der ImmoApp am '+new Date().toLocaleDateString('de-DE')+'. '
+    +(dok.fuss||'Modellrechnung zur Orientierung im Beratungsgespräch.')+(!dok.pflicht&&typeof wzPflichtKurz==='function'&&wzPflichtKurz()?'<br>'+sEsc(wzPflichtKurz()):'')+'</p>')+'</div>';
   WZ.dokVon=WZ.aktiv; wzSpeichernJetzt();
   $('wz_overlay').classList.remove('on'); WZ.aktiv=null;
   document.body.style.overflow=''; document.body.classList.add('report-mode'); window.scrollTo(0,0);

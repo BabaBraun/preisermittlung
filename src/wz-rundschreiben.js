@@ -68,7 +68,7 @@ function rsRechnen(){
 function rsMailEmpfaenger(S){ return rsEmpfaenger(S).filter(x=>rsEinwilligung(x.k)&&x.k.email).map(x=>x.k); }
 function rsMailText(S){
   let f=rsFuellen(S,null), t=f.text.replace(/^[^\n]*,\s*\n/,'Guten Tag,\n');   // erste Zeile (Anrede) neutral
-  return {betreff:f.betreff,text:t+'\n\n'+RS_ABMELDEN};
+  return {betreff:f.betreff,text:(typeof wzMitPflicht==='function'?wzMitPflicht(t+'\n\n'+RS_ABMELDEN,{mail:true}):t+'\n\n'+RS_ABMELDEN)};   // D48: § 25a GenG
 }
 function rsMail(){
   let S=rsS(), l=rsMailEmpfaenger(S); if(!l.length){ alert('Keiner der Empfänger hat eine Einwilligung zur Werbung und eine E-Mail-Adresse.'); return; }
@@ -90,12 +90,13 @@ async function rsVermerken(){
 function rsDokument(){
   let S=rsS(), e=rsEmpfaenger(S).filter(x=>x.k.strasse&&x.k.plzort);
   if(!e.length){ alert('Keiner der Empfänger hat eine vollständige Anschrift — für E-Mails „E-Mail an alle (Bcc)“ nehmen.'); return null; }
-  let abs=typeof ulAbsender==='function'?ulAbsender():{}, v=rsVorlage(S);
+  let abs=typeof wzAbsenderKontakt==='function'?wzAbsenderKontakt():typeof ulAbsender==='function'?ulAbsender():{}, v=rsVorlage(S);
   return {titel:'Serienbrief '+v.titel,ohneFuss:true,
     html:e.map(({k},i)=>{ let f=rsFuellen(S,k);
       return (i?'<div class="pagebreak"></div>':'')+'<div class="pa-briefkopf"><div class="pa-absender">'+sEsc([abs.name,abs.firma].filter(Boolean).join(' · ')||'')+'</div>'
         +'<div class="pa-empfaenger">'+sEsc(kdName(k))+'<br>'+sEsc(k.strasse)+'<br>'+sEsc(k.plzort)+'</div><div class="pa-daten">'+wzDokTabelle([['Datum',new Date().toLocaleDateString('de-DE')]])+'</div></div>'
-        +'<h2>'+sEsc(f.betreff)+'</h2>'+f.text.split(/\n{2,}/).map(p=>'<p>'+sEsc(p).replace(/\n/g,'<br>')+'</p>').join(''); }).join('')};
+        +'<h2>'+sEsc(f.betreff)+'</h2>'+f.text.split(/\n{2,}/).map(p=>'<p>'+sEsc(p).replace(/\n/g,'<br>')+'</p>').join('')
+        +(typeof wzPflichtFussHtml==='function'?wzPflichtFussHtml():''); }).join('')};
 }
 wzRegistrieren({id:'rundschreiben',titel:'Rundschreiben',sub:'Serienbrief und E-Mail an viele — mit Einwilligung',icon:'send',start:rsStart,ohneNeu:true,
   zeichnen:rsZeichnen,rechnen:rsRechnen,dokument:rsDokument});

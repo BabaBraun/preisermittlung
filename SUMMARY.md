@@ -1,3 +1,10 @@
+# Zusammenfassung — Fehler behoben, Pflichtangaben, Eigentümerbericht (2026-10-03)
+
+Vier Fehler behoben: Der Bericht für den Eigentümer zählt jetzt alle Kacheln (neue Kachel „Eigentümerbericht“), die
+Sicherungserinnerung alle Daten, Auskunft und Löschen erfassen Notarauftrag und Übergabeprotokoll, der Stichtag der Bodenrichtwerte
+folgt § 12 GuAVO BW (01.01.2025, nächster 01.01.2027). Neu: Pflichtangaben der Genossenschaft unter allen Schreiben und E-Mails
+(§ 25a GenG), einzutragen unter „Mehr → Absender und Pflichtangaben“ (D48).
+
 # Zusammenfassung — Rundschreiben (2026-10-03)
 
 Neue Kachel „Rundschreiben“ (D46): ein Schreiben an viele — Suchkunden zu einem Objekt, alle mit Einwilligung zur Werbung,

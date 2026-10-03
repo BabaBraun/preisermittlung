@@ -135,7 +135,7 @@ function biDokument(){
   let b=BI.aktiv; if(!b){ alert('Bitte zuerst ein Verfahren öffnen.'); return null; }
   let r=biRang(b), preis=biPreis(b), name=wzdObjektName(b.projektId,b.objekt||'Objekt');
   const bieter=i=>'Bieter '+String.fromCharCode(65+(i%26))+(i>=26?Math.floor(i/26):'');
-  return {titel:'Gebotsübersicht '+name,
+  return {titel:'Gebotsübersicht '+name,pflicht:true,
     html:'<h1>Gebotsübersicht</h1><p class="wzd-unter">'+sEsc(name)+' · Frist '+(wzdDatum(b.ende)?wzDatum(b.ende)+(b.endeZeit?', '+sEsc(b.endeZeit)+' Uhr':''):'–')+' · Stand '+new Date().toLocaleDateString('de-DE')+'</p>'
       +(preis>0?'<p>Angebotspreis: '+wzEur(preis)+(wzN(b.mindestgebot,true)>0?' · Mindestgebot: '+wzEur(wzN(b.mindestgebot,true)):'')+'</p>':'')
       +(r.length?wzDokTabelle(r.map((g,i)=>[String(g.rang),bieter(i),wzEur(g.betrag),g.abstandPreis!=null?(g.abstandPreis>=0?'+':'')+wzP(g.abstandPreis,1):'–',

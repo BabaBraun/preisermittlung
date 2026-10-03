@@ -50,7 +50,7 @@ function vlWerte(w){
   let ber=typeof exKontaktGemerkt==='function'?exKontaktGemerkt():{}, pk=(wzAlle().portal||{}).kontakt||{};
   let titel=o?(f.ex_titel||(window.ImmoPortal?ImmoPortal.objekt(f,{projektId:o.id}).texte.titel:o.name)):'';
   let ort=o&&window.ImmoPortal?ImmoPortal.anschrift(f.ek_anschrift).ort:'', vm={};
-  if(o&&typeof vmDaten==='function'&&typeof vmKennzahlen==='function'){ try{ let x=vmKennzahlen(vmDaten(f),f.vm_start); vm={vm_tage:x.tage?String(x.tage):'',vm_anfragen:String(x.anfragen),vm_besichtigungen:String(x.besicht),vm_angebote:String(x.angebote)}; }catch(e){} }
+  if(o){ try{ let x=wzdVermarktung(o); vm={vm_tage:x.tage?String(x.tage):'',vm_anfragen:String(x.gesamt.anfragen),vm_besichtigungen:String(x.gesamt.besicht),vm_angebote:String(x.gesamt.angebote)}; }catch(e){} }   // D48: alle Quellen
   let td=t&&wzdDatum(t.datum);
   return Object.assign({anrede_brief:ImmoBeratung.briefAnrede(k),vorname:k.vorname||'',nachname:k.nachname||'',
     objekt_titel:titel,objekt_anschrift:o?o.anschrift:'',objekt_ort:ort,preis:o?(o.preis>0?eur(o.preis):'auf Anfrage'):'',provision:f.ex_provision||'',
@@ -87,7 +87,7 @@ function vlZeichnen(S){
       +'<div class="field"><label for="vl_termin">Termin</label><select id="vl_termin" onchange="vlWahl(\'terminId\',this.value)"><option value="">– kein Termin –</option>'
         +termine.map(t=>'<option value="'+sEsc(t.id)+'"'+(t.id===w.terminId?' selected':'')+'>'+sEsc(wzDatum(t.datum)+(t.von?' '+t.von:'')+' · '+(t.art||'')+(t.titel?': '+t.titel:''))+'</option>').join('')+'</select></div></div>')
     +wzBox('Text','<div class="field"><label for="vl_betreff">Betreff</label><input id="vl_betreff" value="'+sEsc(VL.betreff)+'" oninput="VL.betreff=this.value"></div>'
-      +'<div class="field" style="margin-top:8px"><label for="vl_text">Nachricht</label><textarea id="vl_text" rows="16" oninput="VL.text=this.value">'+sEsc(VL.text)+'</textarea></div>'
+      +'<div class="field" style="margin-top:8px"><label for="vl_text">Nachricht</label><textarea id="vl_text" rows="16" oninput="VL.text=this.value">'+sEsc(VL.text)+'</textarea></div>'+vlPflichtHinweis()
       +(fehlt.length?wzAmpel('gelb',sEsc(vlFehltText(fehlt))+' Empfänger, Objekt oder Termin wählen — Absender kommt aus dem Ansprechpartner des Exposés.'):'')
       +(F.v.hinweis?wzAmpel('gelb',sEsc(F.v.hinweis)):'')
       +'<div class="gr-zeile"><button type="button" class="primary" onclick="vlMail()" data-ic="upload">Als E-Mail öffnen</button>'
@@ -99,14 +99,19 @@ function vlZeichnen(S){
     +'</div></div>';
 }
 /* ---------- Ausgaben ---------- */
+/* Pflichtangaben der Genossenschaft unter jedes Schreiben (§ 25a Abs. 1 GenG, D48) */
+function vlMitPflicht(t,mail){ return typeof wzMitPflicht==='function'?wzMitPflicht(t,{mail:!!mail}):String(t||''); }
+function vlPflichtHinweis(){ if(typeof wzPflichtFehlt!=='function') return ''; let f=wzPflichtFehlt();
+  return f.length?wzAmpel('gelb','Pflichtangaben der Bank fehlen ('+sEsc(f.join(', '))+') — Mehr → Absender und Pflichtangaben (§ 25a GenG).')
+    :wzHinweis('Unter E-Mail, Word und Dokument setzt die App die Pflichtangaben der Bank (§ 25a GenG).'); }
 function vlKopieren(){
-  let t=(VL.betreff?'Betreff: '+VL.betreff+'\n\n':'')+VL.text;
+  let t=(VL.betreff?'Betreff: '+VL.betreff+'\n\n':'')+vlMitPflicht(VL.text,true);
   try{ navigator.clipboard.writeText(t).then(()=>{ iaHinweis('Text kopiert'); setTimeout(()=>iaHinweis(''),1800); },()=>alert('Kopieren nicht möglich — bitte im Textfeld markieren und kopieren.')); }
   catch(e){ alert('Kopieren nicht möglich — bitte im Textfeld markieren und kopieren.'); }
 }
 function vlMailLink(){
   let k=wzdKunde(vlS().wahl.kundeId);
-  return 'mailto:'+encodeURIComponent(k&&k.email||'')+'?subject='+encodeURIComponent(VL.betreff||'')+'&body='+encodeURIComponent(VL.text||'');
+  return 'mailto:'+encodeURIComponent(k&&k.email||'')+'?subject='+encodeURIComponent(VL.betreff||'')+'&body='+encodeURIComponent(vlMitPflicht(VL.text||'',true));
 }
 function vlMail(){
   let k=wzdKunde(vlS().wahl.kundeId);
@@ -114,7 +119,7 @@ function vlMail(){
   let a=document.createElement('a'); a.href=vlMailLink(); a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove();
 }
 function vlWord(){
-  let b=[{typ:'p',text:VL.betreff?'Betreff: '+VL.betreff:''}].filter(x=>x.text).concat(VL.text.split('\n').map(z=>({typ:'p',text:z||' '})));
+  let b=[{typ:'p',text:VL.betreff?'Betreff: '+VL.betreff:''}].filter(x=>x.text).concat(vlMitPflicht(VL.text).split('\n').map(z=>({typ:'p',text:z||' '})));
   iaHerunterladen(new Blob([ImmoOffice.docx(b,{titel:VL.betreff||'Schreiben'})],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),wzDateiname(VL.betreff||'Schreiben')+'.docx');
 }
 async function vlAblegen(){
@@ -138,7 +143,7 @@ function vlEigeneEditor(v){
 }
 function vlRechnen(){ iconify($('wz_body')); }
 function vlDokument(){
-  return {titel:VL.betreff||'Schreiben',html:'<p class="wzd-unter">'+sEsc(VL.betreff?'Betreff: '+VL.betreff:'')+'</p>'+sEsc(VL.text).split('\n').map(z=>'<p>'+(z||'&nbsp;')+'</p>').join(''),fuss:'Schreiben aus einer Vorlage.'};
+  return {titel:VL.betreff||'Schreiben',html:'<p class="wzd-unter">'+sEsc(VL.betreff?'Betreff: '+VL.betreff:'')+'</p>'+sEsc(VL.text).split('\n').map(z=>'<p>'+(z||'&nbsp;')+'</p>').join(''),pflicht:true,ohneFuss:true};
 }
 wzRegistrieren({id:'vorlagen',titel:'Vorlagen',sub:'Schreiben und E-Mails mit Kunde, Objekt und Termin',icon:'mail',start:vlStart,ohneNeu:true,
   zeichnen:vlZeichnen,rechnen:vlRechnen,dokument:vlDokument});

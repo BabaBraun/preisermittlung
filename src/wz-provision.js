@@ -15,7 +15,10 @@ const PA_LEISTUNG='Nachweis und Vermittlung des Kaufvertrags über das Objekt {o
 function paStart(){ return {einst:{aussteller:'',anschrift:'',steuernr:'',bank:'',iban:'',bic:'',ziel:'14',praefix:'PR-{jahr}-',ust:'19',leistung:''},filter:'offen'}; }
 function paS(){ let a=wzAlle(); if(!a.provision||typeof a.provision!=='object') a.provision=paStart();
   if(!a.provision.einst||typeof a.provision.einst!=='object') a.provision.einst=paStart().einst; return a.provision; }
-function paEinst(){ return paS().einst; }
+function paEinst(){ let E=paS().einst;   // D48: leere Angaben aus „Absender und Pflichtangaben“
+  if(typeof abWert==='function') return Object.assign({},E,{aussteller:(E.aussteller||'').trim()||abWert('firma'),anschrift:(E.anschrift||'').trim()||abWert('anschrift')});
+  return E; }
+function paEinstRoh(){ return paS().einst; }
 function paPartei(rolle){ return {rolle,kundeId:'',name:'',anschrift:'',privat:true,maklervertrag:rolle==='verkaeufer',art:'satz',satz:'3,57',betrag:'',
   rechnungNr:'',rechnungDatum:'',ziel:'',bezahltAm:'',bezahltBetrag:''}; }
 function paLeer(){ return {id:wzdId('pa'),ts:Date.now(),projektId:'',notarId:'',objekt:'',anschrift:'',art:'efh',kaeuferVerbraucher:true,kaufpreis:'',vertragDatum:'',
@@ -147,7 +150,7 @@ function paListeHtml(){
         +'<div class="kd-k"><button class="secondary" onclick="paOeffnen(\''+idSicher(a.id)+'\')">Öffnen</button></div></div>'; }).join('')+'</div>'
       :wzHinweis(alle.length?'Keine Abrechnung in dieser Auswahl.':'Noch keine Abrechnung. Nach dem Notartermin: „Neue Abrechnung“ oder aus dem Notarauftrag übernehmen.'))
     +wzBox('Angaben auf der Rechnung','<p class="hint" style="margin-top:0">Pflichtangaben des Rechnungsausstellers (§ 14 Abs. 4 Nr. 1 und 2 UStG) — bleiben auf diesem Gerät.</p><div class="grid">'
-      +wzFeld('einst.aussteller','Rechnungsaussteller',{typ:'text',ph:'Name der Bank'})+wzFeld('einst.anschrift','Anschrift',{typ:'text',ph:'Straße, PLZ Ort'})
+      +wzFeld('einst.aussteller','Rechnungsaussteller',{typ:'text',ph:(typeof abWert==='function'&&abWert('firma'))||'Name der Bank'})+wzFeld('einst.anschrift','Anschrift',{typ:'text',ph:(typeof abWert==='function'&&abWert('anschrift'))||'Straße, PLZ Ort'})
       +wzFeld('einst.steuernr','Steuernummer oder USt-IdNr.',{typ:'text'})+wzFeld('einst.bank','Bank',{typ:'text'})
       +wzFeld('einst.iban','IBAN',{typ:'text'})+wzFeld('einst.bic','BIC',{typ:'text'})
       +wzFeld('einst.ziel','Zahlungsziel',{typ:'zahl',einheit:'Tage'})+wzFeld('einst.ust','Umsatzsteuer',{typ:'prozent',einheit:'%',hinweis:'Regelsatz 19 % (§ 12 Abs. 1 UStG)'})
@@ -266,7 +269,7 @@ function paDokument(){
   if(PA.dokRolle&&PA.aktiv){ let a=PA.aktiv, p=a.parteien.find(x=>x.rolle===PA.dokRolle); PA.dokRolle='';
     if(!p) return null;
     let eRe=paERechnungPflicht(a,p);
-    return {titel:(eRe?'Angaben E-Rechnung ':'Rechnung ')+(p.rechnungNr||paObjektName(a)),html:paRechnungHtml(a,p),ohneFuss:!eRe,fuss:eRe?'Vorlage für das Buchungssystem.':''}; }
+    return {titel:(eRe?'Angaben E-Rechnung ':'Rechnung ')+(p.rechnungNr||paObjektName(a)),html:paRechnungHtml(a,p),ohneFuss:!eRe,pflicht:!eRe,fuss:eRe?'Vorlage für das Buchungssystem.':''}; }
   PA.dokRolle='';
   return {titel:'Provisionen',html:paUebersichtHtml(),fuss:'Übersicht ohne Namen.'};
 }

@@ -361,7 +361,7 @@ function notarFrist(termin,heute){
    Wie aktuell sind die Grundlagen der App und die eigenen Daten? Je Eintrag Stand, erwartete nächste Veröffentlichung
    und Status: ok · bald (in den nächsten Tagen prüfen) · faellig · info (nichts hinterlegt).
    e = {bpiStand 'JJJJ-MM', tafelZeitraum 'JJJJ/JJJJ', bmfJahre [..], marktdaten [{name, stand}], indexJahre {haus:[..], wohnung:[..]},
-        bewertungenVorBrw, projekte, kunden, sicherung (ms), geaendertSeitSicherung, liegenschaften [{name, letzte}],
+        bewertungenVorBrw, projekte, kunden, sicherung (ms), geaendertSeitSicherung, geaendertText, datenVorhanden, liegenschaften [{name, letzte}],
         loeschpruefungFaellig, notarErledigtAlt, abrechnungenAlt, vollmachtenAlt} */
 const MONATE_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 function monatPlus(ym,n){ let j=+ym.slice(0,4), m=+ym.slice(5,7)+n; j+=Math.floor((m-1)/12); m=((m-1)%12+12)%12+1; return j+'-'+String(m).padStart(2,'0'); }
@@ -369,6 +369,18 @@ function monatName(ym){ return MONATE_DE[+ym.slice(5,7)-1]+' '+ym.slice(0,4); }
 function datumDE(iso){ return iso.slice(8,10)+'.'+iso.slice(5,7)+'.'+iso.slice(0,4); }
 function stufeZu(heute,erwartet,vorlauf,nachlauf){ return heute<tagePlus(erwartet,-vorlauf)?'ok':heute<tagePlus(erwartet,nachlauf)?'bald':'faellig'; }
 const RECHT_GEPRUEFT='2026-10-03';
+/* Stand der Bodenrichtwerte (D48). turnus 'bw2' (Vorgabe): Stichtag 01.01. jedes ungeraden Jahres (= Ende des geraden Vorjahres),
+   veröffentlicht bis 30.06. (§ 196 Abs. 1 Satz 5 BauGB, § 12 GuAVO BW); 'jaehrlich': Stichtag 01.01. jedes Jahres, veröffentlicht bis 30.06.
+   Liefert das Jahr des veröffentlichten Stands, den nächsten Stichtag, dessen Veröffentlichungsfrist und ob neue Werte ausstehen. */
+function brwStand(heute,turnus){
+  turnus=turnus==='jaehrlich'?'jaehrlich':'bw2';
+  const J=+String(heute).slice(0,4), vorJuli=String(heute).slice(5)<'07-01';
+  let stand, naechster, wartet;
+  if(turnus==='jaehrlich'){ stand=vorJuli?J-1:J; naechster=vorJuli?J:J+1; wartet=vorJuli; }
+  else if(J%2){ stand=vorJuli?J-2:J; naechster=vorJuli?J:J+2; wartet=vorJuli; }
+  else { stand=J-1; naechster=J+1; wartet=false; }
+  return {turnus,stand,naechster,veroeffentlichtBis:naechster+'-06-30',wartet};
+}
 function datenstand(e,heute){
   e=e||{}; heute=/^\d{4}-\d{2}-\d{2}$/.test(heute||'')?heute:new Date().toISOString().slice(0,10);
   const J=+heute.slice(0,4), l=[];
@@ -400,12 +412,15 @@ function datenstand(e,heute){
         :'Für Stichtage ab '+(maxJ+1)+' rechnet die App nach dem Verfahren des BMF aus der Sterbetafel — die amtliche Tabelle übernehmen.',
       quelle:'Bundesministerium der Finanzen, Schreiben zu § 14 Abs. 1 BewG'});
   }
-  // Bodenrichtwerte: zu Beginn jedes zweiten Kalenderjahres (§ 196 Abs. 1 Satz 4 BauGB), sofern nicht häufiger bestimmt
-  const brw=J%2===0?J:J-1, alt=+e.bewertungenVorBrw||0;
-  l.push({id:'brw',gruppe:'markt',titel:'Bodenrichtwerte',stand:'Stichtag 01.01.'+brw,naechste:'Stichtag 01.01.'+(brw+2),status:alt?'bald':'ok',
-    text:(alt?alt+' Objekt'+(alt===1?'':'e')+' in Vermarktung mit Bewertungsstichtag vor dem 01.01.'+brw+' — dort den aktuellen Bodenrichtwert prüfen. ':'')
-      +'Bodenrichtwerte werden mindestens alle zwei Jahre zum Jahresbeginn ermittelt (§ 196 Abs. 1 Satz 4 BauGB).',
-    quelle:'§ 196 BauGB; BORIS-BW'});
+  // Bodenrichtwerte (D48): in Baden-Württemberg mindestens zum Ende jedes geraden Jahres, veröffentlicht bis 30.06. des Folgejahres
+  // (§ 196 Abs. 1 Satz 5 BauGB, § 12 GuAVO BW) — Stichtag 01.01. eines ungeraden Jahres; der Turnus ist je Gutachterausschuss einstellbar
+  const bs=brwStand(heute,e.brwTurnus), alt=+e.bewertungenVorBrw||0;
+  l.push({id:'brw',gruppe:'markt',titel:'Bodenrichtwerte',stand:'Stichtag 01.01.'+bs.stand,naechste:'Stichtag 01.01.'+bs.naechster+', veröffentlicht bis '+datumDE(bs.veroeffentlichtBis),
+    status:alt||bs.wartet?'bald':'ok',
+    text:(bs.wartet?'Neue Bodenrichtwerte zum Stichtag 01.01.'+bs.naechster+' erscheinen spätestens am '+datumDE(bs.veroeffentlichtBis)+' — in BORIS-BW nachsehen. ':'')
+      +(alt?alt+' Objekt'+(alt===1?'':'e')+' in Vermarktung mit Bewertungsstichtag vor dem 01.01.'+bs.stand+' — dort den aktuellen Bodenrichtwert prüfen. ':'')
+      +(bs.turnus==='jaehrlich'?'Der Gutachterausschuss ermittelt jährlich.':'Bodenrichtwerte werden in Baden-Württemberg mindestens zum Ende jedes geraden Jahres ermittelt und bis 30. Juni veröffentlicht (§ 196 Abs. 1 Satz 5 BauGB, § 12 GuAVO BW).'),
+    quelle:'BORIS-BW; Gutachterausschuss (für Beilstein, Ilsfeld, Abstatt: Gemeinsamer Gutachterausschuss südwestlicher Landkreis Heilbronn, Geschäftsstelle Eppingen)'});
   // Marktdaten des Gutachterausschusses (Grundstücksmarktbericht)
   const md=(e.marktdaten||[]).filter(x=>x&&typeof x==='object');
   if(!md.length) l.push({id:'markt',gruppe:'markt',titel:'Marktdaten des Gutachterausschusses',stand:'keine hinterlegt',naechste:'–',status:'info',
@@ -427,11 +442,12 @@ function datenstand(e,heute){
     text:!letzte?'Für die Fortschreibung Jahreswerte aus dem Marktbericht oder dem Häuserpreisindex eintragen.':letzte>=J-1?'Aktuell.':'Jahreswert '+(J-1)+' nachtragen.',
     quelle:'Grundstücksmarktbericht; Statistisches Bundesamt, Häuserpreisindex'});
   // eigene Daten: Sicherung
-  if((+e.projekte||0)+(+e.kunden||0)>0){
+  if((+e.projekte||0)+(+e.kunden||0)+(+e.datenVorhanden||0)>0){
     const tage=e.sicherung>0?Math.floor((Date.parse(heute+'T12:00:00Z')-e.sicherung)/864e5):null, neu=+e.geaendertSeitSicherung||0;
     const s=tage==null?'faellig':tage>14&&neu>0?'faellig':'ok';
     l.push({id:'sicherung',gruppe:'daten',titel:'Gesamtsicherung',stand:tage==null?'noch nie':'am '+datumDE(new Date(e.sicherung).toISOString().slice(0,10)),naechste:'alle 14 Tage, wenn sich etwas geändert hat',status:s,
-      text:s==='ok'?'Gesichert.':tage==null?'Noch keine Gesamtsicherung — die Daten liegen nur auf diesem Gerät.':neu+' Projekt'+(neu===1?'':'e')+' seit der letzten Sicherung geändert — jetzt sichern.',
+      text:s==='ok'?(neu>0?'Gesichert; seitdem geändert: '+(e.geaendertText||neu+' Einträge')+'.':'Gesichert.'):tage==null?'Noch keine Gesamtsicherung — die Daten liegen nur auf diesem Gerät.'
+        :(e.geaendertText?'Seit der letzten Sicherung geändert: '+e.geaendertText:neu+' Projekt'+(neu===1?'':'e')+' seit der letzten Sicherung geändert')+' — jetzt sichern.',
       quelle:'Projekte → Alle Projekte sichern'});
   }
   // Liegenschaften: Preiseinschätzung zum 31.12.
@@ -471,7 +487,7 @@ function datenstand(e,heute){
   const wieder=tagePlus(RECHT_GEPRUEFT,182);
   l.push({id:'recht',gruppe:'recht',titel:'Rechtsstand der Rechnungen und Hinweise',stand:'geprüft am '+datumDE(RECHT_GEPRUEFT),naechste:'erneut prüfen ab '+datumDE(wieder),
     status:heute>=wieder?'bald':'ok',
-    text:'Am Wortlaut geprüft: ErbStG, BewG §§ 14 und 16, GModG (seit 29.07.2026 statt GEG), BGB §§ 652 und 656a–656d und 1365, WEG § 12, BeurkG § 17, GrEStG §§ 2, 8, 9, 11 und 20, GrEStFestG BW § 1, GNotKG §§ 34, 45, 47, 53, 112, 113 mit Kostenverzeichnis, UStG §§ 12, 14 und 14b, BauGB § 196, ImmoWertV §§ 9, 18 und 40.',
+    text:'Am Wortlaut geprüft: ErbStG, BewG §§ 14 und 16, GModG (seit 29.07.2026 statt GEG), BGB §§ 652 und 656a–656d und 1365, WEG § 12, BeurkG § 17, GrEStG §§ 2, 8, 9, 11 und 20, GrEStFestG BW § 1, GNotKG §§ 34, 45, 47, 53, 112, 113 mit Kostenverzeichnis, UStG §§ 12, 14 und 14b, GenG §§ 3, 24, 25a, 35, BauGB § 196, GuAVO BW § 12, ImmoWertV §§ 9, 18 und 40.',
     quelle:'gesetze-im-internet.de'});
   return {liste:l,faellig:l.filter(x=>x.status==='faellig').length,bald:l.filter(x=>x.status==='bald').length};
 }
@@ -739,11 +755,33 @@ function rechnungsnummer(praefix,vergeben,jahr){
   return praefix+String(max+1).padStart(3,'0');
 }
 
+/* ========== Pflichtangaben der Genossenschaft auf Geschäftsbriefen (D48) ==========
+   § 25a Abs. 1 GenG: Rechtsform, Sitz, Registergericht, Registernummer, alle Vorstandsmitglieder (auch Stellvertreter, § 35) und,
+   sofern vorhanden, der Vorsitzende des Aufsichtsrats — mit Familiennamen und mindestens einem ausgeschriebenen Vornamen.
+   § 3 GenG: „eG“ oder „eingetragene Genossenschaft“ in der Firma. § 24 Abs. 2 GenG: Vorstand aus mindestens zwei Personen.
+   Namen werden mit Komma, Semikolon oder „und“ getrennt eingegeben, je „Vorname Nachname“; Zusätze wie „(stellv.)“ sind erlaubt. */
+function pflichtangabenPruefen(a){
+  a=a||{}; const t=x=>String(x==null?'':x).trim(), fehlt=[], fehler=[], hinweise=[];
+  [['firma','Firma'],['sitz','Sitz'],['registergericht','Registergericht'],['registernr','Registernummer'],['vorstand','Vorstand']].forEach(([k,n])=>{ if(!t(a[k])) fehlt.push(n); });
+  if(t(a.firma)&&!/\beG\b|eingetragene Genossenschaft/i.test(t(a.firma))) fehler.push('Die Firma enthält weder „eG“ noch „eingetragene Genossenschaft“ (§ 3 GenG).');
+  const namen=s=>t(s).split(/\s*(?:[,;]|\bund\b)\s*/i).map(x=>x.replace(/\(\s*stellv(?:\.|ertretend(?:es Mitglied)?)?\s*\)/gi,'').replace(/\bstellv\.\s*/gi,'').trim()).filter(Boolean);
+  const pruefName=(n,rolle)=>{
+    let w=n.split(/\s+/).filter(x=>x&&!/^(Dr|Prof|Dipl)\.?(-\w+\.?)?$/i.test(x));
+    if(w.length<2) fehler.push(rolle+' „'+n+'“: Vor- und Familienname angeben (§ 25a Abs. 1 GenG).');
+    else if(/^[A-ZÄÖÜ]\.?$/.test(w[0])) fehler.push(rolle+' „'+n+'“: Vorname ausschreiben (§ 25a Abs. 1 GenG).');
+  };
+  const v=namen(a.vorstand); v.forEach(n=>pruefName(n,'Vorstand'));
+  if(v.length===1) hinweise.push('Nur ein Vorstandsmitglied eingetragen — der Vorstand besteht aus mindestens zwei Personen (§ 24 Abs. 2 GenG). Alle Mitglieder einschließlich der Stellvertreter angeben.');
+  if(t(a.aufsichtsrat)) namen(a.aufsichtsrat).forEach(n=>pruefName(n,'Vorsitz des Aufsichtsrats'));
+  else hinweise.push('Vorsitz des Aufsichtsrats eintragen — Pflicht, sofern der Aufsichtsrat einen Vorsitzenden hat.');
+  return {fehlt,fehler,hinweise,ok:!fehlt.length&&!fehler.length};
+}
+
 const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
   ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
   petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate,
   ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,zeitraum,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT,
-  GNOTKG_A,GNOTKG_B,gnotkgTabelle,gnotkgGebuehr,kaufnebenkosten,verkaeuferErloes,provisionBetrag,provisionPruefen,rechnungsnummer,isoPlusMonate};
+  GNOTKG_A,GNOTKG_B,gnotkgTabelle,gnotkgGebuehr,kaufnebenkosten,verkaeuferErloes,provisionBetrag,provisionPruefen,rechnungsnummer,isoPlusMonate,pflichtangabenPruefen,brwStand};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

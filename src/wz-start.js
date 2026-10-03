@@ -8,6 +8,7 @@ const WZ_GRUPPEN=[
     ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
     ['interessenten','Interessenten','inbox','Anfragen, Besichtigungen und der Abgleich aller Suchprofile mit den Objekten in Vermarktung.','Anfragen, Abgleich mit Suchprofilen'],
     ['bieter','Bieter­verfahren','trending-up','Gebote sammeln und vergleichen — Übersicht für den Eigentümer ohne Namen.','Gebote sammeln und vergleichen'],
+    ['eigentuemerbericht','Eigentümer­bericht','file-text','Anfragen, Besichtigungen und Gebote aus allen Kacheln — als Bericht ohne Namen.','Vermarktungsbericht aus allen Quellen'],
     ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],
     ['portal','Portal-Export','upload','Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.','Objekte mit Bildern für Immobilienportale'],
     ['aushang','Aushang','printer','Eine Seite für Schaufenster und Filiale — Bild, Preis, Pflichtangaben, Ansprechpartner.','Aushang für Schaufenster und Filiale'],

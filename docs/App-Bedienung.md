@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 25 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 26 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Fünfundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
+Sechsundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
 Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -223,6 +223,10 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
 - **Rundschreiben:** Empfänger wählen (Suchkunden zu einem Objekt, alle mit Einwilligung, Eigentümer oder selbst gewählt), dann
   die Vorlage. „Serienbrief“ gibt je Empfänger eine Seite aus; „E-Mail an alle (Bcc)“ nur an Kunden mit Einwilligung.
 - **Verkaufsfahrplan:** je Auftrag die Schritte vom Maklervertrag bis zur Nachbetreuung; „erkannt“ hakt die App selbst ab.
+- **Eigentümerbericht:** Objekt und Zeitraum wählen — Anfragen, Besichtigungen und Gebote aus Bewertung, Interessenten, Kalender
+  und Bieterverfahren, ohne Namen. Einschätzung anpassen, „Dokument“ für den Eigentümer, Wiedervorlage für den nächsten Bericht.
+- **Absender und Pflichtangaben** (Mehr): Bank, Sitz, Registergericht, Registernummer, Vorstand und Aufsichtsratsvorsitz einmal
+  eintragen — die App setzt sie unter Schreiben, E-Mails, Rechnungen und Berichte (§ 25a GenG).
 - **Unterlagen:** Objekt öffnen — die Liste passt zur Objektart, was im Aufnahmebogen angehakt ist, liegt schon vor. Je Unterlage
   den Stand wählen (offen, angefordert, liegt vor, entfällt). „Anfordern“ bei einer Stelle schreibt das Anforderungsschreiben und
   setzt alles auf „angefordert“. Unten unterschreibt der Eigentümer die Vollmacht auf dem Gerät; „Vollmacht als Dokument“.
