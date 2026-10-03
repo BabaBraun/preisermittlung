@@ -1,3 +1,8 @@
+# Zusammenfassung — Verknüpfungen (2026-10-03)
+
+Zahlungsziele der Provision stehen im Kalender, Rechnungen, Zahlungseingänge und Unterlagen in den Aktivitäten, Abrechnungen
+sind über die Suche zu finden; der Datenstand erinnert an das Löschen erledigter Abrechnungen und Vollmachten (D45).
+
 # Zusammenfassung — Social Media (2026-10-03)
 
 Neue Kachel „Social Media“ (D44): Bild (Quadrat, Hochformat, Story) und Text je Objekt aus Titelbild und Exposé, mit Hinweis wie

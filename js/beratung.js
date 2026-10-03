@@ -362,7 +362,7 @@ function notarFrist(termin,heute){
    und Status: ok · bald (in den nächsten Tagen prüfen) · faellig · info (nichts hinterlegt).
    e = {bpiStand 'JJJJ-MM', tafelZeitraum 'JJJJ/JJJJ', bmfJahre [..], marktdaten [{name, stand}], indexJahre {haus:[..], wohnung:[..]},
         bewertungenVorBrw, projekte, kunden, sicherung (ms), geaendertSeitSicherung, liegenschaften [{name, letzte}],
-        loeschpruefungFaellig, notarErledigtAlt} */
+        loeschpruefungFaellig, notarErledigtAlt, abrechnungenAlt, vollmachtenAlt} */
 const MONATE_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 function monatPlus(ym,n){ let j=+ym.slice(0,4), m=+ym.slice(5,7)+n; j+=Math.floor((m-1)/12); m=((m-1)%12+12)%12+1; return j+'-'+String(m).padStart(2,'0'); }
 function monatName(ym){ return MONATE_DE[+ym.slice(5,7)-1]+' '+ym.slice(0,4); }
@@ -456,6 +456,16 @@ function datenstand(e,heute){
     const n=+e.notarErledigtAlt;
     l.push({id:'notar',gruppe:'daten',titel:'Erledigte Notaraufträge',stand:n+' seit über 6 Monaten erledigt',naechste:'–',status:'bald',
       text:'Notaraufträge enthalten Namen und Anschriften der Beteiligten — löschen, wenn sie nicht mehr gebraucht werden.',quelle:'Notarauftrag'});
+  }
+  if(+e.abrechnungenAlt>0){   // D45
+    const n=+e.abrechnungenAlt;
+    l.push({id:'abrechnungen',gruppe:'daten',titel:'Bezahlte Provisionsabrechnungen',stand:n+' seit über 12 Monaten bezahlt',naechste:'–',status:'bald',
+      text:'Sie enthalten Namen und Anschriften. Die Rechnungen bewahrt die Bank in ihrer Buchhaltung auf (§ 14b UStG) — die Arbeitskopie in der App löschen.',quelle:'Provision'});
+  }
+  if(+e.vollmachtenAlt>0){
+    const n=+e.vollmachtenAlt;
+    l.push({id:'vollmachten',gruppe:'daten',titel:'Vollmachten verkaufter Objekte',stand:n+' Objekt'+(n===1?'':'e')+' seit über 6 Monaten verkauft',naechste:'–',status:'bald',
+      text:'Die Vollmacht zum Einholen der Unterlagen gilt bis zum Abschluss des Verkaufs und enthält Name und Unterschrift — Unterlagen-Eintrag löschen.',quelle:'Unterlagen'});
   }
   // Rechtsstand der Rechnungen und Hinweise
   const wieder=tagePlus(RECHT_GEPRUEFT,182);

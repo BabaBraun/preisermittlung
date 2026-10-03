@@ -64,6 +64,10 @@ async function ulOeffnen(pid){
   UL.aktiv=r; if(WZ.aktiv==='unterlagen') wzZeichnen(); $('wz_overlay').scrollTop=0;
 }
 function ulZurueck(){ if(UL.aktiv) wzdSpeichernSofort('unterlagen',UL.aktiv); UL.aktiv=null; wzZeichnen(); }
+async function ulLoeschen(){
+  let r=UL.aktiv; if(!r||!confirm('Den Stand der Unterlagen und die Vollmacht für dieses Objekt löschen? Die Bewertung bleibt unverändert.')) return;
+  if(await wzdLoeschen('unterlagen',r.id)){ UL.aktiv=null; wzZeichnen(); }
+}
 function ulSetz(key,feld,wert){
   let r=UL.aktiv; if(!r) return; let s=r.posten[key]||(r.posten[key]={stand:'offen'});
   s[feld]=String(wert||'').slice(0,300); if(feld==='stand'){ s.datum=s.stand==='offen'?'':aufHeute(); s.quelle=''; }
@@ -120,7 +124,8 @@ function ulEditor(r){
           +'<span class="ul-datum">'+(s.datum?wzDatum(s.datum)+(s.quelle?' · '+sEsc(s.quelle):''):'')+'</span>'
           +'<input class="ul-notiz" aria-label="Notiz: '+sEsc(p.x[1])+'" placeholder="Notiz" value="'+sEsc(s.notiz||'')+'" onchange="ulSetz(\''+key+'\',\'notiz\',this.value)"></div>'; }).join('')+'</div>'; }).join('');
   return '<div class="ub-kopfzeile"><button type="button" class="secondary" onclick="ulZurueck()" data-ic="arrow-left">Alle Objekte</button>'
-      +'<span class="ub-status">'+sEsc(o?o.name:r.objekt||'Objekt')+'</span><button type="button" class="secondary" onclick="UL.dok=\'liste\';wzDokument()" data-ic="file-text">Liste</button></div>'
+      +'<span class="ub-status">'+sEsc(o?o.name:r.objekt||'Objekt')+'</span><button type="button" class="secondary" onclick="UL.dok=\'liste\';wzDokument()" data-ic="file-text">Liste</button>'
+      +'<button type="button" class="secondary" onclick="ulLoeschen()" data-ic="trash">Löschen</button></div>'
     +'<div class="wz-kpis grid">'+wzdKpi('Liegen vor',f.da+' von '+f.gesamt,f.gesamt?Math.round(f.da/f.gesamt*100)+' %':'')+wzdKpi('Angefordert',String(f.angefordert),'')
       +wzdKpi('Offen',String(f.gesamt-f.da-f.angefordert),'')+'</div>'
     +'<div class="fp-balken"><i style="width:'+(f.gesamt?Math.round(f.da/f.gesamt*100):0)+'%"></i></div>'

@@ -511,6 +511,10 @@ function sucheQuellen(){
       out.push({typ:'termin',id:t.id,titel:(t.art||'Termin')+((t.titel||obj)?': '+(t.titel||obj):''),ort:t.ort||'',meta:[wzDatum(t.datum)+(t.von?' '+t.von+' Uhr':''),namen].filter(Boolean),preis:'',sub:'Termin',
         hay:[t.art,t.titel,obj,t.ort,namen,t.notiz,t.datum,'termin kalender'].join(' '),ts:t.geaendert||0,
         go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); kaTerminOeffnen(t.id); }}); });
+    if(typeof paObjektName==='function') wzdListe('abrechnungen').forEach(a=>{ let P=a.parteien||[], nr=P.map(x=>x.rechnungNr).filter(Boolean);   // D45
+      out.push({typ:'abrechnung',id:a.id,titel:'Provision: '+paObjektName(a),ort:'',meta:[wzdDatum(a.vertragDatum)?'Kaufvertrag '+wzDatum(a.vertragDatum):'',nr.join(', ')].filter(Boolean),preis:'',sub:paErledigt(a)?'bezahlt':'offen',
+        hay:[paObjektName(a),a.anschrift,nr.join(' '),P.map(x=>x.name).join(' '),'provision rechnung abrechnung'].join(' '),ts:a.geaendert||0,
+        go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); kaProvision(a.id); }}); });
   }
   (SUCHE.markt||[]).forEach(o=>{
     let d=mdbDeriv(o);
@@ -535,7 +539,7 @@ function sucheLauf(){
     });
     hits.sort((a,b)=>b.score-a.score||b.ts-a.ts);
   }
-  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), kd=hits.filter(h=>h.typ==='kunde').slice(0,6), vg=hits.filter(h=>h.typ==='vg'||h.typ==='termin').slice(0,6), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
+  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), kd=hits.filter(h=>h.typ==='kunde').slice(0,6), vg=hits.filter(h=>h.typ==='vg'||h.typ==='termin'||h.typ==='abrechnung').slice(0,6), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
   SUCHE.hits=bew.concat(kd,vg,markt); SUCHE.aktiv=0;
   sucheRender(tokens,bew.length,markt.length,kd.length,vg.length);
 }
@@ -551,14 +555,14 @@ function sucheRender(tokens,nBew,nMarkt,nKd,nVg){
     return;
   }
   const row=(h,i)=>'<div class="suche-row'+(i===SUCHE.aktiv?' aktiv':'')+'" data-i="'+i+'">'+
-    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':h.typ==='kunde'?'users':h.typ==='vg'?'inbox':h.typ==='termin'?'calendar':'file-text')+'</div>'+
+    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':h.typ==='kunde'?'users':h.typ==='vg'?'inbox':h.typ==='termin'?'calendar':h.typ==='abrechnung'?'receipt':'file-text')+'</div>'+
     '<div class="txt"><div class="t">'+sucheMark(h.titel,tokens)+(h.ort?' <span class="o">· '+sucheMark(h.ort,tokens)+'</span>':'')+'</div>'+
     '<div class="m">'+sEsc(h.meta.join(' · '))+'</div></div>'+
     '<div class="r"><b>'+(h.preis&&h.preis!=='0 €'?sEsc(h.preis):'')+'</b><span>'+sEsc(h.sub)+'</span></div></div>';
   let h='', i=0;
   if(nBew){ h+='<div class="suche-grp">Bewertungen<em>'+nBew+'</em></div>'; for(let k=0;k<nBew;k++){ h+=row(hits[i],i); i++; } }
   if(nKd){ h+='<div class="suche-grp">Kunden<em>'+nKd+'</em></div>'; for(let k=0;k<nKd;k++){ h+=row(hits[i],i); i++; } }
-  if(nVg){ h+='<div class="suche-grp">Anfragen und Termine<em>'+nVg+'</em></div>'; for(let k=0;k<nVg;k++){ h+=row(hits[i],i); i++; } }
+  if(nVg){ h+='<div class="suche-grp">Anfragen und Termine'+(hits.some(x=>x.typ==='abrechnung')?', Abrechnungen':'')+'<em>'+nVg+'</em></div>'; for(let k=0;k<nVg;k++){ h+=row(hits[i],i); i++; } }
   if(nMarkt){ h+='<div class="suche-grp">Marktüberblick<em>'+nMarkt+'</em></div>'; for(let k=0;k<nMarkt;k++){ h+=row(hits[i],i); i++; } }
   el.innerHTML=h;
   el.querySelectorAll('.suche-row').forEach(r=>{

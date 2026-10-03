@@ -6,7 +6,7 @@
    weil Gerätekalender oft mit einem Online-Dienst abgleichen. Eigene Termine liegen in der Datenbank (Speicher „termine“). */
 var KA={extra:null,aktiv:null,tag:null,laeuft:null};
 const KA_ARTEN=['Besichtigung','Beratungsgespräch','Bewertungstermin','Akquise-Gespräch','Notartermin','Übergabe','Sonstiges'];
-const KA_QUELLEN=[['termin','Eigene Termine'],['wv','Wiedervorlagen'],['notar','Notartermine'],['uebergabe','Übergaben'],['bieter','Gebotsfristen'],['besichtigung','Besichtigungen aus der Vermarktung']];
+const KA_QUELLEN=[['termin','Eigene Termine'],['wv','Wiedervorlagen'],['notar','Notartermine'],['uebergabe','Übergaben'],['bieter','Gebotsfristen'],['besichtigung','Besichtigungen aus der Vermarktung'],['provision','Zahlungsziele der Provision']];
 const KA_TAGE=['Mo','Di','Mi','Do','Fr','Sa','So'];
 function kaStart(){ return {ansicht:'liste',monat:'',vergangen:false,namen:false,quellen:{}}; }
 function kaS(){ let a=wzAlle(); if(!a.kalender||typeof a.kalender!=='object'||Array.isArray(a.kalender)) a.kalender=kaStart(); let s=a.kalender; if(!s.quellen||typeof s.quellen!=='object') s.quellen={}; return s; }
@@ -46,8 +46,14 @@ function kaEintraege(){
   if(an('besichtigung')) wzdObjekte(true).forEach(o=>{ let ev=[]; try{ ev=JSON.parse(o.f.vm_daten||'{}').ev||[]; }catch(e){}
     (Array.isArray(ev)?ev:[]).filter(e=>e&&/Besichtigung/.test(e.art||'')&&wzdDatum(e.d)).forEach(e=>neu({quelle:'besichtigung',id:o.id+'_'+(e.id||''),datum:e.d,art:e.art,
       titel:e.art+': '+o.name,ort:o.anschrift,info:e.wer||'',objekt:o.name})); });
+  // offene Provisionsrechnungen am Tag ihres Zahlungsziels (D45)
+  if(an('provision')&&typeof paZahltAktiv==='function') wzdListe('abrechnungen').forEach(a=>{ let pr=paPruefen(a);
+    paZahltAktiv(a).forEach(p=>{ if(wzdDatum(p.bezahltAm)) return; let z=paZielTag(a,p,pr); if(!z) return;
+      neu({quelle:'provision',id:a.id+'_'+p.rolle,datum:z,art:'Zahlungsziel',titel:'Provision fällig: '+paObjektName(a)+' ('+PA_ROLLEN[p.rolle]+')',
+        info:p.rechnungNr?'Rechnung '+p.rechnungNr:'',objekt:paObjektName(a),aktion:"kaProvision('"+idSicher(a.id)+"')"}); }); });
   return l.sort((a,b)=>a.datum.localeCompare(b.datum)||(a.von||'99:99').localeCompare(b.von||'99:99')||a.titel.localeCompare(b.titel,'de'));
 }
+function kaProvision(id){ wzOeffnen('provision'); if(typeof paOeffnen==='function') paOeffnen(id); }
 async function kaNotar(id){ wzOeffnen('notar'); await noLaden(); noOeffnenAuftrag(id); }
 async function kaProtokoll(id){ wzOeffnen('uebergabe'); await ubLaden(); ubOeffnenProtokoll(id); }
 function kaBieter(id){ wzOeffnen('bieter'); if(typeof biOeffnen==='function') biOeffnen(id); }

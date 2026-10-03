@@ -8,13 +8,16 @@ const DS_GRUPPEN=[['rechnen','Rechengrundlagen der App'],['markt','Marktdaten'],
 const DS_STATUS={ok:['gruen','aktuell'],bald:['gelb','bald prüfen'],faellig:['rot','fällig'],info:['grau','nicht hinterlegt']};
 const DS_AKTION={sicherung:['Jetzt sichern','dsSichern()','download'],markt:['Marktdaten öffnen','wzSchliessen();pqOeffnen()','book'],
   index:['Wertmonitor öffnen',"wzOeffnen('wertmonitor')",'activity'],liegenschaften:['Liegenschaften öffnen',"wzSchliessen();lvOeffnen('uebersicht')",'building'],
-  loeschen:['Kunden öffnen','wzSchliessen();kdOeffnen()','users'],notar:['Notaraufträge öffnen',"wzOeffnen('notar')",'pen']};
+  loeschen:['Kunden öffnen','wzSchliessen();kdOeffnen()','users'],notar:['Notaraufträge öffnen',"wzOeffnen('notar')",'pen'],
+  abrechnungen:['Provision öffnen',"wzOeffnen('provision')",'receipt'],vollmachten:['Unterlagen öffnen',"wzOeffnen('unterlagen')",'folder-open']};   // D45
 async function dsEingaben(){
   await IA_BEREIT_P;
   const pj=typeof pjLoad==='function'?pjLoad():[], heute=aufHeute(), J=+heute.slice(0,4), brw=(J%2===0?J:J-1)+'-01-01';
   const kunden=typeof KD_CACHE!=='undefined'?KD_CACHE:[];
   let lb=null, notar=[], lg=[];
   if(IA_DB_BEREIT){ try{ lb=await iaGet('meta','lastBackup'); }catch(e){} try{ notar=await iaAlle('notar'); }catch(e){} }
+  let abr=[], ul=[]; if(IA_DB_BEREIT){ try{ abr=await iaAlle('abrechnungen'); }catch(e){} try{ ul=await iaAlle('unterlagen'); }catch(e){} }
+  const vor12=ImmoBeratung.isoPlusMonate(heute,-12);
   try{ if(typeof lvStart==='function'){ await lvStart();
     lg=(LV.liste||[]).map(l=>({name:l.name,letzte:(l.bewertungen||[]).filter(b=>b.status!=='entwurf').map(b=>b.stichtag).sort().pop()||''})); } }catch(e){}
   const idx=(wzAlle().wertmonitor||{}).index||{};
@@ -28,7 +31,9 @@ async function dsEingaben(){
     bewertungenVorBrw:aktiv.filter(p=>{ let s=typeof wmStichtag==='function'?wmStichtag(p,(p.data&&p.data.fields)||{}):''; return s&&s<brw; }).length,
     projekte:pj.length,kunden:kunden.length,sicherung:ts,geaendertSeitSicherung:ts?pj.filter(p=>(p.geaendert||0)>ts).length:pj.length,
     liegenschaften:lg,loeschpruefungFaellig:kunden.filter(k=>k.loeschpruefung&&k.loeschpruefung<=heute).length,
-    notarErledigtAlt:notar.filter(n=>n.stand==='Erledigt'&&(Date.now()-(n.geaendert||0))>182*864e5).length};
+    notarErledigtAlt:notar.filter(n=>n.stand==='Erledigt'&&(Date.now()-(n.geaendert||0))>182*864e5).length,
+    abrechnungenAlt:abr.filter(a=>{ let b=(a.parteien||[]).filter(p=>p.bezahltAm).map(p=>p.bezahltAm).sort().pop(); return typeof paErledigt==='function'&&paErledigt(a)&&b&&b<=vor12; }).length,
+    vollmachtenAlt:ul.filter(r=>{ let p=pj.find(x=>x.id===r.projektId), st=p&&((p.data&&p.data.fields)||{}).vm_status; return r.vollmacht&&r.vollmacht.unterschrift&&(!p||st==='Verkauft')&&(Date.now()-(r.geaendert||0))>182*864e5; }).length};
 }
 async function dsAktualisieren(){
   if(DS.laeuft) return DS.laeuft;

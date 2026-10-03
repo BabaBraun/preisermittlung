@@ -1409,3 +1409,19 @@ Geräts) und „Text kopieren“.
 
 **Tests:** Browser `tests/e2e/werkzeuge-d44.spec.mjs` (Titelbild im Bild, drei Formate, Hinweis „Verkauft“ ohne Preis, eigener
 Text bleibt, JPEG-Datei); Klicktest-Bereich „Social Media“.
+
+## D45 (2026-10-03) — Die neuen Kacheln greifen ineinander
+
+Wie in einer Maklersoftware sollen Vorgänge dort auftauchen, wo man sie sucht:
+- **Kalender:** neue Quelle „Zahlungsziele der Provision“ — offene Rechnungen am Tag ihres Zahlungsziels (bei § 656d BGB erst
+  ab der Zahlung der beauftragenden Seite); Tippen öffnet die Abrechnung.
+- **Aktivitäten:** „Provisionsrechnungen gestellt“ und „Provision eingegangen“ (Abschluss), „Unterlagen angefordert“ und
+  „Unterlagen eingegangen“ (Vermarktung; was aus dem Aufnahmebogen kommt, zählt nicht).
+- **Suche:** findet Provisionsabrechnungen nach Objekt, Anschrift, Rechnungsnummer und Empfänger; Gruppe „Anfragen und Termine,
+  Abrechnungen“.
+- **Datenstand (Speicherbegrenzung, Art. 5 Abs. 1 lit. e DSGVO):** meldet bezahlte Provisionsabrechnungen, deren letzte Zahlung
+  über zwölf Monate zurückliegt (die Rechnungen bewahrt die Bank auf, § 14b UStG), und Vollmachten zu Objekten, die seit über
+  sechs Monaten verkauft sind, zum Löschen. Dafür hat die Kachel „Unterlagen“ jetzt „Löschen“ (die Bewertung bleibt).
+
+**Tests:** `tests/unit/d45.test.mjs` (Datenstand), Browser `tests/e2e/werkzeuge-d45.spec.mjs` (Kalender, Aktivitäten, Suche,
+Datenstand, Löschen).

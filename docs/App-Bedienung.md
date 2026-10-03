@@ -245,7 +245,9 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   erfasst“, Wiedervorlage zum Zahlungstermin. Bei Unternehmern als Empfänger: Angaben für die E-Rechnung der Bank.
 - **Startseite:** „Heute und morgen“ zeigt die Termine und fälligen Wiedervorlagen der beiden Tage.
 - **Kundenakte:** „Neue Anfrage“, „Akquise-Kontakt“ und „Termin“ legen den Eintrag gleich mit diesem Kunden an.
-- **Suche (Strg K):** findet auch Anfragen, Akquise-Kontakte und Termine.
+- **Suche (Strg K):** findet auch Anfragen, Akquise-Kontakte, Termine und Provisionsabrechnungen (auch nach Rechnungsnummer).
+- **Kalender und Aktivitäten:** zeigen auch Zahlungsziele der Provision, gestellte Rechnungen, Zahlungseingänge und
+  angeforderte Unterlagen; der **Datenstand** erinnert daran, erledigte Abrechnungen und Vollmachten zu löschen.
 - **Farben:** Mehr → Darstellung — Farbschema (Petrol, Blau, Bordeaux, Graphit, Waldgrün) und hell, dunkel oder wie das Gerät.
 
 ## Liegenschaften

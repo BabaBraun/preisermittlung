@@ -32,6 +32,9 @@ function akEreignisse(){
       else if(e.art==='Kaufangebot'||e.art==='Reservierung') neu('Vermarktung',e.art==='Kaufangebot'?'Kaufangebote':'Reservierungen',e.d); }); });
   ex.notar.forEach(n=>{ neu('Abschluss','Notartermine',n.termin); });
   ex.prot.forEach(p=>{ neu('Abschluss','Übergaben (Protokoll)',p.datum); });
+  wzdListe('abrechnungen').forEach(a=>(a.parteien||[]).forEach(p=>{ neu('Abschluss','Provisionsrechnungen gestellt',p.rechnungDatum); neu('Abschluss','Provision eingegangen',p.bezahltAm); }));   // D45
+  wzdListe('unterlagen').forEach(r=>Object.values(r.posten||{}).forEach(s=>{ if(s&&s.stand==='angefordert') neu('Vermarktung','Unterlagen angefordert',s.datum);
+    else if(s&&s.stand==='da'&&s.quelle!=='Aufnahmebogen') neu('Vermarktung','Unterlagen eingegangen',s.datum); }));
   (typeof KD_CACHE!=='undefined'?KD_CACHE:[]).forEach(k=>{
     (k.kontakte||[]).forEach(c=>neu('Beratung','Gesprächsnotizen: '+(c.art||'Notiz'),c.datum));
     (k.finanzierungen||[]).forEach(f=>{ if(f.ts) neu('Beratung','Finanzierungsrechnungen',new Date(f.ts).toISOString().slice(0,10)); }); });
