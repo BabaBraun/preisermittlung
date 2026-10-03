@@ -143,8 +143,8 @@ async function wzDokument(){
   r.className='wz-dok'; r.dataset.pdfname=wzDateiname(dok.titel);
   r.innerHTML='<div class="ex-leiste no-print"><button class="primary" onclick="wzDokZurueck()">← zurück</button><button onclick="window.print()">Drucken</button>'
     +'<button onclick="downloadPDF()">PDF herunterladen</button><button onclick="wzDokWord()">Word</button><button onclick="pdfTeilen()">Teilen</button></div>'
-    +'<div class="wzd">'+dok.html+'<p class="wzd-fuss">Erstellt mit der ImmoApp am '+new Date().toLocaleDateString('de-DE')+'. '
-    +(dok.fuss||'Modellrechnung zur Orientierung im Beratungsgespräch.')+'</p></div>';
+    +'<div class="wzd">'+dok.html+(dok.ohneFuss?'':'<p class="wzd-fuss">Erstellt mit der ImmoApp am '+new Date().toLocaleDateString('de-DE')+'. '
+    +(dok.fuss||'Modellrechnung zur Orientierung im Beratungsgespräch.')+'</p>')+'</div>';
   WZ.dokVon=WZ.aktiv; wzSpeichernJetzt();
   $('wz_overlay').classList.remove('on'); WZ.aktiv=null;
   document.body.style.overflow=''; document.body.classList.add('report-mode'); window.scrollTo(0,0);
@@ -187,4 +187,18 @@ function wzEinspielen(w){
     if(!Object.prototype.hasOwnProperty.call(ziel,k)){ ziel[k]=q; neu=true; }
     else if(ziel[k]&&q&&typeof ziel[k]==='object'&&typeof q==='object'&&!Array.isArray(q)&&!Array.isArray(ziel[k])) merge(ziel[k],q); }); };
   merge(a,w); if(neu) wzSpeichernJetzt(); return neu;
+}
+
+/* Unterschriftsfeld für Werkzeuge (D43): zeichnet ein vorhandenes Bild, ruft fertig(dataURL) nach jedem Strich */
+function wzUnterschriftPad(c,bild,fertig){
+  if(!c||c.dataset.init) return; c.dataset.init='1';
+  let ctx=c.getContext('2d'), r=c.getBoundingClientRect(), w=Math.max(200,Math.round(r.width)), h=Math.max(100,Math.round(r.height));
+  c.width=w*2; c.height=h*2; ctx.setTransform(2,0,0,2,0,0); ctx.lineWidth=2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+  if(bild){ let img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,w,h); img.src=bild; }
+  let an=false, last=null;
+  const pt=e=>{ let b=c.getBoundingClientRect(); return {x:(e.clientX-b.left)*w/b.width,y:(e.clientY-b.top)*h/b.height}; };
+  c.addEventListener('pointerdown',e=>{ an=true; last=pt(e); try{ c.setPointerCapture(e.pointerId); }catch(x){} ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(last.x+0.1,last.y+0.1); ctx.stroke(); e.preventDefault(); });
+  c.addEventListener('pointermove',e=>{ if(!an) return; let p=pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); });
+  const ende=()=>{ if(!an) return; an=false; fertig(c.toDataURL('image/png')); };
+  ['pointerup','pointercancel','pointerleave'].forEach(x=>c.addEventListener(x,ende));
 }

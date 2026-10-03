@@ -63,7 +63,9 @@ var IA_ICONS={
   sign:'<path d="M6 21V3"/><path d="M6 5h12v8H6"/><path d="M9.5 9h5"/>',
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
   'list-check':'<path d="m4 6 2 2 3-3"/><path d="m4 13 2 2 3-3"/><path d="M12 7h8M12 14h8M4 20h16"/>',
-  scale:'<path d="M12 3v18M7 21h10M4 7h16"/><path d="M6.5 7 3.5 14a3 3 0 0 0 6 0z"/><path d="M17.5 7l-3 7a3 3 0 0 0 6 0z"/>'
+  scale:'<path d="M12 3v18M7 21h10M4 7h16"/><path d="M6.5 7 3.5 14a3 3 0 0 0 6 0z"/><path d="M17.5 7l-3 7a3 3 0 0 0 6 0z"/>',
+  percent:'<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',
+  receipt:'<path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',

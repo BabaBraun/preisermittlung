@@ -4,8 +4,8 @@
    Personen selbst stehen nur in der Kundenakte — die Datensätze merken sich die Kunden-Id. Löscht man einen Kunden, gehen
    seine Anfragen, Akquise-Einträge und Gebote mit, aus Terminen wird er ausgetragen; die Auskunft nach Art. 15 DSGVO aus
    der Kundenakte führt alles auf (Erweiterungspunkte in src/customers.js). Gesicherte Bewertungen werden nur gelesen. */
-var WZD={termine:null,vorgaenge:null,bieter:null,laeuft:null};
-const WZD_SPEICHER=['termine','vorgaenge','bieter'];
+var WZD={termine:null,vorgaenge:null,bieter:null,abrechnungen:null,laeuft:null};
+const WZD_SPEICHER=['termine','vorgaenge','bieter','abrechnungen'];   // abrechnungen: Kachel „Provision“ (D42)
 const WZD_AKTIV=['Auftrag erteilt','In Vermarktung','Reserviert','Notartermin'];
 async function wzdLaden(neu){
   if(WZD.laeuft&&!neu) return WZD.laeuft;

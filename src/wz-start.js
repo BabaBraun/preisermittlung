@@ -14,11 +14,13 @@ const WZ_GRUPPEN=[
   {id:'abschluss',titel:'Abschluss',kacheln:[
     ['fahrplan','Verkaufs­fahrplan','list-check','Jeder Auftrag Schritt für Schritt — vom Auftrag bis zur Übergabe, mit Fortschritt.','Schritte je Auftrag bis zur Übergabe'],
     ['notar','Notarauftrag','pen','Alle Angaben für den Kaufvertragsentwurf — Datenblatt, Termin im Kalender, Übergabe.','Angaben für den Kaufvertragsentwurf, Termin, Übergabe'],
+    ['provision','Provision','receipt','Abrechnung je Verkauf — Teilung geprüft, Rechnung mit Pflichtangaben, Zahlungseingang.','Abrechnung, Rechnung, Zahlungseingang'],
     ['uebergabe','Übergabe­protokoll','key','Zählerstände, Schlüssel und Mängel mit Fotos — beide Seiten unterschreiben auf dem Gerät.','Zähler, Schlüssel, Mängel, Unterschriften']]},
   {id:'beraten',titel:'Beratung',kacheln:[
     ['erbe','Übergeben & Vererben','gift','Schenkung oder Erbe, mit Nießbrauch oder Wohnrecht — Freibeträge und Steuer im Vergleich.','Schenkung oder Erbe, Nießbrauch, Freibeträge'],
     ['rente','Wohnen im Alter','hourglass','Einmalzahlung, Leibrente, Teilverkauf oder Rückmiete — was bleibt monatlich und für die Erben?','Einmalzahlung, Leibrente, Teilverkauf, Rückmiete'],
     ['kaufmiete','Kaufen oder Mieten','scale','Vermögen nach Jahren: Eigentum mit Finanzierung gegen Miete und Geldanlage.','Vermögensvergleich über die Jahre'],
+    ['nebenkosten','Kauf­neben­kosten','percent','Notar und Grundbuch genau nach Gebührentabelle, Grunderwerbsteuer, Provision — und was dem Verkäufer bleibt.','Notar, Grundbuch, Steuer; Erlös des Verkäufers'],
     ['grundstueck','Grundstücks­potenzial','layers','Was kann ein Bauträger zahlen? Residualwert gegen Bodenrichtwert und Bestand.','Residualwert gegen Bodenrichtwert'],
     ['etw','ETW-Kaufcheck','clipboard','Rücklage, Beschlüsse, Heizung und Unterlagen — als Ampel für Käufer und Finanzierung.','Rücklage, Beschlüsse, Heizung, Unterlagen'],
     ['wertmonitor','Wertmonitor','activity','Gesicherte Bewertungen fortschreiben — Wiedervorlage bei deutlicher Wertänderung.','Bewertungen fortschreiben, Gesprächsanlässe']]},

@@ -92,12 +92,13 @@ function projektSicherungPruefen(o){
   const termine=liste_('termine').filter(x=>istObjekt(x)&&idGueltig(x.id)&&typeof x.datum==='string');
   const vorgaenge=liste_('vorgaenge').filter(x=>istObjekt(x)&&idGueltig(x.id)&&(x.typ==='anfrage'||x.typ==='akquise'));
   const bieter=liste_('bieter').filter(x=>istObjekt(x)&&idGueltig(x.id)&&Array.isArray(x.gebote));
+  const abrechnungen=liste_('abrechnungen').filter(x=>istObjekt(x)&&idGueltig(x.id)&&Array.isArray(x.parteien));   // Provisionsabrechnungen (D42)
   const werkzeuge=istObjekt(o)&&istObjekt(o.werkzeuge)?o.werkzeuge:null;
   const verworfen=uebersprungen+((istObjekt(o)&&Array.isArray(o.kunden)?o.kunden.length:0)-kunden.length)+((istObjekt(o)&&Array.isArray(o.aufgaben)?o.aufgaben.length:0)-aufgaben.length)
     +((istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle.length:0)-protokolle.length)+((istObjekt(o)&&Array.isArray(o.notar)?o.notar.length:0)-notar.length)
-    +(liste_('termine').length-termine.length)+(liste_('vorgaenge').length-vorgaenge.length)+(liste_('bieter').length-bieter.length);
-  if(!projekte.length&&!kunden.length&&!protokolle.length&&!notar.length&&!termine.length&&!vorgaenge.length&&!bieter.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
-  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,notar,termine,vorgaenge,bieter,werkzeuge,verworfen};
+    +(liste_('termine').length-termine.length)+(liste_('vorgaenge').length-vorgaenge.length)+(liste_('bieter').length-bieter.length)+(liste_('abrechnungen').length-abrechnungen.length);
+  if(!projekte.length&&!kunden.length&&!protokolle.length&&!notar.length&&!termine.length&&!vorgaenge.length&&!bieter.length&&!abrechnungen.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
+  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,notar,termine,vorgaenge,bieter,abrechnungen,werkzeuge,verworfen};
 }
 
 /* Sicherung des Marktüberblicks (schlank oder mit PDF-Anhängen) */

@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-81df438a51d4';
+const CACHE = 'immoapp-bc1b2c0bde93';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -85,8 +85,10 @@ const ASSETS = [
   './src/wz-jahr.js',
   './src/wz-kalender.js',
   './src/wz-kaufmiete.js',
+  './src/wz-nebenkosten.js',
   './src/wz-notar.js',
   './src/wz-portal.js',
+  './src/wz-provision.js',
   './src/wz-rente.js',
   './src/wz-start.js',
   './src/wz-uebergabe.js',

@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 20 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 22 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Zwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
+Zweiundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
 Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -229,6 +229,14 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   Akquise, Notartermine, Gespräche), mit Vergleich zum Vorzeitraum; „Dokument“ für die Vertriebssteuerung.
 - **Kaufen oder Mieten:** Kaufpreis, Nebenkosten, Eigenkapital, Zins, Tilgung, Instandhaltung, Wertsteigerung gegen Miete,
   Mietsteigerung und Rendite der Geldanlage — Vermögen beider Wege je Jahr, Diagramm, ab welchem Jahr Kaufen vorn liegt.
+- **Kaufnebenkosten:** Kaufpreis, bewegliche Gegenstände, Grunderwerbsteuer, Provision und Grundschuld eintragen — Notar und
+  Grundbuch rechnet die App genau nach der Gebührentabelle (jede Position mit Nummer des Kostenverzeichnisses). „Notar im
+  Einzelnen“ für Vollzug, Betreuung, Vormerkung und Auslagen. „Verkäufer: Was bleibt?“ zieht Provision, Löschung der
+  Grundschulden, Treuhandauflage, Vorfälligkeitsentschädigung und Ablösung vom Kaufpreis ab.
+- **Provision:** einmal unten die Angaben auf der Rechnung eintragen (Aussteller, Steuernummer, Bankverbindung). Nach dem
+  Notartermin „Neue Abrechnung“ oder „Aus Notarauftrag übernehmen“; je Seite Empfänger, Maklervertrag und Satz. Die Prüfung
+  zeigt, ob die Teilung passt und ab wann der Käufer zahlen muss. „Nummer vergeben“, „Rechnung“ (PDF, Word), „Zahlung heute
+  erfasst“, Wiedervorlage zum Zahlungstermin. Bei Unternehmern als Empfänger: Angaben für die E-Rechnung der Bank.
 - **Startseite:** „Heute und morgen“ zeigt die Termine und fälligen Wiedervorlagen der beiden Tage.
 - **Kundenakte:** „Neue Anfrage“, „Akquise-Kontakt“ und „Termin“ legen den Eintrag gleich mit diesem Kunden an.
 - **Suche (Strg K):** findet auch Anfragen, Akquise-Kontakte und Termine.

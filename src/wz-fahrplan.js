@@ -14,7 +14,7 @@ const FP_PHASEN=[
   ['Besichtigungen und Angebote',[['besichtigung','Besichtigungen durchgeführt','besichtigung'],['bericht','Eigentümer über den Stand informiert','bericht'],
     ['finanzierung','Finanzierungsbestätigung des Käufers liegt vor'],['kaeufer','Käufer gefunden, Objekt reserviert','kaeufer']]],
   ['Notar',[['notarauftrag','Angaben an das Notariat übermittelt','notar1'],['entwurf','Vertragsentwurf liegt den Parteien vor','notar2'],['beurkundung','Kaufvertrag beurkundet','notar3']]],
-  ['Übergabe und Abschluss',[['uebergabe','Übergabe mit Protokoll','uebergabe'],['provision','Provision abgerechnet und eingegangen'],['nachbetreuung','Nachbetreuung: Glückwunsch, Löschprüfung in der Kundenakte gesetzt']]]
+  ['Übergabe und Abschluss',[['uebergabe','Übergabe mit Protokoll','uebergabe'],['provision','Provision abgerechnet und eingegangen','provision'],['nachbetreuung','Nachbetreuung: Glückwunsch, Löschprüfung in der Kundenakte gesetzt']]]
 ];
 const FP_STAENDE=['Akquise','Auftrag erteilt','In Vermarktung','Reserviert','Notartermin','Verkauft'];
 const FP_LINK={unterlagen:"vlOeffnenMit({vorlage:'unterlagen',projektId:FP.aktiv})",fotos:"wzOeffnen('foto')",portal:"wzOeffnen('portal')",gesuche:"wzOeffnen('interessenten');vgSetz('ansicht','abgleich')",
@@ -48,7 +48,8 @@ function fpAuto(o){
     bericht:!!f.vm_letzter,
     kaeufer:st>=3,
     notar1:stand>=1||st>=4, notar2:stand>=2, notar3:stand>=3||st>=5,
-    uebergabe:ex.prot.some(x=>x.abgeschlossen&&fpGleich(x.anschrift,o.anschrift))
+    uebergabe:ex.prot.some(x=>x.abgeschlossen&&fpGleich(x.anschrift,o.anschrift)),
+    provision:typeof paErledigt==='function'&&wzdListe('abrechnungen').some(a=>(a.projektId===o.id||fpGleich(a.anschrift,o.anschrift))&&paErledigt(a))
   };
 }
 function fpSchritte(o){

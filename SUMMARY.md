@@ -1,3 +1,10 @@
+# Zusammenfassung — Kaufnebenkosten und Provision (2026-10-03)
+
+Zwei neue Kacheln (D42): „Kaufnebenkosten“ rechnet Notar und Grundbuch genau nach dem GNotKG (gegen alle Zeilen der amtlichen
+Tabelle geprüft), dazu Grunderwerbsteuer und Provision — und für den Verkäufer, was nach Kosten und Ablösung bleibt.
+„Provision“ führt je Verkauf die Abrechnung beider Seiten: Teilung nach §§ 656c, 656d BGB geprüft, Rechnung mit den Pflichtangaben
+des § 14 UStG, Zahlungseingang, Wiedervorlage; der Verkaufsfahrplan hakt die Provision selbst ab. Datenbank Version 6.
+
 # Zusammenfassung — Besichtigungsnachweis und Aktivitäten (2026-10-03)
 
 Im Termin „Besichtigung“ unterschreiben die Teilnehmer auf dem Gerät den Besichtigungsnachweis (Dokument mit Unterschriften,

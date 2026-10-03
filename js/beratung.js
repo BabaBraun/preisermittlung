@@ -461,7 +461,7 @@ function datenstand(e,heute){
   const wieder=tagePlus(RECHT_GEPRUEFT,182);
   l.push({id:'recht',gruppe:'recht',titel:'Rechtsstand der Rechnungen und Hinweise',stand:'geprüft am '+datumDE(RECHT_GEPRUEFT),naechste:'erneut prüfen ab '+datumDE(wieder),
     status:heute>=wieder?'bald':'ok',
-    text:'Am Wortlaut geprüft: ErbStG, BewG §§ 14 und 16, GModG (seit 29.07.2026 statt GEG), BGB §§ 656b–656d und 1365, WEG § 12, BeurkG § 17, GrEStG § 20, BauGB § 196, ImmoWertV §§ 9, 18 und 40.',
+    text:'Am Wortlaut geprüft: ErbStG, BewG §§ 14 und 16, GModG (seit 29.07.2026 statt GEG), BGB §§ 652 und 656a–656d und 1365, WEG § 12, BeurkG § 17, GrEStG §§ 2, 8, 9, 11 und 20, GrEStFestG BW § 1, GNotKG §§ 34, 45, 47, 53, 112, 113 mit Kostenverzeichnis, UStG §§ 12, 14 und 14b, BauGB § 196, ImmoWertV §§ 9, 18 und 40.',
     quelle:'gesetze-im-internet.de'});
   return {liste:l,faellig:l.filter(x=>x.status==='faellig').length,bald:l.filter(x=>x.status==='bald').length};
 }
@@ -561,10 +561,179 @@ function zeitraum(art,heute){
   return {von:iso(von),bis:iso(bis),vorVon:iso(vorVon),vorBis:iso(vorBis)};
 }
 
+/* ========== Notar und Grundbuch nach dem GNotKG, Kaufnebenkosten, Erlös des Verkäufers (D42) ==========
+   Wertgebühr nach § 34 Abs. 2 GNotKG (Fassung BGBl. 2025 I Nr. 109): Grundbetrag bis 500 € und Zuschlag je angefangenem
+   Schritt; auf den Cent gerundet (§ 34 Abs. 4), mindestens 15 € (§ 34 Abs. 5). Notare und Grundbuchämter rechnen nach
+   Tabelle B (Kostenverzeichnis Teil 1 Hauptabschnitt 4 und Teil 2). Gegen alle 92 Zeilen der Anlage 2 geprüft
+   (tests/unit/d42.test.mjs). Zeilen: [bis Geschäftswert, Schritt, Zuschlag je angefangenem Schritt]; erste Zeile = Grundbetrag. */
+const GNOTKG_A=[[500,0,40],[2000,500,21],[10000,1000,22.5],[25000,3000,30.5],[50000,5000,40.5],[200000,15000,140],[500000,30000,210],[Infinity,50000,210]];
+const GNOTKG_B=[[500,0,15],[2000,500,4],[10000,1000,6],[25000,3000,8],[50000,5000,10],[200000,15000,27],[500000,30000,50],
+  [5000000,50000,80],[10000000,200000,130],[20000000,250000,150],[30000000,500000,280],[Infinity,1000000,120]];
+function gnotkgTabelle(wert,tabelle){
+  const st=tabelle==='A'?GNOTKG_A:GNOTKG_B;
+  const cent=Math.max(0,Math.round((+wert||0)*100));   // in Cent rechnen: „angefangener Betrag“ ohne Rundungsfehler
+  let g=st[0][2], unten=st[0][0]*100;
+  for(let i=1;i<st.length&&cent>unten;i++){
+    const bis=st[i][0]*100, schritt=st[i][1]*100, teil=Math.min(cent,bis)-unten;
+    g+=Math.ceil(teil/schritt)*st[i][2]; unten=bis;
+  }
+  return Math.round(g*100)/100;
+}
+/* Gebühr mit Satz (z. B. 2,0) und Grenzen des Kostenverzeichnisses: o={min, max, tabelle} */
+function gnotkgGebuehr(wert,satz,o){
+  o=o||{}; if(!(+satz>0)||!(+wert>0)) return 0;
+  let g=Math.round(satz*gnotkgTabelle(wert,o.tabelle)*100+1e-6)/100;   // 0,5 Cent werden aufgerundet
+  g=Math.max(g,15,+o.min||0);
+  if(+o.max>0) g=Math.min(g,+o.max);
+  return g;
+}
+const cent2=x=>Math.round((+x||0)*100+1e-6)/100;
+const deSatz=(x,min)=>(+x||0).toLocaleString('de-DE',{minimumFractionDigits:min||0,maximumFractionDigits:2});
+/* Kaufnebenkosten des Käufers.
+   e={preis, inventar, grestSatz, maklerSatz (% inkl. USt), grundschuld, vollzug:'voll'|'begrenzt'|'kein', vollzugTaetigkeiten,
+      betreuung, vormerkung, xml, auslagenKauf, auslagenGs (netto, geschätzt), ust}
+   Geschäftswert: Kaufpreis (§ 47 GNotKG) für Beurkundung, Vollzug (§ 112), Betreuung (§ 113 Abs. 1), Vormerkung (§ 45 Abs. 3)
+   und Eigentumsumschreibung; Grundschuld: Nennbetrag (§ 53 Abs. 1). Grunderwerbsteuer: Kaufpreis ohne bewegliche Gegenstände
+   (§§ 2, 8, 9 GrEStG), auf volle Euro abgerundet (§ 11 Abs. 2 GrEStG). Umsatzsteuer nur auf die Notarkosten (Nr. 32014 KV). */
+function kaufnebenkosten(e){
+  e=e||{};
+  const pos=x=>Math.max(0,+x||0), preis=pos(e.preis), inventar=Math.min(pos(e.inventar),preis), gs=pos(e.grundschuld);
+  const ust=e.ust==null||e.ust===''?19:pos(e.ust), posten=[];
+  const add=(gruppe,text,nr,wert,satz,betrag)=>{ betrag=cent2(betrag); if(betrag>0) posten.push({gruppe,text,nr,wert,satz,betrag}); return betrag; };
+  const notar=(gruppe,gebuehren,auslagen)=>{
+    const pauschale=gebuehren>0?Math.min(20,cent2(gebuehren*0.2)):0;   // Nr. 32005: 20 % der Gebühren, höchstens 20 €
+    add(gruppe,'Pauschale für Post und Telekommunikation','32005',null,null,pauschale);
+    const ausl=gebuehren>0?cent2(pos(auslagen)):0;
+    add(gruppe,'Kopien, Grundbuchabrufe und andere Auslagen (geschätzt)','32001, 32011',null,null,ausl);
+    const netto=cent2(gebuehren+pauschale+ausl), steuer=cent2(netto*ust/100);
+    add(gruppe,'Umsatzsteuer '+deSatz(ust)+' %','32014',null,null,steuer);
+    return {gebuehren:cent2(gebuehren),pauschale,auslagen:ausl,netto,ust:steuer,brutto:cent2(netto+steuer)};
+  };
+  // Notar: Kaufvertrag
+  let g=0;
+  g+=add('notarKauf','Beurkundung des Kaufvertrags','21100',preis,2,gnotkgGebuehr(preis,2,{min:120}));
+  let vollzug=0;
+  if(e.vollzug==='voll') vollzug=gnotkgGebuehr(preis,0.5);
+  else if(e.vollzug==='begrenzt') vollzug=Math.min(gnotkgGebuehr(preis,0.5),50*Math.max(1,Math.round(+e.vollzugTaetigkeiten||1)));
+  g+=add('notarKauf',e.vollzug==='begrenzt'?'Vollzug: nur Bescheinigungen nach öffentlichem Recht, höchstens 50 € je Tätigkeit':'Vollzug: Genehmigungen, Vorkaufsrecht, Löschungsunterlagen',
+    e.vollzug==='begrenzt'?'22110, 22112':'22110',preis,0.5,vollzug);
+  if(e.betreuung) g+=add('notarKauf','Betreuung: Fälligkeitsmitteilung, Überwachung der Umschreibung','22200',preis,0.5,gnotkgGebuehr(preis,0.5));
+  if(e.xml) g+=add('notarKauf','Strukturdaten (XML) für das Grundbuchamt',vollzug>0?'22114, 22115':'22114',preis,vollzug>0?0.1:0.2,gnotkgGebuehr(preis,vollzug>0?0.1:0.2,{max:125}));
+  const notarKauf=preis>0?notar('notarKauf',g,e.auslagenKauf):{gebuehren:0,pauschale:0,auslagen:0,netto:0,ust:0,brutto:0};
+  // Notar: Grundschuld für die Finanzierung
+  let notarGs={gebuehren:0,pauschale:0,auslagen:0,netto:0,ust:0,brutto:0};
+  if(gs>0){
+    let h=add('notarGs','Beurkundung der Grundschuld','21200',gs,1,gnotkgGebuehr(gs,1,{min:60}));
+    if(e.xml) h+=add('notarGs','Strukturdaten (XML) für das Grundbuchamt','22114',gs,0.2,gnotkgGebuehr(gs,0.2,{max:125}));
+    notarGs=notar('notarGs',h,e.auslagenGs);
+  }
+  // Grundbuchamt (ohne Umsatzsteuer)
+  let gb=0;
+  if(preis>0){
+    if(e.vormerkung) gb+=add('grundbuch','Eintragung der Auflassungsvormerkung','14150',preis,0.5,gnotkgGebuehr(preis,0.5));
+    gb+=add('grundbuch','Eintragung des Käufers als Eigentümer','14110',preis,1,gnotkgGebuehr(preis,1));
+    if(e.vormerkung) gb+=add('grundbuch','Löschung der Vormerkung','14152',null,null,25);
+  }
+  if(gs>0) gb+=add('grundbuch','Eintragung der Grundschuld','14121',gs,1,gnotkgGebuehr(gs,1));
+  // Grunderwerbsteuer und Makler
+  const grestBasis=preis-inventar, grest=Math.floor(grestBasis*pos(e.grestSatz)/100+1e-9);
+  add('steuer','Grunderwerbsteuer '+deSatz(pos(e.grestSatz),1)+' % auf '+Math.round(grestBasis).toLocaleString('de-DE')+' €','',grestBasis,null,grest);
+  const makler=cent2(preis*pos(e.maklerSatz)/100);
+  add('makler','Maklerprovision '+deSatz(pos(e.maklerSatz),2)+' % inkl. Umsatzsteuer','',preis,null,makler);
+  const summe=cent2(notarKauf.brutto+notarGs.brutto+gb+grest+makler);
+  return {posten,notarKauf,notarGs,grundbuch:cent2(gb),grest,grestBasis,makler,summe,quote:preis>0?summe/preis*100:0,
+    notarGrundbuchQuote:preis>0?(notarKauf.brutto+notarGs.brutto+gb)/preis*100:0};
+}
+/* Was bleibt dem Verkäufer? e={preis, maklerSatz (% inkl. USt), restschuld (Ablösebetrag), vorfaelligkeit, grundschuldNenn
+   (Nennbetrag der zu löschenden Grundschulden), treuhand (Treuhandauflage der Bank), sonstiges, ust}
+   Löschung in Abt. III: 0,5 nach dem Nennbetrag (Nr. 14140 KV, § 53 Abs. 1 GNotKG); Treuhandgebühr 0,5 nach dem Ablösebetrag
+   (Nr. 22201 KV, § 113 Abs. 2 GNotKG) zuzüglich Umsatzsteuer. */
+function verkaeuferErloes(e){
+  e=e||{};
+  const pos=x=>Math.max(0,+x||0), preis=pos(e.preis), rest=pos(e.restschuld), nenn=pos(e.grundschuldNenn), ust=e.ust==null||e.ust===''?19:pos(e.ust);
+  const makler=cent2(preis*pos(e.maklerSatz)/100);
+  const loeschung=nenn>0?gnotkgGebuehr(nenn,0.5):0;
+  const treuhandNetto=e.treuhand&&rest>0?gnotkgGebuehr(rest,0.5):0, treuhand=cent2(treuhandNetto*(1+ust/100));
+  const vfe=cent2(pos(e.vorfaelligkeit)), sonst=cent2(pos(e.sonstiges));
+  const kosten=cent2(makler+loeschung+treuhand+vfe+sonst);
+  return {preis,makler,loeschung,treuhandNetto,treuhand,vorfaelligkeit:vfe,sonstiges:sonst,restschuld:rest,kosten,
+    erloesVorAbloese:cent2(preis-kosten),erloes:cent2(preis-kosten-rest)};
+}
+
+/* ========== Provision: Beträge, Teilung nach §§ 656b–656d BGB, Fälligkeit, Rechnungsfrist (D42) ==========
+   Satz in % inklusive Umsatzsteuer (so steht er im Exposé) oder ein fester Betrag inklusive Umsatzsteuer. Auf der Rechnung
+   steht das Entgelt netto, die Steuer auf das Entgelt und der Gesamtbetrag (§ 14 Abs. 4 Nr. 7 und 8 UStG). */
+function provisionBetrag(preis,o){
+  o=o||{}; const ust=o.ust==null||o.ust===''?19:Math.max(0,+o.ust||0);
+  let brutto=o.art==='fest'?Math.max(0,+o.betrag||0):Math.max(0,+preis||0)*Math.max(0,+o.satz||0)/100;
+  const netto=cent2(brutto*100/(100+ust)), steuer=cent2(netto*ust/100);
+  return {netto,ust:steuer,brutto:cent2(netto+steuer),satzNetto:o.art==='fest'||!(+preis>0)?null:netto/preis*100};
+}
+/* a={art:'efh'|'wohnung'|'andere', kaeuferVerbraucher, vertragDatum, bedingung, bedingungDatum,
+      parteien:[{rolle:'verkaeufer'|'kaeufer', maklervertrag, brutto, bezahltAm, rechnungDatum, rechnungNr}]}
+   Liefert Prüfpunkte {stufe:'gruen'|'gelb'|'rot', text} und je Partei den frühesten Fälligkeitstag. */
+function provisionPruefen(a,heute){
+  a=a||{}; heute=heute||new Date().toISOString().slice(0,10);
+  const l=[], P=(a.parteien||[]).filter(p=>p&&(p.rolle==='verkaeufer'||p.rolle==='kaeufer'));
+  const v=P.find(p=>p.rolle==='verkaeufer')||{}, k=P.find(p=>p.rolle==='kaeufer')||{};
+  const betrag=p=>Math.max(0,+p.brutto||0), datum=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''))?x:'';
+  const wohnen=a.art==='efh'||a.art==='wohnung', gilt=wohnen&&a.kaeuferVerbraucher!==false;
+  if(wohnen) l.push({stufe:'gruen',text:'Maklerverträge über eine Wohnung oder ein Einfamilienhaus brauchen die Textform, z. B. E-Mail (§ 656a BGB).'});
+  // Entstehung: Kaufvertrag wirksam, bei aufschiebender Bedingung erst mit deren Eintritt (§ 652 Abs. 1 BGB)
+  let basis=datum(a.vertragDatum);
+  if(!basis) l.push({stufe:'gelb',text:'Datum des Kaufvertrags fehlt — der Anspruch entsteht erst, wenn der Kaufvertrag zustande gekommen ist (§ 652 Abs. 1 Satz 1 BGB).'});
+  if(a.bedingung){
+    if(datum(a.bedingungDatum)) basis=basis&&basis>a.bedingungDatum?basis:datum(a.bedingungDatum);
+    else { l.push({stufe:'gelb',text:'Der Kaufvertrag steht unter einer aufschiebenden Bedingung: Provision erst, wenn sie eingetreten ist (§ 652 Abs. 1 Satz 2 BGB).'}); basis=''; }
+  }
+  const faellig={verkaeufer:basis,kaeufer:basis}, grund={verkaeufer:'',kaeufer:''};
+  if(gilt){
+    const vV=!!v.maklervertrag, vK=!!k.maklervertrag;
+    if(vV&&vK){
+      if(Math.abs(betrag(v)-betrag(k))>0.005)
+        l.push({stufe:'rot',text:'Der Makler ist für beide Seiten tätig: Provision nur in gleicher Höhe (§ 656c Abs. 1 Satz 1 BGB). Ein abweichender Maklervertrag ist unwirksam (§ 656c Abs. 2 BGB).'});
+      else if(betrag(v)>0) l.push({stufe:'gruen',text:'Beide Seiten zahlen gleich viel — entspricht § 656c Abs. 1 BGB.'});
+    } else if(vV!==vK){
+      const auftrag=vV?v:k, andere=vV?k:v, an=vV?'kaeufer':'verkaeufer', wer=vV?'Verkäufer':'Käufer', wem=vV?'Käufer':'Verkäufer';
+      if(betrag(andere)>0){
+        if(betrag(andere)-betrag(auftrag)>0.005)
+          l.push({stufe:'rot',text:'Nur der '+wer+' hat den Makler beauftragt: Der '+wem+' darf höchstens so viel tragen wie der '+wer+' (§ 656d Abs. 1 Satz 1 BGB).'});
+        else l.push({stufe:'gruen',text:'Der '+wem+' trägt nicht mehr als der beauftragende '+wer+' (§ 656d Abs. 1 Satz 1 BGB).'});
+        const bez=datum(auftrag.bezahltAm);
+        faellig[an]=bez&&basis?(bez>basis?bez:basis):'';
+        grund[an]=bez?'seit Zahlung des '+wer+'s am '+bez.split('-').reverse().join('.')+' (§ 656d Abs. 1 Satz 2 BGB)':'erst, wenn der '+wer+' gezahlt hat und das nachgewiesen ist (§ 656d Abs. 1 Satz 2 BGB)';
+        if(!bez) l.push({stufe:'gelb',text:'Der Anteil des '+wem+'s wird erst fällig, wenn der '+wer+' seine Provision gezahlt hat und das nachgewiesen ist (§ 656d Abs. 1 Satz 2 BGB).'});
+      }
+    } else if(betrag(v)>0||betrag(k)>0)
+      l.push({stufe:'gelb',text:'Bei keiner Seite ist ein Maklervertrag vermerkt — ohne Maklervertrag kein Anspruch (§ 652 Abs. 1 BGB).'});
+  } else if(wohnen) l.push({stufe:'gruen',text:'Der Käufer ist kein Verbraucher: Die Teilungsregeln der §§ 656c und 656d BGB gelten nicht (§ 656b BGB).'});
+  else l.push({stufe:'gruen',text:'Kein Einfamilienhaus und keine Wohnung: Die Teilungsregeln der §§ 656c und 656d BGB gelten nicht.'});
+  // Rechnung innerhalb von sechs Monaten nach der Leistung (§ 14 Abs. 2 Satz 2 UStG, Abschnitt 14.2 UStAE: Makler)
+  const vd=datum(a.vertragDatum);
+  if(vd){
+    const frist=isoPlusMonate(vd,6);
+    P.filter(p=>betrag(p)>0&&!datum(p.rechnungDatum)).forEach(p=>{
+      const rest=tageZwischen(heute,frist), wer=p.rolle==='verkaeufer'?'Verkäufer':'Käufer';
+      if(rest<0) l.push({stufe:'rot',text:'Rechnung an den '+wer+' fehlt: Sie war bis '+frist.split('-').reverse().join('.')+' fällig — sechs Monate nach der Leistung (§ 14 Abs. 2 Satz 2 UStG).'});
+      else if(rest<=30) l.push({stufe:'gelb',text:'Rechnung an den '+wer+' bis '+frist.split('-').reverse().join('.')+' stellen (sechs Monate nach der Leistung, § 14 Abs. 2 Satz 2 UStG).'});
+    });
+  }
+  return {liste:l,faellig,grund,rot:l.filter(x=>x.stufe==='rot').length};
+}
+/* ISO-Datum plus Monate; gibt es den Tag im Zielmonat nicht, dessen letzter Tag (§ 188 Abs. 3 BGB) */
+function isoPlusMonate(iso,m){ const [J,M,T]=String(iso).split('-').map(Number), r=new Date(Date.UTC(J,M-1+m,T)); if(r.getUTCDate()!==T) r.setUTCDate(0); return r.toISOString().slice(0,10); }
+/* Nächste Rechnungsnummer: fortlaufend je Präfix (§ 14 Abs. 4 Nr. 4 UStG) — höchste vergebene Zahl + 1 */
+function rechnungsnummer(praefix,vergeben,jahr){
+  praefix=String(praefix==null?'':praefix).replace(/\{jahr\}/g,String(jahr||new Date().getFullYear()));
+  let max=0; (vergeben||[]).forEach(n=>{ n=String(n||''); if(n.startsWith(praefix)){ const m=/^(\d+)$/.exec(n.slice(praefix.length)); if(m) max=Math.max(max,+m[1]); } });
+  return praefix+String(max+1).padStart(3,'0');
+}
+
 const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
   ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
   petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate,
-  ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,zeitraum,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
+  ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,zeitraum,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT,
+  GNOTKG_A,GNOTKG_B,gnotkgTabelle,gnotkgGebuehr,kaufnebenkosten,verkaeuferErloes,provisionBetrag,provisionPruefen,rechnungsnummer,isoPlusMonate};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

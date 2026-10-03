@@ -342,6 +342,14 @@ const BEREICHE = [
     await kaTerminOeffnen(t.id); }) },
   { name: 'Werkzeug – Kaufen oder Mieten', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('kaufmiete')) },
   { name: 'Werkzeug – Aktivitäten', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('aktivitaeten'); await akLaden(); wzZeichnen(); }) },
+  { name: 'Werkzeug – Kaufnebenkosten', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'kaeufer'; wzZeichnen(); }) },
+  { name: 'Werkzeug – Erlös des Verkäufers', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'verkaeufer'; wzZeichnen(); }) },
+  { name: 'Werkzeug – Provision', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('provision'); await wzdLaden(); PA.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Provisionsabrechnung', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('provision'); await wzdLaden(); let a = wzdListe('abrechnungen')[0];
+    if (!a) { a = Object.assign(paLeer(), { id: 'pa_kt', objekt: 'Musterhaus', anschrift: 'Musterweg 1, 74000 Musterstadt', kaufpreis: '400.000', vertragDatum: '2026-09-15' });
+      a.parteien[0].name = 'Erika Muster'; a.parteien[0].anschrift = 'Testweg 2, 74000 Musterstadt'; a.parteien[1].name = 'Max Probe'; a.parteien[1].anschrift = 'Probeweg 3, 74001 Probedorf';
+      await wzdSpeichern('abrechnungen', a); }
+    await paOeffnen(a.id); }) },
   { name: 'Werkzeug – Aushang', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
     if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
     wzOeffnen('aushang'); }) },

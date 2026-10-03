@@ -45,7 +45,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Akquise, Interessenten mit Abgleich der Suchprofile, Bieterverfahren, Fotostudio (aufhellen, zuschneiden, schwärzen), Aushang für
   Schaufenster und Filiale,
   Vorlagen für Schreiben und E-Mails, Verkaufsfahrplan, Kalender mit Kalenderdatei und Besichtigungsnachweis, Aktivitäten je
-  Zeitraum und Kaufen oder Mieten. Die Kacheln
+  Zeitraum und Kaufen oder Mieten; dazu (D42) Kaufnebenkosten mit Notar und Grundbuch genau nach GNotKG und Provision mit
+  Abrechnung, Rechnung und Zahlungseingang. Die Kacheln
   stehen in vier Bereichen mit eigener Farbe. Jedes Werkzeug mit Dokument (PDF, Word) und Notiz in der Kundenakte.
 - **Darstellung:** fünf Farbschemata (Petrol, Blau, Bordeaux, Graphit, Waldgrün), jeweils hell und dunkel.
 

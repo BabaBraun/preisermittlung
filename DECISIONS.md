@@ -1304,3 +1304,58 @@ zählen ab ihrem Datum im Verlauf.
 **Tests:** Zeiträume (Kalenderwoche ab Montag, Monats-, Quartals- und Jahreswechsel, Schaltjahr) in `tests/unit/d40.test.mjs`;
 Browsertests für Nachweis (Unterschrift durch Ziehen, Dokument, Textänderung) und Aktivitäten (Zählung im Monat und im
 Vorzeitraum, Dokument ohne Namen); Klicktest-Bereich „Aktivitäten“.
+
+## D42 (2026-10-03) — Kacheln „Kaufnebenkosten“ und „Provision“
+
+**Kaufnebenkosten** (`src/wz-nebenkosten.js`, Rechnung `js/beratung.js` → `gnotkgTabelle`, `gnotkgGebuehr`, `kaufnebenkosten`,
+`verkaeuferErloes`): Notar und Grundbuch rechnet die App genau nach dem Gerichts- und Notarkostengesetz statt mit einem Prozentsatz.
+- Wertgebühr nach § 34 Abs. 2 GNotKG (Fassung BGBl. 2025 I Nr. 109), Tabelle B für Notare und Grundbuchämter (Kostenverzeichnis
+  Teil 1 Hauptabschnitt 4 und Teil 2), auf den Cent gerundet (§ 34 Abs. 4), mindestens 15 € (§ 34 Abs. 5). Die Formel trifft alle
+  92 Zeilen der Anlage 2 für beide Tabellen (Einheitstest); darüber die Stufen bis über 30 Mio. €.
+- Kaufvertrag: Beurkundung 2,0 (Nr. 21100, mindestens 120 €), Vollzug 0,5 (Nr. 22110) oder — wenn das Notariat nur Bescheinigungen
+  nach öffentlichem Recht einholt, etwa zum Vorkaufsrecht der Gemeinde — höchstens 50 € je Bescheinigung (Nr. 22112), Betreuung
+  0,5 (Nr. 22200), XML-Strukturdaten 0,1 neben dem Vollzug, sonst 0,2, höchstens 125 € (Nr. 22114, 22115), Pauschale für Post und
+  Telekommunikation 20 % der Gebühren, höchstens 20 € (Nr. 32005), geschätzte Auslagen, Umsatzsteuer (Nr. 32014). Geschäftswert ist
+  der Kaufpreis (§ 47), für Vollzug und Betreuung derselbe (§§ 112, 113 Abs. 1).
+- Grundschuld: Beurkundung 1,0 (Nr. 21200, mindestens 60 €) nach dem Nennbetrag (§ 53 Abs. 1), XML 0,2.
+- Grundbuch (ohne Umsatzsteuer): Auflassungsvormerkung 0,5 (Nr. 14150, Wert § 45 Abs. 3), Eigentümer 1,0 (Nr. 14110), Löschung
+  der Vormerkung 25 € (Nr. 14152), Grundschuld 1,0 (Nr. 14121).
+- Grunderwerbsteuer: Kaufpreis ohne bewegliche Gegenstände (§§ 2, 8, 9 GrEStG), auf volle Euro abgerundet (§ 11 Abs. 2 GrEStG);
+  Satz Baden-Württemberg 5 % (§ 1 GrEStFestG BW, gültig seit 05.11.2011, landesrecht-bw.de geprüft). Fälligkeit einen Monat nach
+  dem Bescheid (§ 15), Eintragung erst mit der Unbedenklichkeitsbescheinigung (§ 22) — als Hinweis. Vereinbarungen über die Höhe
+  der Notarkosten sind unwirksam (§ 125 GNotKG).
+- Verkäufer („Was bleibt?“): Provision, Löschung der Grundschulden 0,5 nach dem Nennbetrag (Nr. 14140), Treuhandgebühr 0,5 nach
+  dem Ablösebetrag zuzüglich Umsatzsteuer (Nr. 22201, § 113 Abs. 2), Vorfälligkeitsentschädigung, sonstige Kosten, Ablösung.
+  Steuern auf einen Veräußerungsgewinn bleiben beim Steuerberater.
+- Beispiel (Einheitstest, von Hand nachgerechnet): Kaufpreis 400.000 €, Grundschuld 320.000 € → Notar Kaufvertrag 2.967,27 €,
+  Notar Grundschuld 952 €, Grundbuch 1.837,50 € — zusammen 1,44 % des Kaufpreises.
+
+**Provision** (`src/wz-provision.js`, Rechnung `js/beratung.js` → `provisionBetrag`, `provisionPruefen`, `rechnungsnummer`):
+- Je Verkauf eine Abrechnung: Objekt (aus den Bewertungen oder aus dem Notarauftrag übernommen), Art, Käufer Verbraucher,
+  Kaufpreis, Tag des Kaufvertrags, aufschiebende Bedingung; je Seite Rechnungsempfänger, Maklervertrag ja/nein, Satz oder Festbetrag
+  inklusive Umsatzsteuer, Rechnungsnummer und -datum, Zahlungsziel, Zahlungseingang.
+- Prüfung am Wortlaut: Textform (§ 656a BGB); Doppeltätigkeit nur in gleicher Höhe, sonst unwirksam (§ 656c BGB); hat nur eine
+  Seite beauftragt, trägt die andere höchstens gleich viel und zahlt erst, wenn die beauftragende gezahlt hat und das nachgewiesen
+  ist (§ 656d BGB) — die App rechnet den Zahlungstermin erst ab dieser Zahlung und schreibt den Nachweis auf die Rechnung; nur bei
+  Wohnung oder Einfamilienhaus und Käufer als Verbraucher (§ 656b BGB). Anspruch erst mit dem Kaufvertrag, bei aufschiebender
+  Bedingung mit deren Eintritt (§ 652 Abs. 1 BGB).
+- Rechnung mit den Pflichtangaben des § 14 Abs. 4 UStG (Name und Anschrift beider Seiten, Steuernummer oder USt-IdNr.,
+  Ausstellungsdatum, fortlaufende Nummer, Art der Leistung, Leistungsdatum, Entgelt, Steuersatz und -betrag). Maklerleistungen
+  hängen mit einem Grundstück zusammen (Abschnitt 14.2 Abs. 3 UStAE): Rechnung binnen sechs Monaten (§ 14 Abs. 2 Satz 2 UStG; die
+  App warnt 30 Tage vorher) und bei Privatpersonen der Hinweis auf die zweijährige Aufbewahrungspflicht (§ 14 Abs. 4 Nr. 9,
+  § 14b Abs. 1 Satz 5 UStG). Fehlen Angaben, fragt die App und zeigt einen „Entwurf“. Unternehmer als Empfänger: bis Ende 2026 noch
+  Papier (§ 27 Abs. 38 UStG), danach E-Rechnung (§ 14 Abs. 2 Satz 2 Nr. 1 UStG) über das Buchungssystem der Bank — die Kachel gibt
+  dafür „Angaben für die E-Rechnung“ aus, kein eigenes E-Rechnungsformat.
+- Übersicht: offen, überfällig, eingegangen im Jahr; Filter; Wiedervorlage zum Zahlungstermin; der Verkaufsfahrplan hakt
+  „Provision abgerechnet und eingegangen“ selbst ab.
+
+**Daten und Datenschutz:** Neuer Speicher „abrechnungen“ (Datenbank Version 6), Teil der Gesamtsicherung, beim Einspielen
+gewinnt die neuere Fassung. Die Abrechnungen enthalten Name und Anschrift der Rechnungsempfänger (für die Rechnung nötig,
+Art. 6 Abs. 1 lit. b und c DSGVO). Löscht man einen Kunden, entfernt die App dort Name und Anschrift; die Auskunft aus der
+Kundenakte führt die Abrechnungen auf. Gestellte Rechnungen bewahrt die Bank in ihrer Buchhaltung auf (§ 14b UStG) — die App ist
+nur die Arbeitskopie. Angaben zum Rechnungsaussteller bleiben auf dem Gerät. Die Kaufnebenkosten speichern keine Namen.
+
+**Tests:** `tests/unit/d42.test.mjs` (Anlage 2 vollständig, Stufen über 3 Mio. €, Mindest- und Höchstbeträge, Kaufnebenkosten und
+Erlös von Hand nachgerechnet, Teilung und Fälligkeit, Sechsmonatsfrist, Rechnungsnummern); Browser `tests/e2e/werkzeuge-d42.spec.mjs`
+(Kaufnebenkosten mit Dokument, Abrechnung mit Zahlung, Rechnung, Fahrplan, Notarauftrag, Entwurf, Kundenakte, Sicherung);
+Klicktest-Bereiche „Kaufnebenkosten“, „Erlös des Verkäufers“, „Provision“, „Provisionsabrechnung“.
