@@ -119,8 +119,8 @@ async function wzdKundeNeu(d){
   d=d||{};
   let k={id:'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),anrede:d.anrede||'',vorname:(d.vorname||'').trim(),nachname:(d.nachname||'').trim(),
     firma:(d.firma||'').trim(),telefon:(d.telefon||'').trim(),email:(d.email||'').trim(),strasse:(d.strasse||'').trim(),plzort:(d.plzort||'').trim(),notiz:'',
-    grundlage:d.einwilligung?'einwilligung':'vertrag',einwilligungAm:d.einwilligung?aufHeute():'',loeschpruefung:d.loeschpruefung||'',
-    erstellt:Date.now(),kontakte:[],finanzierungen:[]};
+    grundlage:'vertrag',einwilligungAm:'',loeschpruefung:d.loeschpruefung||'',
+    erstellt:Date.now(),kontakte:[],finanzierungen:[],werbung:kwNeu(d)};   // D51: Werbung je Kanal, Datenschutzinformation
   if(!k.vorname&&!k.nachname&&!k.firma){ alert('Bitte mindestens einen Namen eintragen.'); return null; }
   return (await kdSpeichern(k))?k:null;
 }
@@ -183,7 +183,7 @@ async function wzdAusAkte(was,id){
   kdSchliessen(); await wzdLaden();
   if(was==='termin'){ kaTerminMit({art:'Beratungsgespräch',kundeIds:[id]}); return; }
   wzOeffnen(was==='akquise'?'akquise':'interessenten');
-  vgNeuEntwurf(was,{person:{modus:'akte',anrede:'',vorname:'',nachname:'',telefon:'',email:'',einwilligung:false,kundeId:id}});
+  vgNeuEntwurf(was,{person:{modus:'akte',anrede:'',vorname:'',nachname:'',telefon:'',email:'',einwilligungEmail:false,einwilligungTelefon:false,einwilligungForm:'',dsinfo:false,kundeId:id}});
 }
 /* Vorgang aus der Kundenakte öffnen: in der passenden Kachel */
 function wzVorgangOeffnen(id){

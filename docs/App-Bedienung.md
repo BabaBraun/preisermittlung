@@ -227,7 +227,8 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
 - **Vorlagen:** Vorlage wählen, Empfänger aus der Kundenakte, Objekt und Termin wählen — der Text füllt sich, lässt sich ändern
   und als E-Mail öffnen, kopieren, als Word speichern oder in der Kundenakte vermerken. Eigene Vorlagen mit Platzhaltern.
 - **Rundschreiben:** Empfänger wählen (Suchkunden zu einem Objekt, alle mit Einwilligung, Eigentümer oder selbst gewählt), dann
-  die Vorlage. „Serienbrief“ gibt je Empfänger eine Seite aus; „E-Mail an alle (Bcc)“ nur an Kunden mit Einwilligung.
+  die Vorlage. „Serienbrief“ gibt je Empfänger eine Seite aus; „E-Mail an alle (Bcc)“ nur an Kunden mit Einwilligung per
+  E-Mail. Wer der Werbung widersprochen hat, bekommt auch keinen Werbebrief (Schreiben an Eigentümer im Auftrag schon).
 - **Verkaufsfahrplan:** je Auftrag die Schritte vom Maklervertrag bis zur Nachbetreuung; „erkannt“ hakt die App selbst ab.
 - **Eigentümerbericht:** Objekt und Zeitraum wählen — Anfragen, Besichtigungen und Gebote aus Bewertung, Interessenten, Kalender
   und Bieterverfahren, ohne Namen. Einschätzung anpassen, „Dokument“ für den Eigentümer, Wiedervorlage für den nächsten Bericht.
@@ -258,6 +259,11 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   erfasst“, Wiedervorlage zum Zahlungstermin. Bei Unternehmern als Empfänger: Angaben für die E-Rechnung der Bank.
 - **Startseite:** „Heute und morgen“ zeigt die Termine und fälligen Wiedervorlagen der beiden Tage.
 - **Kundenakte:** „Neue Anfrage“, „Akquise-Kontakt“ und „Termin“ legen den Eintrag gleich mit diesem Kunden an.
+- **Werbung und Datenschutz** (Kundenakte): je Kanal eintragen, was der Kunde erlaubt hat — E-Mail und Telefon mit Datum, Form
+  und Fundstelle des Nachweises im Banksystem; Post ohne Einwilligung, solange er nicht widerspricht. „Widerruf eintragen“ je
+  Kanal, „Widerspricht Werbung“ sperrt alle Kanäle und legt die Wiedervorlage für die Bestätigung an. Darunter: Woher die Daten
+  stammen und wann der Kunde die Datenschutzinformation bekommen hat. Bei Telefonaten „werblicher Anruf“ anhaken — die App
+  rechnet daraus, wie lange der Nachweis aufzubewahren ist (fünf Jahre, § 7a UWG).
 - **Suche (Strg K):** findet auch Anfragen, Akquise-Kontakte, Termine und Provisionsabrechnungen (auch nach Rechnungsnummer).
 - **Kalender und Aktivitäten:** zeigen auch Zahlungsziele der Provision, gestellte Rechnungen, Zahlungseingänge und
   angeforderte Unterlagen; der **Datenstand** erinnert daran, erledigte Abrechnungen und Vollmachten zu löschen.

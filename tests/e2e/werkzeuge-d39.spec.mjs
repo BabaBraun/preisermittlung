@@ -161,7 +161,8 @@ test('Datenstand: Zahl auf der Kachel, Einträge mit Stand und Quelle, Sicherung
   await expect(page.locator('#ds_badge')).toHaveText('1');
   await page.evaluate(async () => { $('pj_name').value = 'Sicherung Test'; $('ek_anschrift').value = 'Musterweg 7, 74360 Ilsfeld'; await projektSichern(); });
   await page.evaluate(() => wzOeffnen('datenstand'));
-  await expect(page.locator('#wz_body .ds-zeile')).toHaveCount(await page.evaluate(() => DS.erg.liste.length));
+  // Liste und Anzeige vergleichen, bis die Prüfung nach dem Sichern durch ist (unter Last kam die Anzeige einmal später)
+  await expect.poll(async () => (await page.locator('#wz_body .ds-zeile').count()) === await page.evaluate(() => DS.erg.liste.length)).toBe(true);
   await page.getByRole('button', { name: 'Neu prüfen' }).click();
   const zeile = page.locator('.ds-zeile', { hasText: 'Gesamtsicherung' });
   await expect(zeile).toHaveClass(/wz-rot/);

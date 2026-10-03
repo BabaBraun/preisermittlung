@@ -1543,3 +1543,44 @@ Bundesanzeiger (Stand 03.10.2026; Nachprüfung Dezember 2026). Baudenkmal ab 202
 **Tests:** `tests/unit/portal.test.mjs` (drei Stichtage: alter Ausweis 2026, Ausweis vom 15.12.2026 im Jahr 2027, Ausweis vom
 10.01.2027; Baudenkmal vor und nach dem 01.01.2027; XML); bisherige Tests mit festem Tag, damit sie 2027 dasselbe prüfen;
 `tests/e2e/werkzeuge-d50.spec.mjs` (Aushang, Portal-Feld, Besichtigung, Notarauftrag, Fahrplan).
+
+## D51 (2026-10-03) — Werbung je Kanal, Werbewiderspruch und Datenschutzinformation in der Kundenakte
+Bisher galt die Rechtsgrundlage der Speicherung „Einwilligung“ (Art. 6 Abs. 1 lit. a DSGVO) zugleich als Erlaubnis für Werbe-E-Mails
+und -Anrufe, und die Schnellerfassung setzte ein gemeinsames Häkchen für E-Mail und Telefon. Beides trennt die App jetzt
+(`js/werbung.js`, Oberfläche `src/kd-werbung.js`): `k.grundlage` bleibt die Rechtsgrundlage der Speicherung, `k.werbung` hält je
+Kanal fest, was der Kunde erlaubt hat. Am Wortlaut geprüft (gesetze-im-internet.de, DSGVO im Amtsblatt L 119 vom 04.05.2016).
+
+**Kanäle:** E-Mail nur mit vorheriger ausdrücklicher Einwilligung, auch bei Unternehmern (§ 7 Abs. 2 Nr. 2 UWG), oder als
+Bestandskunde mit allen Bedingungen des § 7 Abs. 3 UWG (Häkchen und Datum des Hinweises bei der Erhebung). Telefon bei
+Verbrauchern nur mit ausdrücklicher Einwilligung, bei Unternehmern mutmaßlich mit Grund (§ 7 Abs. 2 Nr. 1). Post ohne Einwilligung
+(Erwägungsgrund 47 DSGVO), aber nicht nach einem Widerspruch (§ 7 Abs. 1 Satz 2 UWG). Je Kanal: Stand, erteilt am, erfasst am (setzt
+die App, nicht änderbar — § 7a Abs. 1 UWG), Form, Fundstelle des Nachweises im Banksystem, Zweck; Widerruf mit Datum und Weg
+(Art. 7 Abs. 3 DSGVO). Ohne Form oder Fundstelle bleibt die Ampel gelb. Keine vorbelegten und keine gemeinsamen Häkchen
+(Erwägungsgrund 32).
+
+**§ 7a UWG:** Gesprächsnotizen der Art „Telefonat“ lassen sich als „werblicher Anruf“ markieren; die App rechnet die
+Aufbewahrung des Nachweises — fünf Jahre ab Erteilung bzw. letzter Verwendung (§§ 187 Abs. 1, 188 Abs. 2 BGB; `js/fristen.js`),
+der Widerruf beendet sie nicht. Vor dem Löschen eines Kunden fragt die App nach, ob der Nachweis im Banksystem liegt
+(Art. 17 Abs. 3 lit. b DSGVO).
+
+**Werbewiderspruch:** sperrt sofort E-Mail, Telefon und Post ohne Abwägung (Art. 21 Abs. 2 und 3 DSGVO; vorsichtige Vorgabe: jeder
+Widerspruch gilt für alle Kanäle). Die App legt eine Wiedervorlage „bestätigen und in die Werbesperre der Bank eintragen“ an, fällig
+einen Monat nach Eingang (Art. 12 Abs. 3). Schreiben an Eigentümer im laufenden Auftrag sind keine Werbung und bleiben möglich.
+
+**Datenschutzinformation:** Herkunft der Daten (beim Kunden, von Dritten mit Quelle, aus der Bankbeziehung), gegeben am oder „hat
+die Information schon“ mit Fundstelle. Fällig bei der Erhebung (Art. 13 Abs. 1), bei Dritten spätestens einen Monat nach Erhalt
+oder beim ersten Kontakt (Art. 14 Abs. 3), bei Zweckänderung vor der Nutzung (Art. 13 Abs. 3). Ältere Akten ohne Angabe bekommen
+keine rote Marke, nur einen Hinweis in der Akte.
+
+**Umstellung:** Kunden mit der früheren Angabe „Einwilligung“ gelten für E-Mail und Telefon als eingewilligt mit dem Vermerk „aus
+altem Feld übernommen“ — gelb, bis Form und Nachweis geprüft sind. Interessenten und Akquise erfassen zwei getrennte Häkchen,
+die Form und „Datenschutzinformation heute gegeben“. Rundschreiben, Abgleich der Suchprofile, Wertmonitor und Auskunft lesen
+das neue Modell; die Kundenliste zeigt „Werbung: E-Mail, Telefon“, „Werbesperre“ und „Datenschutzinfo fällig“.
+
+**Offen (Bank, Datenschutzbeauftragter):** Vordrucke für Einwilligungen je Kanal und Datenschutzinformation (welche Version deckt
+die Vermittlung ab); wo der § 7a-Nachweis liegt (Empfehlung: Banksystem, in der App nur die Fundstelle); ob eine bankweite
+Werbeeinwilligung auch für die Vermittlung gilt; ob eine Portal-Anfrage für die Bestandskunden-Regel genügt; Übertragung in die
+zentrale Werbesperre der Bank.
+
+**Tests:** `tests/unit/werbung.test.mjs` (Kanäle, Bestandskunde, mutmaßliche Einwilligung, § 7a-Frist mit 29.02., Widerspruch,
+Datenschutzinformation mit Monatsfrist und erstem Kontakt); `tests/e2e/werkzeuge-d51.spec.mjs`.

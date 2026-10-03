@@ -849,6 +849,15 @@
   .kd-neu{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;margin:8px 0}
   .kd-neu input:not([type=date]),.kd-neu textarea{flex:1 1 240px}
   .kd-neu input[type=date],.kd-neu select{flex:0 0 auto;width:auto}
+  /* D51: Werbung je Kanal und Datenschutzinformation in der Kundenakte */
+  .kd-neu .kd-werb{flex:0 0 auto;align-self:center}
+  .kd-neu .kd-werb input{flex:0 0 auto;width:auto}
+  .kw-kanaele{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:10px}
+  .kw-kanal{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .kw-kanal h4{margin:0 0 6px}
+  .kw-kanal .grid{grid-template-columns:1fr}
+  .kw-bk,.kw-widerspruch{margin-top:10px}
+  .kw-box h4{margin:14px 0 6px}
   .kd-auf{border:1px solid var(--line);border-radius:var(--rs);overflow:hidden}
   .kd-kontakt{padding:10px 14px;border-radius:var(--rs);background:var(--surface-2);border:1px solid var(--line-soft)}
   .kd-kontakt .kopf{display:flex;gap:10px;align-items:center;font-size:12.5px}

@@ -31,7 +31,7 @@ test('Interessenten: Abgleich, neue Anfrage mit Kundenakte, Besichtigung im Kale
   await page.evaluate(() => wzOeffnen('interessenten'));
   await page.getByRole('button', { name: 'Abgleich', exact: true }).click();
   await expect(page.locator('#wz_body')).toContainText('Erika Musterfrau');
-  await expect(page.locator('#wz_body')).toContainText('Einwilligung zur Werbung liegt vor');
+  await expect(page.locator('#wz_body')).toContainText('Werbung erlaubt: E-Mail, Telefon');   // D51: Einwilligung je Kanal
   await page.getByRole('button', { name: 'Als Anfrage übernehmen' }).click();
   await page.locator('#vg_status').selectOption('Kontaktiert');
   await expect(page.locator('.vg-verlauf')).toContainText('Status: Kontaktiert');

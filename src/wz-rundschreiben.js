@@ -10,7 +10,9 @@ const RS_GRUPPEN=[['such','Suchkunden zu einem Objekt'],['werbung','Alle mit Ein
 const RS_ABMELDEN='Sie möchten keine Angebote mehr per E-Mail? Eine kurze Antwort auf diese E-Mail genügt.';
 function rsStart(){ return {gruppe:'such',projektId:'',vorlage:'expose',auswahl:[],ohne:[],filter:''}; }
 function rsS(){ let S=wzZustand('rundschreiben'); ['auswahl','ohne'].forEach(k=>{ if(!Array.isArray(S[k])) S[k]=[]; }); return S; }
-function rsEinwilligung(k){ return !!k&&k.grundlage==='einwilligung'; }
+function rsEinwilligung(k){ return !!k&&ImmoWerbung.darfEmail(k).ok; }   // D51: Einwilligung je Kanal (js/werbung.js)
+/* Werbebrief: nicht nach einem Werbewiderspruch (Art. 21 Abs. 3 DSGVO); Schreiben an Eigentümer im laufenden Auftrag sind keine Werbung */
+function rsBriefErlaubt(S,k){ return S.gruppe==='eigentuemer'||ImmoWerbung.darfPost(k).ok; }
 /* Empfänger der gewählten Gruppe: [{k, info}] — ohne doppelte, ohne gelöschte */
 function rsKandidaten(S){
   let l=[], kd=typeof KD_CACHE!=='undefined'?KD_CACHE:[];
@@ -32,13 +34,13 @@ function rsZeichnen(){
   if(S.gruppe==='such'&&!wzdObjekt(S.projektId)&&objekte.length) S.projektId=objekte[0].id;
   l=rsKandidaten(S);
   let vorl=(typeof vlAlle==='function'?vlAlle():[]);
-  let zeilen=l.map(({k,info})=>{ let dabei=!S.ohne.includes(k.id), mail=dabei&&rsEinwilligung(k)&&!!k.email, brief=dabei&&!!(k.strasse&&k.plzort);
+  let zeilen=l.map(({k,info})=>{ let dabei=!S.ohne.includes(k.id), mail=dabei&&rsEinwilligung(k)&&!!k.email, brief=dabei&&!!(k.strasse&&k.plzort)&&rsBriefErlaubt(S,k), sperre=!!ImmoWerbung.norm(k).widerspruch.am;
     if(mail) mails++; if(brief) briefe++;
     return '<tr'+(dabei?'':' class="rs-ohne"')+'><td><label class="wz-check"><input type="checkbox"'+(dabei?' checked':'')+' onchange="rsDabei(\''+idSicher(k.id)+'\',this.checked)"><span><b>'+sEsc(kdName(k))+'</b></span></label>'
       +(info?'<small>'+sEsc(info)+'</small>':'')+'</td>'
-      +'<td>'+(rsEinwilligung(k)?'<span class="pa-chip pa-bezahlt">Einwilligung</span>':'<span class="pa-chip">ohne Einwilligung</span>')+'</td>'
+      +'<td>'+(sperre?'<span class="pa-chip pa-ueberfaellig">Werbesperre</span>':rsEinwilligung(k)?'<span class="pa-chip pa-bezahlt">'+(ImmoWerbung.darfEmail(k).bestandskunde?'Bestandskunde':'Einwilligung')+'</span>':'<span class="pa-chip">ohne Einwilligung</span>')+'</td>'
       +'<td>'+(k.email?(rsEinwilligung(k)?sEsc(k.email):'<small>nur Brief</small>'):'<small>keine E-Mail</small>')+'</td>'
-      +'<td>'+(k.strasse&&k.plzort?'Brief':'<small>Anschrift fehlt</small>')+'</td>'
+      +'<td>'+(!(k.strasse&&k.plzort)?'<small>Anschrift fehlt</small>':rsBriefErlaubt(S,k)?'Brief':'<small>Widerspruch</small>')+'</td>'
       +(S.gruppe==='auswahl'?'<td class="wz-aktion"><button class="secondary" onclick="rsAuswahlWeg(\''+idSicher(k.id)+'\')" aria-label="Aus der Auswahl entfernen" data-ic="x"></button></td>':'')+'</tr>'; }).join('');
   return wzBox('Empfänger','<div class="grid">'
       +wzFeld('gruppe','Wer bekommt das Schreiben?',{typ:'wahl',optionen:RS_GRUPPEN,zeichnen:true})
@@ -88,7 +90,7 @@ async function rsVermerken(){
 }
 /* Serienbrief: je Empfänger eine Seite (Seitenumbruch auch im Word-Export) */
 function rsDokument(){
-  let S=rsS(), e=rsEmpfaenger(S).filter(x=>x.k.strasse&&x.k.plzort);
+  let S=rsS(), e=rsEmpfaenger(S).filter(x=>x.k.strasse&&x.k.plzort&&rsBriefErlaubt(S,x.k));
   if(!e.length){ alert('Keiner der Empfänger hat eine vollständige Anschrift — für E-Mails „E-Mail an alle (Bcc)“ nehmen.'); return null; }
   let abs=typeof wzAbsenderKontakt==='function'?wzAbsenderKontakt():typeof ulAbsender==='function'?ulAbsender():{}, v=rsVorlage(S);
   return {titel:'Serienbrief '+v.titel,ohneFuss:true,

@@ -36,7 +36,7 @@ function vgNaechste(v){ return aufSortiert(aufLoad().filter(a=>!a.erledigt&&a.ku
 function vgNeuEntwurf(typ,vorgabe){
   VG.aktiv=null;
   VG.neu=Object.assign({typ,datum:aufHeute(),quelle:vgT(typ).quellen[0],projektId:'',objektArt:VG_ARTEN[0],objektOrt:'',wert:'',anlass:VG_ANLASS[0],notiz:'',
-    person:{modus:'neu',anrede:'',vorname:'',nachname:'',telefon:'',email:'',einwilligung:false,kundeId:''}},vorgabe||{});
+    person:{modus:'neu',anrede:'',vorname:'',nachname:'',telefon:'',email:'',einwilligungEmail:false,einwilligungTelefon:false,einwilligungForm:'',dsinfo:false,kundeId:''}},vorgabe||{});
   wzZeichnen(); $('wz_overlay').scrollTop=0;
 }
 function vgNeuAbbrechen(){ VG.neu=null; wzZeichnen(); }
@@ -67,8 +67,13 @@ function vgNeuHtml(n){
           :'<button type="button" class="secondary" onclick="vgNeuKunde()" data-ic="users">Aus der Kundenakte wählen</button>')
         :'<div class="grid">'+wzFeld('person.anrede','Anrede',{typ:'wahl',optionen:[['',''],['Frau','Frau'],['Herr','Herr'],['Divers','Divers'],['Firma','Firma']]})
           +wzFeld('person.vorname','Vorname',{typ:'text'})+wzFeld('person.nachname','Nachname',{typ:'text'})+wzFeld('person.telefon','Telefon',{typ:'text'})
-          +wzFeld('person.email','E-Mail',{typ:'text'})+wzFeld('person.einwilligung','Einwilligung zu Werbung per E-Mail und Telefon liegt vor (heute)',{typ:'check',voll:true})+'</div>'
-          +wzHinweis('Die Person wird in der Kundenakte angelegt — Rechtsgrundlage: '+(n.typ==='akquise'?'Anbahnung eines Auftrags':'Anfrage zu einem Objekt')+' (Art. 6 Abs. 1 lit. b DSGVO), mit Einwilligung zusätzlich lit. a.')));
+          +wzFeld('person.email','E-Mail',{typ:'text'})
+          +wzFeld('person.einwilligungEmail','Einwilligung in Werbung per E-Mail heute erteilt',{typ:'check',voll:true,zeichnen:true})
+          +wzFeld('person.einwilligungTelefon','Einwilligung in Werbeanrufe heute erteilt',{typ:'check',voll:true,zeichnen:true})
+          +(p.einwilligungEmail||p.einwilligungTelefon?wzFeld('person.einwilligungForm','Form der Einwilligung',{typ:'wahl',optionen:[['','– bitte wählen –']].concat(ImmoWerbung.FORMEN.filter(f=>f!==ImmoWerbung.ALT).map(f=>[f,f]))}):'')
+          +wzFeld('person.dsinfo','Datenschutzinformation heute gegeben',{typ:'check',voll:true})+'</div>'
+          +wzHinweis('Die Person wird in der Kundenakte angelegt — Rechtsgrundlage: '+(n.typ==='akquise'?'Anbahnung eines Auftrags':'Anfrage zu einem Objekt')+' (Art. 6 Abs. 1 lit. b DSGVO). '
+            +'Einwilligungen je Kanal nur, wenn der Kunde sie ausdrücklich erteilt hat; den Nachweis (Vordruck, E-Mail) danach in der Akte eintragen (§ 7a UWG).')));
 }
 
 /* ---------- Vorgang bearbeiten ---------- */
@@ -119,7 +124,7 @@ function vgVerlaufHtml(v){
 }
 function vgEditor(v){
   let t=vgT(v.typ), k=wzdKunde(v.kundeId), nx=vgNaechste(v), wvPh=(v.typ==='akquise'?'Nachfassen: ':'Nachfassen: ')+(wzdObjektName(v.projektId,'')||v.objektOrt||wzdKundeName(v.kundeId));
-  let gl=k?((KD_GRUNDLAGEN.find(x=>x[0]===k.grundlage)||['',''])[1]+(k.einwilligungAm?' (Einwilligung vom '+wzDatum(k.einwilligungAm)+')':'')):'';
+  let gl=k?((KD_GRUNDLAGEN.find(x=>x[0]===k.grundlage)||['',''])[1]+(k.einwilligungAm?' (Einwilligung vom '+wzDatum(k.einwilligungAm)+')':'')+' · '+ImmoWerbung.marke(k)):'';
   return '<div class="ub-kopfzeile"><button type="button" class="secondary" onclick="vgZurueck()" data-ic="arrow-left">'+(v.typ==='akquise'?'Alle Kontakte':'Alle Anfragen')+'</button>'
       +'<span class="ub-status">'+sEsc(v.status)+(nx?' · Wiedervorlage '+wzDatum(nx.frist):'')+'</span>'
       +'<button type="button" class="secondary" onclick="vgLoeschen()" data-ic="trash">Löschen</button></div>'
@@ -193,10 +198,10 @@ function vgAbgleich(){
   if(!wzdObjekte(false).length) return wzHinweis('Keine Objekte in Vermarktung — der Abgleich nimmt gesicherte Bewertungen mit Stand „Auftrag erteilt“, „In Vermarktung“, „Reserviert“ oder „Notartermin“.');
   if(!mitProfil) return wzHinweis('Noch kein Suchprofil — Suchprofile legst du in der Kundenakte beim Interessenten an.');
   return wzHinweis(mitProfil+' Suchprofil'+(mitProfil===1?'':'e')+' mit '+wzdObjekte(false).length+' Objekt'+(wzdObjekte(false).length===1?'':'en')+' abgeglichen. Gezeigt werden Treffer ohne Anfrage zu diesem Objekt.')
-    +(d.length?d.map(x=>wzBox(sEsc(x.o.name)+' <span class="u">'+x.tr.length+' Treffer</span>','<div class="kd-karten">'+x.tr.map(y=>{ let k=y.k, ein=k.grundlage==='einwilligung';
+    +(d.length?d.map(x=>wzBox(sEsc(x.o.name)+' <span class="u">'+x.tr.length+' Treffer</span>','<div class="kd-karten">'+x.tr.map(y=>{ let k=y.k, ein=ImmoWerbung.darfEmail(k).ok||ImmoWerbung.darfTelefon(k).ok;
       return '<div class="kd-karte"><div><b>'+sEsc(kdName(k))+' <span class="kk-stufe '+y.t.stufe+'">'+(y.t.stufe==='passt'?'passt':'passt fast')+'</span></b>'
         +'<span>'+sEsc([kkFinanzText(k.suchprofil),k.telefon,k.email].filter(Boolean).join(' · ')+(y.t.ab.length?' — '+y.t.ab.join(', '):''))+'</span>'
-        +'<span class="'+(ein?'vg-ok':'vg-warn')+'">'+(ein?'Einwilligung zur Werbung liegt vor':'ohne Einwilligung — nur, wenn er um Angebote gebeten hat')+'</span></div>'
+        +'<span class="'+(ein?'vg-ok':'vg-warn')+'">'+(ein?'Werbung erlaubt: '+[ImmoWerbung.darfEmail(k).ok?'E-Mail':'',ImmoWerbung.darfTelefon(k).ok?'Telefon':''].filter(Boolean).join(', '):ImmoWerbung.norm(k).widerspruch.am?'Werbesperre — nicht ansprechen':'ohne Einwilligung — nur, wenn er um Angebote gebeten hat')+'</span></div>'
         +'<div class="kd-k"><button class="secondary" onclick="vgAusAbgleich(\''+idSicher(x.o.id)+'\',\''+idSicher(k.id)+'\')">Als Anfrage übernehmen</button>'
         +'<button class="secondary" onclick="kdOeffnen(\''+idSicher(k.id)+'\')">Akte</button></div></div>'; }).join('')+'</div>')).join('')
       :wzAmpel('gruen','Keine neuen Treffer: Jeder passende Interessent hat schon eine Anfrage zu seinem Objekt.'))

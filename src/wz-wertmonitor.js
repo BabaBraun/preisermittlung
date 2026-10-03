@@ -8,7 +8,6 @@
      steigende Werte auch dann, wenn die Kaufpreise fallen; sie ersetzt den Preisindex deshalb nicht.
    Wiedervorlagen ab einer Schwelle. Werbende Ansprache nur mit Einwilligung (§ 7 UWG). Die Projekte bleiben unverändert. */
 function wmStart(){ return {schwelle:'5',nurKunden:false,brw:{},wv:{},index:{haus:{},wohnung:{}}}; }
-const WM_GRUNDLAGE={vertrag:'Auftrag',einwilligung:'Einwilligung',sonstige:'sonstige Grundlage'};
 /* Leser über gespeicherte Felder; fehlende Felder mit dem Ausgangswert des Formulars, Zahlen wie in der Bewertung gelesen */
 function wmLeser(fields,ueber){
   const hat=(o,id)=>o&&Object.prototype.hasOwnProperty.call(o,id);
@@ -50,7 +49,7 @@ function wmRechne(p,S){
   let iAlt=wmIndex(S,art,jahrAlt), iNeu=wmIndexHeute(S,art,jahrAlt), index=a>0&&iAlt>0&&iNeu?a*iNeu.wert/iAlt:0;
   let kd=f.ek_kunde_id&&typeof KD_CACHE!=='undefined'?KD_CACHE.find(k=>k.id===f.ek_kunde_id):null;
   let basis=index>0?index:n;
-  return {id:p.id,name:p.name||f.ek_anschrift||'Projekt',kundeId:f.ek_kunde_id||'',kunde:kd?kdName(kd):'',grundlage:kd?(WM_GRUNDLAGE[kd.grundlage]||''):'',
+  return {id:p.id,name:p.name||f.ek_anschrift||'Projekt',kundeId:f.ek_kunde_id||'',kunde:kd?kdName(kd):'',grundlage:kd?ImmoWerbung.marke(kd):'',   // D51
     stichtag:stich,jahrAlt,art,wohnung,alt:a,kosten:n,index,indexJahr:iNeu?iNeu.jahr:null,
     aenderung:a>0&&basis>0?(basis-a)/a*100:null,nachIndex:index>0,aenderungKosten:a>0&&n>0?(n-a)/a*100:null,
     bpiAlt:wzN(f.bpi),bpiNeu:ueber.bpi?bpi.wert:null,bpiVorlaeufig:!!(bpi&&bpi.vorlaeufig),brwAlt:wzN(f.ek_brw,true),brwNeu};

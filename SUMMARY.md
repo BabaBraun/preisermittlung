@@ -1,3 +1,9 @@
+# Zusammenfassung — Werbung je Kanal und Datenschutzinformation (2026-10-03)
+
+Die Kundenakte hält je Kanal fest, was der Kunde erlaubt hat (E-Mail, Telefon, Post), mit Nachweis, Widerruf und
+Werbewiderspruch; dazu, wann er die Datenschutzinformation bekommen hat. Rundschreiben, Interessenten und Wertmonitor halten
+sich daran (D51).
+
 # Zusammenfassung — Energieausweis ab 01.01.2027 (2026-10-03)
 
 Für Energieausweise, die ab 01.01.2027 ausgestellt werden, prüft die App die neuen Pflichtangaben in Anzeigen (Primärenergie und

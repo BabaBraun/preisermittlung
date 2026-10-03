@@ -69,15 +69,15 @@ function kdListeZeilen(){
     let loesch=k.loeschpruefung&&k.loeschpruefung<=heute;
     let sp=k.suchprofil&&k.suchprofil.aktiv?k.suchprofil:null;
     let marken=[sp?'sucht'+(sp.orte?' in '+sp.orte.split(/[,;]/)[0].trim():'')+(sp.budget?' bis '+eur(sp.budget):''):'',nb?nb+' Bewertung'+(nb===1?'':'en'):'', auf.length?auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+(faellig?' ('+faellig+' fällig)':''):'',
-      (k.kontakte||[]).length?(k.kontakte.length)+' Notiz'+(k.kontakte.length===1?'':'en'):''].filter(Boolean);
+      (k.kontakte||[]).length?(k.kontakte.length)+' Notiz'+(k.kontakte.length===1?'':'en'):''].filter(Boolean), kw=kwMarken(k);
     return '<button type="button" class="kd-zeile" onclick="'+(KD_WAHL?'kdGewaehlt(\''+k.id+'\')':'kdAkte(\''+k.id+'\')')+'">'
       +'<span class="kd-ini">'+sEsc(kdInitialen(k))+'</span><span class="kd-txt"><b>'+sEsc(kdName(k))+'</b><span>'+sEsc([k.plzort,k.telefon,k.email].filter(Boolean).join(' · ')||'keine Kontaktdaten')+'</span></span>'
-      +'<span class="kd-marken">'+marken.map(m=>'<i>'+sEsc(m)+'</i>').join('')+(loesch?'<i class="warn">Löschprüfung fällig</i>':'')+'</span></button>'; }).join('');
+      +'<span class="kd-marken">'+marken.map(m=>'<i>'+sEsc(m)+'</i>').join('')+kw.map(m=>'<i'+(m.warn?' class="warn"':'')+'>'+sEsc(m.text)+'</i>').join('')+(loesch?'<i class="warn">Löschprüfung fällig</i>':'')+'</span></button>'; }).join('');
 }
 function kdInitialen(k){ let n=[k.vorname,k.nachname].filter(Boolean); if(!n.length&&k.firma) n=k.firma.split(/\s+/); return n.map(s=>s[0]||'').slice(0,2).join('').toUpperCase()||'?'; }
 async function kdNeu(){
   let k={id:'k'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),anrede:'',vorname:'',nachname:'',firma:'',telefon:'',email:'',
-    strasse:'',plzort:'',notiz:'',grundlage:'vertrag',einwilligungAm:'',loeschpruefung:'',erstellt:Date.now(),kontakte:[],finanzierungen:[]};
+    strasse:'',plzort:'',notiz:'',grundlage:'vertrag',einwilligungAm:'',loeschpruefung:'',erstellt:Date.now(),kontakte:[],finanzierungen:[],werbung:kwNeu()};   // D51
   if(!(await kdSpeichern(k))) return;
   if(KD_WAHL){ kdGewaehlt(k.id,true); return; }
   kdAkte(k.id,true);
@@ -104,6 +104,7 @@ function kdAkte(id,fokus){
     +(k.grundlage==='einwilligung'?'<div class="field"><label>Einwilligung erteilt am</label><input type="date" value="'+sEsc(k.einwilligungAm||'')+'" onchange="kdFeld(\'einwilligungAm\',this.value)" aria-label="Einwilligung erteilt am"></div>':'')
     +'<div class="field"><label>Löschung prüfen am</label><input type="date" value="'+sEsc(k.loeschpruefung||'')+'" onchange="kdFeld(\'loeschpruefung\',this.value)" aria-label="Löschung prüfen am"></div></div>'
     +'<p class="hint">Ist das Datum erreicht, markiert die Kundenliste den Kunden. Dann prüfen, ob die Daten noch gebraucht werden.</p>'
+    +'<div class="kw-box">'+kwHtml(k)+'</div>'   // D51: Werbung je Kanal, Werbewiderspruch, Datenschutzinformation
 
     +kkProfilHtml(k)
     +'<h3>Bewertungen</h3>'
@@ -126,7 +127,8 @@ function kdAkte(id,fokus){
 
     +'<h3>Gesprächsnotizen</h3>'
     +'<div class="kd-neu"><input id="kd_kon_datum" type="date" value="'+aufHeute()+'" aria-label="Datum"><select id="kd_kon_art" aria-label="Art">'+KD_KONTAKTARTEN.map(a=>'<option>'+a+'</option>').join('')+'</select>'
-    +'<textarea id="kd_kon_text" rows="2" placeholder="Was wurde besprochen, was ist vereinbart?" aria-label="Notiz"></textarea><button class="secondary" onclick="kdKontaktNeu()" data-ic="plus">Notiz speichern</button></div>'
+    +'<textarea id="kd_kon_text" rows="2" placeholder="Was wurde besprochen, was ist vereinbart?" aria-label="Notiz"></textarea>'
+    +'<label class="wz-check kd-werb"><input type="checkbox" id="kd_kon_werb"><span>werblicher Anruf (§ 7a UWG)</span></label><button class="secondary" onclick="kdKontaktNeu()" data-ic="plus">Notiz speichern</button></div>'
     +(kon.length?'<div class="kd-kontakte">'+kon.map(c=>'<div class="kd-kontakt"><div class="kopf"><b>'+sEsc(c.art||'Notiz')+'</b><span>'+(c.datum?new Date(c.datum+'T00:00:00').toLocaleDateString('de-DE'):'')+'</span>'
       +'<button class="weg" aria-label="Notiz löschen" onclick="kdKontaktWeg(\''+c.id+'\')">'+iaSvg('trash')+'</button></div><div class="t">'+sEsc(c.text)+'</div></div>').join('')+'</div>':'')
 
@@ -192,7 +194,10 @@ function kdAufgabeNeu(){
 async function kdKontaktNeu(){
   let k=KD_CACHE.find(x=>x.id===KD_AKTIV); if(!k) return;
   let t=($('kd_kon_text').value||'').trim(); if(!t){ $('kd_kon_text').focus(); return; }
-  k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum:$('kd_kon_datum').value||aufHeute(),art:$('kd_kon_art').value,text:t}]);
+  let datum=$('kd_kon_datum').value||aufHeute(), art=$('kd_kon_art').value, werb=!!($('kd_kon_werb')&&$('kd_kon_werb').checked);
+  if(werb&&art!=='Telefonat'){ alert('„Werblicher Anruf“ passt nur zur Art „Telefonat“.'); return; }
+  if(werb&&!kwAnrufVermerken(k,datum)) return;   // D51: Verwendung der Telefon-Einwilligung
+  k.kontakte=(k.kontakte||[]).concat([{id:'c'+Date.now().toString(36),ts:Date.now(),datum,art,text:t,werblich:werb||undefined}]);
   if(await kdSpeichern(k)) kdAkte(k.id);
 }
 async function kdKontaktWeg(cid){
@@ -237,7 +242,8 @@ async function kdExport(id){
     'STAMMDATEN','Anrede: '+(k.anrede||'–'),'Vorname: '+(k.vorname||'–'),'Nachname: '+(k.nachname||'–'),'Firma: '+(k.firma||'–'),'Telefon: '+(k.telefon||'–'),'E-Mail: '+(k.email||'–'),
     'Anschrift: '+([k.strasse,k.plzort].filter(Boolean).join(', ')||'–'),'Notiz: '+(k.notiz||'–'),'Rechtsgrundlage: '+g+(k.einwilligungAm?' (Einwilligung vom '+d(k.einwilligungAm)+')':''),
     'Angelegt: '+d(k.erstellt),'Zuletzt geändert: '+d(k.geaendert),'Löschprüfung: '+d(k.loeschpruefung),'',
-    'BEWERTUNGEN'].concat(kdBewertungen(id).map(p=>'- '+p.name+' ('+p.datum+')'),kdBewertungen(id).length?[]:['- keine'],['','WIEDERVORLAGEN'],
+    'WERBUNG UND DATENSCHUTZ'].concat(ImmoWerbung.auskunft(k),['',
+    'BEWERTUNGEN']).concat(kdBewertungen(id).map(p=>'- '+p.name+' ('+p.datum+')'),kdBewertungen(id).length?[]:['- keine'],['','WIEDERVORLAGEN'],
     kdAufgaben(id).map(a=>'- '+a.text+(a.frist?' (fällig '+d(a.frist)+')':'')+(a.erledigt?' — erledigt':'')),kdAufgaben(id).length?[]:['- keine'],['','FINANZIERUNGSRECHNUNGEN'],
     (k.finanzierungen||[]).map(x=>'- '+x.titel+' ('+d(x.ts)+')'+(x.rate?', Rate '+eur(x.rate):'')+(x.budget?', Budget bis '+eur(x.budget):'')),(k.finanzierungen||[]).length?[]:['- keine'],['','GESPRÄCHSNOTIZEN'],
     (k.kontakte||[]).map(c=>'- '+d(c.datum)+' '+(c.art||'')+': '+c.text),(k.kontakte||[]).length?[]:['- keine'],weitere);
@@ -247,6 +253,7 @@ async function kdExport(id){
 async function kdLoeschen(id){
   let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
   let bew=kdBewertungen(id), auf=kdAufgaben(id);
+  if(!kwLoeschenErlaubt(k)) return;   // D51: § 7a UWG
   if(!confirm('„'+kdName(k)+'“ mit allen Notizen und Finanzierungsrechnungen endgültig löschen?'
     +'\nAnfragen, Akquise-Einträge und Gebote dieses Kunden werden mitgelöscht, aus Terminen wird er ausgetragen, in Provisionsabrechnungen, Notaraufträgen und Übergabeprotokollen werden Name, Kontaktdaten und Unterschrift entfernt, ebenso in Vollmachten für Unterlagen.'
     +(bew.length?'\n\n'+bew.length+' zugeordnete Bewertung'+(bew.length===1?' bleibt':'en bleiben')+' erhalten, die Zuordnung wird gelöst.':''))) return;
