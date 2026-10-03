@@ -1584,3 +1584,30 @@ zentrale Werbesperre der Bank.
 
 **Tests:** `tests/unit/werbung.test.mjs` (Kanäle, Bestandskunde, mutmaßliche Einwilligung, § 7a-Frist mit 29.02., Widerspruch,
 Datenschutzinformation mit Monatsfrist und erstem Kontakt); `tests/e2e/werkzeuge-d51.spec.mjs`.
+
+## D52 (2026-10-03) — Anfrage aus einer Anfrage-Mail übernehmen
+Interessenten → „Neue Anfrage“ hat oben ein Feld für den Text einer Anfrage-Mail (Portal oder Website). `js/anfrage.js` liest die
+Angaben der Form „Bezeichnung: Wert“ (Anrede, Name, E-Mail, Telefon, Anschrift, Objektnummer, Nachricht über mehrere Zeilen) und
+erkennt das Portal am Text; fehlt eine Bezeichnung, sucht die App die E-Mail-Adresse im ganzen Text (ohne Absenderadressen der
+Portale) und die Telefonnummer nur in Zeilen mit „Tel“, „Mobil“ oder „Handy“. Das Objekt findet sie über die Objektnummer des
+Portal-Exports, einen vorhandenen Kunden über gleiche E-Mail oder Telefonnummer (dann keine zweite Akte). Alles landet nur im
+Formular; gespeichert wird erst mit „Anlegen“, der eingefügte Text selbst nie. Keine Schnittstelle zum Postfach und kein Abruf beim
+Portal — das braucht einen Server (später auf dem Bankserver). Die Formate der Portale sind nicht nachgebaut; die Tests nutzen frei
+erfundene Mails (`tests/unit/anfrage.test.mjs`, `tests/e2e/werkzeuge-d52.spec.mjs`).
+
+## D53 (2026-10-03) — Kachel „PDF schwärzen“
+Unterlagen vor der Weitergabe unkenntlich machen (Namen Dritter, Geburtsdaten, Kontonummern, Mieterdaten), ganz auf dem Gerät. Die
+Seiten zeigt pdf.js (Mozilla, Apache-2.0, `vendor/pdfjs/`, Ausgabe für ältere Browser; Herkunft und Prüfsummen in
+`vendor/LIZENZEN.md`; heruntergeladen nach Rückfrage bei Fabian am 03.10.2026), geladen erst beim ersten Öffnen einer PDF, mit
+`isEvalSupported: false`. Flächen: von Hand (Rechteck aufziehen) oder über die Suche im Text der PDF (Begriff, IBAN, E-Mail,
+Telefon, Datum; Fläche anteilig nach Zeichen geschätzt und etwas breiter). Seiten lassen sich weglassen.
+
+**Warum eine neue PDF aus Bildern:** Ein schwarzer Kasten über dem Text einer PDF lässt den Text darunter lesbar und kopierbar —
+der häufigste Fehler beim Schwärzen. Die App rendert jede Seite (150 dpi, höchstens 2400 Pixel), malt die Flächen ins Bild und
+schreibt daraus eine neue PDF (`js/pdfbild.js`: je Seite ein JPEG, keine Textebene, keine Metadaten wie Autor oder Titel). Nachteil:
+nicht durchsuchbar, etwas größer. Die Original-PDF wird nicht verändert und nicht gespeichert; beim Schließen ist alles weg.
+Höchstens 40 Seiten je Durchgang. Gescannte Seiten enthalten keinen Text — dort findet die Suche nichts (Hinweis in der Kachel).
+
+**Tests:** `tests/unit/pdfbild.test.mjs` (Aufbau der PDF mit Querverweisen, keine Metadaten; Suche und Muster),
+`tests/e2e/werkzeuge-d53.spec.mjs` (Text-PDF im Test erzeugt: Suche, Muster, Rechteck, Seite weglassen; die neue PDF enthält weder
+den Namen noch Schrift noch Autor, pdf.js findet darin keinen Text), WebKit-Test in `tests/e2e/iphone.spec.mjs`.

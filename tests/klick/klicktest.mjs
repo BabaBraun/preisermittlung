@@ -312,6 +312,8 @@ const BEREICHE = [
       objektArt: 'Einfamilienhaus', objektOrt: 'Musterstadt', wert: '400000', anlass: 'Verkauf geplant', grund: '', notiz: '', verlauf: [] }; await wzdSpeichern('vorgaenge', v); }
     vgOeffnenId(v.id); }) },
   { name: 'Werkzeug – Interessenten', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden(); VG.aktiv = null; VG.neu = null; vgSetz('ansicht', 'liste'); }) },
+  { name: 'Werkzeug – Neue Anfrage', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden(); VG.aktiv = null; vgNeuEntwurf('anfrage'); }) },
+  { name: 'Werkzeug – PDF schwärzen', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('schwaerzen')) },
   { name: 'Werkzeug – Interessenten-Abgleich', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden(); VG.aktiv = null; VG.neu = null; vgSetz('ansicht', 'abgleich'); }) },
   { name: 'Werkzeug – Anfrage', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden();
     let v = wzdListe('vorgaenge').find(x => x.typ === 'anfrage');

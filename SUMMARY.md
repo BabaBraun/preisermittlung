@@ -1,3 +1,9 @@
+# Zusammenfassung — Anfrage-Mail und PDF schwärzen (2026-10-03)
+
+Anfrage-Mails lassen sich bei den Interessenten einfügen; die App übernimmt Name, Kontakt, Objekt und Nachricht ins Formular (D52).
+Neue Kachel „PDF schwärzen“: Unterlagen vor der Weitergabe unkenntlich machen — die neue PDF enthält den geschwärzten Text nicht
+mehr (D53).
+
 # Zusammenfassung — Werbung je Kanal und Datenschutzinformation (2026-10-03)
 
 Die Kundenakte hält je Kanal fest, was der Kunde erlaubt hat (E-Mail, Telefon, Post), mit Nachweis, Widerruf und

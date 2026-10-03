@@ -98,3 +98,25 @@ test('iPhone: Kopfzeilen-Knöpfe mit Beschriftung unter dem Symbol (Finanzierung
   await page.evaluate(() => lvOeffnen('uebersicht')); await pruefe('#lv_overlay', ['Liegenschaft', 'Sichern']);
   await keineSkriptfehler(page);
 });
+
+test('iPhone: „PDF schwärzen“ öffnet eine PDF mit pdf.js in der Safari-Engine und speichert sie geschwärzt (D53)', async ({ page }) => {
+  page.on('dialog', d => d.accept());
+  await appOeffnen(page);
+  await page.evaluate(() => wzOeffnen('schwaerzen'));
+  const strom = 'BT /F1 14 Tf 72 760 Td (Erika Musterfrau) Tj ET', teile = [], ab = []; let n = 0;
+  const dazu = s => { teile.push(s); n += s.length; }, obj = (nr, s) => { ab[nr] = n; dazu(nr + ' 0 obj\n' + s + '\nendobj\n'); };
+  dazu('%PDF-1.4\n'); obj(1, '<< /Type /Catalog /Pages 2 0 R >>'); obj(2, '<< /Type /Pages /Kids [4 0 R] /Count 1 >>');
+  obj(3, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  obj(4, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>');
+  obj(5, '<< /Length ' + strom.length + ' >>\nstream\n' + strom + '\nendstream');
+  let x = 'xref\n0 6\n0000000000 65535 f \n'; for (let i = 1; i < 6; i++) x += String(ab[i]).padStart(10, '0') + ' 00000 n \n';
+  const start = n; dazu(x + 'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + start + '\n%%EOF\n');
+  await page.locator('#ps_datei').setInputFiles({ name: 'Test.pdf', mimeType: 'application/pdf', buffer: Buffer.from(teile.join(''), 'latin1') });
+  await expect(page.locator('#wz_body')).toContainText('Test · 1 Seite', { timeout: 20000 });
+  await page.locator('#ps_suche').fill('Musterfrau');
+  await page.getByRole('button', { name: 'Alle Treffer schwärzen' }).click();
+  await expect(page.locator('#wz_body .wz-ampel.wz-gruen')).toContainText('1 Stelle geschwärzt');
+  const groesse = await page.evaluate(async () => { const b = await psErzeugen(); return b ? b.size : 0; });
+  expect(groesse).toBeGreaterThan(1000);
+  await keineSkriptfehler(page);
+});

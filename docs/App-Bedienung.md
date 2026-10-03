@@ -216,6 +216,9 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
 - **Akquise:** „Neuer Kontakt“ erfasst Eigentümer mit Quelle, Anlass, Objektart, Ort und grob geschätztem Wert (die Person
   landet in der Kundenakte). Die Übersicht zeigt die Kontakte als Spalten je Status mit Objektwert und möglicher Provision. Im
   Kontakt: Status, Verlauf, Wiedervorlage, Termin, Schreiben, „Bewertung beginnen“.
+- **Anfrage-Mail einfügen** (Interessenten → Neue Anfrage): Text der Mail vom Portal oder der Website einfügen, „Angaben
+  übernehmen“ — Name, E-Mail, Telefon, Objekt (über die Objektnummer) und Nachricht stehen im Formular; prüfen, dann „Anlegen“.
+  Ist die Person schon in der Kundenakte, ordnet die App die Anfrage dort zu.
 - **Interessenten:** „Neue Anfrage“ zu einem Objekt in Vermarktung (Quelle, Person neu oder aus der Kundenakte). In der Anfrage:
   Status bis Kauf oder Absage mit Grund, „Exposé versendet“, „Besichtigung planen“ (Kalender), „Schreiben“ (Vorlagen),
   „Gebot erfassen“, Wiedervorlage, Verlauf. **Abgleich** zeigt, welche vorgemerkten Interessenten mit Suchprofil zu welchem
@@ -239,6 +242,9 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   setzt alles auf „angefordert“. Unten unterschreibt der Eigentümer die Vollmacht auf dem Gerät; „Vollmacht als Dokument“.
 - **Aushang:** ein Objekt groß oder bis zu vier als Übersicht für Schaufenster und Filiale — mit Preis, Pflichtangaben zum
   Energieausweis und Ansprechpartner; „Aushang anzeigen“, dann Drucken oder PDF.
+- **PDF schwärzen:** PDF wählen, dann Stellen schwärzen — über die Suche (Name, Anschrift) oder die Knöpfe IBAN, E-Mail-Adressen,
+  Telefonnummern und Daten, oder ein Rechteck aufziehen. Seiten lassen sich weglassen. „Geschwärzte PDF speichern“ erzeugt eine
+  neue PDF aus Bildern der Seiten: Der Text unter den Balken ist weg. Gescannte Seiten findet die Suche nicht — dort von Hand.
 - **Social Media:** Objekt, Format (Quadrat, Hochformat, Story) und Hinweis wählen — die Vorschau zeigt das Bild mit Titelbild,
   Preis und Pflichtangaben. „Bild speichern“ oder „Teilen“, darunter der Text zum Kopieren. Veröffentlicht wird nur, was du
   selbst teilst.

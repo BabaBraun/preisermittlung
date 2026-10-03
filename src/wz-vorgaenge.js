@@ -56,6 +56,7 @@ function vgNeuHtml(n){
   let t=vgT(n.typ), p=n.person;
   return '<div class="ub-kopfzeile"><button type="button" class="secondary" onclick="vgNeuAbbrechen()" data-ic="arrow-left">Abbrechen</button><span class="ub-status">'
       +(n.typ==='akquise'?'Neuer Eigentümer-Kontakt':'Neue Anfrage')+'</span><button type="button" class="primary" onclick="vgNeuAnlegen()" data-ic="check">Anlegen</button></div>'
+    +(n.typ==='anfrage'?vgMailHtml(n):'')
     +wzBox(n.typ==='akquise'?'Kontakt':'Anfrage','<div class="grid">'+wzFeld('datum','Eingang am',{typ:'datum'})+wzFeld('quelle','Quelle',{typ:'wahl',optionen:t.quellen.map(q=>[q,q])})
       +(n.typ==='akquise'?wzFeld('anlass','Anlass',{typ:'wahl',optionen:VG_ANLASS.map(a=>[a,a])})+wzFeld('objektArt','Objektart',{typ:'wahl',optionen:VG_ARTEN.map(a=>[a,a])})
         +wzFeld('objektOrt','Ort',{typ:'text',ph:'z. B. Ilsfeld'})+wzFeld('wert','Wert grob geschätzt',{typ:'betrag',einheit:'€'})
@@ -74,6 +75,33 @@ function vgNeuHtml(n){
           +wzFeld('person.dsinfo','Datenschutzinformation heute gegeben',{typ:'check',voll:true})+'</div>'
           +wzHinweis('Die Person wird in der Kundenakte angelegt — Rechtsgrundlage: '+(n.typ==='akquise'?'Anbahnung eines Auftrags':'Anfrage zu einem Objekt')+' (Art. 6 Abs. 1 lit. b DSGVO). '
             +'Einwilligungen je Kanal nur, wenn der Kunde sie ausdrücklich erteilt hat; den Nachweis (Vordruck, E-Mail) danach in der Akte eintragen (§ 7a UWG).')));
+}
+
+/* ---------- Anfrage aus einer Portal-Mail (D52) ----------
+   Der Berater fügt den Text der Anfrage-Mail ein; js/anfrage.js liest Name, Kontakt, Objektnummer und Nachricht. Die Angaben landen
+   im Formular und werden erst mit „Anlegen“ gespeichert. Ist die Person schon in der Kundenakte (gleiche E-Mail oder Telefonnummer),
+   ordnet die App die Anfrage dort zu, statt eine zweite Akte anzulegen. Der eingefügte Text selbst wird nicht gespeichert. */
+function vgMailHtml(n){
+  let i=n.mailInfo;
+  return wzBox('Aus einer Anfrage-Mail','<textarea id="vg_mail" rows="4" aria-label="Text der Anfrage-Mail" placeholder="Text der Anfrage-Mail (Portal oder Website) hier einfügen"></textarea>'
+    +'<div class="gr-zeile"><button type="button" class="secondary" onclick="vgMailLesen()" data-ic="clipboard">Angaben übernehmen</button></div>'
+    +(i?(i.gefunden.length?wzAmpel('gelb','Übernommen: '+sEsc(i.gefunden.join(', '))+(i.objekt?' · Objekt: '+sEsc(i.objekt):i.objektnr?' · Objektnummer „'+sEsc(i.objektnr)+'“ passt zu keinem Objekt — bitte wählen':'')
+        +(i.kunde?' · bereits in der Kundenakte: '+sEsc(i.kunde):'')+'. Bitte prüfen, dann „Anlegen“.'):wzAmpel('rot','Im Text war nichts zu erkennen — Angaben bitte von Hand eintragen.')):'')
+    +wzHinweis('Die App liest Name, E-Mail, Telefon, Anschrift, Objektnummer und Nachricht. Gespeichert wird nur, was im Formular steht; die Nachricht kommt in die Notiz.'));
+}
+function vgMailLesen(){
+  let n=VG.neu, el=$('vg_mail'); if(!n||!el) return;
+  let text=el.value||'', r=ImmoAnfrage.lesen(text), t=vgT(n.typ), p=n.person;
+  if(r.quelle&&t.quellen.includes(r.quelle)) n.quelle=r.quelle;
+  let liste=wzdObjekte(true).map(o=>({id:o.id,nr:String((((wzAlle().portal||{}).objekte||{})[o.id]||{}).nr||'').trim()||ImmoPortal.objektnrVorschlag(o.id)}));
+  let pid=ImmoAnfrage.objektFinden(r,liste,text); if(pid) n.projektId=pid;
+  let k=ImmoAnfrage.kundeFinden(r,typeof KD_CACHE!=='undefined'?KD_CACHE:[]);
+  if(k){ p.modus='akte'; p.kundeId=k.id; }
+  else { p.modus='neu'; ['anrede','vorname','nachname','email','telefon'].forEach(f=>{ if(r[f]) p[f]=r[f]; });
+    if(r.strasse) p.strasse=r.strasse; if(r.plzort) p.plzort=r.plzort; }
+  if(r.nachricht) n.notiz=(n.notiz?n.notiz+'\n':'')+r.nachricht;
+  n.mailInfo={gefunden:r.gefunden,objekt:pid?wzdObjektName(pid,''):'',objektnr:r.objektnr,kunde:k?kdName(k):''};
+  wzZeichnen();
 }
 
 /* ---------- Vorgang bearbeiten ---------- */

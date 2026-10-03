@@ -39,7 +39,10 @@ test('Aushang und Social Media: Ausweis vom 10.01.2027 verlangt Primärenergie u
   await page.evaluate(() => wzOeffnen('portal'));
   const feld = page.locator('#wz_body input[data-wz$=".primaer"]').first();
   await expect(feld).toBeVisible();
+  await expect(page.locator('#wz_body .pt-ampel').first()).toContainText('Primärenergie laut Energieausweis');
   await feld.fill('96,5'); await feld.dispatchEvent('change');
+  await expect(page.locator('#wz_body .pt-ampel').first()).not.toContainText('Primärenergie laut Energieausweis');   // nur die Ampel neu, Feld bleibt
+  await expect(feld).toHaveValue('96,5');
   await page.evaluate(() => wzSchliessen());
   expect(await page.evaluate(pid => ahPruefen(pid), pid)).toEqual([]);
   expect(await page.evaluate(pid => ahEnergie(wzdEnergie(pid)), pid))

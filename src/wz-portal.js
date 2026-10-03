@@ -58,11 +58,10 @@ function ptZeichnen(S){
       +'Ohne Freigabe der Anschrift gehen nur PLZ und Ort an das Portal; die vollständige Anschrift nur mit Einverständnis des Eigentümers. Namen von Kunden enthält die Datei nicht.'));
 }
 function ptKarte(S,x){
-  let e=ptEinstellung(S,x.id), o=ptObjekt(S,x,null,''), pr=ImmoPortal.pruefen(o), pfad='objekte.'+x.id+'.';
+  let e=ptEinstellung(S,x.id), o=ptObjekt(S,x,null,''), pfad='objekte.'+x.id+'.';
   let frei=o.geo.frei, art=ImmoPortal.artVorschlag(ImmoPortal.leser(x.f)), artName=(ImmoPortal.ARTEN.find(a=>a[0]===art)||['',''])[1];
   let ex=x.ex, fotos=x.p.nFotos||0;
-  let ampel=!pr.ok?wzAmpel('rot','Fehlt: '+pr.fehler.map(sEsc).join(' · ')+'<br>Ohne diese Angaben bleibt das Objekt beim Export draußen.')
-    :pr.hinweise.length?wzAmpel('gelb',pr.hinweise.map(sEsc).join('<br>')):wzAmpel('gruen','Bereit für den Export.');
+  let ampel='<div class="pt-ampel" data-pt="'+sEsc(x.id)+'">'+ptAmpel(o)+'</div>';
   const id=s=>'wz_portal_'+idSicher(x.id)+'_'+s;
   return '<div class="wz-karte pt-karte"><div class="wz-karte-kopf"><label class="wz-check"><input type="checkbox" data-wz="'+pfad+'an"'+(x.an?' checked':'')+' aria-label="'+sEsc(x.name)+' exportieren"><b>'+sEsc(x.name)+'</b></label>'
       +'<span>'+sEsc([x.status||'ohne Stand',o.preis>0?wzEur(o.preis):'',fotos?fotos+' Foto'+(fotos===1?'':'s'):'keine Fotos'].filter(Boolean).join(' · '))+'</span>'
@@ -71,9 +70,9 @@ function ptKarte(S,x){
     +'<div class="field"><label for="'+id('nr')+'">Objektnummer</label><input id="'+id('nr')+'" data-wz="'+pfad+'nr" value="'+sEsc(e.nr||'')+'" placeholder="'+sEsc(ImmoPortal.objektnrVorschlag(x.id))+'"></div>'
     +'<div class="field"><label for="'+id('art')+'">Objektart im Portal</label><select id="'+id('art')+'" data-wz="'+pfad+'art" data-zeichnen="1"><option value="">automatisch: '+sEsc(artName)+'</option>'
       +ImmoPortal.ARTEN.map(a=>'<option value="'+a[0]+'"'+(e.art===a[0]?' selected':'')+'>'+sEsc(a[1])+'</option>').join('')+'</select></div>'
-    +'<div class="field"><label for="'+id('aus')+'">Energieausweis ausgestellt am</label><input id="'+id('aus')+'" type="date" data-wz="'+pfad+'ausgestellt" data-zeichnen="1" value="'+sEsc(e.ausgestellt||'')+'"></div>'
-    +'<div class="field"><label for="'+id('bis')+'">gültig bis <span class="u">leer = ausgestellt + 10 Jahre</span></label><input id="'+id('bis')+'" type="date" data-wz="'+pfad+'gueltigBis" data-zeichnen="1" value="'+sEsc(e.gueltigBis||'')+'"></div>'
-    +'<div class="field"><label for="'+id('pe')+'">Primärenergie laut Ausweis <span class="u">kWh/(m²·a), Pflicht bei Ausweisen ab 2027</span></label><input id="'+id('pe')+'" inputmode="decimal" data-wz="'+pfad+'primaer" data-zeichnen="1" value="'+sEsc(e.primaer||'')+'"></div>'
+    +'<div class="field"><label for="'+id('aus')+'">Energieausweis ausgestellt am</label><input id="'+id('aus')+'" type="date" data-wz="'+pfad+'ausgestellt" value="'+sEsc(e.ausgestellt||'')+'"></div>'
+    +'<div class="field"><label for="'+id('bis')+'">gültig bis <span class="u">leer = ausgestellt + 10 Jahre</span></label><input id="'+id('bis')+'" type="date" data-wz="'+pfad+'gueltigBis" value="'+sEsc(e.gueltigBis||'')+'"></div>'
+    +'<div class="field"><label for="'+id('pe')+'">Primärenergie laut Ausweis <span class="u">kWh/(m²·a), Pflicht bei Ausweisen ab 2027</span></label><input id="'+id('pe')+'" inputmode="decimal" data-wz="'+pfad+'primaer" value="'+sEsc(e.primaer||'')+'"></div>'
     +'<div class="field"><label for="'+id('jg')+'">Energieausweis</label><select id="'+id('jg')+'" data-wz="'+pfad+'jahrgang" data-zeichnen="1">'
       +ImmoPortal.JAHRGAENGE.map(j=>'<option value="'+j[0]+'"'+((e.jahrgang||'')===j[0]?' selected':'')+'>'+sEsc(j[1])+'</option>').join('')+'</select></div>'
     +'<label class="wz-check"><input type="checkbox" data-wz="'+pfad+'adresse" data-zeichnen="1"'+(frei?' checked':'')+'><span>vollständige Anschrift im Portal zeigen</span></label>'
@@ -81,7 +80,17 @@ function ptKarte(S,x){
     +(ex&&ex.aktion!=='DELETE'?'<div class="gr-zeile"><button type="button" class="secondary" onclick="ptVomPortal(\''+idSicher(x.id)+'\')" data-ic="trash">Vom Portal nehmen</button></div>':'')
     +'</div>';
 }
-function ptRechnen(){ iconify($('wz_body')); }
+/* Ampel je Objekt; nach Eingaben (Ausstellungsdatum, Primärenergie) nur die Ampel neu, ohne die Karte neu aufzubauen (D50) */
+function ptAmpel(o){
+  let pr=ImmoPortal.pruefen(o);
+  return !pr.ok?wzAmpel('rot','Fehlt: '+pr.fehler.map(sEsc).join(' · ')+'<br>Ohne diese Angaben bleibt das Objekt beim Export draußen.')
+    :pr.hinweise.length?wzAmpel('gelb',pr.hinweise.map(sEsc).join('<br>')):wzAmpel('gruen','Bereit für den Export.');
+}
+function ptRechnen(S){
+  S=S||wzZustand('portal'); let l=document.querySelectorAll('#wz_body .pt-ampel');
+  if(l.length){ let x=ptListe(S); l.forEach(el=>{ let o=x.find(y=>y.id===el.dataset.pt); if(o) el.innerHTML=ptAmpel(ptObjekt(S,o,null,'')); }); }
+  iconify($('wz_body'));
+}
 async function ptSichern(){ if(typeof projektSichern!=='function') return; await projektSichern(); wzZeichnen(); }
 
 /* ---------- Export ---------- */

@@ -10,6 +10,7 @@ const WZ_GRUPPEN=[
     ['bieter','Bieter­verfahren','trending-up','Gebote sammeln und vergleichen — Übersicht für den Eigentümer ohne Namen.','Gebote sammeln und vergleichen'],
     ['eigentuemerbericht','Eigentümer­bericht','file-text','Anfragen, Besichtigungen und Gebote aus allen Kacheln — als Bericht ohne Namen.','Vermarktungsbericht aus allen Quellen'],
     ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],
+    ['schwaerzen','PDF schwärzen','file','Unterlagen vor der Weitergabe unkenntlich machen — Namen, Kontonummern, Geburtsdaten; als neue PDF.','Unterlagen als PDF schwärzen'],
     ['portal','Portal-Export','upload','Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.','Objekte mit Bildern für Immobilienportale'],
     ['aushang','Aushang','printer','Eine Seite für Schaufenster und Filiale — Bild, Preis, Pflichtangaben, Ansprechpartner.','Aushang für Schaufenster und Filiale'],
     ['social','Social Media','megaphone','Bild und Text für Instagram, Facebook und Status — im Farbschema, mit Pflichtangaben.','Bild und Text je Objekt'],

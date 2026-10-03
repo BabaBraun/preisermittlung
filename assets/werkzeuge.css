@@ -240,6 +240,12 @@
 #fs_vorschau{max-width:100%;max-height:72vh;height:auto;display:block}
 #fs_vorschau.fs-aktiv{cursor:crosshair;touch-action:none}
 .fs-rahmen{position:absolute;inset:0;pointer-events:none}
+/* D53: PDF schwärzen */
+.ps-blaettern{justify-content:center;align-items:center;margin-bottom:8px}
+.ps-blaettern span{min-width:150px;text-align:center}
+#ps_vorschau{max-width:100%;height:auto;display:block;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+#ps_vorschau.ps-weg{opacity:.35}
+.ps-muster{flex-wrap:wrap}
 .fs-zuschnitt{position:absolute;border:2px dashed #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
 .fs-ziehen{position:absolute;border:2px solid #fff;outline:1px solid rgba(0,0,0,.6);background:rgba(255,255,255,.18)}
 .fs-regler{display:block;margin:8px 0}
