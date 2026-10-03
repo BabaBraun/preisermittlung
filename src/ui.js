@@ -56,7 +56,8 @@ var IA_ICONS={
   layers:'<path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M2 13l10 5 10-5"/><path d="M2 18l10 5 10-5"/>',
   clipboard:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/>',
   'trending-up':'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
-  activity:'<path d="M3 12h4l3-8 4 16 3-8h4"/>'
+  activity:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',

@@ -1099,3 +1099,96 @@ Auftraggebers).**
 - **Mein Jahr:** Die Kachel bleibt — der Auftraggeber führt die Vermarktung in der App.
 - **Preisindex:** Den Preisindex für den Wertmonitor trägt der Auftraggeber von Hand ein (Grundstücksmarktbericht des
   Gutachterausschusses, regional genauer als der Häuserpreisindex des Bundes).
+
+## D39 (2026-10-03) — Notarauftrag, Portal-Export, Datenstand; Ziel: bessere Maklersoftware
+
+**Auftrag:** „Mache Punkte 2. 3.“ — eine Kachel „Notarauftrag“ (Angaben für den Kaufvertragsentwurf) und eine Kachel
+„Datenstand“ (alle Datenquellen mit Erinnerung). Dazu den Portal-Export „schon mal vorbereiten und eine Kachel dafür
+anlegen (eventuell eines Tages notwendig, wenn ich die App an die Bank vermitteln kann und sie über den Bank-Server
+läuft)“. Erklärtes Ziel des Auftraggebers: die Maklersoftware FIO nachbauen, nur besser. Von FIO wird nichts übernommen —
+kein Name, keine Gestaltung, keine Texte; der Funktionsumfang laut fio.de dient nur zum Abgleich (ROADMAP #66–#71).
+
+**Notarauftrag** (`src/wz-notar.js`):
+- Erfasst Objekt und Grundbuch, Verkäufer und Käufer (Name, Anschrift, Kontakt, Familienstand, Güterstand), Erwerb bei
+  mehreren Käufern, Kaufpreis mit beweglichen Gegenständen, Fälligkeit, Finanzierung des Käufers (Bank, Darlehen,
+  Finanzierungsgrundschuld), Besitzübergang und Mietverhältnisse (nur Anzahl und Summen, keine Mieternamen), Belastungen
+  Abt. II/III, Baulasten, Erschließung, Maklerprovision, Notariat, Wunschtermin, Unterlagen und weitere Vereinbarungen.
+- „Aus der geöffneten Bewertung“ übernimmt Anschrift, Objektart, Grundbuch, Flurstücke, Fläche bzw. Miteigentumsanteil,
+  Abt. II/III, Baulasten, Angebotspreis und Käuferprovision; den Kunden der Bewertung als Verkäufer und den Interessenten
+  mit der jüngsten Reservierung bzw. dem jüngsten Kaufangebot aus der Vermarktung als Käufer (beide aus der Kundenakte).
+- Prüfungen als Ampel:
+  - Provision: Bei Wohnung oder Einfamilienhaus und einem Käufer als Verbraucher (§ 656b BGB) nur gleiche Teile, wenn der
+    Makler für beide tätig ist (§ 656c), sonst trägt der Käufer höchstens so viel wie der Verkäufer, fällig erst nach dessen
+    Zahlung (§ 656d). Zahlt nur der Käufer, ist das zulässig, wenn allein er beauftragt hat — gelber Hinweis.
+  - Frist: Bei einem Verbrauchervertrag (Unternehmer verkauft an Verbraucher, z. B. Bauträger oder die Bank mit einer
+    eigenen Liegenschaft) soll der Verbraucher den beabsichtigten Text im Regelfall zwei Wochen vor der Beurkundung
+    erhalten (§ 17 Abs. 2a Satz 2 Nr. 2 BeurkG). Die App nennt den spätesten Tag; unter 14 Tagen rot. Beim privaten
+    Verkauf ist die Frist nicht vorgeschrieben — dort nur Hinweis.
+  - Hinweise: Einwilligung des Ehegatten bei Verfügung über das Vermögen im Ganzen (§ 1365 BGB), Zustimmung der Verwaltung
+    beim Wohnungsverkauf, wenn die Teilungserklärung sie verlangt (§ 12 WEG). Bewegliche Gegenstände nur mit realistischem
+    Zeitwert, steuerliche Fragen beim Steuerberater.
+- Ausgaben: Datenblatt „Angaben für den Kaufvertragsentwurf“ (PDF, Word, Teilen), Termin als Kalenderdatei (`.ics`,
+  RFC 5545, Ortszeit, Erinnerung am Vortag), Wiedervorlagen (Entwurf prüfen zum spätesten Tag, Notartermin, Übergabe),
+  „Übergabeprotokoll anlegen“ mit Anschrift, Datum der Übergabe und den Namen beider Seiten, „Beim Kunden ablegen“.
+- Geburtsdaten und Steuer-Identifikationsnummern erfasst die App bewusst nicht: Das Notariat erhebt sie für die Anzeige an
+  das Finanzamt selbst (§ 20 GrEStG). Weniger personenbezogene Daten auf dem Gerät (Art. 5 Abs. 1 lit. c DSGVO).
+
+**Portal-Export** (`js/portal.js` ohne Seitenbezug, `src/wz-portal.js`):
+- Schreibt gesicherte Projekte mit Vermarktungsstand als ZIP: eine XML-Datei im Austauschformat OpenImmo 1.2.7 und die
+  Bilder. Die Formatbeschreibung (Schema 1.2.7d vom Mai 2026) wurde mit Freigabe des Auftraggebers geladen und liegt nur
+  lokal zur Prüfung — die Lizenz erlaubt keine Weitergabe, deshalb nicht im Repository. Erzeugte Beispieldateien (Haus,
+  Wohnung, Büro, Wohn- und Geschäftshaus ohne Energieausweis, Gesamtbestand, leere Datei) sind gegen das Schema gültig.
+  Der Name OpenImmo steht nur als Formatangabe in der Beschreibung, nicht als Name der Kachel.
+- Inhalt: Objektart nach den Wertelisten (aus Gebäude- bzw. Wohnungstyp, änderbar), Anschrift, Ansprechpartner (Berater,
+  aus dem Exposé), Kaufpreis oder „auf Anfrage“, Hausgeld, Käuferprovision, Flächen, Zimmer, Ausstattung, Baujahr,
+  Energieausweis mit den Pflichtangaben nach § 87 GModG (wie das Exposé), Texte des Exposés, Fotoauswahl und Titelbild des
+  Exposés, verfügbar ab, Denkmalschutz.
+- Zahlen mit Dezimalpunkt, Texte maskiert, leere Angaben entfallen. Feste Objekt-Kennung aus der Projekt-Id: Der zweite
+  Export ist eine Änderung (`aktionart="CHANGE"`), „Vom Portal nehmen“ eine Löschung (`DELETE`). „Gesamtbestand“
+  (`umfang="VOLL"`) mit Rückfrage, weil das Portal dann alle anderen Objekte des Anbieters vom Markt nimmt.
+- Fehlen Pflichtangaben (PLZ, Ort, Ansprechpartner mit E-Mail oder Telefon, Energieausweis), bleibt das Objekt draußen;
+  fehlender Preis, Bilder, Beschreibung, Wohnfläche oder Provision sind nur Hinweise.
+- Datenschutz: Ohne Freigabe der Anschrift (Vorgabe aus dem Exposé: „nur den Ort zeigen“) gehen nur PLZ und Ort hinaus —
+  keine Straße, keine Koordinaten. Kundennamen enthält die Datei nicht. Hinweis zu Personen, Kennzeichen und Namen auf Fotos.
+- Übertragung: Die Datei nimmt ein Portal über seine Import-Schnittstelle an (in der Regel ein FTP-Zugang, den das Portal
+  einrichtet). Eine direkte Übertragung braucht einen Server — erst, wenn die App über den Server der Bank läuft
+  (ROADMAP #67).
+
+**Datenstand** (`src/wz-datenstand.js`, Regeln in `js/beratung.js`, `datenstand`):
+- Rechengrundlagen der App: Baupreisindex BW (vierteljährlich; der Bericht für Mai 2026 erschien am 09.07.2026 — erwartet
+  wird der nächste Wert um den 10. des zweiten Monats nach dem Berichtsmonat), Sterbetafel (jährlich im Sommer; die
+  GitHub-Aktion übernimmt sie selbst), BMF-Tabelle zu § 14 BewG (im Herbst für das Folgejahr; 2026: Schreiben vom
+  21.10.2025).
+- Marktdaten: Bodenrichtwerte (Stichtag zu Beginn jedes zweiten Kalenderjahres, § 196 Abs. 1 Satz 4 BauGB) mit Zahl der
+  Objekte in Vermarktung, deren Bewertungsstichtag davor liegt; Marktberichte des Gutachterausschusses (älter als zwei
+  Jahre: prüfen); Preisindex des Wertmonitors.
+- Eigene Daten: Gesamtsicherung (nie oder älter als 14 Tage mit Änderungen: fällig — wie die Erinnerung auf der
+  Startseite), Liegenschaften mit Preiseinschätzung zum 31.12. (bis Ende März „bald“, danach fällig), Kunden mit
+  erreichtem Datum „Löschung prüfen“, erledigte Notaraufträge nach sechs Monaten.
+- Rechtsstand: Datum der Prüfung am Wortlaut, nach sechs Monaten erneut prüfen.
+- Status je Eintrag (aktuell, bald prüfen, fällig, nicht hinterlegt) mit Stand, nächster Veröffentlichung, was zu tun ist
+  und Quelle; Knöpfe zu Sicherung, Marktdaten, Wertmonitor, Liegenschaften, Kunden. Die Kachel auf der Startseite zeigt die
+  Zahl der fälligen und bald zu prüfenden Punkte. „Dokument“ als Nachweis der Datenstände.
+- Die Erscheinungstermine sind Erfahrungswerte; neue Rechengrundlagen kommen mit einer neuen Fassung der App.
+
+**Datenbank und Sicherung:** Neuer Speicher „notar“ in der Datenbank „ia_bewertungen“ (Version 4). Die Gesamtsicherung
+enthält die Notaraufträge; beim Einspielen gewinnt die neuere Fassung, beschädigte Einträge werden verworfen
+(`js/daten.js`). Die Datenschutzseite beschreibt Notarauftrag und Portal-Export.
+
+**Tests:**
+- `tests/unit/portal.test.mjs`: Anschrift, Objektart und Nutzungsart, Energieträger, Energieausweis und Pflichtangaben,
+  Objekt aus Feldern, Prüfung, Kennungen; die erzeugte ZIP-Datei liest Python unabhängig (`tests/referenz/pruefe_openimmo.py`)
+  und der Test prüft die Reihenfolge der Elemente laut Formatbeschreibung.
+- `tests/unit/notar-datenstand.test.mjs`: Kalenderdatei (CRLF, höchstens 75 Oktette je Zeile, Maskierung, Monats- und
+  Jahreswechsel), Entwurfsfrist, alle Regeln des Datenstands mit Grenztagen.
+- `tests/unit/daten.test.mjs`: Notaraufträge in der Sicherungsdatei.
+- `tests/e2e/werkzeuge-d39.spec.mjs`: Notarauftrag aus Bewertung und Kundenakte mit Ampeln, Dokument, Kalenderdatei,
+  Wiedervorlagen, Übergabeprotokoll, Sicherung hin und zurück, Löschen; Portal-Export als ZIP (Neuanlage, Änderung, vom
+  Markt nehmen) mit unabhängiger Prüfung; Datenstand mit Zahl auf der Kachel und Sicherung.
+- Klicktest: vier neue Bereiche (Notaraufträge, Notarauftrag, Portal-Export, Datenstand).
+
+**Beim Prüfen behoben:**
+- Klicktest am iPhone (WebKit): „Wiedervorlagen anlegen“ brach bei einem unfertigen Datum im Terminfeld ab — jetzt zählen
+  nur gültige Kalenderdaten, sonst ein Hinweis.
+- Die fehlende Firma des Anbieters färbte jedes Objekt rot; sie gilt für alle und wird beim Export geprüft.
+- Die Unterlagen im Notarauftrag haben eine eigene Zeilenaufteilung (Haken schmal, Name breit).

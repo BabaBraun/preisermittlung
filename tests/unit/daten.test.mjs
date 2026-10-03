@@ -72,6 +72,15 @@ test('Gesamtsicherung Version 2 und Version 1 (reine Projektliste)', () => {
   assert.equal(v1.projekte[0].geaendert, 1700000000000, 'Änderungszeit aus der Kennung');
 });
 
+test('Gesamtsicherung mit Notaraufträgen (D39): gültige bleiben, beschädigte werden verworfen', () => {
+  const n = { id: 'no1', anschrift: 'Musterweg 7a', verkaeufer: [{ name: 'A' }], kaeufer: [{ name: 'B' }], geaendert: 3 };
+  const r = D.projektSicherungPruefen({ typ: 'immoapp-projekte', version: 2, projekte: [], notar: [n, { id: 'no2', verkaeufer: 'x', kaeufer: [] }, { id: '../x', verkaeufer: [], kaeufer: [] }, 'x'] });
+  assert.equal(r.ok, true, 'eine Sicherung nur mit Notaraufträgen ist gültig');
+  assert.deepEqual(r.notar.map(x => x.id), ['no1']);
+  assert.equal(r.verworfen, 3);
+  assert.deepEqual(D.projektSicherungPruefen({ typ: 'immoapp-projekte', version: 2, projekte: [{ id: 'p1', name: 'A', data: PROJEKT }] }).notar, []);
+});
+
 test('Gesamtsicherung: beschädigte und fremde Dateien', () => {
   assert.match(D.projektSicherungPruefen({ typ: 'immoapp-projekte', projekte: [{ id: 'p1' }, 'x'] }).fehler, /beschädigt/);
   assert.match(D.projektSicherungPruefen({ fields: {} }).fehler, /einzelne Bewertung/);

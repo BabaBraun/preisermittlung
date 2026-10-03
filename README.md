@@ -39,7 +39,10 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
 - **Beratung & Werkzeuge** (eigene Kacheln): Übergeben & Vererben (Schenkung oder Erbe mit Nießbrauch und Freibeträgen
   nach ErbStG/BewG), Wohnen im Alter (Einmalzahlung, Leibrente, Teilverkauf, Rückmiete), Übergabeprotokoll mit Fotos und
   Unterschriften auf dem Gerät, Mein Jahr (Aufträge, Provision, Herkunft), Grundstückspotenzial (Residualwert),
-  ETW-Kaufcheck (Rücklage, Beschlüsse, Heizung), Wertmonitor (gesicherte Bewertungen fortschreiben). Jedes Werkzeug mit Dokument (PDF, Word) und Notiz in der Kundenakte.
+  ETW-Kaufcheck (Rücklage, Beschlüsse, Heizung), Wertmonitor (gesicherte Bewertungen fortschreiben), Notarauftrag
+  (Angaben für den Kaufvertragsentwurf, Termin als Kalenderdatei, Übergabe), Portal-Export (Objekte mit Bildern als Datei im
+  Austauschformat OpenImmo 1.2.7) und Datenstand (Rechengrundlagen und Daten: was ist aktuell, was steht an). Jedes Werkzeug
+  mit Dokument (PDF, Word) und Notiz in der Kundenakte.
 
 ## Aufbau
 
@@ -64,7 +67,8 @@ Nach jeder Änderung an App-Dateien ausführen und `sw.js` mit committen; GitHub
 | `js/liegenschaften-vergleich.js` | Historischer Vergleich zweier Stichtage einer Liegenschaft (Rechnung: `vergleich`, `vergleichSetzen`, `vergleichText` in `js/jahresbewertung.js`) |
 | `js/baupreisindex.js` | Baupreisindex Baden-Württemberg (Statistisches Landesamt, 2021 = 100) mit Umrechnung auf NHK 2010 |
 | `js/beratung.js` | Rechnungen der Beratungswerkzeuge ohne Bildschirmzugriff: Erbschaft- und Schenkungsteuer, Vervielfältiger nach § 14 BewG (BMF-Tabelle 2026 eingebaut), Leibrenten, Residualwert, ETW-Kennzahlen, Vertriebsübersicht |
-| `src/werkzeuge.js`, `src/wz-*.js` | Beratung & Werkzeuge: gemeinsames Fenster (Felder, Speicher, Dokument, Kundenakte) und die acht Werkzeuge |
+| `src/werkzeuge.js`, `src/wz-*.js` | Beratung & Werkzeuge: gemeinsames Fenster (Felder, Speicher, Dokument, Kundenakte) und die zehn Werkzeuge |
+| `js/portal.js` | Portal-Export ohne Seitenbezug: Objekt aus den Feldern einer Bewertung, Prüfung, XML im Austauschformat OpenImmo 1.2.7 |
 | `vendor/html2pdf.bundle.min.js` | PDF-Baustein (MIT), unverändert, mit Integritäts-Hash — siehe `vendor/LIZENZEN.md` |
 | `selbsttest.js` | Selbsttest im Export-Menü (wird nur bei Bedarf geladen) |
 | `sw.js` | Service Worker für den Offline-Betrieb — erzeugt von `npm run build` (`scripts/build.mjs`), nicht von Hand ändern |
@@ -129,7 +133,7 @@ sind sie weg. Deshalb regelmäßig sichern und die Dateien außerhalb des Gerät
 
 | Was | Wo in der App | Datei |
 |---|---|---|
-| alle Projekte mit Fotos, Kunden, Wiedervorlagen, Marktberichte, Übergabeprotokolle und Eingaben der Werkzeuge | Projekte → „Alle Projekte sichern“ | `ImmoApp Projekte JJJJ-MM-TT.json` |
+| alle Projekte mit Fotos, Kunden, Wiedervorlagen, Marktberichte, Übergabeprotokolle, Notaraufträge und Eingaben der Werkzeuge | Projekte → „Alle Projekte sichern“ | `ImmoApp Projekte JJJJ-MM-TT.json` |
 | die offene Bewertung | Export-Menü → „Als Datei sichern“ | `<Adresse>.json` |
 | Marktüberblick (schlank oder mit PDF-Anhängen) | Marktüberblick → Datensicherung | `Marktdaten_….json` |
 | Liegenschaften (Vordrucke mit Bildern, Ansprechpartner) | Liegenschaften → Datensicherung | `ImmoApp Liegenschaften JJJJ-MM-TT.json` |
@@ -157,6 +161,8 @@ Geräteverschlüsselung des Betriebssystems.
   am Wortlaut geprüft (u. a. Gebäudemodernisierungsgesetz statt GEG seit 29.07.2026). Vervielfältiger für Nießbrauch und
   Wohnrecht: für 2026 die amtliche BMF-Tabelle, für spätere Jahre nach dem BMF-Verfahren aus der Sterbetafel berechnet
   (ROADMAP #64). Der Wertmonitor braucht für eine marktgerechte Fortschreibung eine Preisindexreihe (Grundstücksmarktbericht).
+- Portal-Export: erzeugt die Datei, überträgt sie aber nicht — die Übertragung an ein Portal braucht einen Server
+  (ROADMAP #67). Die Formatbeschreibung liegt aus Lizenzgründen nicht im Repository; die Tests prüfen Aufbau und Werte.
 - Liegenschaften: rechnerische Preiseinschätzung nach dem Vordruck der Bank, kein Verkehrswertgutachten; der
   Baupreisindex zum Stichtag ist vierteljährlich nachzutragen (ROADMAP #50).
 - Auf echten Geräten noch **nicht** geprüft, nur simuliert: Face ID/Touch ID (App-Sperre), Kamera beim

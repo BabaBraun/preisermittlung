@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die sieben Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die zehn Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Sieben Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
+Zehn Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
 - **Beim Kunden ablegen:** schreibt eine kurze Zusammenfassung als Gesprächsnotiz in die Kundenakte.
@@ -179,6 +179,30 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
     Baupreisindex misst Baukosten, nicht Kaufpreise.
   - Ab der eingestellten Schwelle legt „Wiedervorlage“ eine Aufgabe an, einzeln oder für alle.
   - Werbende Anrufe und E-Mails nur mit Einwilligung (§ 7 UWG) — die Einwilligung im Bankverfahren prüfen.
+- **Notarauftrag** (seit 03.10.2026): alle Angaben für den Kaufvertragsentwurf an einer Stelle.
+  - „Aus der geöffneten Bewertung“ übernimmt Objekt, Grundbuch, Belastungen, Preis und Provision; Verkäufer ist der Kunde
+    der Bewertung, Käufer der Interessent mit der jüngsten Reservierung oder dem jüngsten Kaufangebot (Vermarktung).
+  - Ampeln: Maklerprovision bei Wohnung oder Einfamilienhaus (§§ 656b–656d BGB) und die Frist für den Vertragsentwurf —
+    bei einem Verbrauchervertrag (z. B. die Bank verkauft eine eigene Liegenschaft an Privat) soll der Käufer den Entwurf
+    im Regelfall zwei Wochen vor dem Termin haben (§ 17 Abs. 2a BeurkG).
+  - „Termin in den Kalender“ lädt eine Kalenderdatei, „Wiedervorlagen anlegen“ setzt Erinnerungen (Entwurf, Termin,
+    Übergabe), „Übergabeprotokoll anlegen“ öffnet das Protokoll mit den Namen beider Seiten.
+  - „Dokument“ ergibt das Datenblatt für das Notariat. Geburtsdaten und Steuer-Identifikationsnummern erhebt das Notariat
+    selbst — sie gehören nicht in die App. Aufträge liegen in der Datenbank auf dem Gerät und lassen sich löschen.
+- **Portal-Export** (seit 03.10.2026): gesicherte Projekte mit Stand „Auftrag erteilt“, „In Vermarktung“ oder
+  „Reserviert“ als ZIP-Datei für Immobilienportale (Austauschformat OpenImmo 1.2.7, mit Bildern).
+  - Oben einmal Firma, Anbieternummer beim Portal und Ansprechpartner eintragen (sonst gilt der Ansprechpartner des Exposés).
+  - Je Objekt: Objektnummer, Objektart im Portal, Ausstellungs- und Ablaufdatum des Energieausweises, ob die vollständige
+    Anschrift gezeigt wird. Die Ampel zeigt, was fehlt.
+  - „Ausgewählte exportieren“ ergänzt oder ändert diese Objekte im Portal; „Als Gesamtbestand exportieren“ ersetzt den
+    ganzen Bestand im Portal. „Vom Portal nehmen“ erzeugt die Datei zum Löschen.
+  - Texte, Preis und Fotos kommen aus dem Exposé der Bewertung. Exportiert wird der gesicherte Stand — vorher sichern.
+  - Die Datei nimmt das Portal über seine Import-Schnittstelle an (meist ein FTP-Zugang des Portals). Die direkte
+    Übertragung folgt, wenn die App über einen Server läuft.
+- **Datenstand** (seit 03.10.2026): wie aktuell sind Baupreisindex, Sterbetafel, BMF-Tabelle, Bodenrichtwerte,
+  Marktberichte, Preisindex, Sicherung, Liegenschaften, Löschprüfungen und Rechtsstand? Je Punkt Stand, nächste
+  Veröffentlichung, was zu tun ist und Quelle. Die Zahl auf der Kachel nennt die Punkte, die fällig sind oder bald
+  anstehen. „Dokument“ hält die Datenstände als Nachweis fest.
 
 ## Liegenschaften
 

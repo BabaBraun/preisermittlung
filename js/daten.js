@@ -86,11 +86,12 @@ function projektSicherungPruefen(o){
   const parameter=(istObjekt(o)&&Array.isArray(o.parameter)?o.parameter:[]).filter(x=>istObjekt(x)&&idGueltig(x.id));
   // Beratung & Werkzeuge (D38): Übergabeprotokolle und Eingaben der Rechner
   const protokolle=(istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle:[]).filter(x=>istObjekt(x)&&idGueltig(x.id));
+  const notar=(istObjekt(o)&&Array.isArray(o.notar)?o.notar:[]).filter(x=>istObjekt(x)&&idGueltig(x.id)&&Array.isArray(x.verkaeufer)&&Array.isArray(x.kaeufer));   // Notaraufträge (D39)
   const werkzeuge=istObjekt(o)&&istObjekt(o.werkzeuge)?o.werkzeuge:null;
   const verworfen=uebersprungen+((istObjekt(o)&&Array.isArray(o.kunden)?o.kunden.length:0)-kunden.length)+((istObjekt(o)&&Array.isArray(o.aufgaben)?o.aufgaben.length:0)-aufgaben.length)
-    +((istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle.length:0)-protokolle.length);
-  if(!projekte.length&&!kunden.length&&!protokolle.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
-  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,werkzeuge,verworfen};
+    +((istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle.length:0)-protokolle.length)+((istObjekt(o)&&Array.isArray(o.notar)?o.notar.length:0)-notar.length);
+  if(!projekte.length&&!kunden.length&&!protokolle.length&&!notar.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
+  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,notar,werkzeuge,verworfen};
 }
 
 /* Sicherung des Marktüberblicks (schlank oder mit PDF-Anhängen) */

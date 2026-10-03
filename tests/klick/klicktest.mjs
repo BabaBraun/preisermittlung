@@ -297,6 +297,13 @@ const BEREICHE = [
   { name: 'Werkzeug – ETW-Kaufcheck', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('etw')) },
   { name: 'Werkzeug – Wertmonitor', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('wertmonitor')) },
   { name: 'Werkzeug – Dokument', wurzel: '#report', auf: js(async () => { wzOeffnen('grundstueck'); Object.assign(wzZustand('grundstueck'), { grundstueck: '900', gfz: '0,8', verkaufM2: '5000', baukostenM2: '3000' }); await wzDokument(); }) },
+  // Notarauftrag, Portal-Export, Datenstand (D39)
+  { name: 'Werkzeug – Notaraufträge', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('notar'); await noLaden(); NO.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Notarauftrag', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('notar'); await noLaden();
+    if (!NO.liste.length) { await noNeu(false); Object.assign(NO.aktiv, { anschrift: 'Musterweg 1, 74000 Musterstadt', termin: '2026-12-15', uhrzeit: '10:00' }); await noSpeichernJetzt(); wzZeichnen(); }
+    else noOeffnenAuftrag(NO.liste[0].id); }) },
+  { name: 'Werkzeug – Portal-Export', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('portal')) },
+  { name: 'Werkzeug – Datenstand', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('datenstand'); await dsAktualisieren(); wzZeichnen(); }) },
   { name: 'Datenschutz', wurzel: '#dsgvo_overlay', auf: js(() => dsgvoOeffnen()) },
   // „Einrichten“ braucht Face ID/Touch ID — mit simuliertem Authenticator geprüft in tests/e2e/sonderablaeufe.spec.mjs
   { name: 'App-Sperre', wurzel: '#lock_setup_overlay', auf: js(() => lockSetupOeffnen()), nicht: /einrichten|aktivieren|Face ID|Touch ID|Gerätecode/i, nichtGrund: 'braucht Face ID / Touch ID — eigener Test (sonderablaeufe.spec.mjs)' },

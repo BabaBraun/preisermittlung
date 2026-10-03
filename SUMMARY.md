@@ -1,3 +1,12 @@
+# Zusammenfassung — Notarauftrag, Portal-Export, Datenstand (2026-10-03)
+
+Drei neue Kacheln: Notarauftrag (alle Angaben für den Kaufvertragsentwurf aus Bewertung, Vermarktung und Kundenakte, Ampeln
+zur Maklerprovision nach §§ 656b–656d BGB und zur Entwurfsfrist nach § 17 Abs. 2a BeurkG, Kalenderdatei, Wiedervorlagen,
+Übergabeprotokoll), Portal-Export (gesicherte Objekte mit Bildern als ZIP im Austauschformat OpenImmo 1.2.7, gegen das
+Schema geprüft; Änderung und Löschen; Übertragung später über einen Server) und Datenstand (Baupreisindex, Sterbetafel,
+BMF-Tabelle, Bodenrichtwerte, Marktberichte, Sicherung, Liegenschaften, Löschprüfungen mit Zahl auf der Kachel). Ziel des
+Auftraggebers: eine bessere Maklersoftware (D39).
+
 # Zusammenfassung — Kacheln gegen die Quellen geprüft (2026-10-03)
 
 Alle Rechtsgrundlagen am Wortlaut geprüft. Korrigiert: Heizung nach dem Gebäudemodernisierungsgesetz (seit 29.07.2026 statt

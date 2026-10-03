@@ -7,7 +7,9 @@
      Gleichverteilung der Sterbefälle im Jahr; zwei Personen: Rente bis zum Tod des Letztversterbenden
    - Grundstückspotenzial: Bauträgerkalkulation (Residualwert); als Bodenwert nur deduktiv nach § 40 Abs. 3 ImmoWertV
    - ETW-Kaufcheck: Peters'sche Formel (Instandhaltung), Heizung nach GModG §§ 42a, 43 und VDI 2067 (Nutzungsdauer)
-   - Mein Jahr: Provision bei Halbteilung, § 656c BGB */
+   - Mein Jahr: Provision bei Halbteilung, § 656c BGB
+   - Notarauftrag (D39): Kalenderdatei nach RFC 5545; Frist für den Entwurf nach § 17 Abs. 2a Satz 2 Nr. 2 BeurkG
+   - Datenstand (D39): Stand der Rechengrundlagen und Daten mit erwarteter nächster Veröffentlichung */
 (function(wurzel){
 'use strict';
 const Tafel=typeof module==='object'&&module.exports?require('./sterbetafel.js'):wurzel.ImmoSterbetafel;
@@ -292,9 +294,163 @@ function pipeline(objekte,e){
   return {jahr,zeilen,phasen,realisiert,offen,prognose:realisiert+offen,ziel,zielQuote:ziel>0?(realisiert+offen)/ziel*100:null,realisiertQuote:ziel>0?realisiert/ziel*100:null,herkunft};
 }
 
+/* ========== Notarauftrag: Kalenderdatei und Entwurfsfrist (D39) ========== */
+/* Text nach RFC 5545 maskieren; Zeilen höchstens 75 Oktette, Fortsetzung mit einem Leerzeichen */
+function icsText(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n'); }
+function icsFalten(z){
+  const enc=new TextEncoder(), teile=[]; let teil='', n=0;
+  for(const ch of z){ const b=enc.encode(ch).length; if(n+b>(teile.length?74:75)){ teile.push(teil); teil=''; n=0; } teil+=ch; n+=b; }
+  teile.push(teil); return teile.join('\r\n ');
+}
+/* t = {uid, titel, ort, beschreibung, datum 'JJJJ-MM-TT', uhrzeit 'hh:mm' (leer = ganztägig), dauerMin, erinnerungMin, jetzt}
+   Uhrzeit als Ortszeit ohne Zeitzone („floating“): der Kalender zeigt sie so, wie eingetragen. */
+function ics(t){
+  t=t||{}; const d=String(t.datum||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!isFinite(new Date(d+'T00:00:00Z'))) return '';
+  const z2=n=>String(n).padStart(2,'0'), jetzt=t.jetzt instanceof Date?t.jetzt:new Date();
+  const stempel=x=>x.getUTCFullYear()+z2(x.getUTCMonth()+1)+z2(x.getUTCDate())+'T'+z2(x.getUTCHours())+z2(x.getUTCMinutes())+z2(x.getUTCSeconds());
+  const tag=x=>x.getUTCFullYear()+z2(x.getUTCMonth()+1)+z2(x.getUTCDate());
+  const basis=new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)));
+  const z=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ImmoApp//Termine//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    'UID:'+icsText(t.uid||('ia-'+d+'@immoapp')),'DTSTAMP:'+stempel(jetzt)+'Z'];
+  const m=/^(\d{1,2})[:.](\d{2})$/.exec(String(t.uhrzeit||'').trim());
+  if(m&&+m[1]<24&&+m[2]<60){
+    const start=new Date(basis.getTime()+(+m[1]*60+(+m[2]))*60000), ende=new Date(start.getTime()+(t.dauerMin>0?t.dauerMin:60)*60000);
+    z.push('DTSTART:'+stempel(start),'DTEND:'+stempel(ende));
+  } else z.push('DTSTART;VALUE=DATE:'+tag(basis),'DTEND;VALUE=DATE:'+tag(new Date(basis.getTime()+864e5)));
+  z.push('SUMMARY:'+icsText(t.titel||'Termin'));
+  if(t.ort) z.push('LOCATION:'+icsText(t.ort));
+  if(t.beschreibung) z.push('DESCRIPTION:'+icsText(t.beschreibung));
+  if(t.erinnerungMin>0) z.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsText(t.titel||'Termin'),'TRIGGER:-PT'+Math.round(t.erinnerungMin)+'M','END:VALARM');
+  z.push('END:VEVENT','END:VCALENDAR');
+  return z.map(icsFalten).join('\r\n')+'\r\n';
+}
+/* Tage zwischen zwei Kalenderdaten 'JJJJ-MM-TT' (b − a) */
+function tageZwischen(a,b){ const x=Date.parse(a+'T00:00:00Z'), y=Date.parse(b+'T00:00:00Z'); return isFinite(x)&&isFinite(y)?Math.round((y-x)/864e5):null; }
+function tagePlus(iso,n){ const d=new Date(iso+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+/* Verbrauchern soll der Notar den beabsichtigten Text im Regelfall zwei Wochen vor der Beurkundung zur Verfügung stellen
+   (§ 17 Abs. 2a Satz 2 Nr. 2 BeurkG). Liefert den spätesten Tag dafür und ob die Zeit bis zum Termin reicht. */
+function notarFrist(termin,heute){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(termin||'')) return null;
+  heute=/^\d{4}-\d{2}-\d{2}$/.test(heute||'')?heute:new Date().toISOString().slice(0,10);
+  const entwurfBis=tagePlus(termin,-14), rest=tageZwischen(heute,termin);
+  return {entwurfBis,tageBisTermin:rest,tageBisEntwurf:tageZwischen(heute,entwurfBis),
+    stufe:rest<0?'vorbei':rest<14?'knapp':tageZwischen(heute,entwurfBis)<=7?'bald':'ok'};
+}
+
+/* ========== Datenstand (D39) ==========
+   Wie aktuell sind die Grundlagen der App und die eigenen Daten? Je Eintrag Stand, erwartete nächste Veröffentlichung
+   und Status: ok · bald (in den nächsten Tagen prüfen) · faellig · info (nichts hinterlegt).
+   e = {bpiStand 'JJJJ-MM', tafelZeitraum 'JJJJ/JJJJ', bmfJahre [..], marktdaten [{name, stand}], indexJahre {haus:[..], wohnung:[..]},
+        bewertungenVorBrw, projekte, kunden, sicherung (ms), geaendertSeitSicherung, liegenschaften [{name, letzte}],
+        loeschpruefungFaellig, notarErledigtAlt} */
+const MONATE_DE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+function monatPlus(ym,n){ let j=+ym.slice(0,4), m=+ym.slice(5,7)+n; j+=Math.floor((m-1)/12); m=((m-1)%12+12)%12+1; return j+'-'+String(m).padStart(2,'0'); }
+function monatName(ym){ return MONATE_DE[+ym.slice(5,7)-1]+' '+ym.slice(0,4); }
+function datumDE(iso){ return iso.slice(8,10)+'.'+iso.slice(5,7)+'.'+iso.slice(0,4); }
+function stufeZu(heute,erwartet,vorlauf,nachlauf){ return heute<tagePlus(erwartet,-vorlauf)?'ok':heute<tagePlus(erwartet,nachlauf)?'bald':'faellig'; }
+const RECHT_GEPRUEFT='2026-10-03';
+function datenstand(e,heute){
+  e=e||{}; heute=/^\d{4}-\d{2}-\d{2}$/.test(heute||'')?heute:new Date().toISOString().slice(0,10);
+  const J=+heute.slice(0,4), l=[];
+  // Baupreisindex: vierteljährlich (Februar, Mai, August, November); der Bericht für Mai 2026 erschien am 09.07.2026
+  if(/^\d{4}-\d{2}$/.test(e.bpiStand||'')){
+    const naechster=monatPlus(e.bpiStand,3), erwartet=monatPlus(naechster,2)+'-10', s=stufeZu(heute,erwartet,14,21);
+    l.push({id:'bpi',gruppe:'rechnen',titel:'Baupreisindex Baden-Württemberg',stand:monatName(e.bpiStand),naechste:monatName(naechster)+', erwartet um den '+datumDE(erwartet),status:s,
+      text:s==='ok'?'Aktuell — die Sachwerte rechnen mit dem neuesten veröffentlichten Quartal.'
+        :s==='bald'?'Der Wert für '+monatName(naechster)+' erscheint in diesen Tagen. Danach in die App übernehmen (js/baupreisindex.js, mit Test).'
+        :'Der Wert für '+monatName(naechster)+' sollte erschienen sein — in die App übernehmen. Bis dahin rechnet die App mit dem neuesten Wert (vorläufig).',
+      quelle:'Statistisches Landesamt Baden-Württemberg, Preisindex für Bauwerke'});
+  }
+  // Sterbetafel: das Statistische Bundesamt veröffentlicht jährlich im Sommer eine neue Dreijahrestafel
+  const zt=/^(\d{4})\/(\d{4})$/.exec(e.tafelZeitraum||'');
+  if(zt){
+    const bis=+zt[2], erwartet=(bis+2)+'-07-15', s=stufeZu(heute,erwartet,0,60);
+    l.push({id:'sterbetafel',gruppe:'rechnen',titel:'Sterbetafel (Leibrenten, Lebenserwartung)',stand:zt[0],naechste:(+zt[1]+1)+'/'+(bis+1)+', erwartet im Sommer '+(bis+2),status:s,
+      text:s==='ok'?'Aktuell. Eine GitHub-Aktion sieht einmal im Monat nach und übernimmt eine neue Tafel selbst.'
+        :'Eine neue Tafel sollte erschienen sein — die GitHub-Aktion „Sterbetafel“ prüfen oder von Hand starten.',
+      quelle:'Statistisches Bundesamt, Sterbetafeln'});
+  }
+  // Vervielfältiger § 14 BewG: BMF-Tabelle je Kalenderjahr, im Herbst des Vorjahres (für 2026: Schreiben vom 21.10.2025)
+  const jahre=(e.bmfJahre||[]).map(Number).filter(x=>x>2000).sort((a,b)=>a-b), maxJ=jahre.length?jahre[jahre.length-1]:0;
+  if(maxJ){
+    const s=maxJ>J?'ok':maxJ===J?(heute>=J+'-10-01'?'bald':'ok'):'faellig';
+    l.push({id:'bmf',gruppe:'rechnen',titel:'Vervielfältiger nach § 14 BewG',stand:'BMF-Tabelle '+jahre.join(', '),naechste:'Tabelle '+(maxJ+1)+', erwartet im Herbst '+maxJ,status:s,
+      text:s==='ok'?'Aktuell für Stichtage '+(maxJ>J?'bis ':'')+maxJ+'.'
+        :s==='bald'?'Die Tabelle für '+(J+1)+' erscheint üblicherweise im Oktober oder November — dann übernehmen.'
+        :'Für Stichtage ab '+(maxJ+1)+' rechnet die App nach dem Verfahren des BMF aus der Sterbetafel — die amtliche Tabelle übernehmen.',
+      quelle:'Bundesministerium der Finanzen, Schreiben zu § 14 Abs. 1 BewG'});
+  }
+  // Bodenrichtwerte: zu Beginn jedes zweiten Kalenderjahres (§ 196 Abs. 1 Satz 4 BauGB), sofern nicht häufiger bestimmt
+  const brw=J%2===0?J:J-1, alt=+e.bewertungenVorBrw||0;
+  l.push({id:'brw',gruppe:'markt',titel:'Bodenrichtwerte',stand:'Stichtag 01.01.'+brw,naechste:'Stichtag 01.01.'+(brw+2),status:alt?'bald':'ok',
+    text:(alt?alt+' Objekt'+(alt===1?'':'e')+' in Vermarktung mit Bewertungsstichtag vor dem 01.01.'+brw+' — dort den aktuellen Bodenrichtwert prüfen. ':'')
+      +'Bodenrichtwerte werden mindestens alle zwei Jahre zum Jahresbeginn ermittelt (§ 196 Abs. 1 Satz 4 BauGB).',
+    quelle:'§ 196 BauGB; BORIS-BW'});
+  // Marktdaten des Gutachterausschusses (Grundstücksmarktbericht)
+  const md=(e.marktdaten||[]).filter(x=>x&&typeof x==='object');
+  if(!md.length) l.push({id:'markt',gruppe:'markt',titel:'Marktdaten des Gutachterausschusses',stand:'keine hinterlegt',naechste:'–',status:'info',
+    text:'Sachwertfaktoren und Liegenschaftszinssätze aus dem Grundstücksmarktbericht unter „Marktdaten“ eintragen.',quelle:'Grundstücksmarktbericht; § 10 ImmoWertV'});
+  else {
+    const monate=x=>/^\d{4}-\d{2}-\d{2}$/.test(x.stand||'')?(J-+x.stand.slice(0,4))*12+(+heute.slice(5,7)-+x.stand.slice(5,7)):null;
+    const ohne=md.filter(x=>monate(x)==null), alt30=md.filter(x=>monate(x)>30), alt24=md.filter(x=>monate(x)>24);
+    const neu=md.map(x=>x.stand).filter(Boolean).sort().pop()||'';
+    const s=alt30.length||ohne.length?'faellig':alt24.length?'bald':'ok';
+    l.push({id:'markt',gruppe:'markt',titel:'Marktdaten des Gutachterausschusses',stand:md.length+' Datensatz'+(md.length===1?'':'e')+(neu?', neuester vom '+datumDE(neu):''),
+      naechste:'je nach Gutachterausschuss jährlich oder alle zwei Jahre',status:s,
+      text:s==='ok'?'Aktuell.':(ohne.length?ohne.length+' ohne Stand. ':'')+(alt24.length?'Älter als zwei Jahre: '+alt24.map(x=>x.name||'ohne Namen').join(', ')+' — neuen Marktbericht prüfen.':''),
+      quelle:'Grundstücksmarktbericht; § 10 ImmoWertV'});
+  }
+  // Preisindex des Wertmonitors (Jahreswerte von Hand)
+  const ij=e.indexJahre||{}, letzte=Math.max(0,...['haus','wohnung'].map(a=>Math.max(0,...(ij[a]||[]).map(Number).filter(x=>x>1990))));
+  l.push({id:'index',gruppe:'markt',titel:'Preisindex im Wertmonitor',stand:letzte?'Jahreswerte bis '+letzte:'keine Werte',naechste:letzte?'Jahreswert '+(letzte+1):'–',
+    status:!letzte?'info':letzte>=J-1?'ok':'faellig',
+    text:!letzte?'Für die Fortschreibung Jahreswerte aus dem Marktbericht oder dem Häuserpreisindex eintragen.':letzte>=J-1?'Aktuell.':'Jahreswert '+(J-1)+' nachtragen.',
+    quelle:'Grundstücksmarktbericht; Statistisches Bundesamt, Häuserpreisindex'});
+  // eigene Daten: Sicherung
+  if((+e.projekte||0)+(+e.kunden||0)>0){
+    const tage=e.sicherung>0?Math.floor((Date.parse(heute+'T12:00:00Z')-e.sicherung)/864e5):null, neu=+e.geaendertSeitSicherung||0;
+    const s=tage==null?'faellig':tage>14&&neu>0?'faellig':'ok';
+    l.push({id:'sicherung',gruppe:'daten',titel:'Gesamtsicherung',stand:tage==null?'noch nie':'am '+datumDE(new Date(e.sicherung).toISOString().slice(0,10)),naechste:'alle 14 Tage, wenn sich etwas geändert hat',status:s,
+      text:s==='ok'?'Gesichert.':tage==null?'Noch keine Gesamtsicherung — die Daten liegen nur auf diesem Gerät.':neu+' Projekt'+(neu===1?'':'e')+' seit der letzten Sicherung geändert — jetzt sichern.',
+      quelle:'Projekte → Alle Projekte sichern'});
+  }
+  // Liegenschaften: Preiseinschätzung zum 31.12.
+  const lg=(e.liegenschaften||[]).filter(x=>x&&typeof x==='object');
+  if(lg.length){
+    const stich=(J-1)+'-12-31', ohne=lg.filter(x=>!(x.letzte&&x.letzte>=stich));
+    const s=ohne.length?(heute>tagePlus(stich,90)?'faellig':'bald'):(heute>=J+'-12-01'?'bald':'ok');
+    l.push({id:'liegenschaften',gruppe:'daten',titel:'Liegenschaften: Preiseinschätzung zum 31.12.',stand:(lg.length-ohne.length)+' von '+lg.length+' zum '+datumDE(stich),
+      naechste:'31.12.'+J,status:s,
+      text:ohne.length?'Ohne abgeschlossene Preiseinschätzung zum '+datumDE(stich)+': '+ohne.map(x=>x.name||'ohne Namen').join(', ')+'.'
+        :s==='bald'?'Die Preiseinschätzung zum 31.12.'+J+' steht an.':'Alle Liegenschaften eingeschätzt.',
+      quelle:'Liegenschaften'});
+  }
+  // Datenschutz: Löschprüfungen und erledigte Notaraufträge
+  if(+e.kunden>0||+e.loeschpruefungFaellig>0){
+    const n=+e.loeschpruefungFaellig||0;
+    l.push({id:'loeschen',gruppe:'daten',titel:'Kundendaten: Löschung prüfen',stand:n?n+' fällig':'keine fällig',naechste:'nach Datum in der Kundenakte',status:n?'faellig':'ok',
+      text:n?'Bei '+n+' Kunde'+(n===1?'':'n')+' ist das Datum „Löschung prüfen“ erreicht — prüfen, ob die Daten noch gebraucht werden (Art. 5 Abs. 1 lit. e, Art. 17 DSGVO).':'Keine Löschprüfung fällig.',
+      quelle:'Kundenakte'});
+  }
+  if(+e.notarErledigtAlt>0){
+    const n=+e.notarErledigtAlt;
+    l.push({id:'notar',gruppe:'daten',titel:'Erledigte Notaraufträge',stand:n+' seit über 6 Monaten erledigt',naechste:'–',status:'bald',
+      text:'Notaraufträge enthalten Namen und Anschriften der Beteiligten — löschen, wenn sie nicht mehr gebraucht werden.',quelle:'Notarauftrag'});
+  }
+  // Rechtsstand der Rechnungen und Hinweise
+  const wieder=tagePlus(RECHT_GEPRUEFT,182);
+  l.push({id:'recht',gruppe:'recht',titel:'Rechtsstand der Rechnungen und Hinweise',stand:'geprüft am '+datumDE(RECHT_GEPRUEFT),naechste:'erneut prüfen ab '+datumDE(wieder),
+    status:heute>=wieder?'bald':'ok',
+    text:'Am Wortlaut geprüft: ErbStG, BewG §§ 14 und 16, GModG (seit 29.07.2026 statt GEG), BGB §§ 656b–656d und 1365, WEG § 12, BeurkG § 17, GrEStG § 20, BauGB § 196, ImmoWertV §§ 9, 18 und 40.',
+    quelle:'gesetze-im-internet.de'});
+  return {liste:l,faellig:l.filter(x=>x.status==='faellig').length,bald:l.filter(x=>x.status==='bald').length};
+}
+
 const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
   ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
-  petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate};
+  petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate,
+  ics,icsText,icsFalten,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

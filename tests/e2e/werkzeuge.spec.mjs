@@ -1,4 +1,4 @@
-/* Beratung & Werkzeuge (D38): acht Kacheln — Öffnen, Rechnen wie js/beratung.js, Dokument, Kundenakte, Übergabeprotokoll
+/* Beratung & Werkzeuge (D38): Kacheln — Öffnen, Rechnen wie js/beratung.js, Dokument, Kundenakte, Übergabeprotokoll
    mit Foto und Unterschriften in der Datenbank, Wertmonitor über gesicherte Projekte, Gesamtsicherung. Nur synthetische Daten. */
 import { test, expect } from '@playwright/test';
 import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler, JETZT } from './helfer.mjs';
@@ -6,7 +6,8 @@ import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
 
 const WERKZEUGE = [['erbe', 'Übergeben & Vererben'], ['rente', 'Wohnen im Alter'], ['uebergabe', 'Übergabeprotokoll'], ['jahr', 'Mein Jahr'],
-  ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor']];
+  ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor'],
+  ['notar', 'Notarauftrag'], ['portal', 'Portal-Export'], ['datenstand', 'Datenstand']];   // D39
 function dialoge(page) {
   const liste = [];
   page.on('dialog', async d => { liste.push(d.message()); await d.accept(d.type() === 'prompt' ? (d.defaultValue() || 'x') : undefined); });
@@ -15,11 +16,11 @@ function dialoge(page) {
 const feld = (page, id) => page.locator('#wz_' + id);
 async function eintragen(page, werte) { for (const [id, v] of Object.entries(werte)) await feld(page, id).fill(v); }
 
-test('Sieben Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38)', async ({ page }) => {
+test('Zehn Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38, D39)', async ({ page }) => {
   await appOeffnen(page);
   await page.evaluate(() => appSetTab('home'));
   const kacheln = page.locator('#start_wz .tile');
-  await expect(kacheln).toHaveCount(7);
+  await expect(kacheln).toHaveCount(10);
   for (const [id, titel] of WERKZEUGE) {
     await page.locator(`#start_wz .tile[onclick="wzOeffnen('${id}')"]`).click();
     await expect(page.locator('#wz_overlay')).toHaveClass(/on/);

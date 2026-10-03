@@ -120,6 +120,22 @@
             <div class="t">Wertmonitor</div>
             <div class="d">Gesicherte Bewertungen fortschreiben — Wiedervorlage bei deutlicher Wertänderung.</div>
           </div>
+          <div class="tile q" onclick="wzOeffnen('notar')">
+            <span class="qi" data-ic="pen"></span>
+            <div class="t">Notarauftrag</div>
+            <div class="d">Alle Angaben für den Kaufvertragsentwurf — Datenblatt, Termin im Kalender, Übergabe.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('portal')">
+            <span class="qi" data-ic="upload"></span>
+            <div class="t">Portal-Export</div>
+            <div class="d">Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.</div>
+          </div>
+          <div class="tile q" onclick="wzOeffnen('datenstand')">
+            <span class="qi" data-ic="clock"></span>
+            <span class="ds-badge" id="ds_badge" hidden></span>
+            <div class="t">Datenstand</div>
+            <div class="d">Baupreisindex, Sterbetafel, Marktdaten, Sicherung — was ist aktuell, was steht an?</div>
+          </div>
         </div>
       </div>
       <div id="start_auf_block" style="display:none">
@@ -1570,7 +1586,14 @@
       Geräts — Werte, Alter und Verwandtschaftsgrad, aber <b>keine Namen</b>. „Beim Kunden ablegen“ schreibt eine kurze
       Zusammenfassung als Gesprächsnotiz in die Kundenakte. Das <b>Übergabeprotokoll</b> enthält Namen von Übergeber und
       Übernehmer, Zählerstände, Fotos und beide Unterschriften; es liegt in der lokalen Datenbank auf diesem Gerät und lässt
-      sich in der Liste der Protokolle einzeln löschen. Rechner und Protokolle sind Teil der Gesamtsicherung (nicht verschlüsselt).</p>
+      sich in der Liste der Protokolle einzeln löschen. Rechner und Protokolle sind Teil der Gesamtsicherung (nicht verschlüsselt).
+      Der <b>Notarauftrag</b> enthält Namen, Anschriften, Kontaktdaten, Familienstand und Güterstand von Verkäufer und Käufer sowie
+      Kaufpreis und Finanzierung — zur Vorbereitung des Kaufvertrags (Art. 6 Abs. 1 lit. b DSGVO). Er liegt in der lokalen
+      Datenbank auf diesem Gerät, lässt sich einzeln löschen und ist Teil der Gesamtsicherung; Geburtsdaten und
+      Steuer-Identifikationsnummern gehören nicht hinein (die erhebt das Notariat). Erledigte Aufträge meldet der „Datenstand“
+      nach sechs Monaten zum Löschen. Der <b>Portal-Export</b> schreibt eine Datei mit Objektdaten, Texten, Bildern und dem
+      Ansprechpartner (Berater) — ohne Namen von Kunden; die vollständige Anschrift nur, wenn sie freigegeben ist. Die Datei
+      verlässt das Gerät erst, wenn du sie selbst an ein Portal gibst.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -1746,7 +1769,7 @@
   </div>
 </div>
 
-<!-- Beratung & Werkzeuge (D38): ein Fenster für alle acht Kacheln, Inhalt aus src/werkzeuge.js und src/wz-*.js -->
+<!-- Beratung & Werkzeuge (D38, D39): ein Fenster für alle Kacheln, Inhalt aus src/werkzeuge.js und src/wz-*.js -->
 <div id="wz_overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="wz_titel">
   <div class="mdbwrap">
     <div class="mdb-head">
@@ -1831,6 +1854,7 @@
 <script src="js/baupreisindex.js"></script>
 <script src="js/kern.js"></script>
 <script src="js/beratung.js"></script>
+<script src="js/portal.js"></script>
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/daten.js"></script>
@@ -1880,6 +1904,9 @@
 <script src="src/wz-grundstueck.js"></script>
 <script src="src/wz-etw.js"></script>
 <script src="src/wz-wertmonitor.js"></script>
+<script src="src/wz-notar.js"></script>
+<script src="src/wz-portal.js"></script>
+<script src="src/wz-datenstand.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>

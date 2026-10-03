@@ -3,6 +3,11 @@
 .wz-start .recent-head{margin-bottom:12px}
 /* lange Namen in schmalen Kacheln: weiche Trennstellen (&shy;) im Namen, sonst Umbruch statt Abschneiden */
 .wz-quick .tile .t{overflow-wrap:break-word;-webkit-hyphens:manual;hyphens:manual}
+/* Datenstand (D39): Zahl der fälligen Punkte auf der Kachel */
+.wz-quick .tile{position:relative}
+.ds-badge{position:absolute;top:10px;right:10px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#d69e0b;color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.ds-badge.rot{background:#c0392b}
+.ds-badge[hidden]{display:none}
 
 #wz_overlay{padding:0;background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}
 #wz_titel .ic-svg{width:20px;height:20px;color:var(--accent)}
@@ -83,6 +88,24 @@
 .ub-pad-kopf span{color:var(--text-2)}
 .ub-canvas{width:100%;height:150px;background:#fff;border:1px dashed var(--line-2);border-radius:var(--rs);touch-action:none;cursor:crosshair}
 .ub-felder:disabled .wz-reihe button,.ub-felder:disabled button.plus{display:none}
+
+/* Notarauftrag, Portal-Export, Datenstand (D39) */
+.no-person{border:1px solid var(--line);border-radius:var(--rs);padding:10px 12px;margin:8px 0;background:var(--card)}
+.no-person-kopf{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.no-person-kopf button.weg{border:none;background:none;color:var(--muted);padding:4px 8px;height:auto;cursor:pointer}
+.no-reihe-unterlage{grid-template-columns:auto minmax(0,1fr) auto}
+.no-reihe-unterlage .wz-check{align-self:end;white-space:nowrap}
+.no-stand{min-width:230px}
+.no-stand .field{margin:0}
+.pt-karte .wz-karte-kopf .wz-check{padding:0;align-self:auto}
+.pt-karte .wz-ampel{margin-top:10px}
+.ds-inhalt{flex:1;min-width:0}
+.ds-kopf{display:flex;gap:4px 10px;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.ds-st{font-size:11.5px;color:var(--text-2);white-space:nowrap}
+.ds-werte{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:12px;color:var(--text-2);margin:2px 0 4px}
+.ds-inhalt small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.ds-inhalt .gr-zeile{margin-top:8px}
+.wz-grau{border-left:4px solid var(--line-2)}
 
 /* Dokument im Bericht */
 #report.wz-dok .wzd{max-width:780px;margin:0 auto;font-size:13px;line-height:1.5;color:#1a1a1a}
