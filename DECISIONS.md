@@ -1442,3 +1442,9 @@ Datenstand, Löschen).
 
 **Tests:** Browser `tests/e2e/werkzeuge-d46.spec.mjs` (Suchkunden zum Objekt, Einwilligung, Serienbrief mit einer Seite je
 Empfänger, Bcc nur mit Einwilligung, Notiz in der Kundenakte); Klicktest-Bereich „Rundschreiben“.
+
+## D47 (2026-10-03) — „Mein Jahr“ zeigt die eingegangene Provision
+
+„Mein Jahr“ rechnet die realisierte Provision weiter aus Kaufpreis und Sätzen der verkauften Aufträge (Prognose). Neu daneben:
+„Eingegangen {Jahr}“ — die Summe der Zahlungseingänge aus der Kachel „Provision“ im gewählten Jahr (Beträge inklusive
+Umsatzsteuer wie die Prognose; erfasster Betrag, sonst der Rechnungsbetrag). So stehen Plan und Ist nebeneinander.

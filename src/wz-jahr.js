@@ -2,6 +2,7 @@
    Vertriebsübersicht über alle Aufträge mit Vermarktungsstand (Abschnitt „Vermarktung“ der gesicherten Projekte):
    Phase, Provision bei Halbteilung (§ 656c BGB), mit Erfahrungswerten gewichtete Prognose, Ziel, Herkunft der Aufträge.
    Herkunft, Kaufpreis und Abschlussdatum je Auftrag stehen nur hier (S.obj[Projekt-ID]), die Projekte bleiben unverändert. */
+var JAHR_LAEDT=false;
 const JAHR_HERKUNFT=['','Filiale / Kundenberater','Empfehlung','Bestandskunde','Bewertung / Preiseinschätzung','Online / Portal','Sonstiges'];
 function jahrStart(){ return {jahr:String(new Date().getFullYear()),ziel:'',provV:'3,57',provK:'3,57',w:{},obj:{}}; }
 function jahrObjekte(S){
@@ -12,6 +13,12 @@ function jahrObjekte(S){
     let kd=f.ek_kunde_id&&typeof KD_CACHE!=='undefined'?KD_CACHE.find(k=>k.id===f.ek_kunde_id):null;
     return {id:key,name:x.name,status:f.vm_status,preis,kaufpreis:wzN(o.kaufpreis,true),abschluss:o.abschluss||'',herkunft:o.herkunft||'',kunde:kd?kdName(kd):''};
   });
+}
+/* tatsächlich eingegangene Provision laut Kachel „Provision“ (D47) — Beträge inklusive Umsatzsteuer wie die Prognose */
+function jahrEingang(jahr){
+  if(typeof paBetrag!=='function'||!wzdBereit()) return null; let s=0;
+  wzdListe('abrechnungen').forEach(a=>(a.parteien||[]).forEach(p=>{ if(String(p.bezahltAm||'').slice(0,4)===String(jahr)) s+=wzN(p.bezahltBetrag,true)||paBetrag(a,p).brutto; }));
+  return s;
 }
 function jahrEinstellungen(S){
   let w={}; ImmoBeratung.JAHR_PHASEN.forEach(ph=>{ let v=wzHol(S,'w.'+ph); if(v!=null&&String(v).trim()!=='') w[ph]=wzN(v); });
@@ -43,7 +50,9 @@ function jahrRechnen(S){
   wzH('wz_jahr_kpis','<div class="kpis wz-kpis"><div class="kpi"><span>Provision '+r.jahr+' realisiert</span><b>'+wzEur(r.realisiert)+'</b></div>'
     +'<div class="kpi"><span>Prognose (gewichtet)</span><b>'+wzEur(r.prognose)+'</b></div>'
     +'<div class="kpi"><span>Ziel</span><b>'+(r.ziel?wzEur(r.ziel):'–')+'</b>'+(q!=null?'<div class="wz-balken" role="img" aria-label="Zielerreichung '+wzZ(q,0)+' %"><i style="width:'+Math.min(100,q)+'%"></i></div><small>'+wzZ(q,0)+' % erreicht (Prognose)</small>':'')+'</div>'
-    +'<div class="kpi"><span>Offene Aufträge</span><b>'+offen+'</b></div></div>');
+    +'<div class="kpi"><span>Offene Aufträge</span><b>'+offen+'</b></div>'
+    +(jahrEingang(r.jahr)!=null?'<div class="kpi"><span>Eingegangen '+r.jahr+'</span><b>'+wzEur(jahrEingang(r.jahr))+'</b><small>laut Kachel „Provision“</small></div>':'')+'</div>');
+  if(!wzdBereit()&&!JAHR_LAEDT){ JAHR_LAEDT=true; wzdLaden().then(()=>{ JAHR_LAEDT=false; if(WZ.aktiv==='jahr') wzRechnen(); }); }
   wzH('wz_jahr_phasen','<div class="wz-tabwrap"><table class="nhk wz-tab"><thead><tr><th>Phase</th><th>Anzahl</th><th>Volumen</th><th>Provision</th><th>gewichtet</th></tr></thead><tbody>'
     +r.phasen.map(p=>'<tr><td>'+sEsc(p.phase)+(p.phase==='Verkauft'?' ('+r.jahr+')':'')+'</td><td class="r">'+p.anzahl+'</td><td class="r">'+wzEur(p.volumen)+'</td><td class="r">'+wzEur(p.provision)+'</td><td class="r">'+wzEur(p.gewichtet)+'</td></tr>').join('')
     +'</tbody></table></div>');

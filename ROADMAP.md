@@ -236,6 +236,7 @@ eigener Datensicherung (D15). Weitere Stufen siehe unten.
 | 68 | [ ] Später auf dem Bankserver: Web-Exposé als Link mit Abruf-Statistik, mehrere Nutzer mit Rollen und Rechten, gemeinsamer Bestand | braucht Server |
 | 69 | [x] Bieterverfahren: Frist, Mindestgebot, Regeln, Gebote mit Rang, Übersicht für den Eigentümer ohne Namen — erledigt 2026-10-03 (D40) | Abgleich mit FIO |
 | 70 | [x] Provisionsrechnung und Vermittlungsnachweis als Dokument (Halbteilung, Fälligkeit nach § 656d BGB) — erledigt 2026-10-03 (D42, Kachel „Provision“; Nachweis der Zahlung auf der Rechnung, E-Rechnung an Unternehmer über das Buchungssystem der Bank); dazu Kachel „Kaufnebenkosten“ nach GNotKG | Abgleich mit FIO |
+| 77 | [x] „Mein Jahr“ mit eingegangener Provision aus den Abrechnungen neben der Prognose — erledigt 2026-10-03 (D47) | Plan und Ist |
 | 76 | [x] Rundschreiben: Serienbrief und E-Mail an Suchkunden zum Objekt, an alle mit Einwilligung oder an Eigentümer; E-Mail nur mit Einwilligung (§ 7 UWG) — erledigt 2026-10-03 (D46) | Abgleich mit FIO (Serienbriefe) |
 | 75 | [x] Verknüpfungen: Zahlungsziele im Kalender, Provision und Unterlagen in den Aktivitäten, Abrechnungen in der Suche, Datenstand erinnert an das Löschen erledigter Abrechnungen und Vollmachten — erledigt 2026-10-03 (D45) | Abgleich mit FIO |
 | 74 | [x] Social Media: Bild in drei Formaten und Text je Objekt, mit Pflichtangaben zum Energieausweis, im Farbschema — erledigt 2026-10-03 (D44); Veröffentlichen direkt aus der App erst mit Server und Zugängen | Abgleich mit FIO (Vermarktung) |
