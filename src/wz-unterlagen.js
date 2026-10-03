@@ -8,7 +8,8 @@
    und 4 LBO). Speicher „unterlagen“ in der Datenbank (Version 7), weil die Vollmacht Namen und Unterschrift enthält. */
 var UL={aktiv:null,dok:''};
 const UL_STELLEN=[['eigentuemer','Eigentümer'],['grundbuchamt','Grundbuchamt'],['gemeinde','Gemeinde (Bauverwaltung)'],['baurecht','Baurechtsbehörde (Bauakte)'],
-  ['vermessung','Vermessungsbehörde'],['landratsamt','Landratsamt (Bodenschutz)'],['verwalter','Hausverwaltung'],['bank','Bank des Eigentümers'],['gutachter','Gutachterausschuss']];
+  ['vermessung','Vermessungsbehörde'],['landratsamt','Landratsamt (Bodenschutz)'],['verwalter','Hausverwaltung'],['bank','Bank des Eigentümers'],['gutachter','Gutachterausschuss'],
+  ['nachlassgericht','Nachlassgericht'],['betreuungsgericht','Betreuungsgericht'],['familiengericht','Familiengericht'],['notariat','Notariat']];   // D49: Stellen für Posten aus anderen Kacheln
 const UL_STAND=[['offen','offen'],['angefordert','angefordert'],['da','liegt vor'],['entfaellt','entfällt']];
 const UL_ARTEN=[['h','Einfamilienhaus (auch Doppel- oder Reihenhaus)'],['w','Wohnung'],['m','Mehrfamilienhaus oder Gewerbe'],['g','Grundstück ohne Gebäude']];
 /* [Schlüssel, Unterlage, Stelle, wofür, Objektarten, Hinweis, Nummer im Aufnahmebogen (AU_UNTERLAGEN)] */
@@ -42,7 +43,18 @@ function ulStellenName(k){ return (UL_STELLEN.find(s=>s[0]===k)||['',k])[1]; }
 function ulStandName(k){ return (UL_STAND.find(s=>s[0]===k)||UL_STAND[0])[1]; }
 /* Objektart aus der Bewertung: Wohnung, Ein-/Zweifamilien-, Doppel- oder Reihenhaus, sonst Mehrfamilienhaus oder Gewerbe */
 function ulArtAus(f){ f=f||{}; return (f.ek_modus||'')==='wohnung'?'w':/^(EFH|ZFH|Doppel|Reihen)/.test(f.ek_typ||'')?'h':'m'; }
-function ulPosten(r){ return UL_LISTE.filter(x=>x[4].includes(r.art||'h')).map(x=>({x,s:(r.posten||{})[x[0]]||{stand:'offen'}})); }
+function ulPosten(r){ return UL_LISTE.filter(x=>x[4].includes(r.art||'h')).map(x=>({x,s:(r.posten||{})[x[0]]||{stand:'offen'}}))
+  .concat((Array.isArray(r.zusatz)?r.zusatz:[]).map(z=>({x:[z.key,z.name,z.stelle,z.fuer||'',r.art||'h',z.hinweis||'',null],s:(r.posten||{})[z.key]||{stand:'offen'},zusatz:z}))); }
+/* Weitere Posten aus anderen Kacheln (D49): posten=[{key, name, stelle, fuer, hinweis, herkunft}]. Gleicher Schlüssel = ersetzt den
+   Eintrag (Name, Stelle, Hinweis), der Stand bleibt. Mit entfernen=[Schlüssel] verschwinden Posten, die nicht mehr nötig sind. */
+async function ulPostenErgaenzen(projektId,posten,entfernen){
+  await wzdLaden(); let o=wzdObjekt(projektId); if(!o) return null;
+  let r=wzdListe('unterlagen').find(x=>x.projektId===projektId); if(!r){ r=ulLeer(o); }
+  r.zusatz=(Array.isArray(r.zusatz)?r.zusatz:[]).filter(z=>!(entfernen||[]).includes(z.key));
+  (posten||[]).forEach(p=>{ if(!p||!p.key||!p.name) return; let i=r.zusatz.findIndex(z=>z.key===p.key), z={key:String(p.key),name:String(p.name),stelle:String(p.stelle||'eigentuemer'),fuer:String(p.fuer||''),hinweis:String(p.hinweis||''),herkunft:String(p.herkunft||'')};
+    if(i>=0) r.zusatz[i]=z; else r.zusatz.push(z); });
+  await wzdSpeichern('unterlagen',r); if(UL.aktiv&&UL.aktiv.id===r.id) UL.aktiv=r; return r;
+}
 function ulFortschritt(r){ let l=ulPosten(r).filter(p=>p.s.stand!=='entfaellt'); return {da:l.filter(p=>p.s.stand==='da').length,angefordert:l.filter(p=>p.s.stand==='angefordert').length,gesamt:l.length}; }
 /* „liegt vor“ aus dem Aufnahmebogen der gesicherten Bewertung (Felder au_ul0 … au_ul13) */
 function ulAusBewertung(r,f){

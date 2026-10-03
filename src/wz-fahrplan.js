@@ -30,6 +30,8 @@ function fpLaden(){
 function fpAuftraege(){ return wzdObjekte(true).filter(o=>FP_STAENDE.includes(o.status)); }
 function fpGleich(a,b){ let n=x=>String(x||'').toLowerCase().replace(/[^a-z0-9äöüß]/g,''); return !!n(a)&&n(a)===n(b); }
 /* automatisch erkannte Schritte aus den vorhandenen Daten */
+/* weitere Kacheln melden erkannte Schritte an (D49): Funktion (o) → {schluessel: true|false} */
+var FP_AUTO_HOOKS=[];
 function fpAuto(o){
   let f=o.f, p=pjLoad().find(x=>x.id===o.id)||{}, E=null, ex=FP.extra||{notar:[],prot:[]}, ev=[];
   try{ E=window.ImmoPortal?ImmoPortal.energie(ImmoPortal.leser(f),{}):null; }catch(e){}
@@ -53,7 +55,8 @@ function fpAuto(o){
     kaeufer:st>=3,
     notar1:stand>=1||st>=4, notar2:stand>=2, notar3:stand>=3||st>=5,
     uebergabe:ex.prot.some(x=>x.abgeschlossen&&fpGleich(x.anschrift,o.anschrift)),
-    provision:typeof paErledigt==='function'&&wzdListe('abrechnungen').some(a=>(a.projektId===o.id||fpGleich(a.anschrift,o.anschrift))&&paErledigt(a))
+    provision:typeof paErledigt==='function'&&wzdListe('abrechnungen').some(a=>(a.projektId===o.id||fpGleich(a.anschrift,o.anschrift))&&paErledigt(a)),
+    ...FP_AUTO_HOOKS.reduce((m,h)=>{ try{ return Object.assign(m,h(o)||{}); }catch(e){ return m; } },{})
   };
 }
 function fpSchritte(o){

@@ -4,8 +4,8 @@
    Personen selbst stehen nur in der Kundenakte — die Datensätze merken sich die Kunden-Id. Löscht man einen Kunden, gehen
    seine Anfragen, Akquise-Einträge und Gebote mit, aus Terminen wird er ausgetragen; die Auskunft nach Art. 15 DSGVO aus
    der Kundenakte führt alles auf (Erweiterungspunkte in src/customers.js). Gesicherte Bewertungen werden nur gelesen. */
-var WZD={termine:null,vorgaenge:null,bieter:null,abrechnungen:null,unterlagen:null,laeuft:null};
-const WZD_SPEICHER=['termine','vorgaenge','bieter','abrechnungen','unterlagen'];   // abrechnungen: „Provision“ (D42), unterlagen: „Unterlagen“ (D43)
+var WZD={termine:null,vorgaenge:null,bieter:null,abrechnungen:null,unterlagen:null,akten:null,laeuft:null};
+const WZD_SPEICHER=['termine','vorgaenge','bieter','abrechnungen','unterlagen','akten'];   // abrechnungen: „Provision“ (D42), unterlagen: „Unterlagen“ (D43)
 const WZD_AKTIV=['Auftrag erteilt','In Vermarktung','Reserviert','Notartermin'];
 async function wzdLaden(neu){
   if(WZD.laeuft&&!neu) return WZD.laeuft;
@@ -31,6 +31,11 @@ async function wzdLoeschen(s,id){
   try{ await iaDel(s,id); }catch(e){ alert('Konnte nicht gelöscht werden: '+iaFehlerText(e)+'.'); return false; }
   WZD[s]=(WZD[s]||[]).filter(x=>x.id!==id); return true;
 }
+/* ---------- Akten (D49): ein Speicher für Verträge, Prüfungen und Vorgänge der Kacheln ab D49 ----------
+   Jeder Eintrag hat id, art (z. B. 'maklervertrag', 'gwg', 'tipp'), meist projektId und kundeId bzw. kundeIds. Personen stehen nur in
+   der Kundenakte; Löschen und Auskunft melden die Kacheln selbst an (KD_LOESCH_HOOKS, KD_AUSKUNFT_HOOKS). */
+function wzdAkten(art,projektId){ return wzdListe('akten').filter(a=>a.art===art&&(projektId==null||a.projektId===projektId)); }
+function wzdAkteNeu(art,felder){ return Object.assign({id:wzdId(art.slice(0,2)),art,ts:Date.now()},felder||{}); }
 /* Speichern mit Verzögerung beim Tippen (je Datensatz) */
 var WZD_TIMER={};
 function wzdSpeichernBald(s,o){ clearTimeout(WZD_TIMER[o.id]); WZD_TIMER[o.id]=setTimeout(()=>{ delete WZD_TIMER[o.id]; wzdSpeichern(s,o); },400); }
