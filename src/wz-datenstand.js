@@ -3,7 +3,7 @@
    Marktberichte, Preisindex des Wertmonitors) und die eigenen Daten (Sicherung, Liegenschaften, Löschprüfungen)? Je Eintrag
    Stand, erwartete nächste Veröffentlichung und was zu tun ist; fällige Punkte zählt die Kachel auf der Startseite.
    Die Regeln stehen in js/beratung.js (datenstand) und sind dort getestet. Das Dokument dient als Nachweis der Datenstände. */
-var DS={erg:null,laeuft:null};
+var DS={erg:null,laeuft:null,weg:false};
 const DS_GRUPPEN=[['rechnen','Rechengrundlagen der App'],['markt','Marktdaten'],['daten','Deine Daten'],['recht','Rechtsstand']];
 const DS_STATUS={ok:['gruen','aktuell'],bald:['gelb','bald prüfen'],faellig:['rot','fällig'],info:['grau','nicht hinterlegt']};
 const DS_AKTION={sicherung:['Jetzt sichern','dsSichern()','download'],markt:['Marktdaten öffnen','wzSchliessen();pqOeffnen()','book'],
@@ -21,7 +21,8 @@ async function dsEingaben(){
   const jahre=o=>Object.keys(o&&typeof o==='object'?o:{}).filter(j=>/^\d{4}$/.test(j)&&wzN(o[j])>0).map(Number);
   const aktiv=pj.filter(p=>['Auftrag erteilt','In Vermarktung','Reserviert'].includes(((p.data&&p.data.fields)||{}).vm_status));
   const ts=lb&&lb.ts||0;
-  return {bpiStand:ImmoBaupreisindex.STAND,tafelZeitraum:ImmoSterbetafel.zeitraum,bmfJahre:Object.keys(ImmoBeratung.BMF_VERVIELFAELTIGER).map(Number),
+  const BPI=window.ImmoBaupreisindex||{}, ST=window.ImmoSterbetafel||{}, BER=window.ImmoBeratung||{};
+  return {bpiStand:BPI.STAND||'',tafelZeitraum:ST.zeitraum||'',bmfJahre:Object.keys(BER.BMF_VERVIELFAELTIGER||{}).map(Number),
     marktdaten:typeof pqSets==='function'?pqSets().map(s=>({name:s.titel||s.gebiet||s.quelle||'',stand:s.stand||''})):[],
     indexJahre:{haus:jahre(idx.haus),wohnung:jahre(idx.wohnung)},
     bewertungenVorBrw:aktiv.filter(p=>{ let s=typeof wmStichtag==='function'?wmStichtag(p,(p.data&&p.data.fields)||{}):''; return s&&s<brw; }).length,
@@ -31,7 +32,7 @@ async function dsEingaben(){
 }
 async function dsAktualisieren(){
   if(DS.laeuft) return DS.laeuft;
-  DS.laeuft=(async()=>{ try{ DS.erg=ImmoBeratung.datenstand(await dsEingaben(),aufHeute()); }catch(e){ console.error('Datenstand',e); } DS.laeuft=null; dsBadge(); return DS.erg; })();
+  DS.laeuft=(async()=>{ try{ DS.erg=ImmoBeratung.datenstand(await dsEingaben(),aufHeute()); }catch(e){ if(!DS.weg) console.error('Datenstand',e); DS.erg=DS.erg||{liste:[],faellig:0,bald:0}; } DS.laeuft=null; dsBadge(); return DS.erg; })();
   return DS.laeuft;
 }
 /* Zahl auf der Kachel der Startseite: fällige und bald zu prüfende Punkte */
@@ -69,5 +70,7 @@ function dsDokument(){
 wzRegistrieren({id:'datenstand',titel:'Datenstand',sub:'Rechengrundlagen und Daten · was ist aktuell, was steht an',icon:'clock',ohneNeu:true,
   zeichnen:dsZeichnen,rechnen:dsRechnen,dokument:dsDokument,aktionen:[{label:'Neu prüfen',icon:'check',fn:'DS.erg=null;wzZeichnen()'}],
   schliessen:()=>{ dsBadge(); }});
-/* beim Start nach dem Laden der Daten einmal prüfen (für die Zahl auf der Kachel) */
-if(typeof IA_BEREIT_P!=='undefined') setTimeout(()=>{ IA_BEREIT_P.then(()=>dsAktualisieren()).catch(()=>{}); },1500);
+/* beim Start einmal prüfen (für die Zahl auf der Kachel): erst nach dem Laden aller Skripte und der Datenbank, nicht mehr
+   beim Verlassen der Seite (sonst läuft die Prüfung in eine Seite, die gerade abgebaut wird) */
+addEventListener('pagehide',()=>{ DS.weg=true; });
+addEventListener('load',()=>{ setTimeout(()=>{ if(DS.weg) return; Promise.resolve(window.IA_BEREIT_P).then(()=>{ if(!DS.weg) dsAktualisieren(); }).catch(()=>{}); },600); });

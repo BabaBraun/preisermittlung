@@ -68,6 +68,8 @@ function wzAmpel(stufe,text){ return '<div class="wz-ampel wz-'+stufe+'"><span c
 /* ---------- Öffnen, Zeichnen, Rechnen ---------- */
 function wzOeffnen(id){
   let d=WZ.reg[id], o=$('wz_overlay'); if(!d||!o) return;
+  // Wechsel von einem anderen Werkzeug (z. B. Interessent → Kalender): dessen Abschluss ausführen (speichern, Ansicht zurücksetzen)
+  let vorher=WZ.aktiv&&WZ.aktiv!==id?WZ.reg[WZ.aktiv]:null; if(vorher&&vorher.schliessen) try{ vorher.schliessen(); }catch(e){}
   WZ.aktiv=id;
   $('wz_titel').innerHTML=iaSvg(d.icon)+sEsc(d.titel);
   wzT('wz_sub',d.sub||'');
@@ -79,6 +81,7 @@ function wzSchliessen(){
   wzSpeichernJetzt();
   let d=WZ.reg[WZ.aktiv]; if(d&&d.schliessen) try{ d.schliessen(); }catch(e){}
   o.classList.remove('on'); document.body.style.overflow=''; WZ.aktiv=null;
+  if(typeof startHeuteRender==='function') startHeuteRender();   // Termine könnten sich geändert haben (D40)
 }
 function wzAktionen(){
   let d=WZ.reg[WZ.aktiv], b=[];

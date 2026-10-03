@@ -87,11 +87,17 @@ function projektSicherungPruefen(o){
   // Beratung & Werkzeuge (D38): Übergabeprotokolle und Eingaben der Rechner
   const protokolle=(istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle:[]).filter(x=>istObjekt(x)&&idGueltig(x.id));
   const notar=(istObjekt(o)&&Array.isArray(o.notar)?o.notar:[]).filter(x=>istObjekt(x)&&idGueltig(x.id)&&Array.isArray(x.verkaeufer)&&Array.isArray(x.kaeufer));   // Notaraufträge (D39)
+  // Termine, Vorgänge (Anfragen, Akquise) und Bieterverfahren (D40)
+  const liste_=n=>istObjekt(o)&&Array.isArray(o[n])?o[n]:[];
+  const termine=liste_('termine').filter(x=>istObjekt(x)&&idGueltig(x.id)&&typeof x.datum==='string');
+  const vorgaenge=liste_('vorgaenge').filter(x=>istObjekt(x)&&idGueltig(x.id)&&(x.typ==='anfrage'||x.typ==='akquise'));
+  const bieter=liste_('bieter').filter(x=>istObjekt(x)&&idGueltig(x.id)&&Array.isArray(x.gebote));
   const werkzeuge=istObjekt(o)&&istObjekt(o.werkzeuge)?o.werkzeuge:null;
   const verworfen=uebersprungen+((istObjekt(o)&&Array.isArray(o.kunden)?o.kunden.length:0)-kunden.length)+((istObjekt(o)&&Array.isArray(o.aufgaben)?o.aufgaben.length:0)-aufgaben.length)
-    +((istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle.length:0)-protokolle.length)+((istObjekt(o)&&Array.isArray(o.notar)?o.notar.length:0)-notar.length);
-  if(!projekte.length&&!kunden.length&&!protokolle.length&&!notar.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
-  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,notar,werkzeuge,verworfen};
+    +((istObjekt(o)&&Array.isArray(o.protokolle)?o.protokolle.length:0)-protokolle.length)+((istObjekt(o)&&Array.isArray(o.notar)?o.notar.length:0)-notar.length)
+    +(liste_('termine').length-termine.length)+(liste_('vorgaenge').length-vorgaenge.length)+(liste_('bieter').length-bieter.length);
+  if(!projekte.length&&!kunden.length&&!protokolle.length&&!notar.length&&!termine.length&&!vorgaenge.length&&!bieter.length&&!werkzeuge) return {ok:false,fehler:uebersprungen?'Keiner der '+uebersprungen+' Einträge ist lesbar — die Datei ist beschädigt.':'In der Sicherung stehen keine Projekte oder Kunden.'};
+  return {ok:true,version,projekte,kunden,aufgaben,parameter,protokolle,notar,termine,vorgaenge,bieter,werkzeuge,verworfen};
 }
 
 /* Sicherung des Marktüberblicks (schlank oder mit PDF-Anhängen) */

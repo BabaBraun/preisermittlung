@@ -304,12 +304,56 @@ const BEREICHE = [
     else noOeffnenAuftrag(NO.liste[0].id); }) },
   { name: 'Werkzeug – Portal-Export', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('portal')) },
   { name: 'Werkzeug – Datenstand', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('datenstand'); await dsAktualisieren(); wzZeichnen(); }) },
+  // Akquise, Interessenten, Bieterverfahren, Fotostudio, Vorlagen, Verkaufsfahrplan, Kalender, Kaufen oder Mieten (D40) — Musterdaten bei Bedarf anlegen
+  { name: 'Werkzeug – Akquise', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('akquise'); await wzdLaden(); VG.aktiv = null; VG.neu = null; vgSetz('ansicht', 'pipeline'); }) },
+  { name: 'Werkzeug – Akquise-Kontakt', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('akquise'); await wzdLaden();
+    let v = wzdListe('vorgaenge').find(x => x.typ === 'akquise');
+    if (!v) { v = { id: 'v_kt_ak', typ: 'akquise', datum: '2026-09-20', kundeId: 'k_test', projektId: '', quelle: 'Filiale', status: 'Erstkontakt', stufe: 0, abgesagt: false,
+      objektArt: 'Einfamilienhaus', objektOrt: 'Musterstadt', wert: '400000', anlass: 'Verkauf geplant', grund: '', notiz: '', verlauf: [] }; await wzdSpeichern('vorgaenge', v); }
+    vgOeffnenId(v.id); }) },
+  { name: 'Werkzeug – Interessenten', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden(); VG.aktiv = null; VG.neu = null; vgSetz('ansicht', 'liste'); }) },
+  { name: 'Werkzeug – Interessenten-Abgleich', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden(); VG.aktiv = null; VG.neu = null; vgSetz('ansicht', 'abgleich'); }) },
+  { name: 'Werkzeug – Anfrage', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('interessenten'); await wzdLaden();
+    let v = wzdListe('vorgaenge').find(x => x.typ === 'anfrage');
+    if (!v) { v = { id: 'v_kt_an', typ: 'anfrage', datum: '2026-09-25', kundeId: 'k_test', projektId: (pjLoad()[0] || {}).id || '', quelle: 'Filiale', status: 'Neu', stufe: 0, abgesagt: false,
+      grund: '', notiz: '', verlauf: [] }; await wzdSpeichern('vorgaenge', v); }
+    vgOeffnenId(v.id); }) },
+  { name: 'Werkzeug – Bieterverfahren', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('bieter'); await wzdLaden(); BI.aktiv = null; BI.neu = null; BI.gebotNeu = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Gebote', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('bieter'); await wzdLaden();
+    let b = wzdListe('bieter')[0];
+    if (!b) { b = { id: 'b_kt', projektId: (pjLoad()[0] || {}).id || '', objekt: 'Musterhaus', start: '2026-09-20', ende: '2026-10-20', endeZeit: '18:00', mindestgebot: '', regeln: BI_REGELN, status: 'laufend',
+      gebote: [{ id: 'g_kt', kundeId: 'k_test', betrag: 410000, datum: '2026-09-28', zeit: '', finanzierung: BI_FINANZ[0], bedingungen: '', status: 'gültig' }] }; await wzdSpeichern('bieter', b); }
+    await biOeffnen(b.id); }) },
+  { name: 'Werkzeug – Fotostudio', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('foto');
+    const c = document.createElement('canvas'); c.width = 640; c.height = 420; const g = c.getContext('2d'); g.fillStyle = '#6a8caf'; g.fillRect(0, 0, 640, 420); g.fillStyle = '#e8d8b0'; g.fillRect(200, 120, 240, 180);
+    fsLaden(c.toDataURL('image/jpeg', 0.85), 'Muster'); await new Promise(r => { const t0 = Date.now(), i = setInterval(() => { if (FS.bild || Date.now() - t0 > 3000) { clearInterval(i); r(); } }, 50); }); }) },
+  { name: 'Werkzeug – Vorlagen', wurzel: '#wz_overlay', auf: js(() => vlOeffnenMit({ vorlage: 'expose', kundeId: 'k_test', projektId: (pjLoad()[0] || {}).id || '' })) },
+  { name: 'Werkzeug – Verkaufsfahrplan', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('fahrplan'); FP.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Fahrplan-Auftrag', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('fahrplan'); await fpLaden(); FP.aktiv = p ? p.id : null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Kalender', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('kalender'); await kaLaden(); KA.aktiv = null; kaSetz('ansicht', 'liste'); }) },
+  { name: 'Werkzeug – Kalender-Monat', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('kalender'); await kaLaden(); KA.aktiv = null; kaSetz('ansicht', 'monat'); }) },
+  { name: 'Werkzeug – Termin', wurzel: '#wz_overlay', auf: js(async () => { await wzdLaden(); let t = wzdListe('termine')[0];
+    if (!t) { t = { id: 't_kt', art: 'Besichtigung', titel: '', datum: '2026-10-05', von: '10:00', bis: '11:00', ort: 'Musterweg 1, 74000 Musterstadt', projektId: (pjLoad()[0] || {}).id || '', kundeIds: ['k_test'], notiz: '', erinnerung: '60' };
+      await wzdSpeichern('termine', t); }
+    await kaTerminOeffnen(t.id); }) },
+  { name: 'Werkzeug – Kaufen oder Mieten', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('kaufmiete')) },
+  { name: 'Werkzeug – Aushang', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('aushang'); }) },
+  { name: 'Werkzeug – Aushang-Blatt', wurzel: '#report', auf: js(async () => { const p = pjLoad()[0];
+    if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
+    wzOeffnen('aushang'); await ahAnzeigen(); }) },
   { name: 'Datenschutz', wurzel: '#dsgvo_overlay', auf: js(() => dsgvoOeffnen()) },
   // „Einrichten“ braucht Face ID/Touch ID — mit simuliertem Authenticator geprüft in tests/e2e/sonderablaeufe.spec.mjs
   { name: 'App-Sperre', wurzel: '#lock_setup_overlay', auf: js(() => lockSetupOeffnen()), nicht: /einrichten|aktivieren|Face ID|Touch ID|Gerätecode/i, nichtGrund: 'braucht Face ID / Touch ID — eigener Test (sonderablaeufe.spec.mjs)' },
   { name: 'Selbsttest', wurzel: '#st_overlay', auf: async () => { await page.evaluate(() => iaSelbsttestOeffnen()); await page.waitForSelector('#st_overlay', { timeout: 20000 }); } },
   { name: 'Suche', wurzel: '#suche', auf: async () => { await page.evaluate(() => sucheOeffnen()); await page.waitForTimeout(200); await page.locator('#suche_q').fill('Muster'); } },
-  { name: 'Teilen-Fenster', wurzel: '#teilen_overlay', auf: js(() => teilenDialog(new File(['x'], 'Test.pdf', { type: 'application/pdf' }), 'Test')) }
+  { name: 'Teilen-Fenster', wurzel: '#teilen_overlay', auf: js(() => teilenDialog(new File(['x'], 'Test.pdf', { type: 'application/pdf' }), 'Test')) },
+  { name: 'Darstellung – Farben', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('farben')) }
 ];
 
 async function herstellen(B) {

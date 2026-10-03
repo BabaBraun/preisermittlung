@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die zehn Kacheln „Beratung & Werkzeuge“, zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 19 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,8 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Zehn Kacheln auf der Startseite unter „Beratung & Werkzeuge“, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
+Neunzehn Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
+Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
 - **Beim Kunden ablegen:** schreibt eine kurze Zusammenfassung als Gesprächsnotiz in die Kundenakte.
@@ -203,6 +204,32 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   Marktberichte, Preisindex, Sicherung, Liegenschaften, Löschprüfungen und Rechtsstand? Je Punkt Stand, nächste
   Veröffentlichung, was zu tun ist und Quelle. Die Zahl auf der Kachel nennt die Punkte, die fällig sind oder bald
   anstehen. „Dokument“ hält die Datenstände als Nachweis fest.
+
+### Neu seit 03.10.2026 (D40)
+
+- **Akquise:** „Neuer Kontakt“ erfasst Eigentümer mit Quelle, Anlass, Objektart, Ort und grob geschätztem Wert (die Person
+  landet in der Kundenakte). Die Übersicht zeigt die Kontakte als Spalten je Status mit Objektwert und möglicher Provision. Im
+  Kontakt: Status, Verlauf, Wiedervorlage, Termin, Schreiben, „Bewertung beginnen“.
+- **Interessenten:** „Neue Anfrage“ zu einem Objekt in Vermarktung (Quelle, Person neu oder aus der Kundenakte). In der Anfrage:
+  Status bis Kauf oder Absage mit Grund, „Exposé versendet“, „Besichtigung planen“ (Kalender), „Schreiben“ (Vorlagen),
+  „Gebot erfassen“, Wiedervorlage, Verlauf. **Abgleich** zeigt, welche vorgemerkten Interessenten mit Suchprofil zu welchem
+  Objekt passen — „Als Anfrage übernehmen“. **Auswertung** zeigt je Quelle und Objekt, wie weit die Anfragen gekommen sind.
+- **Bieterverfahren:** Objekt, Frist und Mindestgebot festlegen, Gebote eintragen (Betrag, Eingang, Finanzierung,
+  Bedingungen). Die Tabelle sortiert nach Gebot; „Dokument“ ist die Übersicht für den Eigentümer ohne Namen.
+- **Fotostudio:** „Foto wählen“ (oder ein Foto der geöffneten Bewertung), dann drehen, begradigen, zuschneiden, Licht und Farbe
+  einstellen, mit „Schwärzen“ oder „Verpixeln“ Rechtecke über Personen, Kennzeichen oder Namen ziehen, „Als JPEG speichern“.
+- **Vorlagen:** Vorlage wählen, Empfänger aus der Kundenakte, Objekt und Termin wählen — der Text füllt sich, lässt sich ändern
+  und als E-Mail öffnen, kopieren, als Word speichern oder in der Kundenakte vermerken. Eigene Vorlagen mit Platzhaltern.
+- **Verkaufsfahrplan:** je Auftrag die Schritte vom Maklervertrag bis zur Nachbetreuung; „erkannt“ hakt die App selbst ab.
+- **Aushang:** ein Objekt groß oder bis zu vier als Übersicht für Schaufenster und Filiale — mit Preis, Pflichtangaben zum
+  Energieausweis und Ansprechpartner; „Aushang anzeigen“, dann Drucken oder PDF.
+- **Kalender:** Liste oder Monat; „Neuer Termin“ mit Objekt und Teilnehmern; „Kalenderdatei“ für den Gerätekalender.
+- **Kaufen oder Mieten:** Kaufpreis, Nebenkosten, Eigenkapital, Zins, Tilgung, Instandhaltung, Wertsteigerung gegen Miete,
+  Mietsteigerung und Rendite der Geldanlage — Vermögen beider Wege je Jahr, Diagramm, ab welchem Jahr Kaufen vorn liegt.
+- **Startseite:** „Heute und morgen“ zeigt die Termine und fälligen Wiedervorlagen der beiden Tage.
+- **Kundenakte:** „Neue Anfrage“, „Akquise-Kontakt“ und „Termin“ legen den Eintrag gleich mit diesem Kunden an.
+- **Suche (Strg K):** findet auch Anfragen, Akquise-Kontakte und Termine.
+- **Farben:** Mehr → Darstellung — Farbschema (Petrol, Blau, Bordeaux, Graphit, Waldgrün) und hell, dunkel oder wie das Gerät.
 
 ## Liegenschaften
 

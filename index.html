@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>try{var iaT=localStorage.getItem('ia_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',iaT);}catch(e){}</script>
+<script>try{var iaT=localStorage.getItem('ia_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',iaT);var iaF=localStorage.getItem('ia_farbe');if(iaF)document.documentElement.setAttribute('data-farbe',iaF);}catch(e){}</script>
 <title>ImmoApp</title>
 <!-- PWA: installierbar auf Handy/Tablet, offline nutzbar.
      Die Icons sind als data:-URI eingebettet: Damit ergibt schon der Upload
@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="assets/app-shell.css">
 <link rel="stylesheet" href="assets/liegenschaften.css">
 <link rel="stylesheet" href="assets/werkzeuge.css">
+<link rel="stylesheet" href="assets/farben.css">
 </head>
 <body>
 <div id="lock_overlay" style="display:none;position:fixed;inset:0;z-index:900;background:radial-gradient(120% 80% at 50% 0%,#16284A 0%,#0B1422 60%);color:#E6EEF9;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif">
@@ -82,62 +83,9 @@
           <div class="d">Liegenschaften der Bank: Preiseinschätzung je Stichtag nach dem Vordruck, fortschreiben, als Dokument und Excel.</div>
         </div>
       </div>
-      <div class="wz-start" id="start_wz">
-        <div class="recent-head"><h2>Beratung &amp; Werkzeuge</h2></div>
-        <div class="quick wz-quick">
-          <div class="tile q" onclick="wzOeffnen('erbe')">
-            <span class="qi" data-ic="gift"></span>
-            <div class="t">Übergeben &amp; Vererben</div>
-            <div class="d">Schenkung oder Erbe, mit Nießbrauch oder Wohnrecht — Freibeträge und Steuer im Vergleich.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('rente')">
-            <span class="qi" data-ic="hourglass"></span>
-            <div class="t">Wohnen im Alter</div>
-            <div class="d">Einmalzahlung, Leibrente, Teilverkauf oder Rückmiete — was bleibt monatlich und für die Erben?</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('uebergabe')">
-            <span class="qi" data-ic="key"></span>
-            <div class="t">Übergabe&shy;protokoll</div>
-            <div class="d">Zählerstände, Schlüssel und Mängel mit Fotos — beide Seiten unterschreiben auf dem Gerät.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('jahr')">
-            <span class="qi" data-ic="target"></span>
-            <div class="t">Mein Jahr</div>
-            <div class="d">Aufträge je Phase, erwartete Provision, Ziel und Herkunft der Aufträge.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('grundstueck')">
-            <span class="qi" data-ic="layers"></span>
-            <div class="t">Grundstücks&shy;potenzial</div>
-            <div class="d">Was kann ein Bauträger zahlen? Residualwert gegen Bodenrichtwert und Bestand.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('etw')">
-            <span class="qi" data-ic="clipboard"></span>
-            <div class="t">ETW-Kaufcheck</div>
-            <div class="d">Rücklage, Beschlüsse, Heizung und Unterlagen — als Ampel für Käufer und Finanzierung.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('wertmonitor')">
-            <span class="qi" data-ic="activity"></span>
-            <div class="t">Wertmonitor</div>
-            <div class="d">Gesicherte Bewertungen fortschreiben — Wiedervorlage bei deutlicher Wertänderung.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('notar')">
-            <span class="qi" data-ic="pen"></span>
-            <div class="t">Notarauftrag</div>
-            <div class="d">Alle Angaben für den Kaufvertragsentwurf — Datenblatt, Termin im Kalender, Übergabe.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('portal')">
-            <span class="qi" data-ic="upload"></span>
-            <div class="t">Portal-Export</div>
-            <div class="d">Objekte in Vermarktung mit Bildern als Datei für Immobilienportale.</div>
-          </div>
-          <div class="tile q" onclick="wzOeffnen('datenstand')">
-            <span class="qi" data-ic="clock"></span>
-            <span class="ds-badge" id="ds_badge" hidden></span>
-            <div class="t">Datenstand</div>
-            <div class="d">Baupreisindex, Sterbetafel, Marktdaten, Sicherung — was ist aktuell, was steht an?</div>
-          </div>
-        </div>
-      </div>
+      <!-- Kacheln „Beratung & Werkzeuge“ nach Bereichen: erzeugt aus src/wz-start.js (D40) -->
+      <div class="start-heute" id="start_heute" hidden></div>
+      <div class="wz-start" id="start_wz"></div>
       <div id="start_auf_block" style="display:none">
         <div class="recent-head"><h2 id="start_auf_titel">Fällig</h2><a href="#" onclick="aufOeffnen();return false;">Alle Wiedervorlagen</a></div>
         <div class="start-auf" id="start_auf"></div>
@@ -1593,7 +1541,13 @@
       Steuer-Identifikationsnummern gehören nicht hinein (die erhebt das Notariat). Erledigte Aufträge meldet der „Datenstand“
       nach sechs Monaten zum Löschen. Der <b>Portal-Export</b> schreibt eine Datei mit Objektdaten, Texten, Bildern und dem
       Ansprechpartner (Berater) — ohne Namen von Kunden; die vollständige Anschrift nur, wenn sie freigegeben ist. Die Datei
-      verlässt das Gerät erst, wenn du sie selbst an ein Portal gibst.</p>
+      verlässt das Gerät erst, wenn du sie selbst an ein Portal gibst.
+      <b>Akquise, Interessenten, Bieterverfahren und Kalender</b> (D40) speichern Anfragen, Eigentümer-Kontakte, Gebote und
+      Termine in der lokalen Datenbank; die Personen selbst stehen nur in der Kundenakte (Rechtsgrundlage dort: Anbahnung nach
+      Art. 6 Abs. 1 lit. b DSGVO, mit Einwilligung zur Werbung lit. a). Löscht du einen Kunden, gehen seine Anfragen,
+      Akquise-Einträge und Gebote mit, aus Terminen wird er ausgetragen; die Auskunft aus der Kundenakte führt alles auf.
+      Kalenderdateien nehmen Kundennamen nur mit, wenn du es einschaltest. Vorlagen erzeugen Texte, die App versendet nichts.
+      Das <b>Fotostudio</b> speichert keine Bilder — nur die Datei, die du am Ende sicherst.</p>
     <h3>Wie löschst du Daten wieder?</h3>
     <p style="font-size:13px;line-height:1.6">Einzelne Bewertung: „Neue leere Bewertung“ im Export-Menü. Gesichertes
       Projekt: Projekte-Übersicht → Löschen. Einzelnes Marktobjekt oder ein PDF-Anhang: im Marktüberblick direkt
@@ -1855,6 +1809,7 @@
 <script src="js/kern.js"></script>
 <script src="js/beratung.js"></script>
 <script src="js/portal.js"></script>
+<script src="js/bild.js"></script>
 <script src="js/office.js"></script>
 <script src="js/pdf.js"></script>
 <script src="js/daten.js"></script>
@@ -1907,6 +1862,17 @@
 <script src="src/wz-notar.js"></script>
 <script src="src/wz-portal.js"></script>
 <script src="src/wz-datenstand.js"></script>
+<script src="src/wz-daten.js"></script>
+<script src="src/wz-kalender.js"></script>
+<script src="src/wz-vorgaenge.js"></script>
+<script src="src/wz-vorlagen.js"></script>
+<script src="src/wz-bieter.js"></script>
+<script src="src/wz-foto.js"></script>
+<script src="src/wz-fahrplan.js"></script>
+<script src="src/wz-kaufmiete.js"></script>
+<script src="src/wz-aushang.js"></script>
+<script src="src/wz-farben.js"></script>
+<script src="src/wz-start.js"></script>
 <script src="src/init.js"></script>
 </body>
 </html>

@@ -10,7 +10,8 @@
    Warten lesen können; die Fotos eines Projekts werden erst beim Öffnen geholt. Ohne IndexedDB (manche
    privaten Fenster) arbeitet die App wie bisher mit dem localStorage, meldet volle Speicher aber sichtbar. */
 const PJ_KEY='vb_projekte';
-const IA_DB_NAME='ia_bewertungen', IA_DB_VER=4;   // 2: Kundenakte, 3: Übergabeprotokolle (D38), 4: Notaraufträge (D39)
+const IA_DB_NAME='ia_bewertungen', IA_DB_VER=5;   // 2: Kundenakte, 3: Übergabeprotokolle (D38), 4: Notaraufträge (D39), 5: Termine, Vorgänge, Bieterverfahren (D40)
+const IA_ZUSATZ=[['termine','Termine'],['vorgaenge','Anfragen und Akquise'],['bieter','Bieterverfahren']];   // D40: in Sicherung und Einspielen
 var IA_DB=null, IA_DB_BEREIT=false, IA_BEREIT_P=Promise.resolve(false);
 var PJ_CACHE=[];                 // {id,name,objekt,datum,empf,voll,geaendert,nFotos,data:{fields,signature,grundrisse}}
 var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der Datenbank
@@ -19,7 +20,7 @@ var SPEICHER_FEHLER={};
 
 /* Mechanik in js/speicher.js (ImmoSpeicher); hier nur die Datenbank der Bewertungen */
 function iaDbOeffnen(){
-  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'},protokolle:{keyPath:'id'},notar:{keyPath:'id'}},t=>speicherFehler('db',t));
+  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'},protokolle:{keyPath:'id'},notar:{keyPath:'id'},termine:{keyPath:'id'},vorgaenge:{keyPath:'id'},bieter:{keyPath:'id'}},t=>speicherFehler('db',t));
 }
 /* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist.
    Bei einem Fehler wird sie abgebrochen — kein halb geschriebener Stand. */
@@ -176,13 +177,15 @@ async function projektLoeschen(id){
    verloren geht oder die App vom Home-Bildschirm gelöscht wird */
 async function pjAlleSichern(teilen){
   await IA_BEREIT_P;
-  let liste, kunden=[], protokolle=[], notar=[];
-  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT){ kunden=await iaAlle('kunden'); protokolle=await iaAlle('protokolle'); notar=await iaAlle('notar'); } }
+  let liste, kunden=[], protokolle=[], notar=[], zusatz={};
+  try{ liste=IA_DB_BEREIT?await iaAlle('projekte'):pjLoad(); if(IA_DB_BEREIT){ kunden=await iaAlle('kunden'); protokolle=await iaAlle('protokolle'); notar=await iaAlle('notar');
+    for(const [s] of IA_ZUSATZ) zusatz[s]=await iaAlle(s); } }
   catch(e){ alert('Die Daten konnten nicht gelesen werden: '+iaFehlerText(e)+'.'); return; }
   let werkzeuge=typeof wzAlle==='function'?wzAlle():null; if(werkzeuge&&!Object.keys(werkzeuge).length) werkzeuge=null;
-  if(!liste.length&&!kunden.length&&!protokolle.length&&!notar.length&&!werkzeuge){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
+  if(!liste.length&&!kunden.length&&!protokolle.length&&!notar.length&&!werkzeuge&&!IA_ZUSATZ.some(([s])=>(zusatz[s]||[]).length)){ alert('Es sind noch keine Projekte oder Kunden gespeichert.'); return; }
   let datei={typ:'immoapp-projekte',version:2,erstellt:new Date().toISOString(),anzahl:liste.length,projekte:liste,kunden:kunden,aufgaben:aufLoad(),parameter:pqSets(),
     protokolle:protokolle,notar:notar,werkzeuge:werkzeuge||{}};
+  IA_ZUSATZ.forEach(([s])=>{ datei[s]=zusatz[s]||[]; });
   let b=new Blob([JSON.stringify(datei)],{type:'application/json'}), name='ImmoApp Projekte '+new Date().toISOString().slice(0,10)+'.json';
   if(teilen){ if(['abgebrochen','fehlgeschlagen'].includes(await iaTeilen(b,name,'ImmoApp-Sicherung'))) return; }
   else {let result=await iaHerunterladen(b,name);if(result==='abgebrochen'||result==='fehlgeschlagen')return;}
@@ -218,6 +221,13 @@ async function pjSicherungAusText(text){
         if(notar.length){ try{ let da=await iaAlle('notar'), neuN=notar.filter(p=>{ let x=da.find(y=>y.id===p.id); return !x||(p.geaendert||0)>(x.geaendert||0); });
           if(neuN.length) await iaTx('notar','readwrite',s=>{ neuN.forEach(p=>s.put(p)); }); n.notar=neuN.length; if(typeof NO!=='undefined') NO.liste=null; }
           catch(e){ alert('Die Notaraufträge konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
+        // Termine, Anfragen und Akquise, Bieterverfahren (D40): neuere Fassung gewinnt
+        n.zusatz=[];
+        for(const [s,name] of IA_ZUSATZ){ let l=sp[s]||[]; if(!l.length) continue;
+          try{ let da=await iaAlle(s), neuZ=l.filter(p=>{ let x=da.find(y=>y.id===p.id); return !x||(p.geaendert||0)>(x.geaendert||0); });
+            if(neuZ.length) await iaTx(s,'readwrite',st=>{ neuZ.forEach(p=>st.put(p)); }); if(neuZ.length) n.zusatz.push(name+': '+neuZ.length+' neu oder aktualisiert.'); }
+          catch(e){ alert(name+' konnten nicht eingespielt werden: '+iaFehlerText(e)+'.'); } }
+        if(n.zusatz.length&&typeof wzdLaden==='function') wzdLaden(true);
       } else {
         let l=bestand.filter(x=>!neu.some(p=>p.id===x.id)).concat(neu); if(!pjStore(l)) return;
       }
@@ -227,7 +237,7 @@ async function pjSicherungAusText(text){
       renderProjekte(); speicherStatus(); kdAnzeige();
       alert('Sicherung eingespielt. Projekte: '+n.neu+' neu, '+n.ersetzt+' durch neuere Fassung ersetzt, '+n.gleich+' unverändert.'
         +(n.kunden!=null?'\nKunden: '+n.kunden+' neu oder aktualisiert.':'')+(n.aufgaben?'\nWiedervorlagen: '+n.aufgaben+' neu.':'')
-        +(n.protokolle?'\nÜbergabeprotokolle: '+n.protokolle+' neu oder aktualisiert.':'')+(n.notar?'\nNotaraufträge: '+n.notar+' neu oder aktualisiert.':'')+(n.werkzeuge?'\nWerkzeuge: Eingaben ergänzt.':''));
+        +(n.protokolle?'\nÜbergabeprotokolle: '+n.protokolle+' neu oder aktualisiert.':'')+(n.notar?'\nNotaraufträge: '+n.notar+' neu oder aktualisiert.':'')+(n.zusatz&&n.zusatz.length?'\n'+n.zusatz.join('\n'):'')+(n.werkzeuge?'\nWerkzeuge: Eingaben ergänzt.':''));
 }
 /* Erinnerung auf der Startseite, wenn die Projekte länger nicht gesichert wurden */
 async function pjSicherungsHinweis(){

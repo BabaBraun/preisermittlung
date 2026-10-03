@@ -5,6 +5,9 @@
    Löschung je Kunde. Kundennamen gelangen nie in den Marktüberblick (D4). */
 var KD_CACHE=[], KD_AKTIV=null, KD_WAHL=null, KD_SUCHE='';
 var KD_NEU_FUER=null;   // Kunde, für den gerade eine neue Bewertung beginnt (Objektart-Wahl läuft)
+/* Erweiterungspunkte (D40): weitere Daten mit Kundenbezug (Termine, Anfragen, Gebote) melden sich hier an —
+   beim Löschen eines Kunden (async id), für die Auskunft (async id → Textzeilen) und in der Akte (id → HTML) */
+var KD_LOESCH_HOOKS=[], KD_AUSKUNFT_HOOKS=[], KD_AKTE_HOOKS=[];
 const KD_GRUNDLAGEN=[['vertrag','Anbahnung oder Durchführung eines Auftrags (Art. 6 Abs. 1 lit. b DSGVO)'],
   ['einwilligung','Einwilligung des Kunden (Art. 6 Abs. 1 lit. a DSGVO)'],['sonstige','Sonstige Rechtsgrundlage (in der Notiz festhalten)']];
 const KD_KONTAKTARTEN=['Gespräch','Telefonat','E-Mail','Besichtigung','Angebot','Termin','Sonstiges'];
@@ -127,6 +130,7 @@ function kdAkte(id,fokus){
     +(kon.length?'<div class="kd-kontakte">'+kon.map(c=>'<div class="kd-kontakt"><div class="kopf"><b>'+sEsc(c.art||'Notiz')+'</b><span>'+(c.datum?new Date(c.datum+'T00:00:00').toLocaleDateString('de-DE'):'')+'</span>'
       +'<button class="weg" aria-label="Notiz löschen" onclick="kdKontaktWeg(\''+c.id+'\')">'+iaSvg('trash')+'</button></div><div class="t">'+sEsc(c.text)+'</div></div>').join('')+'</div>':'')
 
+    +KD_AKTE_HOOKS.map(h=>{ try{ return h(id)||''; }catch(e){ return ''; } }).join('')
     +'<div class="kd-fuss"><button class="secondary" onclick="kdExport(\''+id+'\')" data-ic="download">Daten exportieren (Auskunft)</button>'
     +'<button class="secondary kd-loeschen" onclick="kdLoeschen(\''+id+'\')" data-ic="trash">Kunde löschen</button></div>');
   if(fokus){ let e=$('kd_inhalt').querySelector('input[aria-label="Vorname"]'); if(e) setTimeout(()=>e.focus(),50); }
@@ -224,8 +228,9 @@ async function kdFinanzierungWeg(fid){
   k.finanzierungen=(k.finanzierungen||[]).filter(f=>f.id!==fid); if(await kdSpeichern(k)) kdAkte(k.id);
 }
 /* Auskunft: alles, was zu diesem Kunden gespeichert ist, als lesbare Textdatei */
-function kdExport(id){
+async function kdExport(id){
   let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
+  let weitere=[]; for(const h of KD_AUSKUNFT_HOOKS){ try{ weitere=weitere.concat(await h(id)||[]); }catch(e){ console.warn('Auskunft',e); } }
   let d=v=>v?new Date(typeof v==='number'?v:v+'T00:00:00').toLocaleDateString('de-DE'):'–';
   let g=(KD_GRUNDLAGEN.find(x=>x[0]===k.grundlage)||['',''])[1];
   let z=['Gespeicherte Daten — '+kdName(k),'Stand: '+new Date().toLocaleString('de-DE'),'Gespeichert ausschließlich lokal in der ImmoApp auf dem Gerät des Beraters.','',
@@ -235,7 +240,7 @@ function kdExport(id){
     'BEWERTUNGEN'].concat(kdBewertungen(id).map(p=>'- '+p.name+' ('+p.datum+')'),kdBewertungen(id).length?[]:['- keine'],['','WIEDERVORLAGEN'],
     kdAufgaben(id).map(a=>'- '+a.text+(a.frist?' (fällig '+d(a.frist)+')':'')+(a.erledigt?' — erledigt':'')),kdAufgaben(id).length?[]:['- keine'],['','FINANZIERUNGSRECHNUNGEN'],
     (k.finanzierungen||[]).map(x=>'- '+x.titel+' ('+d(x.ts)+')'+(x.rate?', Rate '+eur(x.rate):'')+(x.budget?', Budget bis '+eur(x.budget):'')),(k.finanzierungen||[]).length?[]:['- keine'],['','GESPRÄCHSNOTIZEN'],
-    (k.kontakte||[]).map(c=>'- '+d(c.datum)+' '+(c.art||'')+': '+c.text),(k.kontakte||[]).length?[]:['- keine']);
+    (k.kontakte||[]).map(c=>'- '+d(c.datum)+' '+(c.art||'')+': '+c.text),(k.kontakte||[]).length?[]:['- keine'],weitere);
   return iaHerunterladen(new Blob(['\ufeff'+z.join('\r\n')],{type:'text/plain;charset=utf-8'}),'Kundendaten '+kdName(k).replace(/[^\wäöüÄÖÜß -]/g,'').trim()+'.txt');
 }
 /* Löschen: Kunde, auf Wunsch seine Wiedervorlagen; Bewertungen bleiben, nur die Zuordnung wird gelöst */
@@ -243,11 +248,13 @@ async function kdLoeschen(id){
   let k=KD_CACHE.find(x=>x.id===id); if(!k) return;
   let bew=kdBewertungen(id), auf=kdAufgaben(id);
   if(!confirm('„'+kdName(k)+'“ mit allen Notizen und Finanzierungsrechnungen endgültig löschen?'
+    +'\nAnfragen, Akquise-Einträge und Gebote dieses Kunden werden mitgelöscht, aus Terminen wird er ausgetragen.'
     +(bew.length?'\n\n'+bew.length+' zugeordnete Bewertung'+(bew.length===1?' bleibt':'en bleiben')+' erhalten, die Zuordnung wird gelöst.':''))) return;
   let aufWeg=auf.length?confirm('Auch die '+auf.length+' Wiedervorlage'+(auf.length===1?'':'n')+' zu diesem Kunden löschen?\n„Abbrechen“ behält sie ohne Kundenbezug.'):false;
   try{
     for(const p of bew.filter(p=>p.typ==='projekt')){ let r=await iaGet('projekte',p.id); if(r&&r.data&&r.data.fields){ r.data.fields.ek_kunde_id=''; await iaPut('projekte',r); pjCacheSetzen(r); } }
     await iaDel('kunden',id);
+    for(const h of KD_LOESCH_HOOKS) await h(id);
   }catch(e){ alert('Der Kunde konnte nicht vollständig gelöscht werden: '+iaFehlerText(e)+'.'); return; }
   aufStore(aufLoad().filter(a=>!(aufWeg&&a.kundeId===id)).map(a=>{ if(a.kundeId===id){ let c=Object.assign({},a); delete c.kundeId; return c; } return a; }));
   aufBadge();

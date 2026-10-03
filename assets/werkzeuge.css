@@ -138,3 +138,188 @@
   #wz_overlay .mdb-body{padding:14px 12px}
   #wz_overlay .mdb-head .lbl{display:none}
 }
+
+/* ---------- Bereiche der Kacheln mit eigener Farbe (D40) ---------- */
+.wz-gruppe{margin:0 0 6px}
+.wz-gruppe[data-gruppe="vermarkten"],.app-actions-list[data-gruppe="vermarkten"]{--gruppe:#0f62a0;--gruppe-tint:#e2eef8}
+.wz-gruppe[data-gruppe="abschluss"],.app-actions-list[data-gruppe="abschluss"]{--gruppe:#6a3fbf;--gruppe-tint:#efe8fb}
+.wz-gruppe[data-gruppe="beraten"],.app-actions-list[data-gruppe="beraten"]{--gruppe:#9a4a00;--gruppe-tint:#fcecd8}
+.wz-gruppe[data-gruppe="organisieren"],.app-actions-list[data-gruppe="organisieren"]{--gruppe:#2f6b2a;--gruppe-tint:#e4f1e1}
+[data-theme="dark"] .wz-gruppe[data-gruppe="vermarkten"],[data-theme="dark"] .app-actions-list[data-gruppe="vermarkten"]{--gruppe:#8cc4f0;--gruppe-tint:#17324a}
+[data-theme="dark"] .wz-gruppe[data-gruppe="abschluss"],[data-theme="dark"] .app-actions-list[data-gruppe="abschluss"]{--gruppe:#c4b0f5;--gruppe-tint:#2e2450}
+[data-theme="dark"] .wz-gruppe[data-gruppe="beraten"],[data-theme="dark"] .app-actions-list[data-gruppe="beraten"]{--gruppe:#f3b979;--gruppe-tint:#3d2914}
+[data-theme="dark"] .wz-gruppe[data-gruppe="organisieren"],[data-theme="dark"] .app-actions-list[data-gruppe="organisieren"]{--gruppe:#a6d99e;--gruppe-tint:#1f3a1d}
+.wz-gruppe .tile.q .qi,.app-shell .wz-gruppe .tile.q .qi{background:var(--gruppe-tint);color:var(--gruppe)}
+.app-shell .app-actions-list[data-gruppe] .app-action-icon{background:var(--gruppe-tint);color:var(--gruppe)}
+.wz-gruppe .recent-head h2::before{content:'';display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--gruppe);margin-right:9px;vertical-align:1px}
+
+/* ---------- Kalender (D40) ---------- */
+.ka-leiste{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 10px}
+.ka-schalter,.vg-modus{display:inline-flex;gap:4px;flex-wrap:wrap}
+.ka-schalter button,.vg-modus button{height:auto;padding:7px 14px}
+.vg-modus{margin-bottom:10px}
+.ka-quellen{display:flex;flex-wrap:wrap;gap:2px 16px;margin:0 0 6px}
+.ka-quellen .wz-check{padding:3px 0}
+.ka-tag{margin:8px 0 12px}
+.ka-tag h4{font-size:13px;margin:12px 0 6px;color:var(--text-2);font-weight:600}
+.ka-tag.heute h4{color:var(--accent)}
+.ka-tag.vorbei{opacity:.75}
+.ka-eintrag{display:flex;gap:12px;align-items:flex-start;padding:8px 10px;margin:4px 0;border:1px solid var(--line);border-left:4px solid var(--ka,var(--accent));border-radius:var(--rs);background:var(--card)}
+.ka-eintrag[role="button"]{cursor:pointer}
+.ka-eintrag[role="button"]:hover{border-color:var(--line-2);border-left-color:var(--ka,var(--accent))}
+.ka-zeit{flex:0 0 86px;font-size:12.5px;color:var(--text-2);padding-top:1px;font-variant-numeric:tabular-nums}
+.ka-text{flex:1;min-width:0;font-size:13.5px;line-height:1.4}
+.ka-text small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.ka-termin{--ka:#1d6fb8}.ka-wv{--ka:#b7791f}.ka-notar{--ka:#6a3fbf}.ka-uebergabe{--ka:#2f855a}.ka-bieter{--ka:#c05621}.ka-besichtigung{--ka:#0b7285}
+[data-theme="dark"] .ka-termin{--ka:#7db7ee}[data-theme="dark"] .ka-wv{--ka:#f0c26b}[data-theme="dark"] .ka-notar{--ka:#c4b0f5}
+[data-theme="dark"] .ka-uebergabe{--ka:#8fd3ae}[data-theme="dark"] .ka-bieter{--ka:#f6ad7b}[data-theme="dark"] .ka-besichtigung{--ka:#7fd3e0}
+.ka-q span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ka);margin-right:6px;vertical-align:0}
+.ka-nav{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.ka-nav b{min-width:150px;text-align:center;font-size:15px}
+.ka-nav button{height:auto;padding:6px 10px}
+.ka-monat{display:grid;gap:4px}
+.ka-kopf,.ka-woche{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.ka-kopf span{font-size:11.5px;color:var(--muted);text-align:center;font-weight:600}
+.ka-zelle{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:78px;height:auto;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--card);text-align:left;cursor:pointer;color:var(--text);font:inherit;min-width:0}
+.ka-zelle.fremd{opacity:.45}
+.ka-zelle.heute .ka-nr{background:var(--accent-btn,var(--accent));color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+.ka-zelle.gewaehlt{outline:2px solid var(--accent);outline-offset:-2px}
+.ka-nr{font-size:12px;font-weight:600}
+.ka-punkt{display:block;font-size:10.5px;line-height:1.25;padding:1px 4px;border-radius:4px;background:var(--surface-2);border-left:3px solid var(--ka);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ka-mehr{font-size:10.5px;color:var(--muted)}
+
+/* ---------- Interessenten und Akquise (D40) ---------- */
+.vg-filter{max-width:640px;margin-bottom:6px}
+.vg-tab td small{display:block}
+.vg-tab select{min-width:150px}
+.vg-pipeline{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:10px;overflow-x:auto;padding-bottom:6px}
+.vg-spalte{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--rs);padding:8px;min-height:120px}
+.vg-spalte h4{font-size:13px;margin:2px}
+.vg-spalte>small{display:block;font-size:11px;color:var(--muted);margin:0 2px 6px;min-height:14px}
+.vg-karte{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;height:auto;margin:0 0 6px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.vg-karte span{font-size:12px;color:var(--text-2)}
+.vg-karte .vg-wv{color:var(--accent)}
+.vg-verlauf{list-style:none;margin:0 0 10px;padding:0}
+.vg-verlauf li{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+.vg-verlauf li span:first-child{color:var(--muted);font-variant-numeric:tabular-nums}
+.vg-verlauf .weg{border:none;background:none;color:var(--muted);padding:2px 6px;height:auto;cursor:pointer}
+.vg-ok{color:var(--ok)!important}.vg-warn{color:var(--warn)!important}
+
+/* ---------- Vorlagen (D40) ---------- */
+.vl-raster{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px;align-items:start}
+.vl-liste{position:sticky;top:8px}
+.vl-gruppe h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:10px 2px 4px}
+.vl-vorlage{display:block;width:100%;height:auto;text-align:left;padding:8px 10px;margin:2px 0;border:1px solid transparent;border-radius:10px;background:none;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer}
+.vl-vorlage:hover{background:var(--surface-2)}
+.vl-vorlage.on{background:var(--tint);color:var(--accent);font-weight:600}
+.vl-empf{display:flex;gap:10px;align-items:center;flex-wrap:wrap;min-height:40px}
+.vl-empf small{display:block;color:var(--muted);font-size:12px}
+#vl_text{font-size:13.5px;line-height:1.5}
+
+/* ---------- Bieterverfahren (D40) ---------- */
+.bi-tab tr.bi-erstes td{background:var(--tint)}
+.bi-tab td small{display:block}
+.bi-tab select{min-width:120px}
+
+@media (max-width:760px){
+  .vl-raster{grid-template-columns:1fr}
+  .vl-liste{position:static;display:flex;flex-wrap:wrap;gap:4px}
+  .vl-gruppe{display:contents}
+  .vl-gruppe h4{display:none}
+  .vl-vorlage{width:auto;border-color:var(--line)}
+  .ka-zelle{min-height:46px;padding:3px}
+  .ka-punkt{font-size:0;padding:0;height:5px;border-left:none;background:var(--ka)}
+  .ka-zeit{flex-basis:64px}
+  .vg-verlauf li{grid-template-columns:76px 1fr auto}
+}
+
+/* ---------- Fotostudio (D40) ---------- */
+.fs-raster{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+.fs-buehne{position:sticky;top:8px;text-align:center}
+.fs-flaeche{position:relative;display:inline-block;max-width:100%;line-height:0;background:repeating-conic-gradient(var(--surface-2) 0 25%,var(--card) 0 50%) 0 0/16px 16px;border-radius:8px;overflow:hidden}
+#fs_vorschau{max-width:100%;max-height:72vh;height:auto;display:block}
+#fs_vorschau.fs-aktiv{cursor:crosshair;touch-action:none}
+.fs-rahmen{position:absolute;inset:0;pointer-events:none}
+.fs-zuschnitt{position:absolute;border:2px dashed #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
+.fs-ziehen{position:absolute;border:2px solid #fff;outline:1px solid rgba(0,0,0,.6);background:rgba(255,255,255,.18)}
+.fs-regler{display:block;margin:8px 0}
+.fs-regler span{display:flex;justify-content:space-between;font-size:13px;color:var(--text-2)}
+.fs-regler input{width:100%;accent-color:var(--accent)}
+.fs-auswahl{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.fs-auswahl button{padding:0;height:auto;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:none;cursor:pointer}
+.fs-auswahl img{display:block;width:100%;height:64px;object-fit:cover}
+.fs-liste{list-style:none;margin:8px 0 0;padding:0}
+.fs-liste li{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)}
+.fs-liste .weg{border:none;background:none;color:var(--muted);padding:2px 8px;height:auto;cursor:pointer}
+@media (max-width:900px){
+  .fs-raster{grid-template-columns:1fr}
+  .fs-buehne{position:static}
+  #fs_vorschau{max-height:55vh}
+}
+
+/* ---------- Verkaufsfahrplan (D40) ---------- */
+.fp-balken{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:6px 0 2px}
+.fp-balken i{display:block;height:100%;background:var(--accent)}
+.fp-karte .fp-balken{max-width:360px}
+.fp-schritt{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.fp-schritt:last-child{border-bottom:none}
+.fp-schritt .wz-check{flex:1 1 260px;padding:2px 0;align-self:center}
+.fp-schritt.ok .wz-check span{color:var(--text-2)}
+.fp-auto{font-size:11px;color:var(--accent);background:var(--tint);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.fp-los{height:auto;padding:4px 10px;font-size:12.5px}
+.fp-notiz{flex:1 1 180px;height:32px;font-size:12.5px;padding:0 8px;min-width:0}
+
+/* ---------- Kaufen oder Mieten (D40) ---------- */
+.km-diagramm{width:100%;height:auto;max-height:260px}
+.km-diagramm text{font-size:11px;fill:var(--muted)}
+.km-gitter{stroke:var(--line);stroke-width:1}
+.km-kauf{fill:none;stroke:var(--accent);stroke-width:2.5}
+.km-miete{fill:none;stroke:#b7791f;stroke-width:2.5;stroke-dasharray:6 4}
+[data-theme="dark"] .km-miete{stroke:#f0c26b}
+.km-ab{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.km-legende{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--text-2);margin-top:4px}
+.km-legende span::before{content:'';display:inline-block;width:18px;height:0;border-top:3px solid var(--accent);margin-right:6px;vertical-align:3px}
+.km-legende .km-l-miete::before{border-top:3px dashed #b7791f}
+.km-legende .km-l-ab::before{border-top:1px dashed var(--muted)}
+
+/* Startseite: heute und morgen (D40) */
+.start-heute{margin:0 0 8px}
+.start-heute-l{display:grid;gap:6px}
+.start-heute-z{display:flex;gap:12px;align-items:baseline;width:100%;height:auto;text-align:left;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--ka,var(--accent));border-radius:12px;background:var(--card);color:var(--text);font:inherit;cursor:pointer}
+.start-heute-z span{flex:0 0 92px;font-size:12.5px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.start-heute-z b{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Aushang für Schaufenster und Filiale (D40) ---------- */
+.ah-wahl{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px 16px}
+#report.aushang{max-width:800px;margin:0 auto;color:#111}
+#report.aushang .ah-blatt{font-family:var(--sans,system-ui);padding:6mm 2mm}
+#report.aushang .ah-kopf{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#555;margin:0 0 8px}
+#report.aushang .ah-bild{display:block;width:100%;height:105mm;object-fit:cover;border-radius:4px;margin:0 0 12px}
+#report.aushang h1{font-size:30px;line-height:1.15;margin:0 0 4px;border:none;padding:0}
+#report.aushang .ah-ort{font-size:16px;color:#444;margin:0 0 12px}
+#report.aushang .ah-preis{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;margin:0 0 12px}
+#report.aushang .ah-preis span{font-size:13px;color:#555}
+#report.aushang .ah-preis b{font-size:28px}
+#report.aushang .ah-preis small{flex-basis:100%;font-size:12.5px;color:#444}
+#report.aushang .ah-fakten{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}
+#report.aushang .ah-fakten div{border:1px solid #ddd;border-radius:6px;padding:8px 10px}
+#report.aushang .ah-fakten span{display:block;font-size:11.5px;color:#666}
+#report.aushang .ah-fakten b{font-size:17px}
+#report.aushang .ah-text{font-size:14px;line-height:1.5;margin:0 0 12px}
+#report.aushang .ah-energie{font-size:12px;color:#333;border-top:1px solid #ddd;padding-top:8px;margin:0 0 10px}
+#report.aushang .ah-zusatz{font-size:15px;font-weight:600;margin:0 0 10px}
+#report.aushang .ah-kontakt{display:flex;flex-direction:column;gap:2px;font-size:13.5px;background:#f3f4f5;border-radius:6px;padding:10px 12px}
+#report.aushang .ah-nr{font-size:11px;color:#777;margin:6px 0 0}
+#report.aushang .ah-uebersicht h1{font-size:24px;margin-bottom:12px}
+#report.aushang .ah-raster{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+#report.aushang .ah-karte{border:1px solid #ddd;border-radius:6px;padding:8px;break-inside:avoid}
+#report.aushang .ah-karte img,#report.aushang .ah-ohnebild{display:block;width:100%;height:48mm;object-fit:cover;border-radius:4px;background:#eee;margin-bottom:6px}
+#report.aushang .ah-karte h2{font-size:15px;margin:0 0 2px;border:none;padding:0}
+#report.aushang .ah-karte .ah-ort{font-size:12.5px;margin:0 0 4px}
+#report.aushang .ah-karte .ah-kurz{font-size:12px;margin:0 0 6px;color:#333}
+#report.aushang .ah-karte .ah-preis{margin:0 0 4px}
+#report.aushang .ah-karte .ah-preis b{font-size:18px}
+#report.aushang .ah-karte .ah-preis small{font-size:11px}
+#report.aushang .ah-karte .ah-energie{font-size:10.5px;margin:0 0 2px;padding-top:4px}
+@media (max-width:600px){ #report.aushang .ah-fakten{grid-template-columns:repeat(2,1fr)} #report.aushang .ah-raster{grid-template-columns:1fr} #report.aushang .ah-bild{height:auto;max-height:60vh} }
+@media print{ #report.aushang .ah-blatt{padding:0} #report.aushang .ah-raster{grid-template-columns:1fr 1fr} }

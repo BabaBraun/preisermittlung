@@ -1192,3 +1192,95 @@ enthält die Notaraufträge; beim Einspielen gewinnt die neuere Fassung, beschä
   nur gültige Kalenderdaten, sonst ein Hinweis.
 - Die fehlende Firma des Anbieters färbte jedes Objekt rot; sie gilt für alle und wird beim Export geprüft.
 - Die Unterlagen im Notarauftrag haben eine eigene Zeilenaufteilung (Haken schmal, Name breit).
+
+## D40 (2026-10-03) — Neun neue Kacheln nach dem Vorbild einer Maklersoftware; Startseite nach Bereichen; Farbschemata
+
+**Auftrag:** Die Nacht durch an der App arbeiten, FIO als Vorbild nehmen und weitere Kacheln erstellen. Bewertungen und
+Liegenschaften bleiben unverändert, ihre Kacheln dürfen höchstens verschoben werden; umgestaltet wird nur farblich. Von FIO
+übernommen ist nur der Funktionsumfang als Maßstab (Kontakte, Anfragen, Gesuche, Kalender, Vorlagen, Angebotsverfahren,
+Bildbearbeitung, Prozesse), kein Name, keine Gestaltung, kein Text.
+
+**Neue Kacheln:**
+- **Akquise** (`src/wz-vorgaenge.js`): Eigentümer vom Erstkontakt bis zum Auftrag — Quelle, Anlass, Objektart, Ort, grob
+  geschätzter Wert, Status, Verlauf, Wiedervorlage, Termin, „Bewertung beginnen“ (bestehender Ablauf der Kundenakte).
+  Übersicht als Spalten je Status mit Summe der Objektwerte und Provision zum eingestellten Satz; Auswertung je Quelle.
+- **Interessenten** (gleiche Datei): Anfragen zu Objekten in Vermarktung — Quelle, Status bis Kauf oder Absage mit Grund,
+  Verlauf, „Exposé versendet“, Besichtigung im Kalender, Schreiben aus den Vorlagen, Gebot erfassen. **Abgleich:** alle
+  Suchprofile der Kundenakte gegen alle Objekte in Vermarktung (Regeln der Käuferkartei), ohne Kunden, die zum Objekt schon eine
+  Anfrage haben; mit Hinweis, ob eine Einwilligung zur Werbung vorliegt (§ 7 UWG). **Auswertung:** Trichter je Quelle und je
+  Objekt — wie viele Anfragen jede Stufe mindestens erreicht haben (eine Absage nach der Besichtigung zählt als Besichtigung).
+- **Bieterverfahren** (`src/wz-bieter.js`): Frist, Mindestgebot, Regeln für die Bieter (Gebote unverbindlich, Eigentümer
+  entscheidet frei, Kauf erst mit dem notariellen Vertrag, § 311b Abs. 1 BGB), Gebote mit Finanzierungsstand und Bedingungen,
+  Rangfolge mit Abstand zum Angebotspreis (bei Gleichstand das frühere Gebot), Wiedervorlage zur Frist, Übersicht für den
+  Eigentümer ohne Namen der Bieter.
+- **Fotostudio** (`js/bild.js` ohne Seitenbezug, `src/wz-foto.js`): drehen, begradigen (mit Vergrößerung ohne leere Ecken),
+  zuschneiden frei oder im Seitenverhältnis, Helligkeit, Kontrast, Sättigung, Wärme, automatische Tonwertkorrektur,
+  Bereiche schwärzen oder verpixeln (Personen, Kennzeichen, Namen, Unterlagen), Speichern als JPEG oder Teilen. Das Original
+  bleibt unverändert; Fotos werden nicht gespeichert.
+- **Vorlagen** (`src/wz-vorlagen.js`): zehn Schreiben in eigenen Worten (Exposé senden, Besichtigung bestätigen, nach der
+  Besichtigung, Objekt reserviert, Unterlagen anfordern, Stand der Vermarktung, nach dem Erstkontakt, Termin zur
+  Wertermittlung, Notartermin, Glückwunsch) und eigene Vorlagen. Platzhalter aus Kundenakte, Objekt, Termin und dem
+  Ansprechpartner des Exposés; optionale Teile entfallen, wenn ein Wert fehlt. Kopieren, als E-Mail im Mailprogramm öffnen,
+  Word, Vermerk in der Kundenakte. Die App versendet selbst nichts. Beim Exposé der Hinweis, die Widerrufsbelehrung und die
+  Hinweise der Bank zum Maklervertrag beizufügen (kein eigener Rechtstext).
+- **Verkaufsfahrplan** (`src/wz-fahrplan.js`): 23 Schritte in sechs Phasen (Auftrag, Unterlagen, Vermarktung, Besichtigungen,
+  Notar, Übergabe). Viele erkennt die App selbst (Bewertung, Energieausweis vollständig nach § 87 GModG, Grundrisse, Fotos,
+  Exposé, Preis, Portal-Export, Abgleich, Besichtigungen, Reservierung, Notarauftrag mit Stand, abgeschlossenes
+  Übergabeprotokoll); die übrigen hakt der Berater ab. Maklervertrag in Textform als Schritt (§ 656a BGB, am Wortlaut geprüft).
+  Fortschritt, nächster Schritt, Wiedervorlage, Übersicht für den Eigentümer.
+- **Kalender** (`src/wz-kalender.js`): eigene Termine und — nur gelesen — fällige Wiedervorlagen, Notartermine, Übergaben,
+  Gebotsfristen und Besichtigungen aus der Vermarktung; Liste oder Monatsblatt; Kalenderdatei für einen oder alle Termine der
+  nächsten 90 Tage (RFC 5545), Kundennamen nur auf Wunsch, weil Gerätekalender oft mit einem Online-Dienst abgleichen.
+- **Aushang** (`src/wz-aushang.js`): eine Seite für Schaufenster und Filiale — Titelbild, Titel, Ort (Straße nur auf Wunsch),
+  Preis, Käuferprovision, Eckdaten, Kurztext, Pflichtangaben zum Energieausweis (§ 87 GModG gilt für Immobilienanzeigen in
+  kommerziellen Medien), Ansprechpartner und Objektnummer; oder eine Übersicht mit bis zu vier Objekten. Fehlen
+  Pflichtangaben, zeigt die Kachel sie rot. Ausgabe wie das Exposé (Drucken, PDF, Teilen).
+- **Kaufen oder Mieten** (`js/beratung.js`, `kaufMiete`; `src/wz-kaufmiete.js`): monatliche Modellrechnung — Annuitätendarlehen,
+  Instandhaltung mit Kostensteigerung, Wertsteigerung; Miete mit Mietsteigerung; die günstigere Seite legt den Unterschied an.
+  Ergebnis je Jahr, Jahr, ab dem Kaufen dauerhaft vorn liegt, Diagramm, Dokument. Unabhängig nachgerechnet in Python
+  (`tests/referenz/kaufmiete.py`, Abweichung unter 1 µ€). Vorgabe Grunderwerbsteuer Baden-Württemberg 5,0 % — als Annahme
+  änderbar.
+
+**Daten und Datenschutz:**
+- Neue Speicher „termine“, „vorgaenge“ und „bieter“ in der Datenbank „ia_bewertungen“ (Version 5), Teil der
+  Gesamtsicherung; beim Einspielen gewinnt die neuere Fassung, beschädigte Einträge werden verworfen (`js/daten.js`).
+- Personen stehen nur in der Kundenakte, die Datensätze merken sich die Kunden-Id. Neue Personen aus Anfrage oder Akquise
+  bekommen als Rechtsgrundlage die Anbahnung (Art. 6 Abs. 1 lit. b DSGVO), mit Einwilligung zur Werbung lit. a.
+- Kundenakte mit Erweiterungspunkten (`src/customers.js`): Löschen eines Kunden löscht seine Anfragen, Akquise-Einträge und
+  Gebote und trägt ihn aus Terminen aus; die Auskunft (Art. 15 DSGVO) führt Anfragen, Termine und Gebote auf; die Akte zeigt
+  Anfragen, Akquise und Termine.
+- Auswertungen und Dokumente für Eigentümer nennen keine Namen.
+
+**Startseite und „Mehr“:** Die Kacheln von „Beratung & Werkzeuge“ stehen jetzt in vier Bereichen — Akquise & Vermarktung,
+Abschluss, Beratung, Organisation — mit je eigener Farbe für Symbol und Bereichsmarke (hell und dunkel, Kontrast mindestens
+5,4 : 1). Eine Liste (`src/wz-start.js`) erzeugt Startseite und „Mehr“. Die Kacheln von Bewertung, Marktüberblick,
+Finanzierung und Liegenschaften darüber sind unverändert.
+
+**Farbschemata (nur Farben):** Unter „Mehr → Darstellung“ wählt man das Farbschema — Petrol (bisher), Blau, Bordeaux,
+Graphit, Waldgrün, jeweils hell und dunkel — und hell, dunkel oder wie das Gerät (`assets/farben.css`, `src/wz-farben.js`).
+Jedes Schema setzt Grund, Flächen, Linien, Text und Akzent; alle Texte und Knöpfe mindestens 4,5 : 1 (nachgerechnet). Auch die
+große Kachel „Neue Bewertung“ nimmt die Grundfarbe des Schemas an — Inhalt und Lage bleiben. Die Wahl wird schon im Kopf der
+Seite gesetzt (kein Aufblitzen). Bericht und Exposé bleiben weiße Dokumente.
+
+**Verknüpfungen:**
+- Startseite „Heute und morgen“: eigene Termine, Notartermine, Übergaben, Gebotsfristen und fällige Wiedervorlagen der
+  beiden Tage, nur wenn es welche gibt; ein Tipp öffnet den Eintrag.
+- Suche (Strg K) findet auch Anfragen, Akquise-Kontakte und Termine (Gruppe „Anfragen und Termine“).
+- Kundenakte: Knöpfe „Neue Anfrage“, „Akquise-Kontakt“ und „Termin“ mit diesem Kunden; darunter seine Anfragen, Kontakte
+  und Termine.
+
+**Weitere Änderungen:** Wechselt man von einem Werkzeug direkt in ein anderes (z. B. Interessent → Kalender), schließt das
+alte Werkzeug sauber ab (speichern, Ansicht zurücksetzen). Neue Symbole: Brief, Eingang, Schild, Bild, Checkliste, Waage.
+
+**Beim Prüfen behoben:**
+- Kalender: Beim ersten Öffnen stieß das Laden der Termine das Neuzeichnen in einer Endlosschleife an (Seite hing) — jetzt
+  warten alle Aufrufe auf dasselbe Laden; ebenso abgesichert im Datenstand.
+- GitHub-Klicktest (PC) zu D39: Die Hintergrundprüfung des Datenstands lief in eine Seite, die gerade neu geladen wurde
+  (`ImmoSterbetafel is not defined`) — sie startet jetzt nach dem Laden der Seite und nicht mehr beim Verlassen.
+- Bieterverfahren: Die Felder des neuen Gebots und des Verfahrens schrieben in dasselbe Objekt — getrennt.
+
+**Tests:** `tests/unit/d40.test.mjs` (Kalenderdatei mit mehreren Terminen, Monatsblatt, Trichter, Vorlagen, Bieterrang, Kaufen
+oder Mieten gegen Python, Bildbearbeitung, Sicherungsdatei), `tests/e2e/werkzeuge-d40.spec.mjs` (Interessenten mit Abgleich,
+Kundenakte, Kalender, Vorlage, Auskunft und Löschen; Akquise und Bieterverfahren; Fotostudio mit Schwärzen durch Ziehen;
+Verkaufsfahrplan und Kaufen oder Mieten; Aushang; Farbschema; Sicherung hin und zurück), 19 Kacheln in vier Bereichen;
+Klicktest mit 18 neuen Bereichen (PC und iPhone ohne Befunde).

@@ -1,0 +1,28 @@
+/* Farbschemata (D40): nur Farben, keine Formen. „Petrol“ ist das bisherige Schema (assets/app-shell.css) und braucht keine
+   Regeln. Jedes weitere Schema setzt Grund, Flächen, Linien, Text und Akzent für hell und dunkel; alle Text- und
+   Knopffarben mindestens 4,5 : 1 gegen ihren Hintergrund (nachgerechnet). Der Bericht (#report) bleibt ein weißes Dokument. */
+html[data-farbe="blau"] body.app-shell{--bg:#f3f5f9;--surface-2:#eef2f8;--field:#fbfcfe;--text:#172234;--text-2:#4e5b6e;--muted:#5d6a7d;--accent:#1a5cad;--accent-btn:#1a5cad;--tint:#e4edf8;--line:#dbe2ec;--line-2:#c5d0de}
+html[data-farbe="blau"][data-theme="dark"] body.app-shell{--bg:#0e1622;--card:#152131;--surface-2:#1b2b40;--field:#111c2a;--text:#eef3fa;--text-2:#b6c4d6;--muted:#9fb0c6;--accent:#8bb8f2;--accent-btn:#2462b3;--tint:#1b2f4a;--line:#2a3a52;--line-2:#3a4e6a;--glass:#152131}
+html[data-farbe="bordeaux"] body.app-shell{--bg:#f7f4f4;--surface-2:#f3eeee;--field:#fdfbfb;--text:#2a1d1f;--text-2:#64585a;--muted:#6e6264;--accent:#94283a;--accent-btn:#94283a;--tint:#f7e8eb;--line:#e6dcdd;--line-2:#d4c6c8}
+html[data-farbe="bordeaux"][data-theme="dark"] body.app-shell{--bg:#1a1214;--card:#24191c;--surface-2:#2f2125;--field:#1e1517;--text:#f8eef0;--text-2:#d3bfc3;--muted:#c0a9ae;--accent:#f0a0ad;--accent-btn:#9c3043;--tint:#3b2026;--line:#46323a;--line-2:#5c434b;--glass:#24191c}
+html[data-farbe="graphit"] body.app-shell{--bg:#f4f5f6;--surface-2:#eff1f3;--field:#fbfcfc;--text:#1d2329;--text-2:#535c66;--muted:#5f6873;--accent:#3d4955;--accent-btn:#3d4955;--tint:#eaedf1;--line:#dde1e5;--line-2:#c8ced5}
+html[data-farbe="graphit"][data-theme="dark"] body.app-shell{--bg:#121619;--card:#1a1f24;--surface-2:#22292f;--field:#151a1e;--text:#eef1f4;--text-2:#bfc8d1;--muted:#a8b2bd;--accent:#c6cfd8;--accent-btn:#4a5866;--tint:#2a323a;--line:#323b44;--line-2:#434e59;--glass:#1a1f24}
+html[data-farbe="wald"] body.app-shell{--bg:#f4f6f3;--surface-2:#eef3ec;--field:#fbfcfa;--text:#1c2a1b;--text-2:#52604f;--muted:#5d6b5a;--accent:#2e6a2a;--accent-btn:#2e6a2a;--tint:#e6f1e2;--line:#dbe4d8;--line-2:#c5d3c1}
+html[data-farbe="wald"][data-theme="dark"] body.app-shell{--bg:#10180f;--card:#172216;--surface-2:#1e2c1c;--field:#131c12;--text:#eef5ec;--text-2:#bccbb8;--muted:#a4b7a0;--accent:#a3d89a;--accent-btn:#367a31;--tint:#203a1d;--line:#2c3d2a;--line-2:#3d5239;--glass:#172216}
+/* große Kachel „Neue Bewertung“: Grundfarbe passend zum Schema (Inhalt und Lage unverändert) */
+html[data-farbe="blau"] .app-shell .quick .app-hero-action{background:#173f70;border-color:#173f70}
+html[data-farbe="blau"] .app-shell .app-hero-action .d{color:#dbe7f7}
+html[data-farbe="bordeaux"] .app-shell .quick .app-hero-action{background:#5e1a26;border-color:#5e1a26}
+html[data-farbe="bordeaux"] .app-shell .app-hero-action .d{color:#f5dde2}
+html[data-farbe="graphit"] .app-shell .quick .app-hero-action{background:#2c353e;border-color:#2c353e}
+html[data-farbe="graphit"] .app-shell .app-hero-action .d{color:#dde3e9}
+html[data-farbe="wald"] .app-shell .quick .app-hero-action{background:#1e4a1b;border-color:#1e4a1b}
+html[data-farbe="wald"] .app-shell .app-hero-action .d{color:#d6ecd2}
+/* Auswahl in der Kachel „Farben“ */
+.fa-raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.fa-wahl{display:flex;flex-direction:column;gap:8px;align-items:flex-start;height:auto;padding:12px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.fa-wahl.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--tint)}
+.fa-wahl b{font-size:14px}
+.fa-wahl small{font-size:12px;color:var(--muted)}
+.fa-proben{display:flex;gap:6px}
+.fa-proben i{display:block;width:26px;height:26px;border-radius:8px;border:1px solid rgba(0,0,0,.08)}

@@ -304,15 +304,14 @@ function icsFalten(z){
 }
 /* t = {uid, titel, ort, beschreibung, datum 'JJJJ-MM-TT', uhrzeit 'hh:mm' (leer = ganztägig), dauerMin, erinnerungMin, jetzt}
    Uhrzeit als Ortszeit ohne Zeitzone („floating“): der Kalender zeigt sie so, wie eingetragen. */
-function ics(t){
+function icsEreignis(t,jetzt){
   t=t||{}; const d=String(t.datum||'');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!isFinite(new Date(d+'T00:00:00Z'))) return '';
-  const z2=n=>String(n).padStart(2,'0'), jetzt=t.jetzt instanceof Date?t.jetzt:new Date();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!isFinite(new Date(d+'T00:00:00Z'))) return null;
+  const z2=n=>String(n).padStart(2,'0'), j=t.jetzt instanceof Date?t.jetzt:jetzt instanceof Date?jetzt:new Date();
   const stempel=x=>x.getUTCFullYear()+z2(x.getUTCMonth()+1)+z2(x.getUTCDate())+'T'+z2(x.getUTCHours())+z2(x.getUTCMinutes())+z2(x.getUTCSeconds());
   const tag=x=>x.getUTCFullYear()+z2(x.getUTCMonth()+1)+z2(x.getUTCDate());
   const basis=new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)));
-  const z=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ImmoApp//Termine//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
-    'UID:'+icsText(t.uid||('ia-'+d+'@immoapp')),'DTSTAMP:'+stempel(jetzt)+'Z'];
+  const z=['BEGIN:VEVENT','UID:'+icsText(t.uid||('ia-'+d+'@immoapp')),'DTSTAMP:'+stempel(j)+'Z'];
   const m=/^(\d{1,2})[:.](\d{2})$/.exec(String(t.uhrzeit||'').trim());
   if(m&&+m[1]<24&&+m[2]<60){
     const start=new Date(basis.getTime()+(+m[1]*60+(+m[2]))*60000), ende=new Date(start.getTime()+(t.dauerMin>0?t.dauerMin:60)*60000);
@@ -322,8 +321,28 @@ function ics(t){
   if(t.ort) z.push('LOCATION:'+icsText(t.ort));
   if(t.beschreibung) z.push('DESCRIPTION:'+icsText(t.beschreibung));
   if(t.erinnerungMin>0) z.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsText(t.titel||'Termin'),'TRIGGER:-PT'+Math.round(t.erinnerungMin)+'M','END:VALARM');
-  z.push('END:VEVENT','END:VCALENDAR');
+  z.push('END:VEVENT');
+  return z;
+}
+/* mehrere Termine in einer Datei (D40, Kalender); leere Liste oder nur ungültige Daten → '' */
+function icsKalender(liste,jetzt){
+  const ev=(liste||[]).map(t=>icsEreignis(t,jetzt)).filter(Boolean);
+  if(!ev.length) return '';
+  const z=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//ImmoApp//Termine//DE','CALSCALE:GREGORIAN','METHOD:PUBLISH'].concat(...ev,['END:VCALENDAR']);
   return z.map(icsFalten).join('\r\n')+'\r\n';
+}
+function ics(t){ return icsKalender([t||{}]); }
+/* Kalenderblatt: Wochen (Montag bis Sonntag) mit den Tagen 'JJJJ-MM-TT', die den Monat 'JJJJ-MM' abdecken */
+function monatsRaster(ym){
+  const j=+String(ym).slice(0,4), m=+String(ym).slice(5,7);
+  if(!(j>1900)||!(m>=1&&m<=12)) return [];
+  const erster=new Date(Date.UTC(j,m-1,1)), wt=(erster.getUTCDay()+6)%7, start=new Date(erster.getTime()-wt*864e5), wochen=[];
+  for(let w=0;w<6;w++){
+    const woche=[]; for(let t=0;t<7;t++){ const d=new Date(start.getTime()+(w*7+t)*864e5); woche.push(d.toISOString().slice(0,10)); }
+    if(w>0&&woche[0].slice(0,7)!==String(ym).slice(0,7)&&woche[0]>String(ym)) break;
+    wochen.push(woche);
+  }
+  return wochen;
 }
 /* Tage zwischen zwei Kalenderdaten 'JJJJ-MM-TT' (b − a) */
 function tageZwischen(a,b){ const x=Date.parse(a+'T00:00:00Z'), y=Date.parse(b+'T00:00:00Z'); return isFinite(x)&&isFinite(y)?Math.round((y-x)/864e5):null; }
@@ -447,10 +466,86 @@ function datenstand(e,heute){
   return {liste:l,faellig:l.filter(x=>x.status==='faellig').length,bald:l.filter(x=>x.status==='bald').length};
 }
 
+/* ========== Interessenten und Akquise: Trichter je Quelle oder Objekt (D40) ==========
+   v.stufe = höchste erreichte Stufe (0 = erste), v.abgesagt = beendet ohne Abschluss. Gezählt wird je Gruppe, wie viele
+   Vorgänge jede Stufe mindestens erreicht haben — eine Absage nach der Besichtigung zählt also als Besichtigung. */
+function trichter(liste,stufen,schluessel){
+  const n=(stufen||[]).length, gruppen={};
+  (liste||[]).forEach(v=>{ if(!v||typeof v!=='object') return;
+    const g=String(v[schluessel]||'ohne Angabe'), r=gruppen[g]||(gruppen[g]={gruppe:g,anzahl:0,stufen:new Array(n).fill(0),abgesagt:0});
+    r.anzahl++; const s=Math.max(0,Math.min(n-1,Math.floor(+v.stufe||0))); for(let i=0;i<=s;i++) r.stufen[i]++; if(v.abgesagt) r.abgesagt++; });
+  return Object.values(gruppen).sort((a,b)=>b.anzahl-a.anzahl||a.gruppe.localeCompare(b.gruppe,'de'));
+}
+
+/* ========== Vorlagen: Platzhalter füllen (D40) ==========
+   {name} wird ersetzt; [[ … ]] ist ein optionaler Teil, der ganz entfällt, wenn ein Platzhalter darin leer ist.
+   Leere Pflicht-Platzhalter (außerhalb von [[ ]]) meldet „fehlt“. Mehr als eine Leerzeile wird zusammengezogen. */
+function vorlageFuellen(text,werte){
+  werte=werte||{}; const fehlt=[];
+  const wert=k=>{ const v=werte[k]; return v==null?'':String(v); };
+  let t=String(text==null?'':text).replace(/\[\[([\s\S]*?)\]\]/g,(m,inhalt)=>(inhalt.match(/\{([a-z_0-9]+)\}/g)||[]).some(p=>!wert(p.slice(1,-1)).trim())?'':inhalt);
+  t=t.replace(/\{([a-z_0-9]+)\}/g,(m,k)=>{ const v=wert(k); if(!v.trim()&&!fehlt.includes(k)) fehlt.push(k); return v; });
+  t=t.replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  return {text:t,fehlt};
+}
+/* Briefanrede aus der Kundenakte (Anrede Frau/Herr/Divers/Firma) */
+function briefAnrede(k){
+  k=k||{}; const n=String(k.nachname||'').trim(), v=String(k.vorname||'').trim();
+  if(k.anrede==='Frau'&&n) return 'Sehr geehrte Frau '+n+',';
+  if(k.anrede==='Herr'&&n) return 'Sehr geehrter Herr '+n+',';
+  if(k.anrede==='Firma'||(!n&&!v)) return 'Sehr geehrte Damen und Herren,';
+  return 'Guten Tag '+[v,n].filter(Boolean).join(' ')+',';
+}
+
+/* ========== Bieterverfahren: Rangfolge der Gebote (D40) ==========
+   Gültig sind Gebote mit Betrag, die nicht zurückgezogen oder abgelehnt sind. Gleich hohe Gebote: das frühere zuerst.
+   Abstand zum Angebotspreis und zum Höchstgebot in Prozent. */
+function bieterRang(gebote,preis){
+  const p=+preis>0?+preis:0;
+  const g=(gebote||[]).filter(x=>x&&!['zurückgezogen','abgelehnt'].includes(x.status)&&+x.betrag>0).map(x=>Object.assign({},x,{betrag:+x.betrag}));
+  g.sort((a,b)=>b.betrag-a.betrag||String(a.datum||'').localeCompare(String(b.datum||''))||String(a.zeit||'').localeCompare(String(b.zeit||'')));
+  return g.map((x,i)=>Object.assign(x,{rang:i+1,abstandPreis:p?(x.betrag/p-1)*100:null,abstandErstes:i?(x.betrag/g[0].betrag-1)*100:0}));
+}
+
+/* ========== Kaufen oder Mieten: Vermögensvergleich (D40) ==========
+   Monatsweise Modellrechnung über den Betrachtungszeitraum, alle Werte sind Annahmen der Beratung:
+   - Kauf: Darlehen = Kaufpreis × (1 + Nebenkosten) − Eigenkapital; Annuität = Darlehen × (Zins + anfängliche Tilgung) / 12,
+     Zinsen monatlich auf die Restschuld (Zins / 12), Rest ist Tilgung, bis das Darlehen getilgt ist. Instandhaltung je Jahr,
+     jährlich um die Kostensteigerung erhöht. Der Wert der Immobilie steigt jährlich um die Wertsteigerung (monatlich verteilt).
+   - Miete: Kaltmiete je Monat, jährlich um die Mietsteigerung erhöht. Das Eigenkapital wird angelegt.
+   - Gleiche Belastung: Wer im Monat weniger zahlt, legt den Unterschied zur Rendite der Geldanlage (nach Steuern) an.
+   - Vermögen Kauf = Wert − Restschuld + angelegter Unterschied; Vermögen Miete = Depot.
+   Nebenkosten der Wohnung, die Mieter und Eigentümer gleichermaßen tragen (Betriebskosten, Grundsteuer), bleiben außen vor. */
+function kaufMiete(e){
+  e=e||{};
+  const preis=pos(e.preis), nk=pos(e.nk)/100, ek=pos(e.ek), zins=pos(e.zins)/100, tilg=pos(e.tilgung)/100, jahre=Math.max(1,Math.min(60,Math.round(zahl(e.jahre)||30)));
+  const inst0=pos(e.instandhaltung), kost=zahl(e.kostensteigerung)/100, wert=zahl(e.wertsteigerung)/100, miete0=pos(e.miete), mst=zahl(e.mietsteigerung)/100, anl=zahl(e.anlagezins)/100;
+  const gesamt=preis*(1+nk), darlehen=Math.max(0,gesamt-ek);
+  const rate=darlehen*(zins+tilg)/12, im=Math.pow(1+anl,1/12)-1, wm=Math.pow(1+wert,1/12)-1;
+  let rest=darlehen, depotKauf=Math.max(0,ek-gesamt), depotMiete=ek, w=preis, zinsenSumme=0, getilgtMonat=null;
+  const zeilen=[{jahr:0,wert:preis,restschuld:rest,kauf:w-rest+depotKauf,miete:depotMiete,mieteMonat:miete0,belastungKauf:rate+inst0/12}];
+  for(let j=1;j<=jahre;j++){
+    const m0=miete0*Math.pow(1+mst,j-1), inst=inst0*Math.pow(1+kost,j-1)/12;
+    let belastung=0;
+    for(let m=1;m<=12;m++){
+      let r=0;
+      if(rest>0){ const z=rest*zins/12; r=Math.min(rate,rest+z); rest=Math.max(0,rest+z-r); zinsenSumme+=z; if(rest<=1e-6&&getilgtMonat==null){ rest=0; getilgtMonat=(j-1)*12+m; } }
+      const kosten=r+inst; belastung=kosten;
+      depotKauf*=1+im; depotMiete*=1+im;
+      if(kosten>m0) depotMiete+=kosten-m0; else depotKauf+=m0-kosten;
+      w*=1+wm;
+    }
+    zeilen.push({jahr:j,wert:w,restschuld:rest,kauf:w-rest+depotKauf,miete:depotMiete,mieteMonat:m0,belastungKauf:belastung});
+  }
+  let ab=null; for(let i=1;i<zeilen.length;i++){ if(zeilen[i].kauf>=zeilen[i].miete){ if(ab==null) ab=zeilen[i].jahr; } else ab=null; }
+  const ende=zeilen[zeilen.length-1];
+  return {darlehen,rate,nebenkosten:preis*nk,zeilen,abJahr:ab,ende,vorteil:ende.kauf-ende.miete,zinsen:zinsenSumme,getilgtNachMonaten:getilgtMonat};
+}
+
 const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
   ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
   petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate,
-  ics,icsText,icsFalten,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
+  ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

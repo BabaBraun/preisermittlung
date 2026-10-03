@@ -5,9 +5,10 @@ import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler, JETZT } fr
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
 
-const WERKZEUGE = [['erbe', 'Übergeben & Vererben'], ['rente', 'Wohnen im Alter'], ['uebergabe', 'Übergabeprotokoll'], ['jahr', 'Mein Jahr'],
-  ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor'],
-  ['notar', 'Notarauftrag'], ['portal', 'Portal-Export'], ['datenstand', 'Datenstand']];   // D39
+const WERKZEUGE = [['akquise', 'Akquise'], ['interessenten', 'Interessenten'], ['bieter', 'Bieterverfahren'], ['foto', 'Fotostudio'], ['portal', 'Portal-Export'], ['aushang', 'Aushang'],
+  ['vorlagen', 'Vorlagen'], ['fahrplan', 'Verkaufsfahrplan'], ['notar', 'Notarauftrag'], ['uebergabe', 'Übergabeprotokoll'], ['erbe', 'Übergeben & Vererben'],
+  ['rente', 'Wohnen im Alter'], ['kaufmiete', 'Kaufen oder Mieten'], ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor'],
+  ['kalender', 'Kalender'], ['jahr', 'Mein Jahr'], ['datenstand', 'Datenstand']];   // D38, D39, D40 — in der Reihenfolge der Bereiche   // D39
 function dialoge(page) {
   const liste = [];
   page.on('dialog', async d => { liste.push(d.message()); await d.accept(d.type() === 'prompt' ? (d.defaultValue() || 'x') : undefined); });
@@ -16,11 +17,13 @@ function dialoge(page) {
 const feld = (page, id) => page.locator('#wz_' + id);
 async function eintragen(page, werte) { for (const [id, v] of Object.entries(werte)) await feld(page, id).fill(v); }
 
-test('Zehn Kacheln auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38, D39)', async ({ page }) => {
+test('Neunzehn Kacheln in vier Bereichen auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38–D40)', async ({ page }) => {
   await appOeffnen(page);
   await page.evaluate(() => appSetTab('home'));
   const kacheln = page.locator('#start_wz .tile');
-  await expect(kacheln).toHaveCount(10);
+  await expect(kacheln).toHaveCount(19);
+  await expect(page.locator('#start_wz .wz-gruppe')).toHaveCount(4);
+  expect(await kacheln.evaluateAll(l => l.map(k => k.getAttribute('onclick').match(/'(\w+)'/)[1]))).toEqual(WERKZEUGE.map(w => w[0]));
   for (const [id, titel] of WERKZEUGE) {
     await page.locator(`#start_wz .tile[onclick="wzOeffnen('${id}')"]`).click();
     await expect(page.locator('#wz_overlay')).toHaveClass(/on/);

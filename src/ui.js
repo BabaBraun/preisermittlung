@@ -57,7 +57,13 @@ var IA_ICONS={
   clipboard:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/>',
   'trending-up':'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
   activity:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
-  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/>',
+  inbox:'<path d="M5 5h14l2 8v6H3v-6z"/><path d="M3 13h5l2 3h4l2-3h5"/>',
+  sign:'<path d="M6 21V3"/><path d="M6 5h12v8H6"/><path d="M9.5 9h5"/>',
+  image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  'list-check':'<path d="m4 6 2 2 3-3"/><path d="m4 13 2 2 3-3"/><path d="M12 7h8M12 14h8M4 20h16"/>',
+  scale:'<path d="M12 3v18M7 21h10M4 7h16"/><path d="M6.5 7 3.5 14a3 3 0 0 0 6 0z"/><path d="M17.5 7l-3 7a3 3 0 0 0 6 0z"/>'
 };
 var IA_EMOJI={'🏠':'home','🏢':'building','🏬':'store','🏭':'factory','☀':'sun','📊':'chart','📁':'folder','📂':'folder-open',
   '💾':'save','🗎':'file','📄':'file','📝':'file-text','⬇':'download','🖨':'printer','📲':'download','📷':'camera','🛠':'wrench',
@@ -492,6 +498,17 @@ function sucheQuellen(){
       hay:[kdName(k),k.firma,k.plzort,k.strasse,k.telefon,k.email,'kunde'].join(' '),ts:k.geaendert||0,
       go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); kdOeffnen(k.id); }});
   });
+  // Anfragen, Akquise und Termine (D40)
+  if(typeof wzdBereit==='function'&&wzdBereit()){
+    wzdListe('vorgaenge').forEach(v=>{ let name=wzdKundeName(v.kundeId), obj=wzdObjektName(v.projektId,[v.objektArt,v.objektOrt].filter(Boolean).join(' in '));
+      out.push({typ:'vg',id:v.id,titel:(v.typ==='akquise'?'Akquise: ':'Anfrage: ')+name,ort:obj,meta:[v.status||'',v.quelle||''].filter(Boolean),preis:'',sub:wzDatum(v.datum),
+        hay:[name,obj,v.quelle,v.status,v.notiz,v.typ==='akquise'?'akquise eigentümer':'anfrage interessent'].join(' '),ts:v.geaendert||0,
+        go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); wzVorgangOeffnen(v.id); }}); });
+    wzdListe('termine').forEach(t=>{ let namen=(t.kundeIds||[]).map(wzdKundeName).filter(Boolean).join(', '), obj=wzdObjektName(t.projektId,'');
+      out.push({typ:'termin',id:t.id,titel:(t.art||'Termin')+((t.titel||obj)?': '+(t.titel||obj):''),ort:t.ort||'',meta:[wzDatum(t.datum)+(t.von?' '+t.von+' Uhr':''),namen].filter(Boolean),preis:'',sub:'Termin',
+        hay:[t.art,t.titel,obj,t.ort,namen,t.notiz,t.datum,'termin kalender'].join(' '),ts:t.geaendert||0,
+        go:()=>{ sucheSchliessen(); if(typeof mdbClose==='function')mdbClose(); kaTerminOeffnen(t.id); }}); });
+  }
   (SUCHE.markt||[]).forEach(o=>{
     let d=mdbDeriv(o);
     out.push({typ:'markt',id:o.id, titel:(o.strasse||'').trim()||'ohne Straße', ort:[o.plz,o.gemeinde,o.ortsteil].filter(Boolean).join(' '),
@@ -515,29 +532,30 @@ function sucheLauf(){
     });
     hits.sort((a,b)=>b.score-a.score||b.ts-a.ts);
   }
-  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), kd=hits.filter(h=>h.typ==='kunde').slice(0,6), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
-  SUCHE.hits=bew.concat(kd,markt); SUCHE.aktiv=0;
-  sucheRender(tokens,bew.length,markt.length,kd.length);
+  let bew=hits.filter(h=>h.typ==='bew').slice(0,8), kd=hits.filter(h=>h.typ==='kunde').slice(0,6), vg=hits.filter(h=>h.typ==='vg'||h.typ==='termin').slice(0,6), markt=hits.filter(h=>h.typ==='markt').slice(0,8);
+  SUCHE.hits=bew.concat(kd,vg,markt); SUCHE.aktiv=0;
+  sucheRender(tokens,bew.length,markt.length,kd.length,vg.length);
 }
 function sucheMark(text,tokens){
   let s=sEsc(text); if(!tokens.length)return s;
   tokens.forEach(t=>{ if(t.length<2)return; let re=new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'); s=s.replace(re,'<mark class="hl">$1</mark>'); });
   return s;
 }
-function sucheRender(tokens,nBew,nMarkt,nKd){
+function sucheRender(tokens,nBew,nMarkt,nKd,nVg){
   let el=$('suche_liste'), hits=SUCHE.hits;
   if(!hits.length){
     el.innerHTML='<div class="suche-leer">'+(SUCHE.q?'Keine Treffer für „'+sEsc(SUCHE.q)+'".<br>Gesucht wird in Adresse, Ort, Auftraggeber, Objektart, Baujahr, Fläche, Preis und Notizen.':'Noch keine Objekte vorhanden. Bewertungen erscheinen hier, sobald sie als Projekt gesichert sind; Marktobjekte, sobald sie erfasst sind.')+'</div>';
     return;
   }
   const row=(h,i)=>'<div class="suche-row'+(i===SUCHE.aktiv?' aktiv':'')+'" data-i="'+i+'">'+
-    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':h.typ==='kunde'?'users':'file-text')+'</div>'+
+    '<div class="ico'+(h.typ==='markt'?' markt':'')+'">'+iaSvg(h.typ==='markt'?'chart':h.typ==='kunde'?'users':h.typ==='vg'?'inbox':h.typ==='termin'?'calendar':'file-text')+'</div>'+
     '<div class="txt"><div class="t">'+sucheMark(h.titel,tokens)+(h.ort?' <span class="o">· '+sucheMark(h.ort,tokens)+'</span>':'')+'</div>'+
     '<div class="m">'+sEsc(h.meta.join(' · '))+'</div></div>'+
     '<div class="r"><b>'+(h.preis&&h.preis!=='0 €'?sEsc(h.preis):'')+'</b><span>'+sEsc(h.sub)+'</span></div></div>';
   let h='', i=0;
   if(nBew){ h+='<div class="suche-grp">Bewertungen<em>'+nBew+'</em></div>'; for(let k=0;k<nBew;k++){ h+=row(hits[i],i); i++; } }
   if(nKd){ h+='<div class="suche-grp">Kunden<em>'+nKd+'</em></div>'; for(let k=0;k<nKd;k++){ h+=row(hits[i],i); i++; } }
+  if(nVg){ h+='<div class="suche-grp">Anfragen und Termine<em>'+nVg+'</em></div>'; for(let k=0;k<nVg;k++){ h+=row(hits[i],i); i++; } }
   if(nMarkt){ h+='<div class="suche-grp">Marktüberblick<em>'+nMarkt+'</em></div>'; for(let k=0;k<nMarkt;k++){ h+=row(hits[i],i); i++; } }
   el.innerHTML=h;
   el.querySelectorAll('.suche-row').forEach(r=>{

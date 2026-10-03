@@ -1,3 +1,11 @@
+# Zusammenfassung — Neun neue Kacheln nach dem Vorbild einer Maklersoftware (2026-10-03)
+
+Akquise (Eigentümer bis zum Auftrag), Interessenten (Anfragen, Abgleich aller Suchprofile mit den Objekten in Vermarktung,
+Auswertung je Quelle), Bieterverfahren (Gebote mit Rang, Übersicht ohne Namen), Fotostudio (aufhellen, begradigen,
+zuschneiden, schwärzen, verpixeln), Aushang (Schaufenster und Filiale), Vorlagen (zehn Schreiben mit Platzhaltern, E-Mail, Word), Verkaufsfahrplan (23 Schritte,
+viele automatisch erkannt), Kalender (alle Termine und Fristen, Kalenderdatei) und Kaufen oder Mieten (Vermögensvergleich,
+gegen Python nachgerechnet). Startseite und „Mehr“ in vier farbigen Bereichen; Bewertungen und Liegenschaften unverändert (D40).
+
 # Zusammenfassung — Notarauftrag, Portal-Export, Datenstand (2026-10-03)
 
 Drei neue Kacheln: Notarauftrag (alle Angaben für den Kaufvertragsentwurf aus Bewertung, Vermarktung und Kundenakte, Ampeln
