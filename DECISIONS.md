@@ -1284,3 +1284,23 @@ oder Mieten gegen Python, Bildbearbeitung, Sicherungsdatei), `tests/e2e/werkzeug
 Kundenakte, Kalender, Vorlage, Auskunft und Löschen; Akquise und Bieterverfahren; Fotostudio mit Schwärzen durch Ziehen;
 Verkaufsfahrplan und Kaufen oder Mieten; Aushang; Farbschema; Sicherung hin und zurück), 19 Kacheln in vier Bereichen;
 Klicktest mit 18 neuen Bereichen (PC und iPhone ohne Befunde).
+
+## D41 (2026-10-03) — Besichtigungsnachweis im Termin, Kachel „Aktivitäten“
+
+**Besichtigungsnachweis** (`src/wz-kalender.js`): Bei Terminen der Art „Besichtigung“ unterschreibt jeder eingetragene
+Teilnehmer auf dem Gerät, dass ihm das Objekt gezeigt wurde — der übliche Beleg für die Nachweis- und Vermittlungstätigkeit.
+Der Text ist ein Vorschlag mit Platzhaltern ({objekt}, {datum}, {berater}, {firma}) und lässt sich je Termin anpassen
+(Vorgaben der Bank beachten); wer ihn nach einer Unterschrift ändert, entfernt die Unterschriften. „Nachweis als Dokument“
+erzeugt das Blatt mit Unterschriften (PDF, Word, Teilen). Die Unterschriften liegen beim Termin in der Datenbank; löscht man
+einen Kunden, verschwindet auch seine Unterschrift, die Auskunft nennt sie.
+
+**Aktivitäten** (`src/wz-aktivitaeten.js`, Zeiträume in `js/beratung.js` → `zeitraum`): zählt je Woche, Monat, Quartal oder
+Jahr und im Vergleich zum Vorzeitraum — Akquise (neue Eigentümer-Kontakte, Termine, erteilte Aufträge, Kontakte ohne
+Auftrag), Vermarktung (neue Anfragen nach Quelle, versendete Exposés, Besichtigungen aus Kalender und Vermarktung, Gebote,
+Kaufangebote, Reservierungen, Absagen), Abschluss (Notartermine, Übergaben, Käufe) und Beratung (Gesprächsnotizen nach Art,
+Finanzierungsrechnungen), dazu erledigte Wiedervorlagen. Ohne Namen; als Dokument für die Vertriebssteuerung. Statuswechsel
+zählen ab ihrem Datum im Verlauf.
+
+**Tests:** Zeiträume (Kalenderwoche ab Montag, Monats-, Quartals- und Jahreswechsel, Schaltjahr) in `tests/unit/d40.test.mjs`;
+Browsertests für Nachweis (Unterschrift durch Ziehen, Dokument, Textänderung) und Aktivitäten (Zählung im Monat und im
+Vorzeitraum, Dokument ohne Namen); Klicktest-Bereich „Aktivitäten“.

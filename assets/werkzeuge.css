@@ -323,3 +323,8 @@
 #report.aushang .ah-karte .ah-energie{font-size:10.5px;margin:0 0 2px;padding-top:4px}
 @media (max-width:600px){ #report.aushang .ah-fakten{grid-template-columns:repeat(2,1fr)} #report.aushang .ah-raster{grid-template-columns:1fr} #report.aushang .ah-bild{height:auto;max-height:60vh} }
 @media print{ #report.aushang .ah-blatt{padding:0} #report.aushang .ah-raster{grid-template-columns:1fr 1fr} }
+/* Besichtigungsnachweis im Termin (D40) */
+.ka-nachweis-text{font-size:14px;line-height:1.5;background:var(--surface-2);border-radius:var(--rs);padding:10px 12px;margin:0 0 10px}
+.ka-nachweis-aendern{margin:10px 0 0}
+.ka-nachweis-aendern summary{cursor:pointer;font-size:13px;color:var(--accent)}
+.ka-nachweis-aendern textarea{width:100%;margin-top:6px}

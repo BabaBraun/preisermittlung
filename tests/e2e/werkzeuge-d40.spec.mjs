@@ -227,6 +227,53 @@ test('Aushang: ein Objekt mit Titelbild, Preis und Pflichtangaben; Übersicht mi
   await keineSkriptfehler(page);
 });
 
+test('Besichtigungsnachweis: Teilnehmer unterschreibt im Termin, Dokument mit Unterschrift, Textänderung entfernt sie (D40)', async ({ page }) => {
+  const meldungen = dialoge(page);
+  const pid = await objektInVermarktung(page);
+  await page.evaluate(async pid => { await wzdSpeichern('termine', { id: 't_n', art: 'Besichtigung', titel: '', datum: '2026-10-01', von: '15:00', bis: '', ort: '', projektId: pid, kundeIds: ['k_such'], notiz: '', erinnerung: '0' });
+    await kaTerminOeffnen('t_n'); }, pid);
+  await expect(page.locator('.ka-nachweis-text')).toContainText('Hiermit bestätige ich, das Objekt Musterweg 7, 74360 Ilsfeld am 1.10.2026 besichtigt zu haben.');
+  const c = page.locator('canvas.ka-pad'); await c.scrollIntoViewIfNeeded(); const b = await c.boundingBox();
+  await page.mouse.move(b.x + 20, b.y + 30); await page.mouse.down(); await page.mouse.move(b.x + b.width / 2, b.y + b.height - 30, { steps: 8 }); await page.mouse.up();
+  await expect.poll(() => page.evaluate(async () => !!((await iaGet('termine', 't_n')).nachweis || {}).unterschriften?.k_such)).toBe(true);
+  await page.getByRole('button', { name: 'Nachweis als Dokument' }).click();
+  await expect(page.locator('#report .wzd h1')).toHaveText('Besichtigungsnachweis');
+  await expect(page.locator('#report .wzd-unterschriften img')).toHaveCount(1);
+  await expect(page.locator('#report .wzd-unterschriften')).toContainText('Erika Musterfrau');
+  await page.locator('#report .ex-leiste button', { hasText: 'zurück' }).click();
+  await page.locator('.ka-nachweis-aendern summary').click();
+  await page.locator('#ka_nachweis_text').fill('Ich habe {objekt} am {datum} gesehen.'); await page.locator('#ka_nachweis_text').blur();
+  await expect.poll(() => meldungen.join('|')).toContain('werden die vorhandenen Unterschriften entfernt');
+  await expect(page.locator('.ka-nachweis-text')).toHaveText('Ich habe Musterweg 7, 74360 Ilsfeld am 1.10.2026 gesehen.');
+  expect(await page.evaluate(async () => Object.keys((await iaGet('termine', 't_n')).nachweis.unterschriften).length)).toBe(0);
+  await keineSkriptfehler(page);
+});
+
+test('Aktivitäten zählen Anfragen, Exposés, Besichtigungen und Gespräche im Zeitraum, mit Vorzeitraum (D40)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objektInVermarktung(page);
+  await page.evaluate(async pid => {
+    await wzdSpeichern('vorgaenge', { id: 'v_a1', typ: 'anfrage', datum: '2026-09-22', kundeId: 'k_such', projektId: pid, quelle: 'Immowelt', status: 'Exposé versendet', stufe: 2,
+      verlauf: [{ id: 'h1', datum: '2026-09-22', text: 'Anfrage über Immowelt' }, { id: 'h2', datum: '2026-09-23', text: 'Exposé versendet' }] });
+    await wzdSpeichern('vorgaenge', { id: 'v_a2', typ: 'anfrage', datum: '2026-08-30', kundeId: 'k_such', projektId: pid, quelle: 'Filiale', status: 'Neu', stufe: 0, verlauf: [] });
+    await wzdSpeichern('termine', { id: 't_a', art: 'Besichtigung', titel: '', datum: '2026-09-25', von: '10:00', bis: '', ort: '', projektId: pid, kundeIds: [], notiz: '', erinnerung: '0' });
+    const k = KD_CACHE.find(x => x.id === 'k_such'); k.kontakte = [{ id: 'c1', ts: 1, datum: '2026-09-24', art: 'Telefonat', text: 'Rückruf' }]; await kdSpeichern(k);
+  }, pid);
+  await page.evaluate(() => wzOeffnen('aktivitaeten'));
+  await page.getByRole('group', { name: 'Zeitraum' }).getByRole('button', { name: 'Dieser Monat' }).click();
+  const zeile = t => page.locator('#wz_body tr', { hasText: t });
+  await expect(zeile('Neue Anfragen').locator('td').nth(1)).toContainText('1');     // September: eine neue Anfrage (die zweite war im August)
+  await expect(zeile('Neue Anfragen').locator('td').nth(2)).toHaveText('1');        // Vorzeitraum August
+  await expect(zeile('Exposés versendet').locator('td').nth(1)).toContainText('1');
+  await expect(zeile('Besichtigungen (Kalender)').locator('td').nth(1)).toContainText('1');
+  await expect(zeile('Gesprächsnotizen: Telefonat').locator('td').nth(1)).toContainText('1');
+  await expect(page.locator('#wz_body')).toContainText('Anfragen nach Quelle');
+  await page.getByRole('button', { name: 'Dokument' }).click();
+  await expect(page.locator('#report .wzd h1')).toHaveText('Aktivitäten');
+  await expect(page.locator('#report .wzd')).not.toContainText('Musterfrau');
+  await keineSkriptfehler(page);
+});
+
 test('Gesamtsicherung enthält Termine, Anfragen und Bieterverfahren und spielt sie wieder ein (D40)', async ({ page, browser }) => {
   dialoge(page);
   const pid = await objektInVermarktung(page);

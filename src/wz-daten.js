@@ -93,7 +93,8 @@ function wzdKpi(titel,wert,unter){ return '<div class="kpi"><span>'+titel+'</spa
 KD_LOESCH_HOOKS.push(async id=>{
   await wzdLaden();
   for(const v of wzdListe('vorgaenge').filter(v=>v.kundeId===id)) await wzdLoeschen('vorgaenge',v.id);
-  for(const t of wzdListe('termine').filter(t=>(t.kundeIds||[]).includes(id))){ t.kundeIds=t.kundeIds.filter(x=>x!==id); await wzdSpeichern('termine',t); }
+  for(const t of wzdListe('termine').filter(t=>(t.kundeIds||[]).includes(id))){ t.kundeIds=t.kundeIds.filter(x=>x!==id);
+    if(t.nachweis&&t.nachweis.unterschriften) delete t.nachweis.unterschriften[id]; await wzdSpeichern('termine',t); }
   for(const b of wzdListe('bieter').filter(b=>b.gebote.some(g=>g.kundeId===id))){ b.gebote=b.gebote.filter(g=>g.kundeId!==id); await wzdSpeichern('bieter',b); }
 });
 KD_AUSKUNFT_HOOKS.push(async id=>{
@@ -103,7 +104,8 @@ KD_AUSKUNFT_HOOKS.push(async id=>{
     geb=[]; wzdListe('bieter').forEach(b=>b.gebote.filter(g=>g.kundeId===id).forEach(g=>geb.push({b,g})));
   return ['','ANFRAGEN UND AKQUISE'].concat(anf.length?anf.map(v=>'- '+d(v.datum)+' '+(v.typ==='akquise'?'Akquise':'Anfrage')+': '+(wzdObjektName(v.projektId,v.objekt||'')||'ohne Objekt')
       +' — '+(v.status||'')+(v.quelle?' (Quelle: '+v.quelle+')':'')+((v.verlauf||[]).length?'; Verlauf: '+v.verlauf.map(x=>d(x.datum)+' '+x.text).join('; '):'')):['- keine'],
-    ['','TERMINE'],ter.length?ter.map(t=>'- '+d(t.datum)+(t.von?' '+t.von:'')+' '+(t.art||'')+': '+(t.titel||'')+(t.ort?' ('+t.ort+')':'')):['- keine'],
+    ['','TERMINE'],ter.length?ter.map(t=>'- '+d(t.datum)+(t.von?' '+t.von:'')+' '+(t.art||'')+': '+(t.titel||'')+(t.ort?' ('+t.ort+')':'')
+      +(t.nachweis&&t.nachweis.unterschriften&&t.nachweis.unterschriften[id]?' — Besichtigungsnachweis unterschrieben':'')):['- keine'],
     ['','GEBOTE IN BIETERVERFAHREN'],geb.length?geb.map(x=>'- '+d(x.g.datum)+' '+(wzdObjektName(x.b.projektId,x.b.objekt)||'Objekt')+': '+eur(x.g.betrag||0)+(x.g.status?' ('+x.g.status+')':'')):['- keine']);
 });
 KD_AKTE_HOOKS.push(id=>{

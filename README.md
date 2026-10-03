@@ -44,7 +44,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Austauschformat OpenImmo 1.2.7) und Datenstand (Rechengrundlagen und Daten: was ist aktuell, was steht an). Dazu (D40)
   Akquise, Interessenten mit Abgleich der Suchprofile, Bieterverfahren, Fotostudio (aufhellen, zuschneiden, schwärzen), Aushang für
   Schaufenster und Filiale,
-  Vorlagen für Schreiben und E-Mails, Verkaufsfahrplan, Kalender mit Kalenderdatei und Kaufen oder Mieten. Die Kacheln
+  Vorlagen für Schreiben und E-Mails, Verkaufsfahrplan, Kalender mit Kalenderdatei und Besichtigungsnachweis, Aktivitäten je
+  Zeitraum und Kaufen oder Mieten. Die Kacheln
   stehen in vier Bereichen mit eigener Farbe. Jedes Werkzeug mit Dokument (PDF, Word) und Notiz in der Kundenakte.
 - **Darstellung:** fünf Farbschemata (Petrol, Blau, Bordeaux, Graphit, Waldgrün), jeweils hell und dunkel.
 

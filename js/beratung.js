@@ -542,10 +542,29 @@ function kaufMiete(e){
   return {darlehen,rate,nebenkosten:preis*nk,zeilen,abJahr:ab,ende,vorteil:ende.kauf-ende.miete,zinsen:zinsenSumme,getilgtNachMonaten:getilgtMonat};
 }
 
+/* ========== Aktivitäten: Zeiträume (D40) ==========
+   art: woche | vorwoche | monat | vormonat | quartal | jahr — Kalenderwoche ab Montag, Monat, Quartal, Jahr; dazu der gleich lange
+   Vorzeitraum für den Vergleich. Alle Daten als 'JJJJ-MM-TT', beide Grenzen eingeschlossen. */
+function zeitraum(art,heute){
+  heute=/^\d{4}-\d{2}-\d{2}$/.test(heute||'')?heute:new Date().toISOString().slice(0,10);
+  const d=new Date(heute+'T00:00:00Z'), iso=x=>x.toISOString().slice(0,10), tag=(j,m,t)=>new Date(Date.UTC(j,m,t));
+  const J=d.getUTCFullYear(), M=d.getUTCMonth(), wt=(d.getUTCDay()+6)%7;
+  let von, bis, vorVon, vorBis;
+  if(art==='woche'||art==='vorwoche'){
+    const mo=new Date(d.getTime()-wt*864e5), s=art==='vorwoche'?-7:0;
+    von=new Date(mo.getTime()+s*864e5); bis=new Date(von.getTime()+6*864e5); vorVon=new Date(von.getTime()-7*864e5); vorBis=new Date(von.getTime()-864e5);
+  } else if(art==='monat'||art==='vormonat'){
+    const m=art==='vormonat'?M-1:M; von=tag(J,m,1); bis=tag(J,m+1,0); vorVon=tag(J,m-1,1); vorBis=tag(J,m,0);
+  } else if(art==='quartal'){
+    const q=Math.floor(M/3)*3; von=tag(J,q,1); bis=tag(J,q+3,0); vorVon=tag(J,q-3,1); vorBis=tag(J,q,0);
+  } else { von=tag(J,0,1); bis=tag(J,11,31); vorVon=tag(J-1,0,1); vorBis=tag(J-1,11,31); }
+  return {von:iso(von),bis:iso(bis),vorVon:iso(vorVon),vorBis:iso(vorBis)};
+}
+
 const ImmoBeratung={ERB_VERHAELTNIS,ERB_SAETZE,erbstSteuer,klasseFuer,freibetragFuer,BMF_VERVIELFAELTIGER,zeitrenteBewG,vervielfaeltigerBewG,vervielfaeltigerQuelle,kapitalwertNutzung,familienheimFrei,erwerbSteuer,uebertragung,restLeben,
   ueberleben,rentenfaktor,lebenserwartung,verrentung,residualwert,residualSpanne,
   petersRuecklage,heizungPruefen,etwCheck,ETW_UNTERLAGEN,JAHR_PHASEN,JAHR_WAHRSCHEINLICHKEIT,pipeline,plusMonate,
-  ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
+  ics,icsText,icsFalten,icsEreignis,icsKalender,monatsRaster,trichter,vorlageFuellen,briefAnrede,bieterRang,kaufMiete,zeitraum,notarFrist,tageZwischen,tagePlus,datenstand,RECHT_GEPRUEFT};
 wurzel.ImmoBeratung=ImmoBeratung;
 if(typeof module==='object'&&module.exports) module.exports=ImmoBeratung;
 })(typeof globalThis!=='undefined'?globalThis:this);

@@ -153,12 +153,65 @@ function kaEditor(t){
         +'<div class="kd-k"><button class="secondary" onclick="kdOeffnen(\''+idSicher(id)+'\')">Akte</button><button class="secondary" onclick="kaKundeWeg(\''+idSicher(id)+'\')" aria-label="Teilnehmer entfernen" data-ic="x"></button></div></div>').join('')+'</div>'
         :'<p class="hint" style="margin:0 0 8px">Noch niemand eingetragen.</p>')
       +'<button type="button" class="plus" onclick="kaKundeDazu()">＋ Kunde aus der Kundenakte</button>')
+    +(t.art==='Besichtigung'?kaNachweisHtml(t):'')
     +wzBox('Notiz',wzFeld('notiz','Notiz',{typ:'lang',zeilen:3,voll:true,ph:'z. B. Schlüssel beim Nachbarn, Unterlagen mitbringen'}))
     +'<div class="gr-zeile"><button type="button" class="secondary" onclick="kaIcsEiner()" data-ic="calendar">In den Gerätekalender</button>'
     +'<button type="button" class="secondary" onclick="kaSchreiben()" data-ic="pen">Bestätigung schreiben</button></div>';
 }
 function kaSpeichern(){ if(KA.aktiv) wzdSpeichernBald('termine',KA.aktiv); }
-function kaRechnen(){ iconify($('wz_body')); }
+function kaRechnen(){ iconify($('wz_body')); document.querySelectorAll('#wz_body canvas.ka-pad').forEach(kaPad); }
+
+/* ---------- Besichtigungsnachweis: Teilnehmer bestätigen mit Unterschrift auf dem Gerät, dass ihnen das Objekt gezeigt wurde ----------
+   Beleg für die Nachweis- und Vermittlungstätigkeit. Der Text ist ein Vorschlag und lässt sich je Termin anpassen (Vorgaben der
+   Bank beachten). Unterschriften liegen beim Termin in der Datenbank; ändert man danach den Text, werden sie entfernt. */
+const KA_NACHWEIS='Hiermit bestätige ich, das Objekt {objekt} am {datum} besichtigt zu haben. Das Objekt wurde mir von {berater}{firma} gezeigt; die Angaben zum Objekt habe ich von dort erhalten.';
+function kaNachweisText(t){
+  let o=wzdObjekt(t.projektId), ber=typeof exKontaktGemerkt==='function'?exKontaktGemerkt():{}, pk=((wzAlle().portal||{}).kontakt)||{};
+  let name=ber.name||pk.name||'', firma=ber.firma||(((wzAlle().portal||{}).anbieter)||{}).firma||'';
+  return ImmoBeratung.vorlageFuellen((t.nachweis&&t.nachweis.text)||KA_NACHWEIS,{objekt:o?o.anschrift||o.name:(t.ort||'(Objekt)'),datum:wzDatum(t.datum),
+    berater:name||'der Beraterin oder dem Berater',firma:firma?' ('+firma+')':''}).text;
+}
+function kaNachweisHtml(t){
+  let n=t.nachweis||{}, u=n.unterschriften||{};
+  if(!t.kundeIds.length) return wzBox('Besichtigungsnachweis',wzHinweis('Erst Teilnehmer aus der Kundenakte eintragen — dann unterschreibt jeder hier auf dem Gerät.'));
+  return wzBox('Besichtigungsnachweis','<p class="ka-nachweis-text">'+sEsc(kaNachweisText(t))+'</p>'
+    +'<div class="ub-pads">'+t.kundeIds.map(id=>'<div class="ub-pad"><div class="ub-pad-kopf"><b>'+sEsc(wzdKundeName(id))+'</b>'+(u[id]&&u[id].zeit?'<span>unterschrieben '+new Date(u[id].zeit).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'})+'</span>':'')+'</div>'
+      +'<canvas class="ub-canvas ka-pad" data-kunde="'+sEsc(id)+'" aria-label="Unterschrift '+sEsc(wzdKundeName(id))+'"></canvas>'
+      +'<button type="button" class="secondary" onclick="kaUnterschriftWeg(\''+idSicher(id)+'\')">Unterschrift löschen</button></div>').join('')+'</div>'
+    +'<details class="ka-nachweis-aendern"><summary>Text ändern</summary><textarea id="ka_nachweis_text" rows="4" onchange="kaNachweisTextSetzen(this.value)">'+sEsc(n.text||KA_NACHWEIS)+'</textarea>'
+      +'<p class="hint">Platzhalter {objekt}, {datum}, {berater}, {firma}. Wer den Text nach einer Unterschrift ändert, muss neu unterschreiben lassen.</p></details>'
+    +'<div class="gr-zeile"><button type="button" class="secondary" onclick="wzDokument()" data-ic="file-text">Nachweis als Dokument</button></div>');
+}
+function kaNachweisTextSetzen(v){
+  let t=KA.aktiv; if(!t) return; t.nachweis=t.nachweis||{}; let alt=t.nachweis.text||KA_NACHWEIS; v=String(v||'').trim()||KA_NACHWEIS;
+  if(v===alt) return;
+  if(Object.keys(t.nachweis.unterschriften||{}).length&&!confirm('Mit dem neuen Text werden die vorhandenen Unterschriften entfernt. Fortfahren?')){ wzZeichnen(); return; }
+  t.nachweis.text=v; t.nachweis.unterschriften={}; wzdSpeichernSofort('termine',t); wzZeichnen();
+}
+function kaUnterschriftWeg(id){ let t=KA.aktiv; if(!t||!t.nachweis||!t.nachweis.unterschriften) return; delete t.nachweis.unterschriften[id]; wzdSpeichernSofort('termine',t); wzZeichnen(); }
+function kaPad(c){
+  if(!c||c.dataset.init) return; c.dataset.init='1';
+  let kid=c.dataset.kunde, ctx=c.getContext('2d'), r=c.getBoundingClientRect(), w=Math.max(200,Math.round(r.width)), h=Math.max(100,Math.round(r.height));
+  c.width=w*2; c.height=h*2; ctx.setTransform(2,0,0,2,0,0); ctx.lineWidth=2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+  let t=KA.aktiv, bild=t&&t.nachweis&&t.nachweis.unterschriften&&t.nachweis.unterschriften[kid]&&t.nachweis.unterschriften[kid].bild;
+  if(bild){ let img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,w,h); img.src=bild; }
+  let an=false, last=null;
+  const pt=e=>{ let b=c.getBoundingClientRect(); return {x:(e.clientX-b.left)*w/b.width,y:(e.clientY-b.top)*h/b.height}; };
+  c.addEventListener('pointerdown',e=>{ an=true; last=pt(e); try{ c.setPointerCapture(e.pointerId); }catch(x){} ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(last.x+0.1,last.y+0.1); ctx.stroke(); e.preventDefault(); });
+  c.addEventListener('pointermove',e=>{ if(!an) return; let p=pt(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); });
+  const ende=()=>{ if(!an) return; an=false; let t=KA.aktiv; if(!t) return;
+    t.nachweis=t.nachweis||{}; t.nachweis.unterschriften=t.nachweis.unterschriften||{};
+    t.nachweis.unterschriften[kid]={bild:c.toDataURL('image/png'),zeit:new Date().toISOString()}; wzdSpeichernBald('termine',t); };
+  ['pointerup','pointercancel','pointerleave'].forEach(x=>c.addEventListener(x,ende));
+}
+function kaNachweisDokument(t){
+  let u=(t.nachweis&&t.nachweis.unterschriften)||{}, o=wzdObjekt(t.projektId);
+  return {titel:'Besichtigungsnachweis '+(o?o.name:(t.ort||''))+' '+wzDatum(t.datum),
+    html:'<h1>Besichtigungsnachweis</h1><p class="wzd-unter">'+sEsc(o?o.anschrift||o.name:(t.ort||''))+' · '+wzDatum(t.datum)+(wzdZeit(t.von)?', '+sEsc(wzdZeit(t.von))+' Uhr':'')+'</p>'
+      +'<p>'+sEsc(kaNachweisText(t))+'</p><div class="wzd-unterschriften">'
+      +t.kundeIds.map(id=>'<div>'+(u[id]?'<img src="'+u[id].bild+'" alt="Unterschrift">':'<div class="wzd-linie"></div>')+'<p>'+sEsc(wzdKundeName(id))+(u[id]?' · '+new Date(u[id].zeit).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'}):'')+'</p></div>').join('')+'</div>',
+    fuss:'Besichtigungsnachweis.'};
+}
 
 /* ---------- Kalenderdatei ---------- */
 function kaIcsTermin(e,namen){
@@ -185,6 +238,7 @@ function kaSchreiben(){
   if(typeof vlOeffnenMit==='function') vlOeffnenMit({vorlage:'besichtigung',kundeId:t.kundeIds[0]||'',projektId:t.projektId||'',terminId:t.id});
 }
 function kaDokument(){
+  if(KA.aktiv&&KA.aktiv.art==='Besichtigung'&&KA.aktiv.kundeIds.length) return kaNachweisDokument(KA.aktiv);
   let h=aufHeute(), bis=ImmoBeratung.tagePlus(h,14), l=kaEintraege().filter(e=>e.datum>=h&&e.datum<=bis);
   let tage=[...new Set(l.map(e=>e.datum))];
   return {titel:'Termine '+new Date().toLocaleDateString('de-DE'),

@@ -1,3 +1,9 @@
+# Zusammenfassung — Besichtigungsnachweis und Aktivitäten (2026-10-03)
+
+Im Termin „Besichtigung“ unterschreiben die Teilnehmer auf dem Gerät den Besichtigungsnachweis (Dokument mit Unterschriften,
+Text anpassbar). Neue Kachel „Aktivitäten“: Anfragen, Exposés, Besichtigungen, Gebote, Akquise, Notartermine und Gespräche je
+Woche, Monat, Quartal oder Jahr mit Vergleich zum Vorzeitraum, ohne Namen (D41).
+
 # Zusammenfassung — Neun neue Kacheln nach dem Vorbild einer Maklersoftware (2026-10-03)
 
 Akquise (Eigentümer bis zum Auftrag), Interessenten (Anfragen, Abgleich aller Suchprofile mit den Objekten in Vermarktung,

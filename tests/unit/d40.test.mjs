@@ -122,3 +122,13 @@ test('Gesamtsicherung D40: Termine, Vorgänge und Bieterverfahren werden geprüf
   assert.deepEqual([r.termine.map(x => x.id), r.vorgaenge.map(x => x.id), r.bieter.map(x => x.id)], [['t1'], ['v1'], ['b1']]);
   assert.equal(r.verworfen, 3);
 });
+
+test('Aktivitäten: Zeiträume Woche, Monat, Quartal, Jahr mit Vorzeitraum, auch über den Jahreswechsel', () => {
+  assert.deepEqual(B.zeitraum('woche', '2026-10-03'), { von: '2026-09-28', bis: '2026-10-04', vorVon: '2026-09-21', vorBis: '2026-09-27' });   // Samstag → Montag davor
+  assert.deepEqual(B.zeitraum('vorwoche', '2026-10-05'), { von: '2026-09-28', bis: '2026-10-04', vorVon: '2026-09-21', vorBis: '2026-09-27' }); // Montag
+  assert.deepEqual(B.zeitraum('monat', '2026-02-10'), { von: '2026-02-01', bis: '2026-02-28', vorVon: '2026-01-01', vorBis: '2026-01-31' });
+  assert.deepEqual(B.zeitraum('vormonat', '2026-01-15'), { von: '2025-12-01', bis: '2025-12-31', vorVon: '2025-11-01', vorBis: '2025-11-30' });
+  assert.deepEqual(B.zeitraum('quartal', '2026-02-01'), { von: '2026-01-01', bis: '2026-03-31', vorVon: '2025-10-01', vorBis: '2025-12-31' });
+  assert.deepEqual(B.zeitraum('jahr', '2028-02-29'), { von: '2028-01-01', bis: '2028-12-31', vorVon: '2027-01-01', vorBis: '2027-12-31' });
+  assert.equal(B.zeitraum('woche', '2027-01-01').von, '2026-12-28');
+});

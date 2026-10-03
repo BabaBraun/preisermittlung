@@ -341,6 +341,7 @@ const BEREICHE = [
       await wzdSpeichern('termine', t); }
     await kaTerminOeffnen(t.id); }) },
   { name: 'Werkzeug – Kaufen oder Mieten', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('kaufmiete')) },
+  { name: 'Werkzeug – Aktivitäten', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('aktivitaeten'); await akLaden(); wzZeichnen(); }) },
   { name: 'Werkzeug – Aushang', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0];
     if (p && !(p.data && p.data.fields && p.data.fields.vm_status)) { const r = await iaGet('projekte', p.id); r.data.fields.vm_status = 'In Vermarktung'; await iaPut('projekte', r); pjCacheSetzen(r); }
     wzOeffnen('aushang'); }) },

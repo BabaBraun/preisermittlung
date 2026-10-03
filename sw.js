@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-1a689e9fa8c9';
+const CACHE = 'immoapp-81df438a51d4';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -71,6 +71,7 @@ const ASSETS = [
   './src/ui.js',
   './src/valuation.js',
   './src/werkzeuge.js',
+  './src/wz-aktivitaeten.js',
   './src/wz-aushang.js',
   './src/wz-bieter.js',
   './src/wz-daten.js',

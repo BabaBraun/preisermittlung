@@ -24,6 +24,7 @@ const WZ_GRUPPEN=[
     ['wertmonitor','Wertmonitor','activity','Gesicherte Bewertungen fortschreiben — Wiedervorlage bei deutlicher Wertänderung.','Bewertungen fortschreiben, Gesprächsanlässe']]},
   {id:'organisieren',titel:'Organisation',kacheln:[
     ['kalender','Kalender','calendar','Termine, Fristen und Wiedervorlagen an einer Stelle — auch für den Gerätekalender.','Termine, Fristen, Wiedervorlagen'],
+    ['aktivitaeten','Aktivitäten','chart','Was ist passiert? Anfragen, Besichtigungen, Gebote und Gespräche je Woche, Monat oder Quartal.','Aktivitäten je Zeitraum, mit Vergleich'],
     ['jahr','Mein Jahr','target','Aufträge je Phase, erwartete Provision, Ziel und Herkunft der Aufträge.','Aufträge, Provision, Ziel, Herkunft'],
     ['datenstand','Datenstand','clock','Baupreisindex, Sterbetafel, Marktdaten, Sicherung — was ist aktuell, was steht an?','Rechengrundlagen und Daten: was ist aktuell?']]}
 ];
