@@ -159,13 +159,31 @@ function kaEditor(t){
         +'<div class="kd-k"><button class="secondary" onclick="kdOeffnen(\''+idSicher(id)+'\')">Akte</button><button class="secondary" onclick="kaKundeWeg(\''+idSicher(id)+'\')" aria-label="Teilnehmer entfernen" data-ic="x"></button></div></div>').join('')+'</div>'
         :'<p class="hint" style="margin:0 0 8px">Noch niemand eingetragen.</p>')
       +'<button type="button" class="plus" onclick="kaKundeDazu()">＋ Kunde aus der Kundenakte</button>')
-    +(t.art==='Besichtigung'?kaNachweisHtml(t):'')
+    +(t.art==='Besichtigung'?kaEaHtml(t)+kaNachweisHtml(t):'')
     +wzBox('Notiz',wzFeld('notiz','Notiz',{typ:'lang',zeilen:3,voll:true,ph:'z. B. Schlüssel beim Nachbarn, Unterlagen mitbringen'}))
     +'<div class="gr-zeile"><button type="button" class="secondary" onclick="kaIcsEiner()" data-ic="calendar">In den Gerätekalender</button>'
     +'<button type="button" class="secondary" onclick="kaSchreiben()" data-ic="pen">Bestätigung schreiben</button></div>';
 }
 function kaSpeichern(){ if(KA.aktiv) wzdSpeichernBald('termine',KA.aktiv); }
 function kaRechnen(){ iconify($('wz_body')); document.querySelectorAll('#wz_body canvas.ka-pad').forEach(kaPad); }
+
+/* ---------- Energieausweis bei der Besichtigung (D50) ----------
+   Verkäufer oder Makler legen den Ausweis oder eine Kopie spätestens bei der Besichtigung vor; ein deutlich sichtbarer Aushang
+   oder Auslegen genügt (§ 80 Abs. 4 Satz 1 und 2 GModG). Verstoß: Bußgeld bis 10.000 Euro (§ 108 Abs. 1 Nr. 18, Abs. 2 Nr. 2). */
+const KA_EA=[['','– noch nicht festgehalten'],['original','Original vorgelegt'],['kopie','Kopie vorgelegt'],['aushang','deutlich sichtbar ausgehängt oder ausgelegt'],
+  ['ausnahme','nicht nötig (kleines Gebäude bis 50 m²; Baudenkmal nur bis 31.12.2026)']];
+function kaEaText(t){ let x=KA_EA.find(a=>a[0]===t.eaVorlage); return x&&x[0]?x[1]:''; }
+function kaEaHtml(t){
+  let tag=wzdDatum(t.datum)||aufHeute(), E=t.projektId?wzdEnergie(t.projektId):null, zeile='', rot=[];
+  if(E){ zeile=ImmoPortal.energieZeile(E); rot=ImmoPortal.energieHinweise(E,tag).filter(h=>h.stufe==='rot').map(h=>h.text); }
+  let amp=t.eaVorlage==='ausnahme'&&tag>='2027-01-01'?wzAmpel('gelb','Seit 01.01.2027 gilt die Ausnahme nur noch für kleine Gebäude bis 50 m² Nutzfläche (§ 79 Abs. 4 GModG).')
+    :t.eaVorlage?wzAmpel('gruen','Festgehalten: '+sEsc(kaEaText(t))+'.')
+    :tag<aufHeute()?wzAmpel('rot','Termin vorbei — die Vorlage des Energieausweises ist nicht festgehalten (§ 80 Abs. 4 GModG, Bußgeld nach § 108).')
+    :wzAmpel('gelb','Spätestens bei der Besichtigung vorlegen; ein deutlich sichtbarer Aushang oder Auslegen genügt (§ 80 Abs. 4 GModG).');
+  return wzBox('Energieausweis',(zeile?'<p class="wzd-klein">'+sEsc(zeile)+'</p>':t.projektId?'<p class="wzd-klein">Zum Objekt ist kein Energieausweis erfasst (Bewertung, Exposé oder Portal-Export).</p>':'')
+    +rot.map(x=>wzAmpel('rot',sEsc(x))).join('')
+    +'<div class="grid">'+wzFeld('eaVorlage','Bei dieser Besichtigung',{typ:'wahl',optionen:KA_EA,zeichnen:true})+'</div>'+amp);
+}
 
 /* ---------- Besichtigungsnachweis: Teilnehmer bestätigen mit Unterschrift auf dem Gerät, dass ihnen das Objekt gezeigt wurde ----------
    Beleg für die Nachweis- und Vermittlungstätigkeit. Der Text ist ein Vorschlag und lässt sich je Termin anpassen (Vorgaben der
@@ -214,7 +232,7 @@ function kaNachweisDokument(t){
   let u=(t.nachweis&&t.nachweis.unterschriften)||{}, o=wzdObjekt(t.projektId);
   return {titel:'Besichtigungsnachweis '+(o?o.name:(t.ort||''))+' '+wzDatum(t.datum),
     html:'<h1>Besichtigungsnachweis</h1><p class="wzd-unter">'+sEsc(o?o.anschrift||o.name:(t.ort||''))+' · '+wzDatum(t.datum)+(wzdZeit(t.von)?', '+sEsc(wzdZeit(t.von))+' Uhr':'')+'</p>'
-      +'<p>'+sEsc(kaNachweisText(t))+'</p><div class="wzd-unterschriften">'
+      +'<p>'+sEsc(kaNachweisText(t))+'</p>'+(kaEaText(t)?'<p>Energieausweis: '+sEsc(kaEaText(t))+'.</p>':'')+'<div class="wzd-unterschriften">'
       +t.kundeIds.map(id=>'<div>'+(u[id]?'<img src="'+u[id].bild+'" alt="Unterschrift">':'<div class="wzd-linie"></div>')+'<p>'+sEsc(wzdKundeName(id))+(u[id]?' · '+new Date(u[id].zeit).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'}):'')+'</p></div>').join('')+'</div>',
     fuss:'Besichtigungsnachweis.'};
 }

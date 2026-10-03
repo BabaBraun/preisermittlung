@@ -49,6 +49,9 @@ function wzdObjekte(alle){
     .filter(o=>alle||WZD_AKTIV.includes(o.status)).sort((a,b)=>a.name.localeCompare(b.name,'de'));
 }
 function wzdObjekt(id){ return id?wzdObjekte(true).find(o=>o.id===id)||null:null; }
+/* Energieausweis eines Objekts (D50): Angaben aus der Bewertung; Ausstellungsdatum, gültig bis und Primärenergie aus dem Portal-Export */
+function wzdEaEinst(id){ let e=(((wzAlle().portal||{}).objekte||{})[id])||{}; return {ausgestellt:e.ausgestellt||'',gueltigBis:e.gueltigBis||'',jahrgang:e.jahrgang||'',primaer:e.primaer||''}; }
+function wzdEnergie(id){ let o=wzdObjekt(id); if(!o||!window.ImmoPortal) return null; try{ return ImmoPortal.energie(ImmoPortal.leser(o.f||{}),wzdEaEinst(id)); }catch(e){ return null; } }
 function wzdObjektName(id,ersatz){ let o=wzdObjekt(id); return o?o.name:(ersatz||''); }
 /* Auswahlliste der Objekte (Objekte in Vermarktung zuerst, dann alle übrigen) */
 function wzdObjektOptionen(wahl,leer){

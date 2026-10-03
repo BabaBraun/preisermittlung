@@ -9,7 +9,9 @@ function ahS(){ let S=wzZustand('aushang'); if(!Array.isArray(S.auswahl)) S.ausw
 function ahKontakt(f){ let S=(wzAlle().portal||{}); return typeof ptKontakt==='function'?ptKontakt(Object.assign({anbieter:{},kontakt:{}},S,{anbieter:S.anbieter||{},kontakt:S.kontakt||{}}),f||{}):{}; }
 function ahNr(id){ let e=(((wzAlle().portal||{}).objekte||{})[id])||{}; return String(e.nr||'').trim()||ImmoPortal.objektnrVorschlag(id); }
 function ahIds(S){ return S.layout==='uebersicht'?S.auswahl.filter(id=>wzdObjekt(id)).slice(0,4):(S.objekt&&wzdObjekt(S.objekt)?[S.objekt]:[]); }
-function ahPruefen(id){ let o=wzdObjekt(id); if(!o) return []; let E=ImmoPortal.energie(ImmoPortal.leser(o.f),{}); return ImmoPortal.energiePflicht(E); }
+function ahPruefen(id){ let E=wzdEnergie(id); return E?ImmoPortal.energiePflicht(E,aufHeute()):[]; }
+/* abgelaufener Ausweis, fehlendes Ausstellungsdatum ab 2027, Baudenkmal ab 2027 (D50) */
+function ahRot(id){ let E=wzdEnergie(id); return E?ImmoPortal.energieHinweise(E,aufHeute(),{denkmal:/ja|Ensemble/.test(String((wzdObjekt(id).f||{}).od_denkmal||''))}).filter(h=>h.stufe==='rot').map(h=>h.text):[]; }
 function ahWahl(id,an){ let S=ahS(); S.auswahl=S.auswahl.filter(x=>x!==id); if(an&&S.auswahl.length<4) S.auswahl.push(id); wzSpeichern(); wzZeichnen(); }
 function ahZeichnen(){
   let S=ahS(), l=wzdObjekte(false);
@@ -20,11 +22,12 @@ function ahZeichnen(){
       +' onchange="ahWahl(\''+idSicher(o.id)+'\',this.checked)"><span>'+sEsc(o.name)+(o.preis>0?' · '+wzEur(o.preis):'')+'</span></label>').join('')+'</div>'+wzHinweis('Bis zu vier Objekte.')
     :'<div class="grid"><div class="field"><label for="ah_objekt">Objekt</label><select id="ah_objekt" onchange="ahS().objekt=this.value;wzSpeichern();wzZeichnen()">'
       +l.map(o=>'<option value="'+sEsc(o.id)+'"'+(o.id===S.objekt?' selected':'')+'>'+sEsc(o.name)+'</option>').join('')+'</select></div></div>';
-  let pr=ahIds(S).map(id=>({id,f:ahPruefen(id)})).filter(x=>x.f.length);
+  let pr=ahIds(S).map(id=>({id,f:ahPruefen(id),h:ahRot(id)})).filter(x=>x.f.length||x.h.length);
   return wzBox('Aushang','<div class="ka-schalter" role="group" aria-label="Aufbau">'+[['einzeln','Ein Objekt'],['uebersicht','Übersicht']].map(([k,t])=>'<button type="button" class="'+(S.layout===k?'primary':'secondary')+'" aria-pressed="'+(S.layout===k)+'" onclick="ahS().layout=\''+k+'\';wzSpeichern();wzZeichnen()">'+t+'</button>').join('')+'</div>'
       +'<div style="margin-top:10px">'+wahl+'</div>'
       +'<div class="grid" style="margin-top:6px">'+wzFeld('strasse','Straße zeigen (sonst nur der Ort)',{typ:'check'})+wzFeld('zusatz','Zusatzzeile (optional)',{typ:'text',ph:'z. B. Besichtigung nach Vereinbarung'})+'</div>'
-      +(pr.length?pr.map(x=>wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': Es fehlt '+sEsc(x.f.join(', '))+' (Pflichtangabe nach § 87 GModG) — im Exposé der Bewertung ergänzen.')).join('')
+      +(pr.length?pr.map(x=>(x.f.length?wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': Es fehlt '+sEsc(x.f.join(', '))+' (Pflichtangabe nach § 87 GModG) — im Exposé der Bewertung ergänzen, Ausstellungsdatum und Primärenergie im Portal-Export.'):'')
+          +x.h.map(t=>wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': '+sEsc(t))).join('')).join('')
         :ahIds(S).length?wzAmpel('gruen','Pflichtangaben zum Energieausweis vollständig.'):'')
       +'<div class="gr-zeile"><button type="button" class="primary" onclick="ahAnzeigen()" data-ic="printer">Aushang anzeigen</button></div>')
     +wzHinweis('Fotos vorher ansehen: keine Personen, Kennzeichen oder Namen (Fotostudio). Die Anschrift nur mit Einverständnis des Eigentümers zeigen.');
@@ -33,17 +36,11 @@ async function ahDaten(id){
   let p=pjLoad().find(x=>x.id===id); if(!p) return null; let r=p;
   if(IA_DB_BEREIT){ try{ r=await iaGet('projekte',id)||p; }catch(e){} }
   let f=(r.data&&r.data.fields)||{}, fotos=(r.data&&Array.isArray(r.data.photos))?r.data.photos:[];
-  let S=ahS(), o=ImmoPortal.objekt(f,{projektId:id,kontakt:ahKontakt(f),fotos,einstellung:{adresse:!!S.strasse}});
+  let S=ahS(), o=ImmoPortal.objekt(f,{projektId:id,kontakt:ahKontakt(f),fotos,einstellung:Object.assign(wzdEaEinst(id),{adresse:!!S.strasse}),heute:aufHeute()});
   let titelbild=o.bilder[0]&&fotos.find(x=>x.id===o.bilder[0].id);
   return {o,f,bild:titelbild&&bildUrl(titelbild.data)?titelbild.data:'',nr:ahNr(id)};
 }
-function ahEnergie(E){
-  if(E.art==='liegt nicht vor') return 'Ein Energieausweis liegt nicht vor.';
-  if(!/Bedarf|Verbrauch/.test(E.art)) return '';
-  let bed=/Bedarf/.test(E.art), z=v=>(+v).toLocaleString('de-DE',{maximumFractionDigits:1});
-  return [E.art,(E.wohn?(bed?'Endenergiebedarf ':'Endenergieverbrauch ')+(E.wert>0?z(E.wert)+' kWh/(m²·a)':''):'Wärme '+(E.wert>0?z(E.wert):'–')+', Strom '+(E.strom>0?z(E.strom):'–')+' kWh/(m²·a)'),
-    E.traeger?'Energieträger '+E.traeger:'',E.wohn&&E.bj?'Baujahr '+E.bj:'',E.wohn&&E.klasse?'Klasse '+E.klasse:''].filter(Boolean).join(' · ');
-}
+function ahEnergie(E){ return ImmoPortal.energieZeile(E); }   // D50: Zeile nach altem oder neuem Recht (js/portal.js)
 function ahFakten(o){
   let F=o.flaechen, z=v=>(+v).toLocaleString('de-DE',{maximumFractionDigits:1});
   return [F.wohn>0?['Wohnfläche','ca. '+z(F.wohn)+' m²']:F.nutz>0?['Nutzfläche','ca. '+z(F.nutz)+' m²']:null,F.zimmer>0?['Zimmer',z(F.zimmer)]:null,

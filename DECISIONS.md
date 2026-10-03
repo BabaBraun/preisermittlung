@@ -1497,3 +1497,49 @@ leere Aussteller-Angaben aus dem Absender. Offen: Exposé und Bewertungsbericht 
 **Tests:** `tests/e2e/werkzeuge-d48.spec.mjs` (Bericht aus allen Quellen mit Dublettenabgleich, Pflichtangaben in E-Mail, Word,
 Rechnung, Bericht und Fußzeile, Signatur-Schalter, Sicherungserinnerung, Auskunft und Löschen, Bodenrichtwert-Stichtag);
 `tests/unit/d48.test.mjs` (Prüfregeln § 25a GenG, Bodenrichtwert-Turnus); `tests/unit/notar-datenstand.test.mjs` angepasst.
+
+## D49 (2026-10-03) — Grundlagen für die nächsten Kacheln: Akten, Fristen, Erweiterungspunkte
+**Datenbank Version 8** mit dem Speicher `akten`: ein Speicher für Verträge, Prüfungen und Vorgänge der Kacheln ab D49
+(`wzdAkten(art, projektId)`, `wzdAkteNeu(art, felder)`). Jeder Eintrag trägt eine Art (`/^[a-z]{2,20}$/`, geprüft beim Einspielen
+in `js/daten.js`); Personen stehen nur in der Kundenakte, Auskunft und Löschen melden die Kacheln selbst an. Teil der Gesamtsicherung.
+
+**Fristen** (`js/fristen.js`, ohne Seitenbezug): Tages- und Monatsfristen nach §§ 187, 188 BGB, auf Wunsch mit § 193 BGB (Samstag,
+Sonntag, Feiertag → nächster Werktag). Feiertage Baden-Württemberg nach § 1 Feiertagsgesetz BW und der 3. Oktober; Gründonnerstag,
+Reformationstag, Buß- und Bettag zählen nicht (nur kirchliche Feiertage, § 2 FTG). Ostersonntag nach der Gaußschen Osterformel.
+
+**Erweiterungspunkte:** `ulPostenErgaenzen(projektId, posten, entfernen)` ergänzt die Unterlagen eines Verkaufs um Posten aus anderen
+Kacheln (neue Stellen Nachlass-, Betreuungs-, Familiengericht, Notariat); `FP_AUTO_HOOKS` lässt Kacheln Schritte im
+Verkaufsfahrplan als erkannt melden. **Tests:** `tests/unit/fristen.test.mjs`.
+
+## D50 (2026-10-03) — Energieausweis nach dem GModG: Pflichtangaben ab 01.01.2027, Vorlage und Übergabe
+Grundlage: Gesetz vom 23.07.2026 (BGBl. 2026 I Nr. 226); Art. 2 gilt ab 01.01.2027 (Art. 9 Abs. 2). Am amtlichen Regelungstext
+geprüft, weil gesetze-im-internet.de § 87 noch in der alten Fassung zeigt.
+
+**Pflichtangaben in Anzeigen** (`energiePflicht(E, heute)` in `js/portal.js`): Maßgeblich ist allein das **Ausstellungsdatum**.
+Ausweise bis 31.12.2026: wie bisher Art, Endenergie (Nichtwohngebäude Wärme und Strom getrennt), Energieträger, bei Wohngebäuden
+Baujahr und Klasse (§ 87 a. F., ab 2027 § 112 Abs. 3 und 4 n. F.). Ausweise ab 01.01.2027: Art nach § 81 oder § 82,
+Ausstellungsdatum, Primärenergie in kWh/(m²·a), Klasse und Baujahr (auch Nichtwohngebäude), Energieträger (§ 87 n. F.). Ab
+01.01.2027 ist ein fehlendes Ausstellungsdatum rot, weil die App sonst nicht entscheiden kann. Zeile für Aushang und Social Media
+aus `energieZeile` (neue Ausweise: „Energieausweis nach § 82 GModG (Verbrauch) · ausgestellt am … · Primärenergie …“).
+
+**Hinweise** (`energieHinweise`): Gültigkeit zehn Jahre (§ 79 Abs. 3; „gültig bis“ leer = ausgestellt plus zehn Jahre minus ein
+Tag), abgelaufene und vor dem 01.05.2014 ausgestellte Ausweise rot; Baudenkmal ab 01.01.2027 ohne Ausnahme (§ 79 Abs. 4 n. F.,
+nur noch kleine Gebäude bis 50 m²); Verbrauchsausweis ab 2027 nur für reine Wohngebäude (§ 82 Abs. 1 n. F.); „liegt nicht vor“
+gelb mit Hinweis auf § 80 Abs. 3 und 4.
+
+**Portal-Export:** neues Feld „Primärenergie laut Ausweis“; Export als `primaerenergiebedarf` (OpenImmo 1.2.7d, nur bei Ausweisen
+nach neuem Recht), Jahrgang `2026` für Ausweise ab 01.01.2027. Aushang, Social Media und Verkaufsfahrplan lesen dieselben Angaben
+(`wzdEaEinst`, `wzdEnergie`). Im Fahrplan zählt „liegt nicht vor“ nicht mehr als erledigt (Ausnahme: „nicht erforderlich“).
+
+**Besichtigung** (Kalender): Feld „Bei dieser Besichtigung“ — Original, Kopie, Aushang oder Auslegen (§ 80 Abs. 4 Satz 1 und 2);
+vergangener Termin ohne Eintrag rot (Bußgeld § 108 Abs. 1 Nr. 18). Der Besichtigungsnachweis nennt die Vorlage.
+**Notarauftrag:** „Energieausweis (oder Kopie) übergeben am“; nach der Beurkundung ohne Datum rot — unverzüglich nach dem
+Kaufvertrag, nicht erst bei der Übergabe (§ 80 Abs. 4 Satz 5; § 108 Abs. 1 Nr. 19).
+
+**Offen** (Bank oder Rechtsabteilung): Ob beim Verbrauchsausweis der Primärenergie-Verbrauch anzugeben ist (§ 87 Nr. 2 n. F.
+spricht vom Bedarf) — die App beschriftet neutral „Primärenergie laut Energieausweis“. Neue Ausweismuster sind noch nicht im
+Bundesanzeiger (Stand 03.10.2026; Nachprüfung Dezember 2026). Baudenkmal ab 2027 nach Landesrecht nicht geprüft.
+
+**Tests:** `tests/unit/portal.test.mjs` (drei Stichtage: alter Ausweis 2026, Ausweis vom 15.12.2026 im Jahr 2027, Ausweis vom
+10.01.2027; Baudenkmal vor und nach dem 01.01.2027; XML); bisherige Tests mit festem Tag, damit sie 2027 dasselbe prüfen;
+`tests/e2e/werkzeuge-d50.spec.mjs` (Aushang, Portal-Feld, Besichtigung, Notarauftrag, Fahrplan).

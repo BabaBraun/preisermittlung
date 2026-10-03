@@ -31,7 +31,7 @@ function noLeer(){
     abt2:'',abt2Uebernahme:'',abt3:'',abt3Loeschung:'ja',baulasten:'',erschliessung:'',
     provKaeufer:'',provVerkaeufer:'',
     notar:'',notarOrt:'',termin:'',uhrzeit:'',entwurfAn:'Verkäufer, Käufer und die finanzierende Bank des Käufers',
-    sonstiges:'',unterlagen:NO_UNTERLAGEN.map(n=>({name:n,ok:false}))};
+    sonstiges:'',eaUebergeben:'',unterlagen:NO_UNTERLAGEN.map(n=>({name:n,ok:false}))};
 }
 async function noLaden(){
   await IA_BEREIT_P;
@@ -184,14 +184,24 @@ function noEditor(p){
       +'<div class="gr-zeile"><button type="button" class="secondary" onclick="noKalender()" data-ic="calendar">Termin in den Kalender</button>'
       +'<button type="button" class="secondary" onclick="noWiedervorlagen()" data-ic="clipboard">Wiedervorlagen anlegen</button>'
       +'<button type="button" class="secondary" onclick="noUebergabe()" data-ic="key">Übergabeprotokoll anlegen</button></div>')
+    +wzBox('Energieausweis an den Käufer','<div class="grid">'+wzFeld('eaUebergeben','Energieausweis (oder Kopie) übergeben am',{typ:'datum'})+'</div><div id="no_ea"></div>')
     +wzBox('Unterlagen für das Notariat',unterlagen+'<button type="button" class="plus" onclick="noUnterlageNeu()">＋ Unterlage</button>')
     +wzBox('Weitere Vereinbarungen',wzFeld('sonstiges','Was soll noch in den Vertrag?',{typ:'lang',zeilen:3,voll:true,ph:'z. B. Übernahme der Gartenmöbel, Rücktrittsrecht bei Nichtfinanzierung, Termin der Räumung'}))
     +wzHinweis('Geburtsdaten und Steuer-Identifikationsnummern der Beteiligten erhebt das Notariat selbst (Anzeige an das Finanzamt, § 20 GrEStG). Zum Termin einen gültigen Ausweis mitbringen.');
 }
 function noRechnen(){
   let p=NO.aktiv; if(!p) return;
-  wzH('no_prov',noProvisionPruefen(p)||''); wzH('no_frist',noFristPruefen(p));
+  wzH('no_prov',noProvisionPruefen(p)||''); wzH('no_frist',noFristPruefen(p)); wzH('no_ea',noEaPruefen(p));
   iconify($('wz_body'));
+}
+
+/* Unverzüglich nach Abschluss des Kaufvertrags erhält der Käufer den Energieausweis oder eine Kopie (§ 80 Abs. 4 Satz 5 GModG),
+   nicht erst bei der Besitzübergabe. Verstoß: Bußgeld bis 10.000 Euro (§ 108 Abs. 1 Nr. 19, Abs. 2 Nr. 2). D50 */
+function noEaPruefen(p){
+  let ueb=noDatum(p.eaUebergeben), beurkundet=/Beurkundet|Erledigt/.test(p.stand||'')||(noDatum(p.termin)&&noDatum(p.termin)<aufHeute());
+  if(ueb) return wzAmpel('gruen','Übergeben am '+wzDatum(ueb)+'.');
+  return beurkundet?wzAmpel('rot','Kaufvertrag beurkundet — Energieausweis oder Kopie jetzt unverzüglich an den Käufer übergeben und das Datum eintragen (§ 80 Abs. 4 Satz 5 GModG).')
+    :wzHinweis('Direkt nach der Beurkundung bekommt der Käufer den Energieausweis oder eine Kopie — nicht erst bei der Schlüsselübergabe (§ 80 Abs. 4 Satz 5 GModG).');
 }
 
 /* ---------- Kalender, Wiedervorlagen, Übergabeprotokoll ---------- */

@@ -34,14 +34,14 @@ function fpGleich(a,b){ let n=x=>String(x||'').toLowerCase().replace(/[^a-z0-9ä
 var FP_AUTO_HOOKS=[];
 function fpAuto(o){
   let f=o.f, p=pjLoad().find(x=>x.id===o.id)||{}, E=null, ex=FP.extra||{notar:[],prot:[]}, ev=[];
-  try{ E=window.ImmoPortal?ImmoPortal.energie(ImmoPortal.leser(f),{}):null; }catch(e){}
+  try{ E=window.ImmoPortal?ImmoPortal.energie(ImmoPortal.leser(f),wzdEaEinst(o.id)):null; }catch(e){}
   try{ ev=(JSON.parse(f.vm_daten||'{}').ev)||[]; }catch(e){}
   let notar=ex.notar.filter(n=>fpGleich(n.anschrift,o.anschrift)||fpGleich(n.projekt,o.name)), stand=Math.max(-1,...notar.map(n=>NO_STAENDE.indexOf(n.stand)));
   let st=FP_STAENDE.indexOf(o.status), portal=((wzAlle().portal||{}).export||{})[o.id];
   let ul=wzdListe('unterlagen').find(r=>r.projektId===o.id), us=k=>!!(ul&&ul.posten&&ul.posten[k]&&ul.posten[k].stand==='da');   // Kachel „Unterlagen“ (D43)
   return {
     bewertung:!!(p.empf&&!/^0\s*€?$/.test(String(p.empf).trim())),
-    energie:!!(E&&(E.art==='liegt nicht vor'||(E.art&&!ImmoPortal.energiePflicht(E).length))),
+    energie:!!(E&&((E.art==='liegt nicht vor'&&E.jahrgang==='nicht_noetig')||(/Bedarf|Verbrauch/.test(E.art)&&!ImmoPortal.energiePflicht(E,aufHeute()).length&&!ImmoPortal.energieHinweise(E,aufHeute()).some(h=>h.stufe==='rot')))),   // D50
     grundrisse:!!(p.data&&Array.isArray(p.data.grundrisse)&&p.data.grundrisse.length)||(us('grundrisse')&&us('wohnflaeche')),
     ul_angefordert:!!(ul&&(Object.values(ul.posten||{}).some(s=>s&&(s.stand==='angefordert'||(s.stand==='da'&&s.quelle!=='Aufnahmebogen')))||(ul.vollmacht&&ul.vollmacht.unterschrift))),
     ul_grundbuch:us('grundbuch'), ul_flurkarte:us('flurkarte'), ul_baulasten:us('baulasten'), ul_weg:us('teilung')&&us('protokolle')&&us('abrechnung'),

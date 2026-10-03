@@ -1,3 +1,9 @@
+# Zusammenfassung — Energieausweis ab 01.01.2027 (2026-10-03)
+
+Für Energieausweise, die ab 01.01.2027 ausgestellt werden, prüft die App die neuen Pflichtangaben in Anzeigen (Primärenergie und
+Ausstellungsdatum statt Endenergie); ältere Ausweise behalten die bisherigen Angaben. Abgelaufene Ausweise sind rot. Im Kalender
+wird die Vorlage bei der Besichtigung festgehalten, im Notarauftrag die Übergabe an den Käufer (D50).
+
 # Zusammenfassung — Fehler behoben, Pflichtangaben, Eigentümerbericht (2026-10-03)
 
 Vier Fehler behoben: Der Bericht für den Eigentümer zählt jetzt alle Kacheln (neue Kachel „Eigentümerbericht“), die

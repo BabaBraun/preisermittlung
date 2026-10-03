@@ -105,12 +105,66 @@ test('Energieausweis: Angaben wie im Exposé, Jahrgang aus dem Ausstellungsdatum
   assert.equal(E({ au_energieausweis: 'liegt nicht vor' }, {}).jahrgang, 'ohne');
   const e = E(HAUS, {});
   assert.deepEqual([e.art, e.wert, e.traeger, e.kennung, e.bj, e.klasse, e.wohn], ['Verbrauchsausweis', 118.4, 'Erdgas', 'GAS', '1972', 'D', true]);
-  assert.deepEqual(P.energiePflicht(e), []);
-  assert.deepEqual(P.energiePflicht(E({ ek_typ: 'EFH freistehend · unterkellert, DG ausgebaut' }, {})), ['Art des Energieausweises (oder „liegt nicht vor“)']);
-  assert.deepEqual(P.energiePflicht(E({ ex_ea_art: 'Bedarfsausweis' }, {})), ['Endenergiewert', 'wesentlicher Energieträger', 'Baujahr laut Energieausweis', 'Energieeffizienzklasse']);
+  const T = '2026-09-29';   // fester Tag vor dem 01.01.2027 (D50)
+  assert.deepEqual(P.energiePflicht(e, T), []);
+  assert.deepEqual(P.energiePflicht(E({ ek_typ: 'EFH freistehend · unterkellert, DG ausgebaut' }, {}), T), ['Art des Energieausweises (oder „liegt nicht vor“)']);
+  assert.deepEqual(P.energiePflicht(E({ ex_ea_art: 'Bedarfsausweis' }, {}), T), ['Endenergiewert', 'wesentlicher Energieträger', 'Baujahr laut Energieausweis', 'Energieeffizienzklasse']);
   // Nichtwohngebäude: Wärme und Strom, keine Klasse und kein Baujahr
-  assert.deepEqual(P.energiePflicht(E({ ek_typ: 'Bürogebäude · Massivbau', ex_ea_art: 'Verbrauchsausweis', ex_ea_wert: '140', ex_ea_traeger: 'Heizöl' }, {})), ['Endenergiewert Strom']);
-  assert.deepEqual(P.energiePflicht(E({ au_energieausweis: 'liegt nicht vor' }, {})), []);
+  assert.deepEqual(P.energiePflicht(E({ ek_typ: 'Bürogebäude · Massivbau', ex_ea_art: 'Verbrauchsausweis', ex_ea_wert: '140', ex_ea_traeger: 'Heizöl' }, {}), T), ['Endenergiewert Strom']);
+  assert.deepEqual(P.energiePflicht(E({ au_energieausweis: 'liegt nicht vor' }, {}), T), []);
+});
+
+test('Energieausweis ab 01.01.2027 (D50): Ausstellungsdatum entscheidet, Primärenergie und Datum in der Anzeige', () => {
+  const E = (f, e) => P.energie(P.leser(f), e);
+  // Jahrgang und Gültigkeit (§ 79 Abs. 3 GModG: zehn Jahre)
+  assert.equal(E(HAUS, { ausgestellt: '2026-12-31' }).jahrgang, '2014');
+  assert.equal(E(HAUS, { ausgestellt: '2027-01-01' }).jahrgang, '2026');
+  assert.equal(E(HAUS, { ausgestellt: '2019-03-01' }).gueltigBis, '2029-02-28');
+  assert.equal(E(HAUS, { ausgestellt: '2024-02-29' }).gueltigBis, '2034-02-28');
+  assert.equal(E(HAUS, { ausgestellt: '2019-03-01', gueltigBis: '2029-03-01' }).gueltigBis, '2029-03-01');
+  assert.equal(P.zehnJahre('2027-01-10'), '2037-01-09');
+  // 1) Ausweis von 2019, Anzeige im September 2026: altes Recht
+  const alt = E(HAUS, { ausgestellt: '2019-03-01' });
+  assert.equal(P.energieNeu(alt), false);
+  assert.deepEqual(P.energiePflicht(alt, '2026-09-29'), []);
+  // 2) Ausweis vom 15.12.2026, Anzeige im Februar 2027: weiter altes Recht (§ 112 Abs. 3 n. F.)
+  const dez = E(HAUS, { ausgestellt: '2026-12-15' });
+  assert.deepEqual(P.energiePflicht(dez, '2027-02-01'), []);
+  assert.match(P.energieZeile(dez), /^Verbrauchsausweis · Endenergieverbrauch 118,4 kWh\/\(m²·a\)/);
+  // ohne Ausstellungsdatum fehlt ab 2027 die Grundlage für die Entscheidung
+  assert.deepEqual(P.energiePflicht(E(HAUS, {}), '2027-02-01'), ['Ausstellungsdatum des Energieausweises (ab 01.01.2027 entscheidet es über die Pflichtangaben)']);
+  // 3) Ausweis vom 10.01.2027: neues Recht — Primärenergie, Datum, Klasse und Baujahr (auch Nichtwohngebäude), Energieträger
+  const neu = E(HAUS, { ausgestellt: '2027-01-10' });
+  assert.equal(P.energieNeu(neu), true);
+  assert.deepEqual(P.energiePflicht(neu, '2027-02-01'), ['Primärenergie laut Energieausweis']);
+  const neuMit = E(HAUS, { ausgestellt: '2027-01-10', primaer: '96,5' });
+  assert.equal(neuMit.primaer, 96.5);
+  assert.deepEqual(P.energiePflicht(neuMit, '2027-02-01'), []);
+  assert.equal(P.energieZeile(neuMit), 'Energieausweis nach § 82 GModG (Verbrauch) · ausgestellt am 10.01.2027 · Primärenergie 96,5 kWh/(m²·a) · Klasse D · Baujahr 1972 · Energieträger Erdgas');
+  const buero = E({ ek_typ: 'Bürogebäude · Massivbau', ex_ea_art: 'Bedarfsausweis', ex_ea_wert: '140', ex_ea_traeger: 'Heizöl' }, { ausgestellt: '2027-03-01', primaer: '180' });
+  assert.deepEqual(P.energiePflicht(buero, '2027-04-01'), ['Energieeffizienzklasse', 'Baujahr laut Energieausweis']);
+  // Hinweise: abgelaufen, alter Jahrgang, Baudenkmal, Verbrauchsausweis für Nichtwohngebäude
+  const H = (x, t, o) => P.energieHinweise(x, t, o).map(h => h.stufe + ': ' + h.text.slice(0, 40));
+  assert.deepEqual(H(alt, '2026-09-29'), []);
+  assert.deepEqual(H(E(HAUS, { ausgestellt: '2014-04-30' }), '2026-09-29'), ['rot: Vor dem 01.05.2014 ausgestellte Energiea']);
+  assert.deepEqual(H(E(HAUS, { ausgestellt: '2016-07-01' }), '2026-09-29'), ['rot: Energieausweis abgelaufen (gültig bis 30']);
+  assert.deepEqual(H(E(HAUS, {}), '2026-09-29'), ['gelb: Ausstellungsdatum des Energieausweises e']);
+  assert.deepEqual(H(E(HAUS, {}), '2027-01-04'), ['rot: Ausstellungsdatum des Energieausweises e']);
+  const denkmal = E({ au_energieausweis: 'liegt nicht vor' }, { jahrgang: 'nicht_noetig' });
+  assert.deepEqual(H(denkmal, '2026-09-29', { denkmal: true }), []);
+  assert.deepEqual(H(denkmal, '2027-01-04', { denkmal: true }), ['rot: Seit 01.01.2027 brauchen auch Baudenkmäl']);
+  assert.deepEqual(H(E({ au_energieausweis: 'liegt nicht vor' }, {}), '2026-09-29'), ['gelb: Beim Verkauf muss ein Energieausweis vor']);
+  const vbBuero = E({ ek_typ: 'Bürogebäude · Massivbau', ex_ea_art: 'Verbrauchsausweis' }, { ausgestellt: '2027-03-01' });
+  assert.ok(H(vbBuero, '2027-04-01').includes('gelb: Verbrauchsausweise gibt es seit 01.01.20'));
+  // Prüfung und XML: Primärenergie nur bei Ausweisen nach neuem Recht
+  const o27 = P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, einstellung: { ausgestellt: '2027-01-10' }, heute: '2027-02-01' });
+  const p27 = P.pruefen(o27, { firma: 'Beispielbank eG' });
+  assert.equal(p27.ok, false); assert.ok(p27.fehler.some(f => f.startsWith('Primärenergie laut Energieausweis (Pflichtangabe nach § 87 GModG)')));
+  const o27b = P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, einstellung: { ausgestellt: '2027-01-10', primaer: '96,5' }, heute: '2027-02-01' });
+  assert.equal(P.pruefen(o27b, { firma: 'Beispielbank eG' }).ok, true);
+  assert.match(P.xml([o27b], { firma: 'Beispielbank eG' }, { jetzt: new Date(2027, 1, 1, 12) }), /<primaerenergiebedarf>96\.5<\/primaerenergiebedarf>/);
+  const o26 = P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, einstellung: { ausgestellt: '2019-03-01', primaer: '96,5' }, heute: '2026-09-29' });
+  assert.doesNotMatch(P.xml([o26], { firma: 'Beispielbank eG' }, { jetzt: new Date(2026, 8, 29, 12) }), /primaerenergiebedarf/);
 });
 
 test('Objekt: Zahlen wie die Bewertung, Anschrift nur mit Freigabe, Provision, Bilder wie im Exposé', () => {
@@ -137,9 +191,9 @@ test('Objekt: Zahlen wie die Bewertung, Anschrift nur mit Freigabe, Provision, B
 });
 
 test('Prüfung: Pflichtangaben stoppen den Export, fehlende Kür nur als Hinweis', () => {
-  const ok = P.pruefen(P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS }), { firma: 'Beispielbank eG' });
+  const ok = P.pruefen(P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, heute: '2026-09-29' }), { firma: 'Beispielbank eG' });
   assert.equal(ok.ok, true); assert.deepEqual(ok.fehler, []);
-  const leer = P.pruefen(P.objekt({}, { projektId: 'p1', kontakt: {} }), { firma: '' });
+  const leer = P.pruefen(P.objekt({}, { projektId: 'p1', kontakt: {}, heute: '2026-09-29' }), { firma: '' });
   assert.equal(leer.ok, false);
   for (const t of ['Firma des Anbieters', 'Postleitzahl', 'Ort', 'Name des Ansprechpartners', 'E-Mail oder Telefon', 'Art des Energieausweises']) assert.ok(leer.fehler.some(f => f.includes(t)), t);
   assert.ok(leer.hinweise.some(h => h.includes('Preis auf Anfrage')));

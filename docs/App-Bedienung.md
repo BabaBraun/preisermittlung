@@ -188,13 +188,19 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
     im Regelfall zwei Wochen vor dem Termin haben (§ 17 Abs. 2a BeurkG).
   - „Termin in den Kalender“ lädt eine Kalenderdatei, „Wiedervorlagen anlegen“ setzt Erinnerungen (Entwurf, Termin,
     Übergabe), „Übergabeprotokoll anlegen“ öffnet das Protokoll mit den Namen beider Seiten.
+  - Nach der Beurkundung „Energieausweis (oder Kopie) übergeben am“ eintragen — der Käufer bekommt ihn sofort, nicht erst
+    bei der Schlüsselübergabe (§ 80 Abs. 4 GModG).
   - „Dokument“ ergibt das Datenblatt für das Notariat. Geburtsdaten und Steuer-Identifikationsnummern erhebt das Notariat
     selbst — sie gehören nicht in die App. Aufträge liegen in der Datenbank auf dem Gerät und lassen sich löschen.
 - **Portal-Export** (seit 03.10.2026): gesicherte Projekte mit Stand „Auftrag erteilt“, „In Vermarktung“ oder
   „Reserviert“ als ZIP-Datei für Immobilienportale (Austauschformat OpenImmo 1.2.7, mit Bildern).
   - Oben einmal Firma, Anbieternummer beim Portal und Ansprechpartner eintragen (sonst gilt der Ansprechpartner des Exposés).
-  - Je Objekt: Objektnummer, Objektart im Portal, Ausstellungs- und Ablaufdatum des Energieausweises, ob die vollständige
-    Anschrift gezeigt wird. Die Ampel zeigt, was fehlt.
+  - Je Objekt: Objektnummer, Objektart im Portal, Ausstellungs- und Ablaufdatum des Energieausweises (leer = ausgestellt plus
+    zehn Jahre), Primärenergie laut Ausweis, ob die vollständige Anschrift gezeigt wird. Die Ampel zeigt, was fehlt.
+  - Energieausweis: Das **Ausstellungsdatum** entscheidet über die Pflichtangaben. Ausweise bis 31.12.2026: Art, Endenergie,
+    Energieträger, bei Wohngebäuden Baujahr und Klasse. Ausweise ab 01.01.2027: Art nach § 81 oder § 82, Ausstellungsdatum,
+    Primärenergie, Klasse, Baujahr und Energieträger — auch bei Nichtwohngebäuden. Abgelaufene Ausweise sind rot. Aushang und
+    Social Media lesen dieselben Angaben.
   - „Ausgewählte exportieren“ ergänzt oder ändert diese Objekte im Portal; „Als Gesamtbestand exportieren“ ersetzt den
     ganzen Bestand im Portal. „Vom Portal nehmen“ erzeugt die Datei zum Löschen.
   - Texte, Preis und Fotos kommen aus dem Exposé der Bewertung. Exportiert wird der gesicherte Stand — vorher sichern.
@@ -237,6 +243,7 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   selbst teilst.
 - **Kalender:** Liste oder Monat; „Neuer Termin“ mit Objekt und Teilnehmern; „Kalenderdatei“ für den Gerätekalender. Bei einer
   Besichtigung unterschreiben die Teilnehmer im Termin den **Besichtigungsnachweis**; „Nachweis als Dokument“ gibt ihn aus.
+  Darüber steht, ob der Energieausweis vorgelegt wurde (Original, Kopie, Aushang) — ein vergangener Termin ohne Eintrag ist rot.
 - **Aktivitäten:** Woche, Monat, Quartal oder Jahr wählen — was ist passiert (Anfragen, Exposés, Besichtigungen, Gebote,
   Akquise, Notartermine, Gespräche), mit Vergleich zum Vorzeitraum; „Dokument“ für die Vertriebssteuerung.
 - **Kaufen oder Mieten:** Kaufpreis, Nebenkosten, Eigenkapital, Zins, Tilgung, Instandhaltung, Wertsteigerung gegen Miete,
