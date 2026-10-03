@@ -1359,3 +1359,35 @@ nur die Arbeitskopie. Angaben zum Rechnungsaussteller bleiben auf dem Gerät. Di
 Erlös von Hand nachgerechnet, Teilung und Fälligkeit, Sechsmonatsfrist, Rechnungsnummern); Browser `tests/e2e/werkzeuge-d42.spec.mjs`
 (Kaufnebenkosten mit Dokument, Abrechnung mit Zahlung, Rechnung, Fahrplan, Notarauftrag, Entwurf, Kundenakte, Sicherung);
 Klicktest-Bereiche „Kaufnebenkosten“, „Erlös des Verkäufers“, „Provision“, „Provisionsabrechnung“.
+
+## D43 (2026-10-03) — Kachel „Unterlagen“
+
+**Unterlagen** (`src/wz-unterlagen.js`): je Verkauf alle Unterlagen an einer Stelle, wie die Dokumentenverwaltung einer
+Maklersoftware — nur ohne Dateiablage (die Unterlagen selbst bleiben beim Eigentümer und in der Bankakte).
+- Liste nach Objektart (Einfamilienhaus, Wohnung, Mehrfamilienhaus oder Gewerbe, Grundstück ohne Gebäude; vorgewählt aus der
+  Bewertung), gruppiert nach der Stelle, die sie ausstellt (Eigentümer, Grundbuchamt, Gemeinde, Baurechtsbehörde,
+  Vermessungsbehörde, Landratsamt, Hausverwaltung, Bank des Eigentümers, Gutachterausschuss), mit Zweck (Exposé, Notar, Bank des
+  Käufers) und Stand: offen, angefordert, liegt vor, entfällt — mit Datum und Notiz; Fortschritt als Balken.
+- Was im Aufnahmebogen der gesicherten Bewertung als vorhanden angehakt ist (Grundbuchauszug, Flurkarte, Grundrisse,
+  Wohnflächenberechnung, Energieausweis, Teilungserklärung, Protokolle, Hausgeldabrechnung, Mietverträge, Nebenkostenabrechnung,
+  Grundsteuerbescheid, Modernisierungen, Baulasten, Altlasten), übernimmt die Kachel als „liegt vor“ (Quelle „Aufnahmebogen“).
+  Die Bewertung wird nur gelesen.
+- „Anfordern“ je Stelle: alle offenen Unterlagen dieser Stelle als Schreiben (Objekt, Grundbuch, Flurstück, Eigentümer, Hinweis
+  auf die Vollmacht) — danach stehen sie auf „angefordert“. „Liste für den Eigentümer“: was er heraussuchen soll und was der
+  Berater mit Vollmacht einholt.
+- Vollmacht des Eigentümers zum Einholen von Auskünften und Unterlagen: Text mit Platzhaltern (anpassbar; Vorgaben der Bank
+  beachten), Eigentümer aus der Kundenakte, Unterschrift auf dem Gerät, Dokument mit Unterschrift. Wer den Text nach der
+  Unterschrift ändert, entfernt sie.
+- Rechtsgrundlagen am Wortlaut geprüft: Einsicht in das Grundbuch bei berechtigtem Interesse (§ 12 Abs. 1 GBO), Ausdruck 10 €,
+  amtlicher Ausdruck 20 € (Nr. 17000, 17001 KV GNotKG); das Baulastenverzeichnis führt die Gemeinde, Einsicht bei berechtigtem
+  Interesse (§ 72 Abs. 3 und 4 LBO, Fassung vom 16.03.2026); Zustimmung der Verwaltung nur, wenn die Teilungserklärung sie
+  verlangt (§ 12 WEG).
+- Verkaufsfahrplan: „Unterlagen angefordert“, „Grundbuchauszug“, „Flurkarte“, „Baulasten“ und die Unterlagen der
+  Wohnungseigentümer hakt er jetzt selbst ab; die Schritte öffnen die Kachel.
+
+**Daten und Datenschutz:** Speicher „unterlagen“ (Datenbank Version 7), weil die Vollmacht Namen und Unterschrift enthält; Teil
+der Gesamtsicherung. Löscht man den Kunden, entfernt die App Name und Unterschrift aus der Vollmacht; die Auskunft nennt sie.
+
+**Tests:** Browser `tests/e2e/werkzeuge-d43.spec.mjs` (Aufnahmebogen, Stand, Anforderung bei der Gemeinde, Vollmacht mit
+Unterschrift, Objektart, Fahrplan, Auskunft, Sicherung, Löschen); Klicktest-Bereiche „Unterlagen“ und „Unterlagen je Objekt“.
+Das Unterschriftsfeld steht als `wzUnterschriftPad` in `src/werkzeuge.js` für weitere Werkzeuge bereit.

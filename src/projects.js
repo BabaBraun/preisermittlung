@@ -10,8 +10,8 @@
    Warten lesen können; die Fotos eines Projekts werden erst beim Öffnen geholt. Ohne IndexedDB (manche
    privaten Fenster) arbeitet die App wie bisher mit dem localStorage, meldet volle Speicher aber sichtbar. */
 const PJ_KEY='vb_projekte';
-const IA_DB_NAME='ia_bewertungen', IA_DB_VER=6;   // 2: Kundenakte, 3: Übergabeprotokolle (D38), 4: Notaraufträge (D39), 5: Termine, Vorgänge, Bieterverfahren (D40), 6: Provisionsabrechnungen (D42)
-const IA_ZUSATZ=[['termine','Termine'],['vorgaenge','Anfragen und Akquise'],['bieter','Bieterverfahren'],['abrechnungen','Provisionsabrechnungen']];   // D40, D42: in Sicherung und Einspielen
+const IA_DB_NAME='ia_bewertungen', IA_DB_VER=7;   // 2: Kundenakte, 3: Übergabeprotokolle (D38), 4: Notaraufträge (D39), 5: Termine, Vorgänge, Bieterverfahren (D40), 6: Provisionsabrechnungen (D42), 7: Unterlagen (D43)
+const IA_ZUSATZ=[['termine','Termine'],['vorgaenge','Anfragen und Akquise'],['bieter','Bieterverfahren'],['abrechnungen','Provisionsabrechnungen'],['unterlagen','Unterlagen']];   // D40, D42, D43: in Sicherung und Einspielen
 var IA_DB=null, IA_DB_BEREIT=false, IA_BEREIT_P=Promise.resolve(false);
 var PJ_CACHE=[];                 // {id,name,objekt,datum,empf,voll,geaendert,nFotos,data:{fields,signature,grundrisse}}
 var FOTOS_IN_DB=false;           // Fotos der laufenden Bewertung liegen in der Datenbank
@@ -20,7 +20,7 @@ var SPEICHER_FEHLER={};
 
 /* Mechanik in js/speicher.js (ImmoSpeicher); hier nur die Datenbank der Bewertungen */
 function iaDbOeffnen(){
-  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'},protokolle:{keyPath:'id'},notar:{keyPath:'id'},termine:{keyPath:'id'},vorgaenge:{keyPath:'id'},bieter:{keyPath:'id'},abrechnungen:{keyPath:'id'}},t=>speicherFehler('db',t));
+  return ImmoSpeicher.oeffnen(IA_DB_NAME,IA_DB_VER,{projekte:{keyPath:'id'},arbeit:null,meta:null,kunden:{keyPath:'id'},protokolle:{keyPath:'id'},notar:{keyPath:'id'},termine:{keyPath:'id'},vorgaenge:{keyPath:'id'},bieter:{keyPath:'id'},abrechnungen:{keyPath:'id'},unterlagen:{keyPath:'id'}},t=>speicherFehler('db',t));
 }
 /* Eine Transaktion; aufgelöst erst, wenn sie wirklich abgeschlossen (auf dem Gerät gespeichert) ist.
    Bei einem Fehler wird sie abgebrochen — kein halb geschriebener Stand. */

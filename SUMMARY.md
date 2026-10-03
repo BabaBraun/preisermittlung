@@ -1,3 +1,9 @@
+# Zusammenfassung — Unterlagen (2026-10-03)
+
+Neue Kachel „Unterlagen“ (D43): je Verkauf alle Unterlagen nach Objektart mit Stelle, Zweck und Stand; was im Aufnahmebogen
+angehakt ist, liegt schon vor. Anforderungsschreiben je Stelle, Liste für den Eigentümer, Vollmacht mit Unterschrift auf dem
+Gerät; der Verkaufsfahrplan hakt die Unterlagen selbst ab. Datenbank Version 7.
+
 # Zusammenfassung — Kaufnebenkosten und Provision (2026-10-03)
 
 Zwei neue Kacheln (D42): „Kaufnebenkosten“ rechnet Notar und Grundbuch genau nach dem GNotKG (gegen alle Zeilen der amtlichen

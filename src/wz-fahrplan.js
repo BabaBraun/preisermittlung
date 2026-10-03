@@ -6,9 +6,9 @@
    (Eingaben der Werkzeuge, keine Personen). Die Bewertungen werden nur gelesen. */
 var FP={aktiv:null,extra:null,laeuft:null};
 const FP_PHASEN=[
-  ['Auftrag',[['bewertung','Bewertung erstellt','bewertung'],['maklervertrag','Maklervertrag in Textform geschlossen (§ 656a BGB)'],['unterlagen','Unterlagen beim Eigentümer angefordert','vorlage:unterlagen']]],
-  ['Unterlagen',[['grundbuch','Grundbuchauszug liegt vor'],['flurkarte','Flurkarte oder Lageplan liegt vor'],['energieausweis','Energieausweis mit allen Pflichtangaben','energie'],
-    ['grundrisse','Grundrisse und Wohnflächenberechnung','grundrisse'],['baulasten','Auskunft aus dem Baulastenverzeichnis'],['weg','Teilungserklärung, Protokolle, Wirtschaftsplan (Wohnungseigentum)','',1]]],
+  ['Auftrag',[['bewertung','Bewertung erstellt','bewertung'],['maklervertrag','Maklervertrag in Textform geschlossen (§ 656a BGB)'],['unterlagen','Unterlagen beim Eigentümer angefordert','ul_angefordert']]],
+  ['Unterlagen',[['grundbuch','Grundbuchauszug liegt vor','ul_grundbuch'],['flurkarte','Flurkarte oder Lageplan liegt vor','ul_flurkarte'],['energieausweis','Energieausweis mit allen Pflichtangaben','energie'],
+    ['grundrisse','Grundrisse und Wohnflächenberechnung','grundrisse'],['baulasten','Auskunft aus dem Baulastenverzeichnis','ul_baulasten'],['weg','Teilungserklärung, Protokolle, Wirtschaftsplan (Wohnungseigentum)','ul_weg',1]]],
   ['Vermarktung',[['fotos','Fotos aufgenommen und bearbeitet','fotos'],['expose','Exposé erstellt','expose'],['preis','Angebotspreis mit dem Eigentümer abgestimmt','preis'],
     ['portal','Auf Immobilienportalen veröffentlicht','portal'],['gesuche','Vorgemerkte Interessenten informiert','gesuche']]],
   ['Besichtigungen und Angebote',[['besichtigung','Besichtigungen durchgeführt','besichtigung'],['bericht','Eigentümer über den Stand informiert','bericht'],
@@ -17,7 +17,8 @@ const FP_PHASEN=[
   ['Übergabe und Abschluss',[['uebergabe','Übergabe mit Protokoll','uebergabe'],['provision','Provision abgerechnet und eingegangen','provision'],['nachbetreuung','Nachbetreuung: Glückwunsch, Löschprüfung in der Kundenakte gesetzt']]]
 ];
 const FP_STAENDE=['Akquise','Auftrag erteilt','In Vermarktung','Reserviert','Notartermin','Verkauft'];
-const FP_LINK={unterlagen:"vlOeffnenMit({vorlage:'unterlagen',projektId:FP.aktiv})",fotos:"wzOeffnen('foto')",portal:"wzOeffnen('portal')",gesuche:"wzOeffnen('interessenten');vgSetz('ansicht','abgleich')",
+const FP_UL="wzOeffnen('unterlagen');ulOeffnen(FP.aktiv)";
+const FP_LINK={unterlagen:FP_UL,grundbuch:FP_UL,flurkarte:FP_UL,baulasten:FP_UL,weg:FP_UL,fotos:"wzOeffnen('foto')",portal:"wzOeffnen('portal')",gesuche:"wzOeffnen('interessenten');vgSetz('ansicht','abgleich')",
   bericht:"vlOeffnenMit({vorlage:'stand',projektId:FP.aktiv})",notarauftrag:"wzOeffnen('notar')",entwurf:"wzOeffnen('notar')",uebergabe:"wzOeffnen('uebergabe')",nachbetreuung:"vlOeffnenMit({vorlage:'glueckwunsch',projektId:FP.aktiv})"};
 function fpS(){ let a=wzAlle(); if(!a.fahrplan||typeof a.fahrplan!=='object'||Array.isArray(a.fahrplan)) a.fahrplan={}; return a.fahrplan; }
 function fpLaden(){
@@ -35,10 +36,13 @@ function fpAuto(o){
   try{ ev=(JSON.parse(f.vm_daten||'{}').ev)||[]; }catch(e){}
   let notar=ex.notar.filter(n=>fpGleich(n.anschrift,o.anschrift)||fpGleich(n.projekt,o.name)), stand=Math.max(-1,...notar.map(n=>NO_STAENDE.indexOf(n.stand)));
   let st=FP_STAENDE.indexOf(o.status), portal=((wzAlle().portal||{}).export||{})[o.id];
+  let ul=wzdListe('unterlagen').find(r=>r.projektId===o.id), us=k=>!!(ul&&ul.posten&&ul.posten[k]&&ul.posten[k].stand==='da');   // Kachel „Unterlagen“ (D43)
   return {
     bewertung:!!(p.empf&&!/^0\s*€?$/.test(String(p.empf).trim())),
     energie:!!(E&&(E.art==='liegt nicht vor'||(E.art&&!ImmoPortal.energiePflicht(E).length))),
-    grundrisse:!!(p.data&&Array.isArray(p.data.grundrisse)&&p.data.grundrisse.length),
+    grundrisse:!!(p.data&&Array.isArray(p.data.grundrisse)&&p.data.grundrisse.length)||(us('grundrisse')&&us('wohnflaeche')),
+    ul_angefordert:!!(ul&&(Object.values(ul.posten||{}).some(s=>s&&(s.stand==='angefordert'||(s.stand==='da'&&s.quelle!=='Aufnahmebogen')))||(ul.vollmacht&&ul.vollmacht.unterschrift))),
+    ul_grundbuch:us('grundbuch'), ul_flurkarte:us('flurkarte'), ul_baulasten:us('baulasten'), ul_weg:us('teilung')&&us('protokolle')&&us('abrechnung'),
     fotos:(p.nFotos||0)>0,
     expose:!!(String(f.ex_text_objekt||'').trim()||String(f.ex_titel||'').trim()),
     preis:zahlLesen(f.vm_preis,true)>0||zahlLesen(f.ex_preis,true)>0,

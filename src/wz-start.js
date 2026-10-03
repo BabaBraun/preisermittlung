@@ -5,6 +5,7 @@
 const WZ_GRUPPEN=[
   {id:'vermarkten',titel:'Akquise & Vermarktung',kacheln:[
     ['akquise','Akquise','sign','Eigentümer vom ersten Kontakt bis zum Auftrag — mit Termin, Wiedervorlage und Bewertung.','Eigentümer bis zum Auftrag'],
+    ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
     ['interessenten','Interessenten','inbox','Anfragen, Besichtigungen und der Abgleich aller Suchprofile mit den Objekten in Vermarktung.','Anfragen, Abgleich mit Suchprofilen'],
     ['bieter','Bieter­verfahren','trending-up','Gebote sammeln und vergleichen — Übersicht für den Eigentümer ohne Namen.','Gebote sammeln und vergleichen'],
     ['foto','Fotostudio','image','Fotos aufhellen, gerade richten, zuschneiden — Personen und Kennzeichen unkenntlich machen.','Fotos bearbeiten, Bereiche schwärzen'],

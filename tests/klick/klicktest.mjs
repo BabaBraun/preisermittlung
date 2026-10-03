@@ -342,6 +342,8 @@ const BEREICHE = [
     await kaTerminOeffnen(t.id); }) },
   { name: 'Werkzeug – Kaufen oder Mieten', wurzel: '#wz_overlay', auf: js(() => wzOeffnen('kaufmiete')) },
   { name: 'Werkzeug – Aktivitäten', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('aktivitaeten'); await akLaden(); wzZeichnen(); }) },
+  { name: 'Werkzeug – Unterlagen', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('unterlagen'); await wzdLaden(); UL.aktiv = null; wzZeichnen(); }) },
+  { name: 'Werkzeug – Unterlagen je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('unterlagen'); await wzdLaden(); if (p) await ulOeffnen(p.id); }) },
   { name: 'Werkzeug – Kaufnebenkosten', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'kaeufer'; wzZeichnen(); }) },
   { name: 'Werkzeug – Erlös des Verkäufers', wurzel: '#wz_overlay', auf: js(() => { wzOeffnen('nebenkosten'); nkS().sicht = 'verkaeufer'; wzZeichnen(); }) },
   { name: 'Werkzeug – Provision', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('provision'); await wzdLaden(); PA.aktiv = null; wzZeichnen(); }) },
