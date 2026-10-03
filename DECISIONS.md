@@ -1524,7 +1524,7 @@ aus `energieZeile` (neue Ausweise: „Energieausweis nach § 82 GModG (Verbrauch
 
 **Hinweise** (`energieHinweise`): Gültigkeit zehn Jahre (§ 79 Abs. 3; „gültig bis“ leer = ausgestellt plus zehn Jahre minus ein
 Tag), abgelaufene und vor dem 01.05.2014 ausgestellte Ausweise rot; Baudenkmal ab 01.01.2027 ohne Ausnahme (§ 79 Abs. 4 n. F.,
-nur noch kleine Gebäude bis 50 m²); Verbrauchsausweis ab 2027 nur für reine Wohngebäude (§ 82 Abs. 1 n. F.); „liegt nicht vor“
+nur noch kleine Gebäude unter 50 m², § 3 Abs. 1 Nr. 17 n. F.); Verbrauchsausweis ab 2027 nur für reine Wohngebäude (§ 82 Abs. 1 n. F.); „liegt nicht vor“
 gelb mit Hinweis auf § 80 Abs. 3 und 4.
 
 **Portal-Export:** neues Feld „Primärenergie laut Ausweis“; Export als `primaerenergiebedarf` (OpenImmo 1.2.7d, nur bei Ausweisen
@@ -1883,3 +1883,27 @@ Einheits- und Browsertests) und hier zusammengeführt:
 - **Offen (Bank, Fabian):** Provision „widerrufen“ bzw. „Anspruch noch nicht entstanden“ automatisch aus Maklerverträgen und
   „Wer verkauft?“; Zahlungsweg im Notarauftrag (§ 16a GwG); vollständige Gebietsliste der Kappungs- und Kündigungssperrfrist-
   Verordnung BW (bisher nur geprüfte Gemeinden, sonst gelb); Vordrucke der Bank für Belehrung, Objektauskunft und Weitergabe.
+
+## D62 (2026-10-03) — Unabhängige Prüfung von D48–D53: 28 bestätigte Befunde behoben
+Vier Prüfer (Logik, Rechtsangaben am Wortlaut, Datenschutz, Bedienung) und je ein Gegenprüfer, der jeden Befund selbst
+nachvollziehen musste. Behoben:
+- **Löschen eines Kunden** bei offenem Notarauftrag oder Übergabeprotokoll: Der Editor schrieb die alten Namen zurück. Jetzt wird der
+  offene Stand zuerst gesichert und danach der anonymisierte übernommen. Der Namensabgleich zählt nur noch bei Einträgen ohne
+  Kunden-Id, ein einzelnes Wort (nur Nachname) genügt nicht mehr, „Muster, Erika, Probe, Max“ und „Vorname Nachname (Firma)“ treffen.
+- **Werbung je Kanal:** Die Rechtsgrundlage „Einwilligung“ einer neuen Akte schaltete E-Mail- und Telefonwerbung frei — die Umstellung
+  gilt nur noch für Akten aus der Zeit vor D51. Frühere Werbewidersprüche bleiben im Verlauf und in der Auskunft. Eine erteilte
+  Einwilligung lässt sich nicht auf „keine“ zurücksetzen (Nachweis bleibt, § 7a UWG). Der Werbewiderspruch fragt das Eingangsdatum ab;
+  die Monatsfrist läuft ab Eingang (Art. 12 Abs. 3 DSGVO). Eingaben bauen nur den Kasten neu, Notiz-Entwürfe und Fokus bleiben.
+- **Rundschreiben:** Abmeldehinweis mit allen Merkmalen des § 7 Abs. 3 Nr. 4 UWG (jederzeit, nur Übermittlungskosten nach den
+  Basistarifen); Notiz nur bei Kunden, die tatsächlich etwas bekommen; klare Meldung, wenn niemand einen Brief bekommen darf.
+- **Energieausweis:** Ab 01.01.2027 ist ein kleines Gebäude eines „mit weniger als 50 Quadratmetern Nutzfläche“ (§ 3 Abs. 1 Nr. 17
+  n. F.); Fahrplan berücksichtigt das Baudenkmal ab 2027; Verbrauchsausweis ab 2027 nur bei ausschließlicher Wohnnutzung (§ 82 Abs. 1
+  n. F.), gemischt genutzte Gebäude gelb; Fundstelle ab 2027 für ältere Ausweise § 112 Abs. 3 (und 4) statt § 87; Ausstellungsdatum
+  nicht doppelt gemeldet; Social Media mit getrennten Ampeln wie der Aushang.
+- **PDF schwärzen:** pdf.js liegt jetzt im Offline-Cache (`scripts/build.mjs` ließ `.mjs` aus); Suchtreffer auf gedrehten Seiten und
+  bei senkrechtem Text liegen richtig; Werte ausgefüllter Formularfelder werden ins Bild gezeichnet und gefunden; eine zweite PDF
+  während des Ladens mischt keine Seiten mehr; wiederholte Suche meldet „schon geschwärzt“.
+- **Anfrage-Mail:** Anschrift steht sichtbar im Formular; zweites Einfügen lässt keine Reste der ersten Mail.
+- **Unterlagen:** Zusatzposten aus anderen Kacheln stehen auch im Anforderungsschreiben.
+- **Geldwäsche im Notarauftrag:** grün nur, wenn es zu prüfende Personen gibt (nicht bei „(Kunde gelöscht)“).
+Tests: `tests/e2e/werkzeuge-befunde.spec.mjs`, Ergänzungen in `tests/unit/portal.test.mjs`, `werbung.test.mjs`, `pdfbild.test.mjs`.

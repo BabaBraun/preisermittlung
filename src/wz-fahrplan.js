@@ -50,7 +50,8 @@ function fpAuto(o){
   let ul=wzdListe('unterlagen').find(r=>r.projektId===o.id), us=k=>!!(ul&&ul.posten&&ul.posten[k]&&ul.posten[k].stand==='da');   // Kachel „Unterlagen“ (D43)
   return {
     bewertung:!!(p.empf&&!/^0\s*€?$/.test(String(p.empf).trim())),
-    energie:!!(E&&((E.art==='liegt nicht vor'&&E.jahrgang==='nicht_noetig')||(/Bedarf|Verbrauch/.test(E.art)&&!ImmoPortal.energiePflicht(E,aufHeute()).length&&!ImmoPortal.energieHinweise(E,aufHeute()).some(h=>h.stufe==='rot')))),   // D50
+    energie:!!(E&&!ImmoPortal.energieHinweise(E,aufHeute(),{denkmal:/ja|Ensemble/.test(String(f.od_denkmal||''))}).some(h=>h.stufe==='rot')
+      &&((E.art==='liegt nicht vor'&&E.jahrgang==='nicht_noetig')||(/Bedarf|Verbrauch/.test(E.art)&&!ImmoPortal.energiePflicht(E,aufHeute()).length))),   // D50: Baudenkmal ab 2027
     grundrisse:!!(p.data&&Array.isArray(p.data.grundrisse)&&p.data.grundrisse.length)||(us('grundrisse')&&us('wohnflaeche')),
     ul_angefordert:!!(ul&&(Object.values(ul.posten||{}).some(s=>s&&(s.stand==='angefordert'||(s.stand==='da'&&s.quelle!=='Aufnahmebogen')))||(ul.vollmacht&&ul.vollmacht.unterschrift))),
     ul_grundbuch:us('grundbuch'), ul_flurkarte:us('flurkarte'), ul_baulasten:us('baulasten'), ul_weg:us('teilung')&&us('protokolle')&&us('abrechnung'),

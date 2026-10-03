@@ -49,3 +49,17 @@ test('Suche: Begriff ohne Groß- und Kleinschreibung, Muster IBAN, E-Mail, Telef
   assert.deepEqual(P.treffer(items, 'a'), []);
   assert.deepEqual(P.treffer(items, '(x'), []);
 });
+
+test('Suche auf gedrehten Seiten und in Formularfeldern: Fläche liegt über dem Text', () => {
+  // senkrechter Text (Seite um 90° gedreht): Lauf nach unten (dx 0, dy 1), Höhenrichtung nach rechts (ux 1, uy 0)
+  const geo = { ox: 100, oy: 200, dx: 0, dy: 1, ux: 1, uy: 0, len: 100, h: 10, W: 842, H: 595 };
+  const item = Object.assign({ str: 'Erika Musterfrau', geo }, P.huelle(geo, 0, 100));
+  const t = P.treffer([item], 'Musterfrau')[0];
+  const z = 100 / 16;
+  assert.ok(Math.abs(t.y - (200 + 5 * z) / 595) < 1e-9);                 // ab Zeichen 5 („ Musterfrau“ mit Puffer)
+  assert.ok(Math.abs(t.h - 11 * z / 595) < 1e-9);
+  assert.ok(Math.abs(t.x - (100 - 2.5) / 842) < 1e-9 && Math.abs(t.w - 13.5 / 842) < 1e-9);
+  // Formularfeld: ganzes Feld
+  const feld = { str: 'DE89 3704 0044 0532 0130 00', x: 0.5, y: 0.6, w: 0.3, h: 0.02, feld: true };
+  assert.deepEqual(P.treffer([feld], 'iban')[0], { x: 0.5, y: 0.6, w: 0.3, h: 0.02, text: 'DE89 3704 0044 0532 0130 00' });
+});

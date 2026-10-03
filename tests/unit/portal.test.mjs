@@ -132,7 +132,7 @@ test('Energieausweis ab 01.01.2027 (D50): Ausstellungsdatum entscheidet, Primär
   assert.deepEqual(P.energiePflicht(dez, '2027-02-01'), []);
   assert.match(P.energieZeile(dez), /^Verbrauchsausweis · Endenergieverbrauch 118,4 kWh\/\(m²·a\)/);
   // ohne Ausstellungsdatum fehlt ab 2027 die Grundlage für die Entscheidung
-  assert.deepEqual(P.energiePflicht(E(HAUS, {}), '2027-02-01'), ['Ausstellungsdatum des Energieausweises (ab 01.01.2027 entscheidet es über die Pflichtangaben)']);
+  assert.deepEqual(P.energiePflicht(E(HAUS, {}), '2027-02-01'), ['Ausstellungsdatum des Energieausweises (ab 01.01.2027 entscheidet es, welche Angaben Pflicht sind)']);
   // 3) Ausweis vom 10.01.2027: neues Recht — Primärenergie, Datum, Klasse und Baujahr (auch Nichtwohngebäude), Energieträger
   const neu = E(HAUS, { ausgestellt: '2027-01-10' });
   assert.equal(P.energieNeu(neu), true);
@@ -261,4 +261,28 @@ test('XML: Aufbau und Reihenfolge laut Schema, Zahlen mit Punkt, Texte maskiert;
   assert.deepEqual(b.attrs['verwaltung_techn/aktion'], { aktionart: 'DELETE' });
   // Gesamtbestand
   assert.match(P.xml([haus], { firma: 'X', anid: 'A' }, { voll: true, jetzt }), /umfang="VOLL"/);
+});
+
+test('Prüfung nach Befunden (D50): Norm je Ausweis, rein Wohnzwecke, kleines Gebäude ab 2027 unter 50 m²', () => {
+  const E = (f, e) => P.energie(P.leser(f), e);
+  // Norm: bis 2026 § 87, ab 2027 für alte Ausweise § 112 Abs. 3 (Nichtwohngebäude Abs. 3 und 4), für neue § 87
+  assert.equal(P.energieNorm(E(HAUS, { ausgestellt: '2019-03-01' }), '2026-09-29'), '§ 87 GModG');
+  assert.equal(P.energieNorm(E(HAUS, { ausgestellt: '2019-03-01' }), '2027-02-01'), '§ 112 Abs. 3 GModG');
+  assert.equal(P.energieNorm(E({ ek_typ: 'Bürogebäude · Massivbau', ex_ea_art: 'Bedarfsausweis' }, { ausgestellt: '2019-03-01' }), '2027-02-01'), '§ 112 Abs. 3 und 4 GModG');
+  assert.equal(P.energieNorm(E(HAUS, { ausgestellt: '2027-01-10' }), '2027-02-01'), '§ 87 GModG');
+  // Jahrgang „bis 31.12.2026“ gewählt: Ausstellungsdatum ist dann keine Pflichtangabe, bleibt aber für die Gültigkeit rot
+  assert.deepEqual(P.energiePflicht(E(HAUS, { jahrgang: '2014' }), '2027-02-01'), []);
+  // gemischt genutzt: Verbrauchsausweis ab 2027 gelb
+  const misch = E({ ek_typ: 'Wohn- und Geschäftshaus (Mischnutzung)', ex_ea_art: 'Verbrauchsausweis' }, { ausgestellt: '2027-03-01' });
+  assert.equal(misch.wohn, true); assert.equal(misch.rein, false);
+  assert.ok(P.energieHinweise(misch, '2027-04-01').some(h => h.stufe === 'gelb' && /ausschließlich Wohnzwecken/.test(h.text)));
+  assert.equal(E(HAUS, {}).rein, true);
+  const klein = E({ au_energieausweis: 'liegt nicht vor' }, { jahrgang: 'nicht_noetig' });
+  assert.match(P.energieHinweise(klein, '2027-01-04')[0].text, /unter 50 m² Nutzfläche \(§ 3 Abs\. 1 Nr\. 17, § 79 Abs\. 4 GModG n\. F\.\)/);
+  // Prüfung: Ausstellungsdatum nicht doppelt, Fundstelle ab 2027 § 112
+  const o = P.objekt(Object.assign({}, HAUS, { au_energiewert: '' }), { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, einstellung: { ausgestellt: '2019-03-01' }, heute: '2027-02-01' });
+  const pr = P.pruefen(o, { firma: 'Beispielbank eG' });
+  assert.ok(pr.fehler.includes('Endenergiewert (Pflichtangabe nach § 112 Abs. 3 GModG)'), pr.fehler.join(' | '));
+  const o2 = P.objekt(HAUS, { projektId: 'p1', kontakt: KONTAKT, fotos: FOTOS, heute: '2027-02-01' });
+  assert.equal(P.pruefen(o2, { firma: 'Beispielbank eG' }).fehler.filter(f => /^Ausstellungsdatum/.test(f)).length, 1);
 });

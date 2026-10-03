@@ -208,13 +208,15 @@ KD_AUSKUNFT_HOOKS.push(async id=>{
 });
 KD_LOESCH_HOOKS.push(async id=>{
   let k=wzdKunde(id); if(!k) return;
-  await ubLaden();
-  for(const {u,rollen} of ubTreffer(k)){
+  if(UB.aktiv){ clearTimeout(UB.timer); await ubSpeichernJetzt(); }   // offenen Stand sichern, dann frisch laden
+  await ubLaden(); let treffer=ubTreffer(k);
+  for(const {u,rollen} of treffer){
     rollen.forEach(([r])=>{ u[r]=ubNameWeg(u[r],k)||'(Kunde gelöscht)'; if(u.unterschrift) u.unterschrift[r]=''; });
     u.anwesend=ubNameWeg(u.anwesend,k);
     u.kundeIds=(u.kundeIds||[]).filter(x=>x!==id);
     u.geaendert=Date.now();
     try{ await iaPut('protokolle',JSON.parse(JSON.stringify(u))); }catch(e){}
   }
+  if(UB.aktiv){ let t=treffer.find(x=>x.u.id===UB.aktiv.id); if(t) UB.aktiv=t.u; }
   UB.liste=null;
 });

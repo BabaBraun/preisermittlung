@@ -4,10 +4,11 @@
    setzt man von Hand oder über die Suche (Text, IBAN, E-Mail, Telefon, Datum). Gespeichert wird eine neue PDF aus Bildern der
    Seiten (js/pdfbild.js): Der Text unter den Balken ist damit entfernt, die Datei enthält keine Textebene und keine Metadaten.
    Die Original-PDF wird nicht verändert und nicht gespeichert; beim Schließen der Kachel ist alles weg. */
-var PS={lib:null,name:'',seiten:[],flaechen:{},weg:{},seite:0,laedt:'',ziehen:null,suche:'',meldung:null};
+var PS={lib:null,ladeNr:0,name:'',seiten:[],flaechen:{},weg:{},seite:0,laedt:'',ziehen:null,suche:'',meldung:null};
 const PS_DPI=150, PS_MAX_SEITEN=40, PS_MAX_PIXEL=2400;
 const PS_MUSTER=[['iban','IBAN'],['email','E-Mail-Adressen'],['telefon','Telefonnummern'],['datum','Daten (TT.MM.JJJJ)']];
-function psReset(){ Object.assign(PS,{name:'',seiten:[],flaechen:{},weg:{},seite:0,laedt:'',ziehen:null,suche:'',meldung:null}); }
+/* jedes Zurücksetzen macht ein noch laufendes Laden ungültig (zweite PDF, „Andere PDF“, Schließen) */
+function psReset(){ PS.ladeNr++; Object.assign(PS,{name:'',seiten:[],flaechen:{},weg:{},seite:0,laedt:'',ziehen:null,suche:'',meldung:null}); }
 async function psPdfjs(){
   if(PS.lib) return PS.lib;
   const m=await import(new URL('vendor/pdfjs/pdf.min.mjs',location.href).href);
@@ -17,33 +18,47 @@ async function psPdfjs(){
 async function psDatei(files){
   let f=files&&files[0]; if(!f) return;
   if(!/pdf$/i.test(f.type||'')&&!/\.pdf$/i.test(f.name||'')){ alert('Bitte eine PDF-Datei wählen. Fotos von Unterlagen schwärzt das Fotostudio.'); return; }
-  psReset(); PS.name=(f.name||'Dokument').replace(/\.pdf$/i,''); PS.laedt='PDF wird geöffnet …'; wzZeichnen();
-  let doc=null;
+  psReset(); const nr=PS.ladeNr, gilt=()=>nr===PS.ladeNr;
+  PS.name=(f.name||'Dokument').replace(/\.pdf$/i,''); PS.laedt='PDF wird geöffnet …'; wzZeichnen();
+  let doc=null, seiten=[];
   try{
     const lib=await psPdfjs(), daten=new Uint8Array(await f.arrayBuffer());
+    if(!gilt()) return;
     doc=await lib.getDocument({data:daten,isEvalSupported:false,enableXfa:false,disableFontFace:false}).promise;
+    if(!gilt()) return;
     if(doc.numPages>PS_MAX_SEITEN) alert('Die PDF hat '+doc.numPages+' Seiten — die App nimmt die ersten '+PS_MAX_SEITEN+'. Längere Dokumente vorher teilen.');
-    const n=Math.min(doc.numPages,PS_MAX_SEITEN);
+    const n=Math.min(doc.numPages,PS_MAX_SEITEN), AM=lib.AnnotationMode||{};
     for(let i=1;i<=n;i++){
+      if(!gilt()) return;
       PS.laedt='Seite '+i+' von '+n+' …'; psStatus();
       const page=await doc.getPage(i), v1=page.getViewport({scale:1});
       let sk=PS_DPI/72; if(Math.max(v1.width,v1.height)*sk>PS_MAX_PIXEL) sk=PS_MAX_PIXEL/Math.max(v1.width,v1.height);
       const vp=page.getViewport({scale:sk}), c=document.createElement('canvas');
       c.width=Math.round(vp.width); c.height=Math.round(vp.height);
       const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
-      await page.render({canvasContext:ctx,viewport:vp}).promise;
+      // ausgefüllte Formularfelder ins Bild zeichnen (sonst zeigt pdf.js sie nur in einer eigenen Ebene)
+      await page.render({canvasContext:ctx,viewport:vp,annotationMode:AM.ENABLE_STORAGE!=null?AM.ENABLE_STORAGE:3}).promise;
       let items=[];
       try{ const tc=await page.getTextContent();
-        items=tc.items.filter(t=>t&&t.str).map(t=>{ const m=lib.Util.transform(v1.transform,t.transform), h=Math.hypot(m[2],m[3])||Math.abs(t.height)||8;
-          return {str:t.str,x:m[4]/v1.width,y:(m[5]-h)/v1.height,w:Math.abs(t.width)/v1.width,h:h/v1.height}; }); }catch(e){}
-      PS.seiten.push({canvas:c,breitePt:v1.width,hoehePt:v1.height,items});
+        items=tc.items.filter(t=>t&&t.str).map(t=>{
+          const m=lib.Util.transform(v1.transform,t.transform), s=Math.hypot(m[0],m[1])||1, h=Math.hypot(m[2],m[3])||Math.abs(t.height)||8;
+          const geo={ox:m[4],oy:m[5],dx:m[0]/s,dy:m[1]/s,ux:m[2]/h,uy:m[3]/h,len:Math.abs(t.width)||h*t.str.length*0.5,h,W:v1.width,H:v1.height};
+          return Object.assign({str:t.str,geo},ImmoPdfBild.huelle(geo,0,geo.len)); }); }catch(e){}
+      try{ (await page.getAnnotations()).forEach(a=>{   // Werte von Formularfeldern und Kommentaren durchsuchbar machen
+          let s=typeof a.fieldValue==='string'?a.fieldValue:Array.isArray(a.fieldValue)?a.fieldValue.join(' '):(a.contentsObj&&a.contentsObj.str)||a.contents||'';
+          if(!s||!Array.isArray(a.rect)) return; let r=v1.convertToViewportRectangle(a.rect), x0=Math.min(r[0],r[2]), y0=Math.min(r[1],r[3]);
+          items.push({str:String(s),x:x0/v1.width,y:y0/v1.height,w:Math.abs(r[2]-r[0])/v1.width,h:Math.abs(r[3]-r[1])/v1.height,feld:true}); }); }catch(e){}
+      seiten.push({canvas:c,breitePt:v1.width,hoehePt:v1.height,items});
       page.cleanup();
     }
+    if(!gilt()) return;
+    PS.seiten=seiten;
   }catch(e){
-    psReset();
+    if(!gilt()) return;
+    psReset(); wzZeichnen();
     alert(e&&e.name==='PasswordException'?'Die PDF ist mit einem Kennwort geschützt. Bitte ungeschützt speichern und erneut wählen.':'Die PDF lässt sich nicht öffnen'+(e&&e.message?' ('+e.message+')':'')+'.');
-  }finally{ if(doc) try{ await doc.destroy(); }catch(e){} PS.laedt=''; }
-  if(WZ.aktiv==='schwaerzen') wzZeichnen();
+  }finally{ if(doc) try{ await doc.destroy(); }catch(e){} if(gilt()) PS.laedt=''; }
+  if(gilt()&&WZ.aktiv==='schwaerzen') wzZeichnen();
 }
 function psStatus(){ let e=$('ps_status'); if(e) e.textContent=PS.laedt; }
 function psFl(i){ return PS.flaechen[i]||(PS.flaechen[i]=[]); }
@@ -51,12 +66,12 @@ function psAnzahl(){ return Object.keys(PS.flaechen).reduce((s,k)=>s+PS.flaechen
 /* Suche über alle Seiten → Flächen (doppelte nicht noch einmal) */
 function psSuchen(was){
   if(!PS.seiten.length) return;
-  let neu=0, text=was||String(($('ps_suche')||{}).value||'').trim(); if(!was) PS.suche=text;
+  let neu=0, gesamt=0, text=was||String(($('ps_suche')||{}).value||'').trim(); if(!was) PS.suche=text;
   if(!was&&text.length<2){ PS.meldung={stufe:'gelb',text:'Bitte mindestens zwei Zeichen eingeben.'}; wzZeichnen(); return; }
   PS.seiten.forEach((s,i)=>ImmoPdfBild.treffer(s.items,text).forEach(r=>{
-    let l=psFl(i); if(l.some(q=>Math.abs(q.x-r.x)<0.002&&Math.abs(q.y-r.y)<0.002&&Math.abs(q.w-r.w)<0.002)) return;
+    gesamt++; let l=psFl(i); if(l.some(q=>Math.abs(q.x-r.x)<0.002&&Math.abs(q.y-r.y)<0.002&&Math.abs(q.w-r.w)<0.002)) return;
     l.push({x:r.x,y:r.y,w:r.w,h:r.h,quelle:was?(PS_MUSTER.find(m=>m[0]===was)||['',was])[1]:'„'+text+'“'}); neu++; }));
-  PS.meldung=neu?{stufe:'gruen',text:neu+' Stelle'+(neu===1?'':'n')+' geschwärzt ('+(was?(PS_MUSTER.find(m=>m[0]===was)||['',was])[1]:'„'+text+'“')+'). Bitte jede Seite ansehen.'}
+  PS.meldung=!neu&&gesamt?{stufe:'gruen',text:'Alle '+gesamt+' Treffer sind schon geschwärzt.'}:neu?{stufe:'gruen',text:neu+' Stelle'+(neu===1?'':'n')+' geschwärzt ('+(was?(PS_MUSTER.find(m=>m[0]===was)||['',was])[1]:'„'+text+'“')+'). Bitte jede Seite ansehen.'}
     :{stufe:'gelb',text:'Nichts gefunden'+(was?'':' für „'+text+'“')+'. Bei gescannten Seiten (Bild statt Text) die Stellen von Hand schwärzen.'};
   wzZeichnen();
 }
@@ -65,7 +80,7 @@ function psFlaecheWeg(i){ psFl(PS.seite).splice(i,1); wzZeichnen(); }
 function psSeiteWeg(an){ if(an) PS.weg[PS.seite]=true; else delete PS.weg[PS.seite]; wzZeichnen(); }
 function psZeichnen(){
   let quelle='<input type="file" id="ps_datei" accept="application/pdf,.pdf" style="display:none" onchange="psDatei(this.files)">'
-    +'<div class="gr-zeile"><button type="button" class="primary" onclick="$(\'ps_datei\').value=\'\';$(\'ps_datei\').click()" data-ic="file">PDF wählen</button>'
+    +'<div class="gr-zeile"><button type="button" class="primary" onclick="$(\'ps_datei\').value=\'\';$(\'ps_datei\').click()" data-ic="file"'+(PS.laedt?' disabled':'')+'>PDF wählen</button>'
     +(PS.seiten.length?'<button type="button" class="secondary" onclick="psReset();wzZeichnen()">Andere PDF</button>':'')+'</div>'
     +'<p class="hint" id="ps_status" aria-live="polite">'+sEsc(PS.laedt)+'</p>';
   if(!PS.seiten.length) return wzBox('PDF',quelle+wzHinweis('Die PDF bleibt auf dem Gerät und wird nicht gespeichert. Gespeichert wird nur die geschwärzte Fassung, die du am Ende als Datei sicherst.'))
@@ -81,7 +96,7 @@ function psZeichnen(){
       +'<div class="gr-zeile"><button type="button" class="secondary" onclick="psSuchen()" data-ic="search">Alle Treffer schwärzen</button></div>'
       +'<div class="gr-zeile ps-muster">'+PS_MUSTER.map(m=>'<button type="button" class="secondary" onclick="psSuchen(\''+m[0]+'\')">'+m[1]+'</button>').join('')+'</div>'
       +(PS.meldung?wzAmpel(PS.meldung.stufe,sEsc(PS.meldung.text)):'')
-      +wzHinweis('Die Suche findet nur echten Text. Gescannte Seiten (Bild) bitte von Hand schwärzen.'))
+      +wzHinweis('Die Suche findet echten Text und ausgefüllte Formularfelder. Gescannte Seiten (Bild) bitte von Hand schwärzen.'))
     +wzBox('Diese Seite',(l.length?'<ul class="fs-liste">'+l.map((f,i)=>'<li>'+sEsc(f.quelle||'von Hand')+' '+(i+1)+'<button type="button" class="weg" aria-label="Fläche '+(i+1)+' entfernen" onclick="psFlaecheWeg('+i+')">✕</button></li>').join('')+'</ul>':'<p class="hint">Noch keine Fläche auf dieser Seite.</p>')
       +'<label class="wz-check"><input type="checkbox"'+(PS.weg[PS.seite]?' checked':'')+' onchange="psSeiteWeg(this.checked)"><span>Seite weglassen</span></label>')
     +wzBox('Speichern','<p class="wzd-klein">'+psAnzahl()+' Fläche'+(psAnzahl()===1?'':'n')+' geschwärzt'+(raus?', '+raus+' Seite'+(raus===1?'':'n')+' weggelassen':'')+'.</p>'

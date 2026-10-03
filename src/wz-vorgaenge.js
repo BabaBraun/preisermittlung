@@ -68,7 +68,7 @@ function vgNeuHtml(n){
           :'<button type="button" class="secondary" onclick="vgNeuKunde()" data-ic="users">Aus der Kundenakte wählen</button>')
         :'<div class="grid">'+wzFeld('person.anrede','Anrede',{typ:'wahl',optionen:[['',''],['Frau','Frau'],['Herr','Herr'],['Divers','Divers'],['Firma','Firma']]})
           +wzFeld('person.vorname','Vorname',{typ:'text'})+wzFeld('person.nachname','Nachname',{typ:'text'})+wzFeld('person.telefon','Telefon',{typ:'text'})
-          +wzFeld('person.email','E-Mail',{typ:'text'})
+          +wzFeld('person.email','E-Mail',{typ:'text'})+wzFeld('person.strasse','Straße und Hausnummer',{typ:'text'})+wzFeld('person.plzort','PLZ und Ort',{typ:'text'})
           +wzFeld('person.einwilligungEmail','Einwilligung in Werbung per E-Mail heute erteilt',{typ:'check',voll:true,zeichnen:true})
           +wzFeld('person.einwilligungTelefon','Einwilligung in Werbeanrufe heute erteilt',{typ:'check',voll:true,zeichnen:true})
           +(p.einwilligungEmail||p.einwilligungTelefon?wzFeld('person.einwilligungForm','Form der Einwilligung',{typ:'wahl',optionen:[['','– bitte wählen –']].concat(ImmoWerbung.FORMEN.filter(f=>f!==ImmoWerbung.ALT).map(f=>[f,f]))}):'')
@@ -97,8 +97,7 @@ function vgMailLesen(){
   let pid=ImmoAnfrage.objektFinden(r,liste,text); if(pid) n.projektId=pid;
   let k=ImmoAnfrage.kundeFinden(r,typeof KD_CACHE!=='undefined'?KD_CACHE:[]);
   if(k){ p.modus='akte'; p.kundeId=k.id; }
-  else { p.modus='neu'; ['anrede','vorname','nachname','email','telefon'].forEach(f=>{ if(r[f]) p[f]=r[f]; });
-    if(r.strasse) p.strasse=r.strasse; if(r.plzort) p.plzort=r.plzort; }
+  else { p.modus='neu'; p.kundeId=''; ['anrede','vorname','nachname','email','telefon','strasse','plzort'].forEach(f=>{ p[f]=r[f]||''; }); }   // Werte einer früheren Mail nicht stehen lassen
   if(r.nachricht) n.notiz=(n.notiz?n.notiz+'\n':'')+r.nachricht;
   n.mailInfo={gefunden:r.gefunden,objekt:pid?wzdObjektName(pid,''):'',objektnr:r.objektnr,kunde:k?kdName(k):''};
   wzZeichnen();

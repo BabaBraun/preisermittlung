@@ -68,3 +68,16 @@ test('Datenschutzinformation: bei Erhebung, von Dritten spätestens nach einem M
   assert.match(W.dsinfoStand(mitAnruf, '2026-10-05').text, /beim ersten Kontakt am 10\.10\.2026/);
   assert.equal(W.dsinfoStand({ werbung: { dsinfo: { art: 'zweckaenderung' } } }, '2026-10-03').stufe, 'rot');
 });
+
+test('Befunde: Rechtsgrundlage „Einwilligung“ bei neuen Akten ist keine Werbeerlaubnis; Verlauf und § 7a-Frist bleiben', () => {
+  const neu = { grundlage: 'einwilligung', werbung: { verbraucher: true, dsinfo: { art: 'direkt', erhobenAm: '2026-10-03' } } };
+  assert.equal(W.norm(neu).migriert, false);
+  for (const f of [W.darfEmail, W.darfTelefon]) assert.equal(f(neu).ok, false);
+  assert.equal(W.marke(neu), 'Werbung: E ✗ · T ✗ · P ✓');
+  const v = { werbung: { verlauf: [{ am: '2026-05-04', weg: 'Brief', aufgehobenAm: '2026-08-01' }] } };
+  assert.ok(W.auskunft(v).includes('Früherer Werbewiderspruch: am 04.05.2026 (Brief), aufgehoben am 01.08.2026'));
+  assert.equal(W.norm(v).verlauf.length, 1);
+  // Nachweis bleibt aufzubewahren, auch wenn der Stand später anders steht; nicht bei mutmaßlicher Einwilligung
+  assert.equal(W.aufbewahrenBis({ werbung: { telefon: { stand: 'keine', erteiltAm: '2026-10-03' } } }), '2031-10-03');
+  assert.equal(W.aufbewahrenBis({ werbung: { verbraucher: false, telefon: { stand: 'mutmasslich', erteiltAm: '2026-10-03' } } }), '');
+});

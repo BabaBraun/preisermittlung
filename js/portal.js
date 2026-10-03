@@ -127,7 +127,7 @@ function traegerKennung(t){
 /* Jahrgang des Energieausweises (OpenImmo 1.2.7d, Element jahrgang). D50: Ausweise ab 01.01.2027 folgen § 87 GModG in der Fassung
    von Art. 2 des Gesetzes vom 23.07.2026 (BGBl. 2026 I Nr. 226) — OpenImmo-Wert '2026' (seit 1.2.7d, Mai 2026). */
 const JAHRGAENGE=[['','aus dem Ausstellungsdatum'],['2008','vor dem 01.05.2014 ausgestellt (abgelaufen)'],['2014','ab 01.05.2014 bis 31.12.2026 ausgestellt'],
-  ['2026','ab 01.01.2027 ausgestellt (neues Recht)'],['ohne','kein Energieausweis vorhanden'],['nicht_noetig','nicht erforderlich (kleines Gebäude bis 50 m²; Baudenkmal nur bis 31.12.2026)']];
+  ['2026','ab 01.01.2027 ausgestellt (neues Recht)'],['ohne','kein Energieausweis vorhanden'],['nicht_noetig','nicht erforderlich (kleines Gebäude: bis 31.12.2026 bis 50 m², ab 01.01.2027 unter 50 m² Nutzfläche; Baudenkmal nur bis 31.12.2026)']];
 const EA_NEU='2027-01-01';
 function energie(L,e){
   e=e||{};
@@ -136,6 +136,7 @@ function energie(L,e){
     art=/Bedarf/.test(a)?'Bedarfsausweis':/Verbrauch/.test(a)?'Verbrauchsausweis':/nicht/.test(a)?'liegt nicht vor':
         /Bedarf/.test(o)?'Bedarfsausweis':/Verbrauch/.test(o)?'Verbrauchsausweis':''; }
   const t=L.v('ek_typ'), wohn=L.v('ek_modus')==='wohnung'||!/^(Geschäftshaus ohne|Bürogebäude|Betriebs)/.test(t);
+  const rein=L.v('ek_modus')==='wohnung'||!/Geschäft|Büro|Betrieb|Gewerb|Laden|Praxis|Misch/i.test(t);   // ausschließlich Wohnzwecke (§ 82 Abs. 1 n. F.)
   const traeger=L.v('ex_ea_traeger')||traegerText(L.v('au_heizung_art'));
   const ausgestellt=isoDatum(e.ausgestellt);
   let jahrgang=e.jahrgang||'';
@@ -145,7 +146,7 @@ function energie(L,e){
     bj:L.v('ex_ea_baujahr')||(L.z('ek_baujahr')>0?L.v('ek_baujahr'):''),
     klasse:L.v('ex_ea_klasse')||L.v('au_energieklasse')||L.v('od_effizienz'),
     ausgestellt, gueltigBis:isoDatum(e.gueltigBis)||(ausgestellt?zehnJahre(ausgestellt):''), gueltigBisGeschaetzt:!isoDatum(e.gueltigBis)&&!!ausgestellt,
-    primaer:Kern.zahlLesen(String(e.primaer==null?'':e.primaer),true), jahrgang};
+    primaer:Kern.zahlLesen(String(e.primaer==null?'':e.primaer),true), jahrgang, rein};
 }
 /* Ausweis gilt zehn Jahre (§ 79 Abs. 3 GModG): ausgestellt + 10 Jahre − 1 Tag */
 function zehnJahre(iso){ const d=new Date(iso+'T00:00:00Z'); if(!isFinite(d)) return ''; d.setUTCFullYear(d.getUTCFullYear()+10); d.setUTCDate(d.getUTCDate()-1); return d.toISOString().slice(0,10); }
@@ -173,17 +174,21 @@ function energiePflicht(E,heute){
   if(!E.traeger) f.push('wesentlicher Energieträger');
   if(E.wohn&&!E.bj) f.push('Baujahr laut Energieausweis');
   if(E.wohn&&!E.klasse) f.push('Energieeffizienzklasse');
-  if(heute>=EA_NEU&&!E.ausgestellt) f.push('Ausstellungsdatum des Energieausweises (ab 01.01.2027 entscheidet es über die Pflichtangaben)');
+  if(heute>=EA_NEU&&!E.ausgestellt&&E.jahrgang!=='2014') f.push('Ausstellungsdatum des Energieausweises (ab 01.01.2027 entscheidet es, welche Angaben Pflicht sind)');
   return f;
 }
+/* Fundstelle der Pflichtangaben: bis 31.12.2026 und für neue Ausweise § 87, ab 01.01.2027 für ältere Ausweise § 112 Abs. 3 (Nichtwohngebäude
+   Wärme und Strom Abs. 4) GModG n. F. */
+function energieNorm(E,heute){ heute=isoDatum(heute)||new Date().toISOString().slice(0,10); if(heute<EA_NEU||energieNeu(E)) return '§ 87 GModG';
+  return E&&!E.wohn?'§ 112 Abs. 3 und 4 GModG':'§ 112 Abs. 3 GModG'; }
 /* Hinweise zum Energieausweis: [{stufe:'rot'|'gelb', text}] — Gültigkeit (§ 79 Abs. 3), Ausnahmen (§ 79 Abs. 4), Ausweisart */
 function energieHinweise(E,heute,o){
   heute=isoDatum(heute)||new Date().toISOString().slice(0,10); o=o||{}; const l=[];
   if(E.jahrgang==='2008') l.push({stufe:'rot',text:'Vor dem 01.05.2014 ausgestellte Energieausweise sind abgelaufen (zehn Jahre, § 79 Abs. 3 GModG) — für den Verkauf einen neuen ausstellen lassen.'});
   else if(/Bedarf|Verbrauch/.test(E.art)&&E.gueltigBis&&E.gueltigBis<heute) l.push({stufe:'rot',text:'Energieausweis abgelaufen (gültig bis '+E.gueltigBis.split('-').reverse().join('.')+') — für den Verkauf ist ein gültiger Ausweis nötig (§ 79 Abs. 3, § 80 Abs. 3 GModG).'});
   if(/Bedarf|Verbrauch/.test(E.art)&&!E.ausgestellt) l.push({stufe:heute>=EA_NEU?'rot':'gelb',text:'Ausstellungsdatum des Energieausweises eintragen — es bestimmt Gültigkeit und, ab 01.01.2027, die Pflichtangaben in Anzeigen.'});
-  if(E.jahrgang==='nicht_noetig'&&heute>=EA_NEU) l.push({stufe:o.denkmal?'rot':'gelb',text:'Seit 01.01.2027 brauchen auch Baudenkmäler einen Energieausweis; ausgenommen bleiben kleine Gebäude bis 50 m² Nutzfläche (§ 79 Abs. 4 GModG).'});
-  if(energieNeu(E)&&/Verbrauch/.test(E.art)&&!E.wohn) l.push({stufe:'gelb',text:'Verbrauchsausweise gibt es seit 01.01.2027 nur für reine Wohngebäude (§ 82 Abs. 1 GModG) — Ausweis prüfen.'});
+  if(E.jahrgang==='nicht_noetig'&&heute>=EA_NEU) l.push({stufe:o.denkmal?'rot':'gelb',text:'Seit 01.01.2027 brauchen auch Baudenkmäler einen Energieausweis; ausgenommen sind nur kleine Gebäude unter 50 m² Nutzfläche (§ 3 Abs. 1 Nr. 17, § 79 Abs. 4 GModG n. F.).'});
+  if(energieNeu(E)&&/Verbrauch/.test(E.art)&&!E.rein) l.push({stufe:'gelb',text:'Verbrauchsausweise gibt es seit 01.01.2027 nur für Gebäude, die ausschließlich Wohnzwecken dienen (§ 82 Abs. 1 GModG n. F.); gemischt genutzte Gebäude brauchen einen Bedarfsausweis nach § 81 (§ 80 Abs. 3 Satz 2 n. F.) — Ausweis prüfen.'});
   if(E.art==='liegt nicht vor'&&E.jahrgang!=='nicht_noetig') l.push({stufe:'gelb',text:'Beim Verkauf muss ein Energieausweis vorliegen und spätestens bei der Besichtigung vorgelegt werden (§ 80 Abs. 3 und 4 GModG).'});
   return l;
 }
@@ -291,8 +296,9 @@ function pruefen(x,anbieter){
   if(!x.geo.ort) fehler.push('Ort in der Anschrift (Eckdaten)');
   if(!x.kontakt.nachname) fehler.push('Name des Ansprechpartners');
   if(!x.kontakt.mail&&!x.kontakt.tel) fehler.push('E-Mail oder Telefon des Ansprechpartners');
-  energiePflicht(x.energie,x.heute).forEach(t=>fehler.push(t+' (Pflichtangabe nach § 87 GModG)'));
-  energieHinweise(x.energie,x.heute,{denkmal:x.denkmal}).forEach(h=>(h.stufe==='rot'?fehler:hinweise).push(h.text));
+  const eh=energieHinweise(x.energie,x.heute,{denkmal:x.denkmal}), datumRot=eh.some(h=>h.stufe==='rot'&&/^Ausstellungsdatum/.test(h.text));
+  energiePflicht(x.energie,x.heute).filter(t=>!(datumRot&&/^Ausstellungsdatum/.test(t))).forEach(t=>fehler.push(t+(/^Ausstellungsdatum/.test(t)?'':' (Pflichtangabe nach '+energieNorm(x.energie,x.heute)+')')));
+  eh.forEach(h=>(h.stufe==='rot'?fehler:hinweise).push(h.text));
   if(!(x.preis>0)) hinweise.push('Kein Preis — im Portal steht „Preis auf Anfrage“.');
   if(x.bilderGeprueft&&!x.bilder.length) hinweise.push('Keine Bilder ausgewählt (Exposé → Fotos).');
   if(!x.texte.objekt) hinweise.push('Keine Objektbeschreibung.');
@@ -356,7 +362,7 @@ function xml(objekte,anbieter,o){
       ['openimmo_anid',anbieter.anid||anid(jetzt,''),null,true]].concat((objekte||[]).map(immobilieKnoten))]]],0);
 }
 
-const ImmoPortal={FORMAT,ARTEN,JAHRGAENGE,EA_NEU,esc,dez,anschrift,artVorschlag,kategorie,traegerKennung,energie,energiePflicht,energieHinweise,energieZeile,energieNeu,zehnJahre,ausstattungText,etage,
+const ImmoPortal={FORMAT,ARTEN,JAHRGAENGE,EA_NEU,esc,dez,anschrift,artVorschlag,kategorie,traegerKennung,energie,energiePflicht,energieHinweise,energieZeile,energieNeu,energieNorm,zehnJahre,ausstattungText,etage,
   bildAuswahl,objekt,pruefen,xml,obid,anid,objektnrVorschlag,dateiTeil,leser};
 wurzel.ImmoPortal=ImmoPortal;
 if(typeof module==='object'&&module.exports) module.exports=ImmoPortal;

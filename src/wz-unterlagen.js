@@ -190,7 +190,7 @@ function ulDokument(){
         +(v.unterschrift?'<img src="'+v.unterschrift+'" alt="Unterschrift">':'<div style="height:60px"></div>')+'<p>'+sEsc(v.name||'Eigentümer')+'</p></div></div>'};
   }
   if(was&&was.startsWith('anf:')){
-    let [,stelle,keys]=was.split(':'), l=keys.split(',').map(k=>UL_LISTE.find(x=>x[0]===k)).filter(Boolean);
+    let [,stelle,keys]=was.split(':'), alle=ulPosten(r), l=keys.split(',').map(k=>(alle.find(p=>p.x[0]===k)||{}).x).filter(Boolean);   // auch Zusatzposten (D49)
     return {titel:'Anforderung '+ulStellenName(stelle)+' '+name,ohneFuss:true,pflicht:true,
       html:'<div class="pa-briefkopf"><div class="pa-absender">'+sEsc([abs.name,abs.firma].filter(Boolean).join(' · ')||'[Absender]')+'</div>'
         +'<div class="pa-empfaenger">'+sEsc(ulStellenName(stelle))+'<br>[Anschrift]</div><div class="pa-daten">'+wzDokTabelle([['Datum',new Date().toLocaleDateString('de-DE')]].concat(abs.tel?[['Telefon',sEsc(abs.tel)]]:[]).concat(abs.mail?[['E-Mail',sEsc(abs.mail)]]:[]))+'</div></div>'

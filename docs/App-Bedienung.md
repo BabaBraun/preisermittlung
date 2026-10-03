@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 26 Werkzeug-Kacheln in vier Bereichen (Akquise & Vermarktung, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 35 Werkzeug-Kacheln in fünf Bereichen (Akquise & Vermarktung, Objekt & Unterlagen, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,8 +125,8 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Sechsundzwanzig Kacheln auf der Startseite in vier Bereichen mit eigener Farbe — Akquise & Vermarktung, Abschluss, Beratung,
-Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
+Fünfunddreißig Kacheln auf der Startseite in fünf Bereichen mit eigener Farbe — Akquise & Vermarktung, Objekt & Unterlagen,
+Abschluss, Beratung, Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
 - **Beim Kunden ablegen:** schreibt eine kurze Zusammenfassung als Gesprächsnotiz in die Kundenakte.

@@ -35,10 +35,11 @@ function norm(k){
   e.bk=Object.assign({erhalten:false,aehnlich:false,hinweisAm:''},e.bk&&typeof e.bk==='object'?e.bk:{});
   t.verwendungen=(Array.isArray(t.verwendungen)?t.verwendungen:[]).map(iso).filter(Boolean).sort();
   let migriert=false;
-  if(!w.email&&!w.telefon&&k.grundlage==='einwilligung'){
+  if(!(k.werbung&&typeof k.werbung==='object')&&k.grundlage==='einwilligung'){   // nur Akten aus der Zeit vor D51
     [e,t].forEach(x=>{ x.stand='einwilligung'; x.erteiltAm=iso(k.einwilligungAm); x.form=ALT; }); migriert=true; }
   const ds=w.dsinfo&&typeof w.dsinfo==='object'?Object.assign({art:'direkt',erhobenAm:'',erteiltAm:'',bereits:false,fundstelle:'',quelle:'',erlangtAm:''},w.dsinfo):null;
-  return {verbraucher:w.verbraucher!==false,email:e,telefon:t,widerspruch:Object.assign({am:'',weg:'',bestaetigtAm:''},w.widerspruch||{}),dsinfo:ds,migriert};
+  return {verbraucher:w.verbraucher!==false,email:e,telefon:t,widerspruch:Object.assign({am:'',weg:'',bestaetigtAm:''},w.widerspruch||{}),dsinfo:ds,
+    verlauf:Array.isArray(w.verlauf)?w.verlauf.map(x=>Object.assign({},x)):[],migriert};
 }
 function sperre(w){ return w.widerspruch.am?{ok:false,stufe:'rot',grund:'Werbewiderspruch vom '+de(w.widerspruch.am)+' — keine Werbung über alle Kanäle (Art. 21 Abs. 3 DSGVO)'}:null; }
 /* Nachweis vollständig? (§ 7a Abs. 1 UWG, Art. 7 Abs. 1 DSGVO) */
@@ -69,7 +70,7 @@ function darfTelefon(k){
 function darfPost(k){ const w=norm(k), s=sperre(w); return s||{ok:true,stufe:'gruen',grund:'Werbebriefe ohne Einwilligung zulässig, solange kein Widerspruch vorliegt'}; }
 /* § 7a Abs. 2 UWG: fünf Jahre ab Erteilung und nach jeder Verwendung; der Widerruf beendet die Frist nicht */
 function aufbewahrenBis(k){
-  const t=norm(k).telefon; if(t.stand!=='einwilligung'&&t.stand!=='widerrufen') return '';
+  const t=norm(k).telefon; if(t.stand==='mutmasslich') return '';   // auch nach Widerruf oder Zurücksetzen: Nachweis bleibt aufzubewahren
   const l=[iso(t.erteiltAm)].concat(t.verwendungen).filter(Boolean).sort(); if(!l.length||!F) return '';
   return F.fristMonate(l[l.length-1],60);
 }
@@ -105,6 +106,7 @@ function auskunft(k){
   kz('E-Mail',w.email,w.email.stand==='bestandskunde'?', Hinweis auf das Widerspruchsrecht am '+(de(w.email.bk.hinweisAm)||'–'):'');
   kz('Telefon',w.telefon,(w.telefon.verwendungen.length?', werbliche Anrufe: '+w.telefon.verwendungen.map(de).join(', '):'')+(w.telefon.mutmasslichGrund?', Grund: '+w.telefon.mutmasslichGrund:''));
   z.push('Post: '+(w.widerspruch.am?'gesperrt':'Werbebriefe ohne Einwilligung, solange kein Widerspruch'));
+  w.verlauf.forEach(v=>z.push('Früherer Werbewiderspruch: am '+de(iso(v.am))+(v.weg?' ('+v.weg+')':'')+(v.aufgehobenAm?', aufgehoben am '+de(iso(v.aufgehobenAm)):'')));
   z.push('Werbewiderspruch: '+(w.widerspruch.am?'am '+de(w.widerspruch.am)+(w.widerspruch.weg?' ('+w.widerspruch.weg+')':'')+(w.widerspruch.bestaetigtAm?', bestätigt am '+de(w.widerspruch.bestaetigtAm):''):'keiner'));
   const d=w.dsinfo;
   if(d) z.push('Datenschutzinformation: '+((DS_ARTEN.find(a=>a[0]===d.art)||['',d.art])[1])+(d.quelle?', Quelle: '+d.quelle:'')+(d.erlangtAm?', erhalten am '+de(d.erlangtAm):'')

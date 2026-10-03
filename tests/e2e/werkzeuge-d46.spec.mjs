@@ -41,7 +41,7 @@ test('Rundschreiben: Suchkunden zum Objekt, Serienbrief je Empfänger, Bcc nur m
   const mail = await page.evaluate(() => { const S = rsS(); return { an: rsMailEmpfaenger(S).map(k => k.email), text: rsMailText(S).text }; });
   expect(mail.an).toEqual(['erika@example.org']);
   expect(mail.text.startsWith('Guten Tag,\n')).toBe(true);
-  expect(mail.text).toContain('Eine kurze Antwort auf diese E-Mail genügt.');
+  expect(mail.text).toContain('jederzeit widersprechen, zum Beispiel mit einer kurzen Antwort auf diese E-Mail');
   // alle mit Einwilligung: Ida kommt dazu, Max nicht
   await page.locator('#wz_rundschreiben_gruppe').selectOption('werbung');
   await expect(tab).toContainText('Ida Ohneprofil');

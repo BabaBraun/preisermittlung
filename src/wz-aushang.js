@@ -26,7 +26,7 @@ function ahZeichnen(){
   return wzBox('Aushang','<div class="ka-schalter" role="group" aria-label="Aufbau">'+[['einzeln','Ein Objekt'],['uebersicht','Übersicht']].map(([k,t])=>'<button type="button" class="'+(S.layout===k?'primary':'secondary')+'" aria-pressed="'+(S.layout===k)+'" onclick="ahS().layout=\''+k+'\';wzSpeichern();wzZeichnen()">'+t+'</button>').join('')+'</div>'
       +'<div style="margin-top:10px">'+wahl+'</div>'
       +'<div class="grid" style="margin-top:6px">'+wzFeld('strasse','Straße zeigen (sonst nur der Ort)',{typ:'check'})+wzFeld('zusatz','Zusatzzeile (optional)',{typ:'text',ph:'z. B. Besichtigung nach Vereinbarung'})+'</div>'
-      +(pr.length?pr.map(x=>(x.f.length?wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': Es fehlt '+sEsc(x.f.join(', '))+' (Pflichtangabe nach § 87 GModG) — im Exposé der Bewertung ergänzen, Ausstellungsdatum und Primärenergie im Portal-Export.'):'')
+      +(pr.length?pr.map(x=>(x.f.length?wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': Es fehlt '+sEsc(x.f.join(', '))+' (Pflichtangabe nach '+ImmoPortal.energieNorm(wzdEnergie(x.id),aufHeute())+') — im Exposé der Bewertung ergänzen, Ausstellungsdatum und Primärenergie im Portal-Export.'):'')
           +x.h.map(t=>wzAmpel('rot',sEsc(wzdObjektName(x.id,''))+': '+sEsc(t))).join('')).join('')
         :ahIds(S).length?wzAmpel('gruen','Pflichtangaben zum Energieausweis vollständig.'):'')
       +'<div class="gr-zeile"><button type="button" class="primary" onclick="ahAnzeigen()" data-ic="printer">Aushang anzeigen</button></div>')

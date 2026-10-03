@@ -171,12 +171,12 @@ function kaRechnen(){ iconify($('wz_body')); document.querySelectorAll('#wz_body
    Verkäufer oder Makler legen den Ausweis oder eine Kopie spätestens bei der Besichtigung vor; ein deutlich sichtbarer Aushang
    oder Auslegen genügt (§ 80 Abs. 4 Satz 1 und 2 GModG). Verstoß: Bußgeld bis 10.000 Euro (§ 108 Abs. 1 Nr. 18, Abs. 2 Nr. 2). */
 const KA_EA=[['','– noch nicht festgehalten'],['original','Original vorgelegt'],['kopie','Kopie vorgelegt'],['aushang','deutlich sichtbar ausgehängt oder ausgelegt'],
-  ['ausnahme','nicht nötig (kleines Gebäude bis 50 m²; Baudenkmal nur bis 31.12.2026)']];
+  ['ausnahme','nicht nötig (kleines Gebäude: ab 01.01.2027 unter 50 m² Nutzfläche; Baudenkmal nur bis 31.12.2026)']];
 function kaEaText(t){ let x=KA_EA.find(a=>a[0]===t.eaVorlage); return x&&x[0]?x[1]:''; }
 function kaEaHtml(t){
   let tag=wzdDatum(t.datum)||aufHeute(), E=t.projektId?wzdEnergie(t.projektId):null, zeile='', rot=[];
   if(E){ zeile=ImmoPortal.energieZeile(E); rot=ImmoPortal.energieHinweise(E,tag).filter(h=>h.stufe==='rot').map(h=>h.text); }
-  let amp=t.eaVorlage==='ausnahme'&&tag>='2027-01-01'?wzAmpel('gelb','Seit 01.01.2027 gilt die Ausnahme nur noch für kleine Gebäude bis 50 m² Nutzfläche (§ 79 Abs. 4 GModG).')
+  let amp=t.eaVorlage==='ausnahme'&&tag>='2027-01-01'?wzAmpel('gelb','Seit 01.01.2027 gilt die Ausnahme nur noch für kleine Gebäude unter 50 m² Nutzfläche (§ 3 Abs. 1 Nr. 17, § 79 Abs. 4 GModG n. F.).')
     :t.eaVorlage?wzAmpel('gruen','Festgehalten: '+sEsc(kaEaText(t))+'.')
     :tag<aufHeute()?wzAmpel('rot','Termin vorbei — die Vorlage des Energieausweises ist nicht festgehalten (§ 80 Abs. 4 GModG, Bußgeld nach § 108).')
     :wzAmpel('gelb','Spätestens bei der Besichtigung vorlegen; ein deutlich sichtbarer Aushang oder Auslegen genügt (§ 80 Abs. 4 GModG).');

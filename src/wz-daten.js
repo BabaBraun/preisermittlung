@@ -105,11 +105,13 @@ function wzdNamenTeile(text){ return String(text||'').split(/\s*(?:[,;&+\/]|\bun
 function wzdNameSchluessel(text){ return String(text||'').toLowerCase().split(/[^a-zäöüß]+/).filter(t=>t.length>1).sort().join(' '); }
 function wzdNameGleich(text,k){
   if(!k||!text) return false;
-  let ziele=[wzdNameSchluessel([k.vorname,k.nachname].filter(Boolean).join(' ')),wzdNameSchluessel(k.firma)].filter(Boolean);
+  let ziele=[wzdNameSchluessel([k.vorname,k.nachname].filter(Boolean).join(' ')),wzdNameSchluessel(k.firma),
+    wzdNameSchluessel([k.vorname,k.nachname,k.firma].filter(Boolean).join(' '))].filter(Boolean);
   if(!ziele.length) return false;
-  let ganz=wzdNameSchluessel(text);
-  if(ziele.includes(ganz)) return true;
-  return wzdNamenTeile(text).some(t=>ziele.includes(wzdNameSchluessel(t)));
+  if(ziele.includes(wzdNameSchluessel(text))) return true;
+  // Teile und benachbarte Paare („Muster, Erika, Probe, Max“); ein einzelnes Wort (nur Nachname) genügt nicht
+  let t=wzdNamenTeile(text), kand=t.concat(t.slice(1).map((x,i)=>t[i]+' '+x));
+  return kand.some(x=>{ let s=wzdNameSchluessel(x); return s.indexOf(' ')>0&&ziele.includes(s); });
 }
 function wzdKunde(id){ return id&&typeof KD_CACHE!=='undefined'?KD_CACHE.find(k=>k.id===id)||null:null; }
 function wzdKundeName(id){ let k=wzdKunde(id); return k?kdName(k):(id?'(Kunde gelöscht)':''); }

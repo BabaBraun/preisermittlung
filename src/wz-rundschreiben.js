@@ -7,7 +7,8 @@
    nichts selbst; „In der Kundenakte vermerken“ legt bei allen Empfängern eine Notiz ab. Gespeichert werden nur die Auswahl
    (Kunden-Ids) und Einstellungen — die Personen stehen in der Kundenakte. */
 const RS_GRUPPEN=[['such','Suchkunden zu einem Objekt'],['werbung','Alle mit Einwilligung zur Werbung'],['eigentuemer','Eigentümer der Objekte in Vermarktung'],['auswahl','Selbst auswählen']];
-const RS_ABMELDEN='Sie möchten keine Angebote mehr per E-Mail? Eine kurze Antwort auf diese E-Mail genügt.';
+/* jederzeit widersprechen, ohne andere als die Übermittlungskosten nach den Basistarifen (§ 7 Abs. 3 Nr. 4 UWG) — erfüllt auch § 7 Abs. 2 Nr. 3 lit. c */
+const RS_ABMELDEN='Sie können der Verwendung Ihrer E-Mail-Adresse für Angebote jederzeit widersprechen, zum Beispiel mit einer kurzen Antwort auf diese E-Mail; dafür entstehen Ihnen keine anderen als die Übermittlungskosten nach den Basistarifen.';
 function rsStart(){ return {gruppe:'such',projektId:'',vorlage:'expose',auswahl:[],ohne:[],filter:''}; }
 function rsS(){ let S=wzZustand('rundschreiben'); ['auswahl','ohne'].forEach(k=>{ if(!Array.isArray(S[k])) S[k]=[]; }); return S; }
 function rsEinwilligung(k){ return !!k&&ImmoWerbung.darfEmail(k).ok; }   // D51: Einwilligung je Kanal (js/werbung.js)
@@ -83,7 +84,8 @@ function rsAdressen(){
   try{ navigator.clipboard.writeText(l.map(k=>k.email).join('; ')).then(()=>{ iaHinweis(l.length+' Adressen kopiert — ins Bcc-Feld einfügen'); setTimeout(()=>iaHinweis(''),2400); }); }catch(e){}
 }
 async function rsVermerken(){
-  let S=rsS(), e=rsEmpfaenger(S), v=rsVorlage(S); if(!e.length){ alert('Es ist kein Empfänger ausgewählt.'); return; }
+  let S=rsS(), v=rsVorlage(S), e=rsEmpfaenger(S).filter(x=>(rsEinwilligung(x.k)&&x.k.email)||(x.k.strasse&&x.k.plzort&&rsBriefErlaubt(S,x.k)));   // nur, wer etwas bekommt
+  if(!e.length){ alert('Kein ausgewählter Empfänger bekommt das Schreiben (keine Einwilligung per E-Mail, keine Anschrift oder Werbewiderspruch).'); return; }
   if(!confirm('Bei '+e.length+' Empfänger'+(e.length===1?'':'n')+' eine Notiz „Rundschreiben: '+v.titel+'“ in der Kundenakte ablegen?')) return;
   let n=0; for(const x of e){ if(await wzdNotiz(x.k.id,'Rundschreiben',v.titel+(S.projektId?' — '+wzdObjektName(S.projektId,''):''))) n++; }
   alert('Notiz bei '+n+' Empfänger'+(n===1?'':'n')+' abgelegt.');
@@ -91,7 +93,7 @@ async function rsVermerken(){
 /* Serienbrief: je Empfänger eine Seite (Seitenumbruch auch im Word-Export) */
 function rsDokument(){
   let S=rsS(), e=rsEmpfaenger(S).filter(x=>x.k.strasse&&x.k.plzort&&rsBriefErlaubt(S,x.k));
-  if(!e.length){ alert('Keiner der Empfänger hat eine vollständige Anschrift — für E-Mails „E-Mail an alle (Bcc)“ nehmen.'); return null; }
+  if(!e.length){ alert('Kein Empfänger darf einen Brief bekommen (Anschrift fehlt oder Werbewiderspruch) — für E-Mails „E-Mail an alle (Bcc)“ nehmen.'); return null; }
   let abs=typeof wzAbsenderKontakt==='function'?wzAbsenderKontakt():typeof ulAbsender==='function'?ulAbsender():{}, v=rsVorlage(S);
   return {titel:'Serienbrief '+v.titel,ohneFuss:true,
     html:e.map(({k},i)=>{ let f=rsFuellen(S,k);

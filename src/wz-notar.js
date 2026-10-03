@@ -302,7 +302,7 @@ wzRegistrieren({id:'notar',titel:'Notarauftrag',sub:'Angaben für den Kaufvertra
 /* ---------- Kundenakte: Auskunft und Löschen (D48) ----------
    Ein Kunde steckt in einem Notarauftrag, wenn eine Person mit seiner Kunden-Id verknüpft ist oder — bei älteren Aufträgen —
    denselben Namen trägt. Beim Löschen bleiben vom Eintrag nur „(Kunde gelöscht)“ und die Rolle; der Auftrag selbst bleibt. */
-function noTrifft(x,k){ return !!x&&((!!x.kundeId&&x.kundeId===k.id)||wzdNameGleich(x.name,k)); }
+function noTrifft(x,k){ return !!x&&(x.kundeId?x.kundeId===k.id:wzdNameGleich(x.name,k)); }   // Name nur bei Einträgen ohne Kunden-Id
 function noTreffer(k){ return (NO.liste||[]).map(p=>({p,rollen:NO_ROLLEN.filter(([r])=>(p[r]||[]).some(x=>noTrifft(x,k))||(r==='verkaeufer'&&p.kundeId===k.id))})).filter(x=>x.rollen.length); }
 KD_AUSKUNFT_HOOKS.push(async id=>{
   let k=wzdKunde(id); if(!k) return [];
@@ -313,12 +313,14 @@ KD_AUSKUNFT_HOOKS.push(async id=>{
 });
 KD_LOESCH_HOOKS.push(async id=>{
   let k=wzdKunde(id); if(!k) return;
-  await noLaden();
-  for(const {p} of noTreffer(k)){
+  if(NO.aktiv){ clearTimeout(NO.timer); await noSpeichernJetzt(); }   // offenen Stand sichern, dann frisch laden
+  await noLaden(); let treffer=noTreffer(k);
+  for(const {p} of treffer){
     NO_ROLLEN.forEach(([r])=>{ p[r]=(p[r]||[]).map(x=>noTrifft(x,k)?Object.assign(noPerson(),{name:'(Kunde gelöscht)'}):x); });
     if(p.kundeId===id) p.kundeId='';
     p.geaendert=Date.now();
     try{ await iaPut('notar',JSON.parse(JSON.stringify(p))); }catch(e){}
   }
+  if(NO.aktiv){ let t=treffer.find(x=>x.p.id===NO.aktiv.id); if(t) NO.aktiv=t.p; }   // sonst schriebe der offene Editor die alten Namen zurück
   NO.liste=null;
 });

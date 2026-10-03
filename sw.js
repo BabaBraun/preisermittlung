@@ -1,4 +1,4 @@
-const CACHE = 'immoapp-e4a1ece30014';
+const CACHE = 'immoapp-db2fd2c69cb6';
 const ASSETS = [
   './',
   './Wertermittlung.html',
@@ -124,7 +124,9 @@ const ASSETS = [
   './src/wz-weitergabe.js',
   './src/wz-wertmonitor.js',
   './vendor/html2pdf.bundle.min.js',
-  './vendor/pdfjs/LICENSE'
+  './vendor/pdfjs/LICENSE',
+  './vendor/pdfjs/pdf.min.mjs',
+  './vendor/pdfjs/pdf.worker.min.mjs'
 ];
 // Fehlende Dateien dürfen keine unvollständige neue Version aktivieren. Frisch vom Server laden (cache: 'reload'):
 // sonst könnte der Browser-Cache (GitHub Pages erlaubt 10 Minuten) alte Dateien in die neue Version legen.

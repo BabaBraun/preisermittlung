@@ -319,7 +319,8 @@ function gwgNotarAmpelHtml(p){
   if(!p||!wzdBereit()) return '';
   let r=gwgNotarPruefen(p), los=r.o?' <button type="button" class="secondary fp-los" onclick="wzOeffnen(\'gwg\');gwgOeffnen(\''+idSicher(r.o.id)+'\')">Geldwäsche-Prüfung</button>':'';
   if(r.fehlen.length) return wzAmpel('rot','Geldwäsche-Prüfung: noch nicht identifiziert — '+sEsc(r.fehlen.map(x=>(x.name||wzdKundeName(x.kundeId)||'ohne Namen')+' ('+gwSeiteName(x.seite)+')').join(', '))+' (§ 11 Abs. 2 GwG).'+los);
-  return gwNotarPersonen([p]).length?wzAmpel('gruen','Geldwäsche-Prüfung: Alle Personen dieses Notarauftrags sind identifiziert.'+los):'';
+  // grün nur, wenn es zu prüfende Personen gibt (gelöschte Kunden zählen nicht)
+  return ImmoGwgRegeln.notarAbgleich(gwNotarPersonen([p]),r.v?r.v.personen:[],gwNameGleich,r.v||{}).length?wzAmpel('gruen','Geldwäsche-Prüfung: Alle Personen dieses Notarauftrags sind identifiziert.'+los):'';
 }
 /* Warnung beim Wechsel des Notarauftrags von „Entwurf“ auf „An das Notariat übermittelt“ (oder einen späteren Stand) — nur Hinweis,
    keine Sperre (ob die App sperren darf, entscheidet die Bank, § 10 Abs. 9 GwG). Läuft in der Capture-Phase, also bevor die Kachel

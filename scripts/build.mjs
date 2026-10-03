@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 const WURZEL=['index.html','Wertermittlung.html','manifest.webmanifest','selbsttest.js','icons','assets','js','src','vendor'];
 async function dateien(p){ const s=await stat(p); if(!s.isDirectory()) return [p];
   const aus=[]; for(const e of await readdir(p,{withFileTypes:true})) aus.push(...await dateien(p+'/'+e.name)); return aus; }
-const alle=(await Promise.all(WURZEL.map(dateien))).flat().filter(p=>!p.endsWith('.mjs')&&!p.endsWith('.md')).sort();
+const alle=(await Promise.all(WURZEL.map(dateien))).flat().filter(p=>!(p.endsWith('.mjs')&&!p.startsWith('vendor/'))&&!p.endsWith('.md')).sort();   // .mjs nur aus vendor/ (pdf.js, D53)
 /* Textdateien mit einheitlichen Zeilenenden hashen: Windows (CRLF) und GitHub Actions (LF) ergeben dieselbe Version */
 const TEXT=/\.(html|js|css|json|webmanifest|txt|svg)$/i;
 const hash=createHash('sha256');

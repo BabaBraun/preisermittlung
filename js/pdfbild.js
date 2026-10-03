@@ -4,7 +4,9 @@
      (Kopf, Objekte, Querverweistabelle mit 20 Byte je Eintrag, Trailer, startxref).
    - treffer(items, suche): Textstücke einer Seite (aus pdf.js, Lage als Anteil der Seite 0 … 1), die den Suchbegriff oder ein
      Muster (IBAN, E-Mail, Telefonnummer, Datum) enthalten; die Fläche wird anteilig nach Zeichen geschätzt und um ein Zeichen
-     verbreitert — lieber etwas zu viel schwärzen als zu wenig. Treffer über zwei Textstücke hinweg findet die Suche nicht. */
+     verbreitert — lieber etwas zu viel schwärzen als zu wenig. Treffer über zwei Textstücke hinweg findet die Suche nicht.
+     Textstücke mit geo {ox, oy, dx, dy, ux, uy, len, h, W, H} (Ursprung, Lauf- und Höhenrichtung in Seitenpunkten) liegen auch auf
+     gedrehten Seiten oder senkrecht richtig: Fläche = umschließendes Rechteck der vier Ecken. Formularfelder (feld) ganz. */
 (function(wurzel){
 'use strict';
 const MUSTER={
@@ -34,7 +36,13 @@ function pdfAusJpegs(seiten){
   dazu(x+'trailer\n<< /Size '+anzahl+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF\n');
   const aus=new Uint8Array(n); let o=0; for(const t of teile){ aus.set(t,o); o+=t.length; } return aus;
 }
-/* items: [{str, x, y, w, h}] (Anteile der Seite); suche: Text oder Name eines Musters → Flächen [{x, y, w, h, text}] */
+/* umschließendes Rechteck (Anteile der Seite) eines Abschnitts von r0 bis r1 entlang des Laufs, Höhe −0,25 h bis 1,1 h */
+function huelle(g,r0,r1){
+  const p=[[r0,-0.25*g.h],[r1,-0.25*g.h],[r0,1.1*g.h],[r1,1.1*g.h]].map(([r,q])=>[g.ox+g.dx*r+g.ux*q,g.oy+g.dy*r+g.uy*q]);
+  const xs=p.map(x=>x[0]), ys=p.map(x=>x[1]), x0=Math.min(...xs), y0=Math.min(...ys);
+  return {x:x0/g.W,y:y0/g.H,w:(Math.max(...xs)-x0)/g.W,h:(Math.max(...ys)-y0)/g.H};
+}
+/* items: [{str, x, y, w, h, geo?, feld?}] (Anteile der Seite); suche: Text oder Name eines Musters → Flächen [{x, y, w, h, text}] */
 function treffer(items,suche){
   const aus=[]; let re=null;
   if(MUSTER[suche]) re=new RegExp(MUSTER[suche].source,'g');
@@ -43,12 +51,14 @@ function treffer(items,suche){
     const s=String(it&&it.str||''); if(!s||!(it.w>0)||!(it.h>0)) return; re.lastIndex=0; let m;
     while((m=re.exec(s))){ if(!m[0]) { re.lastIndex++; continue; }
       if(suche==='telefon'&&/\d ?$/.test(s.slice(0,m.index))) continue;   // Ziffernblock mitten in IBAN oder Nummer
-      const z=it.w/s.length, a=Math.max(0,m.index-1), e=Math.min(s.length,m.index+m[0].length+1);
-      aus.push({x:it.x+a*z,y:it.y-it.h*0.15,w:(e-a)*z,h:it.h*1.35,text:m[0]}); }
+      const a=Math.max(0,m.index-1), e=Math.min(s.length,m.index+m[0].length+1);
+      if(it.feld) aus.push({x:it.x,y:it.y,w:it.w,h:it.h,text:m[0]});   // Formularfeld: ganz
+      else if(it.geo){ const z=it.geo.len/s.length; aus.push(Object.assign(huelle(it.geo,a*z,e*z),{text:m[0]})); }
+      else { const z=it.w/s.length; aus.push({x:it.x+a*z,y:it.y-it.h*0.15,w:(e-a)*z,h:it.h*1.35,text:m[0]}); } }
   });
   return aus;
 }
-const ImmoPdfBild={MUSTER,pdfAusJpegs,treffer};
+const ImmoPdfBild={MUSTER,pdfAusJpegs,treffer,huelle};
 wurzel.ImmoPdfBild=ImmoPdfBild;
 if(typeof module==='object'&&module.exports) module.exports=ImmoPdfBild;
 })(typeof globalThis!=='undefined'?globalThis:this);

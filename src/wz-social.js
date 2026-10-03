@@ -58,9 +58,11 @@ async function soLaden(id){
 async function soRechnen(S){
   S=S||soS(); if(!$('so_canvas')||!wzdObjekt(S.objekt)) return;
   let lauf=++SO.laeuft, d=await soLaden(S.objekt); if(lauf!==SO.laeuft||!d) return;
-  let fehlt=ImmoPortal.energiePflicht(d.o.energie,aufHeute()).concat(ImmoPortal.energieHinweise(d.o.energie,aufHeute(),{denkmal:d.o.denkmal}).filter(h=>h.stufe==='rot').map(h=>h.text));
-  wzH('so_pflicht',fehlt.length?wzAmpel('rot','Pflichtangaben zum Energieausweis fehlen (§ 87 GModG): '+sEsc(fehlt.join(', '))+' — in der Bewertung ergänzen.')
-    :wzAmpel('gruen','Pflichtangaben zum Energieausweis vollständig (§ 87 GModG).'));
+  let E=d.o.energie, h=aufHeute(), norm=ImmoPortal.energieNorm(E,h), fehlt=ImmoPortal.energiePflicht(E,h), rot=ImmoPortal.energieHinweise(E,h,{denkmal:d.o.denkmal}).filter(x=>x.stufe==='rot');
+  if(rot.some(x=>/^Ausstellungsdatum/.test(x.text))) fehlt=fehlt.filter(x=>!/^Ausstellungsdatum/.test(x));   // nicht doppelt melden
+  wzH('so_pflicht',(fehlt.length?wzAmpel('rot','Pflichtangaben zum Energieausweis fehlen ('+norm+'): '+sEsc(fehlt.join(', '))+' — im Exposé der Bewertung ergänzen, Ausstellungsdatum und Primärenergie im Portal-Export.'):'')
+    +rot.map(x=>wzAmpel('rot',sEsc(x.text))).join('')
+    +(!fehlt.length&&!rot.length?wzAmpel('gruen','Pflichtangaben zum Energieausweis vollständig ('+norm+').'):''));
   let t=$('so_text'); if(t&&document.activeElement!==t) t.value=S.texte[S.objekt]||soText(d,S);
   soMalen($('so_canvas'),d,S);
 }
