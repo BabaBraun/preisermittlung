@@ -128,8 +128,9 @@ PDF_SCHRIFT=Verdana npx playwright test pdf   # PDF-Umbrüche mit breiterer Ersa
 - **Python-Prüfskripte** (`tests/referenz/pruefe_*.py`) öffnen die erzeugten Dateien mit unabhängigen
   Bibliotheken. Auf ihre Standardausgabe geht nur das JSON-Ergebnis; Meldungen der Bibliotheken landen auf
   stderr. Jede andere Ausgabe lässt den Test mit vollständiger stdout-/stderr-Ausgabe scheitern.
-- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`), den Klicktest für PC und
-  iPhone zusätzlich in einem eigenen Ablauf (`.github/workflows/klicktest.yml`, auch wöchentlich), im offiziellen
+- **GitHub Actions** führt beides bei jedem Push aus (`.github/workflows/tests.yml`). Den Klicktest für PC und
+  iPhone (`.github/workflows/klicktest.yml`) gibt es nur noch auf Anfrage: Actions → Klicktest → „Run workflow“,
+  im Feld „Bereiche“ auf neue oder geänderte Bereiche beschränkbar. Beide laufen im offiziellen
   Playwright-Image mit fertig installierten Browsern. Dessen Version muss zu `@playwright/test` in
   `package.json` passen — beim Aktualisieren beide ändern; `npm test` prüft das.
 - Alle Testdaten sind synthetisch.

@@ -1,15 +1,17 @@
 name: Klicktest
 
-# Die ganze App wird durchgeklickt (tests/klick/klicktest.mjs): jeder Knopf, jedes Feld, jedes Auf- und Zuklappen —
-# am PC (Chromium) und in der iPhone-Ansicht (WebKit). Dauert länger als die übrigen Tests (rund eine Stunde je Gerät),
-# deshalb ein eigener Ablauf; ein neuerer Stand bricht den laufenden ab.
+# Die App wird durchgeklickt (tests/klick/klicktest.mjs): jeder Knopf, jedes Feld, jedes Auf- und Zuklappen —
+# am PC (Chromium) und in der iPhone-Ansicht (WebKit). Läuft nur noch auf Anfrage (Actions → Klicktest → „Run workflow“),
+# nicht mehr bei jedem Push oder wöchentlich: Die bestehenden Bereiche liefen oft genug ohne Befund (Wunsch von Fabian,
+# 04.10.2026). Mit „Bereiche“ lässt sich der Lauf auf neue oder geänderte Bereiche beschränken (sonst ganze App, rund eine
+# Stunde je Gerät). Ein neuerer Lauf bricht den laufenden ab.
 on:
-  push:
-    branches: [main]
-    paths-ignore: ['**.md', 'docs/**']
-  schedule:
-    - cron: '0 4 * * 1'   # montags früh, auch ohne Änderung (z. B. neue Browserfassungen)
   workflow_dispatch:
+    inputs:
+      nur:
+        description: 'Bereiche (Regex, z. B. "Makler|Schlüsselbuch"); leer = ganze App'
+        required: false
+        default: ''
 
 concurrency:
   group: klicktest-${{ github.ref }}
@@ -42,7 +44,9 @@ jobs:
         run: npm ci
 
       - name: Klicktest ${{ matrix.geraet }}
-        run: node tests/klick/klicktest.mjs ${{ matrix.geraet }}
+        env:
+          NUR: ${{ inputs.nur }}
+        run: node tests/klick/klicktest.mjs ${{ matrix.geraet }} ${NUR:+"--nur=$NUR"}
 
       - name: Bericht sichern
         if: always()
