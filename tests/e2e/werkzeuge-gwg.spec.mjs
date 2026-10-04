@@ -276,6 +276,8 @@ test('Geldwäsche-Prüfung: erkannter Maklervertrag löst die Verkäuferseite au
   await keineSkriptfehler(page);
 });
 
+const zwischen = (feld, wert) => feld.evaluate((e, w) => { e.value = w; e.dispatchEvent(new Event('input', { bubbles: true }));
+  e.dispatchEvent(new Event('change', { bubbles: true })); }, wert);   // Zwischenstand wie beim Tippen, ohne Systemsprache
 test('Geldwäsche-Prüfung: Datum per Tastatur ändern — Zwischenstand in der Zukunft löscht nichts, geprüft wird beim Verlassen (D63)', async ({ page }) => {
   const meldungen = dialoge(page);
   const pid = await verkauf(page);
@@ -287,12 +289,12 @@ test('Geldwäsche-Prüfung: Datum per Tastatur ändern — Zwischenstand in der 
   const feld = page.locator('#wz_gwg_personen_0_pepAm');
   await expect(feld).toHaveAttribute('max', '2026-09-29');
   await feld.focus();
-  await page.keyboard.type('30');   // Chromium: input/change mit 2026-09-03, dann 2026-09-30 (beim Wechsel zum Monat ist document.activeElement kurz body)
+  await zwischen(feld, '2026-09-03'); await zwischen(feld, '2026-09-30');   // Chromium meldet beim Tippen jeden Zwischenstand
   await expect(feld).toHaveValue('2026-09-30');
   expect(meldungen.join('\n')).not.toContain('Zukunft');
   await expect(page.locator('#gw_st_0')).toContainText('PEP-Abgleich im Banksystem erledigt (Datum liegt in der Zukunft)');
   await expect(feld).toBeFocused();
-  await page.keyboard.type('08');
+  await zwischen(feld, '2026-08-30');
   await expect(feld).toHaveValue('2026-08-30');
   await expect(page.locator('#gw_st_0')).toContainText('Vollständig im Banksystem dokumentiert.');
   await feld.blur();
@@ -302,8 +304,7 @@ test('Geldwäsche-Prüfung: Datum per Tastatur ändern — Zwischenstand in der 
   await expect.poll(async () => (await page.evaluate(async () => (await iaAlle('akten')).find(a => a.art === 'gwg'))).personen[0].pepAm).toBe('2026-08-30');
   // bleibt das Datum in der Zukunft, lehnt die App es beim Verlassen ab und nimmt den Abschluss zurück
   await feld.focus();
-  await page.keyboard.type('30');
-  await page.keyboard.type('09');
+  await zwischen(feld, '2026-08-03'); await zwischen(feld, '2026-09-30');
   await expect(feld).toHaveValue('2026-09-30');
   expect(meldungen.join('\n')).not.toContain('Zukunft');
   await feld.blur();
