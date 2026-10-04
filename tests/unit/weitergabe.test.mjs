@@ -141,6 +141,19 @@ test('Personenbezug entfernen und alte erledigte Weitergaben', () => {
   assert.deepEqual(a.verlauf, [{ datum: '2026-10-10', text: 'Stand: abgeschlossen' }]);
   assert.equal(a.anlass, 'baufinanzierung'); assert.equal(a.volumen, '300.000');
   assert.equal(w.kundeId, 'k1');                                    // Original unverändert
+  // D63: Objekt, Kaufpreis, Freigaben, Kollege und Verweis auf die Wiedervorlage gehen mit — nur, was die Auswertung braucht, bleibt
+  const voll = { ...w, id: 'we1', art: 'weitergabe', ts: 1, geaendert: 2, rueckmeldungAm: '2026-10-10', projektId: 'p_musterweg1', kaufpreis: '420.000',
+    volumen: '350000', freigabe: { kontakt: true, ort: true, kaufpreis: true }, kollegeId: 'c1', kollege: { name: 'Max Probe', bereich: 'baufinanzierung', filiale: 'Ilsfeld' },
+    wvId: 'aWV1', fremd: 'irgendwas' };
+  const b = R.anonymisieren(voll);
+  assert.deepEqual([b.projektId, b.kaufpreis, b.kollegeId, b.kollege, b.wvId], ['', '', '', null, '']);
+  assert.ok(Object.values(b.freigabe).every(x => x === false)); assert.deepEqual(Object.keys(b.freigabe), R.FREIGABEN.map(([k]) => k));
+  assert.equal(b.fremd, undefined);                                 // Unbekanntes geht nicht mit
+  assert.deepEqual([b.id, b.art, b.ts, b.geaendert, b.anlass, b.stand, b.datum, b.rueckmeldungAm, b.volumen],
+    ['we1', 'weitergabe', 1, 2, 'baufinanzierung', 'abgeschlossen', '2026-09-29', '2026-10-10', '350000']);
+  for (const t of ['p_musterweg1', '420.000', 'Max Probe', 'aWV1', 'Ilsfeld', 'k1', 'c1']) assert.ok(!JSON.stringify(b).includes(t), t);
+  assert.deepEqual(R.auswertung([b]), R.auswertung([voll]));        // die Auswertung bleibt gleich
+  assert.equal(R.fahrplanFinanzierung([b], 'p_musterweg1', { reserviert: true }), false);
   const l = [{ ...w, datum: '2025-08-01', rueckmeldungAm: '2025-09-01' }, { ...w, datum: '2025-08-01', rueckmeldungAm: '2025-10-15' }, { ...w, stand: 'termin', datum: '2025-01-01' }, a];
   assert.deepEqual(R.alteErledigte(l, '2026-10-03').map(x => x.rueckmeldungAm), ['2025-09-01']);
 });

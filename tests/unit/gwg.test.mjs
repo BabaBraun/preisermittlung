@@ -24,17 +24,25 @@ test('Rechtsstand und Normen als Datentabelle', () => {
   assert.equal(G.REGELWERKE.amlr.ab, '2027-07-10');
 });
 
-test('Auslöser: Käufer gelb bei angenommenem Gebot oder Reservierung, rot mit Notarauftrag; Verkäufer gelb ab Auftrag, rot ab Reservierung', () => {
+test('Auslöser: ab angenommenem Gebot, Reservierung oder Notarauftrag beide Seiten rot (§ 11 Abs. 2 Satz 1 GwG); Verkäufer gelb ab Auftrag', () => {
   assert.deepEqual(G.seitenAusloeser('kaeufer', {}, 'gwg').stufe, '');
   assert.equal(G.seitenAusloeser('kaeufer', { auftrag: true }, 'gwg').stufe, '');
-  assert.equal(G.seitenAusloeser('kaeufer', { gebot: true }, 'gwg').stufe, 'gelb');
-  assert.equal(G.seitenAusloeser('kaeufer', { reserviert: true }, 'gwg').stufe, 'gelb');
+  // ernsthaftes Interesse und bestimmte Vertragsparteien: fällig, nicht erst „bald fällig“
+  const g = G.seitenAusloeser('kaeufer', { gebot: true }, 'gwg');
+  assert.deepEqual([g.stufe, g.gruende], ['rot', ['Gebot im Bieterverfahren angenommen']]);
+  assert.equal(G.seitenAusloeser('kaeufer', { reserviert: true }, 'gwg').stufe, 'rot');
+  assert.deepEqual(G.REGELWERKE.gwg.kaeufer.gelb, []);
   const k = G.seitenAusloeser('kaeufer', { gebot: true, notar: true }, 'gwg');
-  assert.deepEqual([k.stufe, k.gruende], ['rot', ['Notarauftrag angelegt']]);
+  assert.deepEqual([k.stufe, k.gruende], ['rot', ['Gebot im Bieterverfahren angenommen', 'Notarauftrag angelegt']]);
   assert.match(k.norm, /§ 11 Abs\. 2 Satz 1 GwG, § 10 Abs\. 9 GwG/);
   assert.equal(G.seitenAusloeser('verkaeufer', { auftrag: true }, 'gwg').stufe, 'gelb');
+  assert.equal(G.seitenAusloeser('verkaeufer', { auftrag: true }, 'gwg').gruende[0], 'Auftrag erteilt oder Maklervertrag geschlossen');
+  assert.equal(G.seitenAusloeser('verkaeufer', { auftrag: true, gebot: true }, 'gwg').stufe, 'rot');
   assert.equal(G.seitenAusloeser('verkaeufer', { auftrag: true, reserviert: true }, 'gwg').stufe, 'rot');
   assert.equal(G.seitenAusloeser('verkaeufer', { notar: true }, 'gwg').stufe, 'rot');
+  // dieselbe Tatsache, dieselbe Norm: beide Seiten gleich
+  const x = G.vorgangAuswerten({ personen: [zeile('verkaeufer', 'verkaeufer'), zeile('kaeufer', 'kaeufer')] }, { reserviert: true }, { heute: HEUTE });
+  assert.deepEqual([x.seiten.verkaeufer.stufe, x.seiten.kaeufer.stufe, x.zeilen.map(z => z.stufe)], ['rot', 'rot', ['rot', 'rot']]);
   // AMLR ab 10.07.2027: das angenommene Angebot löst die Prüfung aus — nur eine Einstellung
   assert.equal(G.seitenAusloeser('kaeufer', { gebot: true }, 'amlr').stufe, 'rot');
   assert.equal(G.seitenAusloeser('verkaeufer', { gebot: true }, 'amlr').stufe, 'rot');
@@ -68,11 +76,45 @@ test('Checkliste: Vertragspartei mit Identifizierung, wirtschaftlich Berechtigte
   assert.deepEqual(G.zeileAuswerten(zukunft, { heute: HEUTE, zeilen: [zukunft] }).pflichtFehlt.map(x => x.key), ['pep']);
 });
 
+test('Datum in der Zukunft (z. B. Zwischenstand beim Tippen): Punkt bleibt offen und nennt den Grund, statt das Feld zu leeren', () => {
+  const z = fertig('kaeufer', 'kaeufer', { pepAm: '2026-10-28', abschluss: false, abschlussAm: '', abschlussKuerzel: '' });
+  const e = G.zeileAuswerten(z, { heute: HEUTE, zeilen: [z], ausloeser: { stufe: 'rot' } });
+  assert.deepEqual([e.stufe, e.pflichtFehlt.map(x => x.text)], ['rot', ['PEP-Abgleich im Banksystem erledigt (Datum liegt in der Zukunft)']]);
+  assert.equal(e.text, 'Offen: PEP-Abgleich im Banksystem erledigt (Datum liegt in der Zukunft)');
+  assert.equal(z.pepAm, '2026-10-28');   // die Regeln ändern die Eingabe nicht
+  const leer = fertig('kaeufer', 'kaeufer', { wbAm: '' });
+  assert.deepEqual(G.zeileAuswerten(leer, { heute: HEUTE, zeilen: [leer] }).pflichtFehlt.map(x => x.text), ['Handelt auf eigene Rechnung — abgefragt (Datum eintragen)']);
+  const id = fertig('kaeufer', 'kaeufer', { datum: '2026-09-30', kuerzel: '' });
+  assert.deepEqual(G.zeileAuswerten(id, { heute: HEUTE, zeilen: [id] }).pflichtFehlt.map(x => x.text),
+    ['Identifizierung im Banksystem mit Datum und Kürzel (Datum liegt in der Zukunft, Kürzel „durch wen“ eintragen)']);
+  // nicht abgehakt: kein Zusatz
+  assert.equal(G.punkte(zeile('kaeufer', 'kaeufer'), [], HEUTE).find(p => p.key === 'pep').text, 'PEP-Abgleich im Banksystem erledigt');
+});
+
+test('Abschluss abgehakt, aber ohne Kürzel: die App nennt das Kürzel statt erneut den Abschluss zu verlangen', () => {
+  const z = fertig('kaeufer', 'kaeufer', { abschluss: true, abschlussAm: '2026-09-29', abschlussKuerzel: '' });
+  let e = G.zeileAuswerten(z, { heute: HEUTE, zeilen: [z], ausloeser: { stufe: 'rot' } });
+  assert.deepEqual([e.stufe, e.text, e.fehlt.map(x => x.text)], ['gelb', 'Alle Punkte erledigt — Abschluss: Kürzel „durch wen“ eintragen.', ['Abschluss: Kürzel „durch wen“ eintragen']]);
+  e = G.zeileAuswerten({ ...z, abschlussAm: '2026-10-01', abschlussKuerzel: 'FB' }, { heute: HEUTE, zeilen: [z] });
+  assert.equal(e.text, 'Alle Punkte erledigt — Abschluss: Datum liegt in der Zukunft.');
+  e = G.zeileAuswerten({ ...z, abschluss: false, abschlussAm: '' }, { heute: HEUTE, zeilen: [z] });
+  assert.deepEqual([e.text, e.fehlt.map(x => x.text)], ['Alle Punkte erledigt — Abschluss im Banksystem mit Datum und Kürzel bestätigen.', ['Abschluss: Sorgfaltspflichten im Banksystem vollständig dokumentiert']]);
+  assert.equal(G.zeileAuswerten({ ...z, abschlussKuerzel: 'FB' }, { heute: HEUTE, zeilen: [z] }).stufe, 'gruen');
+});
+
+test('Keine Daten in Dokumenten für Dritte: Datenminimierung (Art. 5 Abs. 1 lit. c DSGVO); § 47 Abs. 1 GwG nur für Meldung, Ermittlung, Auskunftsverlangen', () => {
+  assert.equal(G.NORMEN.datenminimierung, 'Art. 5 Abs. 1 lit. c DSGVO');
+  assert.equal(G.NORMEN.weitergabe, '§ 47 Abs. 1 GwG');
+});
+
 test('Bestandskunde: „bereits früher identifiziert“ nur mit Datum und Kürzel; wirtschaftlich Berechtigter, Zweck und PEP bleiben offen', () => {
   const z = zeile('verkaeufer', 'verkaeufer', { identifizierung: 'frueher', datum: '2026-09-15' });
   let e = G.zeileAuswerten(z, { heute: HEUTE, zeilen: [z], ausloeser: { stufe: 'gelb' } });
   assert.deepEqual(e.pflichtFehlt.map(x => x.key), ['identifizierung', 'wb', 'zweck', 'pep']);
-  assert.match(e.pflichtFehlt[0].norm, /§ 11 Abs\. 3 Satz 1, § 8 Abs\. 2 Satz 6 GwG/);
+  // Vermerk „bei früherer Gelegenheit identifiziert“: § 8 Abs. 2 Satz 5 GwG (Satz 6 ist der elektronische Identitätsnachweis)
+  assert.equal(G.NORMEN.frueher, '§ 11 Abs. 3 Satz 1, § 8 Abs. 2 Satz 5 GwG');
+  assert.match(e.pflichtFehlt[0].norm, /§ 11 Abs\. 3 Satz 1, § 8 Abs\. 2 Satz 5 GwG/);
+  assert.equal(e.pflichtFehlt[0].text, 'Vermerk „bereits früher identifiziert“ mit Datum und Kürzel (Kürzel „durch wen“ eintragen)');
   const z2 = { ...z, kuerzel: 'FB' };
   e = G.zeileAuswerten(z2, { heute: HEUTE, zeilen: [z2], ausloeser: { stufe: 'gelb' } });
   assert.deepEqual([e.stufe, e.pflichtFehlt.map(x => x.key)], ['gelb', ['wb', 'zweck', 'pep']]);

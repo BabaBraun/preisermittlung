@@ -25,8 +25,9 @@ test('Genehmigungskette: Rechtskraft = letzte Bekanntgabe + 2 Wochen, Mitteilung
   assert.match(x.punkte.find(p => p.stufe === 'rot').text, /spätestens am 10\.11\.2026 — sonst gilt die Genehmigung als verweigert \(§ 1856 Abs\. 2 BGB\)/);
   x = B.genehmigung(g, { heute: '2026-11-11', gericht: 'Betreuungsgericht' });
   assert.match(x.punkte.find(p => p.stufe === 'rot').text, /abgelaufen/);
-  // § 188 Abs. 3 BGB: Monatsende
-  assert.equal(B.genehmigung({ aufforderung: '2026-12-31' }, { heute: '2026-12-31' }).mitteilungBis, '2027-02-28');
+  // § 188 Abs. 3 BGB: Monatsende; der 28.02.2027 ist ein Sonntag → Montag, 01.03.2027 (§ 193 BGB)
+  assert.equal(B.genehmigung({ aufforderung: '2026-12-31' }, { heute: '2026-12-31' }).mitteilungBis, '2027-03-01');
+  assert.equal(B.genehmigung({ aufforderung: '2027-01-30' }, { heute: '2027-01-30' }).mitteilungBis, '2027-03-30');   // Werktag: unverändert
   // Grün erst mit Rechtskraftzeugnis und Mitteilung
   assert.equal(B.genehmigung({ ...g, mitgeteilt: '2026-10-21' }, { heute: '2026-10-22', rk: false }).gruen, false);
   x = B.genehmigung({ ...g, mitgeteilt: '2026-10-21' }, { heute: '2026-10-22', rk: true });
@@ -36,6 +37,36 @@ test('Genehmigungskette: Rechtskraft = letzte Bekanntgabe + 2 Wochen, Mitteilung
   assert.match(x.punkte.map(p => p.text).join(' '), /§ 1856 Abs\. 2 BGB i\. V\. m\. § 1644 Abs\. 3 BGB/);
   // ohne Antrag: Gelb mit Gericht
   assert.match(B.genehmigung({}, { heute: '2026-10-03', gericht: 'Familiengericht', norm: 'N' }).punkte[0].text, /beim Familiengericht beantragen \(N\)/);
+});
+
+test('Fristende am Samstag, Sonntag oder Feiertag: nächster Werktag (§ 193 BGB; § 16 Abs. 2 FamFG, § 222 Abs. 2 ZPO)', () => {
+  // § 1856 Abs. 2 BGB: Aufforderung 31.08.2026 → 31.10.2026 (Samstag), 01.11. Sonntag und Allerheiligen → Montag, 02.11.2026
+  let x = B.genehmigung({ beantragt: '2026-08-01', beschluss: '2026-08-20', bekanntgabe: '2026-08-21', aufforderung: '2026-08-31' }, { heute: '2026-11-02', rk: true });
+  assert.equal(x.mitteilungBis, '2026-11-02');
+  assert.ok(!x.punkte.some(p => /abgelaufen|gilt als verweigert \(§ 1856 Abs\. 2 BGB\)\. Mit dem Notariat/.test(p.text)));
+  assert.match(x.punkte.find(p => p.stufe === 'rot').text, /spätestens am 2\.11\.2026 \(nächster Werktag, § 193 BGB\) — sonst gilt/);
+  x = B.genehmigung({ beantragt: '2026-08-01', beschluss: '2026-08-20', bekanntgabe: '2026-08-21', aufforderung: '2026-08-31' }, { heute: '2026-11-03', rk: true });
+  assert.match(x.punkte.find(p => p.stufe === 'rot').text, /Mitteilungsfrist am 2\.11\.2026 \(nächster Werktag, § 193 BGB\) abgelaufen/);
+  // Beschwerdefrist § 63 FamFG: Bekanntgabe 11.12.2026 → 25.12. Feiertag, 26.12. Samstag, 27.12. Sonntag → Montag, 28.12.2026
+  x = B.genehmigung({ beantragt: '2026-11-01', beschluss: '2026-12-10', bekanntgabe: '2026-12-11' }, { heute: '2026-12-14', rk: false });
+  assert.equal(x.rkAb, '2026-12-28');
+  assert.match(x.punkte.map(p => p.text).join(' '), /Beschwerdefrist endet am 28\.12\.2026 \(nächster Werktag, § 16 Abs\. 2 FamFG, § 222 Abs\. 2 ZPO\) — frühestens danach rechtskräftig/);
+  assert.equal(B.genehmigung({ beschluss: '2026-10-01', bekanntgabe: '2026-10-03' }, {}).rkAb, '2026-10-19');   // 17.10. Samstag
+  // ohne Verschiebung kein Zusatz
+  x = B.genehmigung({ beschluss: '2026-09-20', bekanntgabe: '2026-09-22', aufforderung: '2026-09-10' }, { heute: '2026-09-29' });
+  assert.deepEqual([x.rkAb, x.mitteilungBis], ['2026-10-06', '2026-11-10']);
+  assert.ok(!x.punkte.some(p => /nächster Werktag/.test(p.text)));
+  // § 1366 Abs. 3 BGB: Aufforderung 17.10.2026 → 31.10.2026 (Samstag) → Montag, 02.11.2026
+  const p = person('p1', 'k1', { familienstand: 'verheiratet', gueterstand: 'zugewinn', ganzesVermoegen: true, ehAufforderung: '2026-10-17' });
+  let pr = B.pruefen({ eigentuemer: 'lebt', personen: [p] }, ctx({ heute: '2026-11-02' }));
+  assert.deepEqual(rot(pr), []);
+  assert.ok(gelb(pr).some(t => /Genehmigung nur bis 2\.11\.2026 \(nächster Werktag, § 193 BGB\) möglich \(§ 1366 Abs\. 3 BGB\)/.test(t)));
+  pr = B.pruefen({ eigentuemer: 'lebt', personen: [p] }, ctx({ heute: '2026-11-03' }));
+  assert.ok(rot(pr).some(t => /nur bis 2\.11\.2026 \(nächster Werktag, § 193 BGB\) erklärt werden \(§ 1366 Abs\. 3 BGB\)/.test(t)));
+  // Aufforderung 03.10.2026 → 17.10.2026 (Samstag) → 19.10.2026
+  pr = B.pruefen({ eigentuemer: 'lebt', personen: [{ ...p, ehAufforderung: '2026-10-03' }] }, ctx({ heute: '2026-10-18' }));
+  assert.deepEqual(rot(pr), []);
+  assert.ok(gelb(pr).some(t => /nur bis 19\.10\.2026/.test(t)));
 });
 
 test('Europäisches Nachlasszeugnis: Pflichtfeld, 30 Tage vorher Gelb, Rot nach Ablauf oder Termin danach (Art. 70 Abs. 3 EuErbVO)', () => {

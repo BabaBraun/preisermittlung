@@ -5,7 +5,7 @@
    - Beim Kauf gelten die Pflichten ohne Schwelle, bei Miete und Pacht ab 10.000 € Nettokaltmiete im Monat (§ 10 Abs. 6 GwG).
    - Je Person: identifizieren (§ 10 Abs. 1 Nr. 1, § 11 Abs. 2 und 4), Berechtigung der auftretenden Person prüfen (Nr. 1),
      wirtschaftlich Berechtigten abklären (Nr. 2, § 3, § 11 Abs. 5 und 6), Zweck (Nr. 3), PEP-Abgleich (Nr. 4). Früher von der
-     Bank identifiziert: neue Identifizierung entbehrlich, Vermerk aufzeichnen (§ 11 Abs. 3, § 8 Abs. 2 Satz 6); Nr. 2 bis 4 bleiben.
+     Bank identifiziert: neue Identifizierung entbehrlich, Vermerk aufzeichnen (§ 11 Abs. 3, § 8 Abs. 2 Satz 5); Nr. 2 bis 4 bleiben.
    - Gegenseite mit eigenem Makler: nur die eigene Partei identifizieren (§ 11 Abs. 2 Satz 2).
    - Ohne Nr. 1 bis 4 keine Transaktion (§ 10 Abs. 9); verspätete Identifizierung ist bußgeldbewehrt (§ 56 Abs. 1 Satz 1 Nr. 27).
    Die App hält nur fest, DASS etwas im Banksystem erledigt ist — mit Datum und Kürzel. Ausweisdaten, Geburtsdaten,
@@ -29,7 +29,7 @@ const NORMEN={
   zweck:'§ 10 Abs. 1 Nr. 3 GwG',
   pep:'§ 10 Abs. 1 Nr. 4 GwG',
   ueberwachung:'§ 10 Abs. 1 Nr. 5 GwG',
-  frueher:'§ 11 Abs. 3 Satz 1, § 8 Abs. 2 Satz 6 GwG',
+  frueher:'§ 11 Abs. 3 Satz 1, § 8 Abs. 2 Satz 5 GwG',
   frueherNeu:'§ 11 Abs. 3 Satz 2 GwG',
   makler:'§ 11 Abs. 2 Satz 2 GwG',
   zeitpunkt:'§ 11 Abs. 2 Satz 1 GwG',
@@ -43,24 +43,26 @@ const NORMEN={
   verdacht:'§ 43 Abs. 1 GwG',
   offenlegung:'§ 43 Abs. 1 Nr. 3 GwG',
   unstimmigkeit:'§ 23a Abs. 1 GwG',
-  weitergabe:'§ 47 Abs. 1 GwG',
+  weitergabe:'§ 47 Abs. 1 GwG',   // nur Meldung, Ermittlungsverfahren, Auskunftsverlangen — nicht der Identifizierungsstand
+  datenminimierung:'Art. 5 Abs. 1 lit. c DSGVO',
   beauftragter:'§ 7 Abs. 1 GwG',
   technik:'§ 6 Abs. 2 Nr. 4 GwG',
   amlr:'Art. 23 Abs. 1 UAbs. 2, Art. 90 VO (EU) 2024/1624'
 };
 /* Auslöser: was im Verkauf geschehen ist (Fakten aus Fahrplan-Stand, Bieterverfahren und Notarauftrag) */
 const AUSLOESER={
-  auftrag:'Auftrag erteilt oder Maklervertrag abgehakt',
+  auftrag:'Auftrag erteilt oder Maklervertrag geschlossen',
   gebot:'Gebot im Bieterverfahren angenommen',
   reserviert:'Käufer gefunden, Objekt reserviert',
   notar:'Notarauftrag angelegt'
 };
-/* Regelwerke: ab wann eine Seite gelb (bald fällig) oder rot (fällig) ist. Die Grenzen für Gelb setzt die App selbst — das Gesetz
-   kennt nur „ernsthaftes Interesse“ (§ 11 Abs. 2 Satz 1 GwG); der Geldwäschebeauftragte bestätigt oder ändert sie. */
+/* Regelwerke: ab wann eine Seite gelb (bald fällig) oder rot (fällig) ist. Rot, sobald ernsthaftes Interesse besteht und die
+   Vertragsparteien hinreichend bestimmt sind (§ 11 Abs. 2 Satz 1 GwG): angenommenes Gebot, Reservierung, Notarauftrag — für beide
+   Seiten. Gelb (Verkäufer ab Auftrag) ist eine Vorwarnung der App; der Geldwäschebeauftragte bestätigt oder ändert die Grenzen. */
 const REGELWERKE={
   gwg:{titel:'Geldwäschegesetz (Stand 29.06.2026)',ab:'',
-    kaeufer:{gelb:['gebot','reserviert'],rot:['notar'],norm:NORMEN.zeitpunkt+', '+NORMEN.abbruch},
-    verkaeufer:{gelb:['auftrag'],rot:['reserviert','notar'],norm:NORMEN.geschaeftsbeziehung+'; '+NORMEN.zeitpunkt}},
+    kaeufer:{gelb:[],rot:['gebot','reserviert','notar'],norm:NORMEN.zeitpunkt+', '+NORMEN.abbruch},
+    verkaeufer:{gelb:['auftrag'],rot:['gebot','reserviert','notar'],norm:NORMEN.geschaeftsbeziehung+'; '+NORMEN.zeitpunkt}},
   amlr:{titel:'EU-Geldwäscheverordnung AMLR (ab 10.07.2027)',ab:'2027-07-10',
     kaeufer:{gelb:[],rot:['gebot','reserviert','notar'],norm:NORMEN.amlr},
     verkaeufer:{gelb:['auftrag'],rot:['gebot','reserviert','notar'],norm:NORMEN.amlr+'; '+NORMEN.geschaeftsbeziehung}}
@@ -85,7 +87,11 @@ const istDatum=s=>{ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||'')); if(
 const name=(liste,k)=>(liste.find(x=>x[0]===k)||['',''])[1];
 /* Datum einer Erledigung: '' = in Ordnung, sonst 'leer', 'ungueltig' oder 'zukunft' (ein Datum in der Zukunft wird abgelehnt) */
 function datumPruefen(d,heute){ if(!d) return 'leer'; if(!istDatum(d)) return 'ungueltig'; return heute&&d>heute?'zukunft':''; }
-const erledigtAm=(d,heute)=>datumPruefen(d,heute)==='';
+/* abgehakter Punkt: was noch fehlt (Datum leer, ungültig oder in der Zukunft; Kürzel, wenn kz===false) → {ok, m:[Texte], zusatz} */
+function haken(an,d,kz,heute){
+  const p=datumPruefen(d,heute), m=an?[p==='zukunft'?'Datum liegt in der Zukunft':p?'Datum eintragen':'',kz===false?'Kürzel „durch wen“ eintragen':''].filter(Boolean):[];
+  return {ok:!!an&&!m.length,m,zusatz:m.length?' ('+m.join(', ')+')':''};
+}
 /* Kürzel „durch wen“: nur Buchstaben, Ziffern, Punkt und Bindestrich, höchstens acht Zeichen — keine Namen */
 function kuerzel(t){ return String(t||'').replace(/[^A-Za-zÄÖÜäöüß0-9.\-]/g,'').slice(0,8); }
 function zahl(x){ if(typeof x==='number') return isFinite(x)?x:0; const s=String(x||'').trim().replace(/\s|€/g,''); if(!s) return 0;
@@ -104,20 +110,22 @@ function seitenAusloeser(seite,fakten,regelwerk){
 function punkte(z,zeilen,heute){
   z=z||{}; zeilen=Array.isArray(zeilen)?zeilen:[];
   const partei=z.rolle==='verkaeufer'||z.rolle==='kaeufer', ges=partei&&z.art==='gesellschaft', l=[];
-  const identOk=(z.identifizierung==='erledigt'||z.identifizierung==='frueher')&&erledigtAm(z.datum,heute)&&!!kuerzel(z.kuerzel);
-  l.push({key:'identifizierung',text:z.identifizierung==='frueher'?'Vermerk „bereits früher identifiziert“ mit Datum und Kürzel':'Identifizierung im Banksystem mit Datum und Kürzel',
-    norm:z.identifizierung==='frueher'?NORMEN.frueher:NORMEN.identifizierung,ok:identOk});
-  if(z.rolle==='vertreter') l.push({key:'vertretung',text:'Berechtigung der auftretenden Person geprüft',norm:NORMEN.vertretung,ok:!!z.vertretungGeprueft&&erledigtAm(z.vertretungAm,heute)});
+  const id=haken(z.identifizierung==='erledigt'||z.identifizierung==='frueher',z.datum,!!kuerzel(z.kuerzel),heute);
+  l.push({key:'identifizierung',text:(z.identifizierung==='frueher'?'Vermerk „bereits früher identifiziert“ mit Datum und Kürzel':'Identifizierung im Banksystem mit Datum und Kürzel')+id.zusatz,
+    norm:z.identifizierung==='frueher'?NORMEN.frueher:NORMEN.identifizierung,ok:id.ok});
+  if(z.rolle==='vertreter'){ const h=haken(z.vertretungGeprueft,z.vertretungAm,undefined,heute);
+    l.push({key:'vertretung',text:'Berechtigung der auftretenden Person geprüft'+h.zusatz,norm:NORMEN.vertretung,ok:h.ok}); }
   if(partei){
-    l.push({key:'wb',text:ges?'Wirtschaftlich Berechtigte beim Vertragspartner erhoben und mit dem Transparenzregister abgeglichen':'Handelt auf eigene Rechnung — abgefragt',
-      norm:ges?NORMEN.wbGesellschaft:NORMEN.wb,ok:!!z.wbAbgeklaert&&erledigtAm(z.wbAm,heute)});
+    const h=haken(z.wbAbgeklaert,z.wbAm,undefined,heute);
+    l.push({key:'wb',text:(ges?'Wirtschaftlich Berechtigte beim Vertragspartner erhoben und mit dem Transparenzregister abgeglichen':'Handelt auf eigene Rechnung — abgefragt')+h.zusatz,
+      norm:ges?NORMEN.wbGesellschaft:NORMEN.wb,ok:h.ok});
     if(ges){
       l.push({key:'wbZeile',text:'Wirtschaftlich Berechtigte als eigene Zeile erfasst',norm:NORMEN.wbZeile,ok:zeilen.some(x=>x&&x.rolle==='wb'&&x.seite===z.seite)});
       l.push({key:'vertreterZeile',text:'Für die Gesellschaft auftretende Person (z. B. Geschäftsführer) als eigene Zeile erfasst',norm:NORMEN.vertretung,ok:zeilen.some(x=>x&&x.rolle==='vertreter'&&x.seite===z.seite)});
     }
     l.push({key:'zweck',text:'Zweck geklärt (Eigennutzung, Kapitalanlage oder Verkauf)',norm:NORMEN.zweck,ok:ZWECK.some(x=>x[0]&&x[0]===z.zweck)});
   }
-  if(partei||z.rolle==='wb') l.push({key:'pep',text:'PEP-Abgleich im Banksystem erledigt',norm:NORMEN.pep,ok:!!z.pepImBanksystem&&erledigtAm(z.pepAm,heute)});
+  if(partei||z.rolle==='wb'){ const h=haken(z.pepImBanksystem,z.pepAm,undefined,heute); l.push({key:'pep',text:'PEP-Abgleich im Banksystem erledigt'+h.zusatz,norm:NORMEN.pep,ok:h.ok}); }
   return l;
 }
 /* Ausnahme „nicht erforderlich“ gültig? → {gilt, text, fehlt} */
@@ -147,12 +155,12 @@ function zeileAuswerten(z,ctx){
   const p=punkte(z,ctx.zeilen,heute), pflichtFehlt=p.filter(x=>!x.ok);
   if(a.fehlt) pflichtFehlt.unshift({key:'ausnahme',text:a.fehlt,norm:z.grund==='makler'?NORMEN.makler:NORMEN.miete,ok:false});
   const identOk=p.find(x=>x.key==='identifizierung').ok;
-  const abschlussOk=!!z.abschluss&&erledigtAm(z.abschlussAm,heute)&&!!kuerzel(z.abschlussKuerzel);
-  const fehlt=pflichtFehlt.concat(!pflichtFehlt.length&&!abschlussOk?[{key:'abschluss',text:'Abschluss: Sorgfaltspflichten im Banksystem vollständig dokumentiert',norm:NORMEN.aufzeichnung,ok:false}]:[]);
+  const ab=haken(z.abschluss,z.abschlussAm,!!kuerzel(z.abschlussKuerzel),heute), abschlussOk=ab.ok;   // abgehakt, aber z. B. ohne Kürzel: genau das nennen
+  const fehlt=pflichtFehlt.concat(!pflichtFehlt.length&&!abschlussOk?[{key:'abschluss',text:'Abschluss: '+(ab.m.length?ab.m.join(', '):'Sorgfaltspflichten im Banksystem vollständig dokumentiert'),norm:NORMEN.aufzeichnung,ok:false}]:[]);
   const nachtraeglich=identOk&&istDatum(ctx.notarUebermittelt)&&z.datum>ctx.notarUebermittelt;
   let stufe, text;
   if(pflichtFehlt.length){ stufe=ausl||'offen'; text=(ausl?'Offen: ':'Noch nicht fällig — offen: ')+pflichtFehlt.map(x=>x.text).join('; '); }
-  else if(!abschlussOk){ stufe='gelb'; text='Alle Punkte erledigt — Abschluss im Banksystem bestätigen.'; }
+  else if(!abschlussOk){ stufe='gelb'; text='Alle Punkte erledigt — '+(ab.m.length?'Abschluss: '+ab.m.join(', '):'Abschluss im Banksystem mit Datum und Kürzel bestätigen')+'.'; }
   else { stufe='gruen'; text='Vollständig im Banksystem dokumentiert.'; }
   return Object.assign(basis,{stufe,fehlt,pflichtFehlt,text,nachtraeglich,identifiziert:identOk&&(z.rolle!=='vertreter'||p.find(x=>x.key==='vertretung').ok)});
 }

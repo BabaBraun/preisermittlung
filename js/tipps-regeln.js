@@ -11,6 +11,9 @@
      (Art. 13 Abs. 3 DSGVO) — rot, bis sie erteilt ist. Ob ein Tipp aus der Filiale Dritterhebung oder Zweckänderung ist und ob er
      ohne Einverständnis des Kunden weitergegeben werden darf (Bankgeheimnis), klärt die Bank; die App vermerkt nur.
    - Die Quelle (Tippgeber) gehört in die Information (Art. 14 Abs. 2 lit. f) und in die Auskunft (Art. 15 Abs. 1 lit. g DSGVO).
+   - Rückmeldung an den Tippgeber: Er kennt den Kunden, jeder Stand ist also eine Angabe über ihn. Ein externer Tippgeber ist
+     Dritter (Art. 4 Nr. 10 DSGVO): über die Eingangsbestätigung hinaus nur mit eigens vermerktem Einverständnis des Kunden
+     (Bankgeheimnis; Art. 6 Abs. 1 lit. a DSGVO). Jede Rückmeldung gehört mit Empfänger in die Auskunft (Art. 15 Abs. 1 lit. c DSGVO).
    - Auswertung nur je Filiale, Art des Tippgebers und Art des Tipps, nie je Person (Beschäftigtendatenschutz).
    Alle Daten als ISO-Text (JJJJ-MM-TT); Texte mit Datum über o.datum (Vorgabe TT.MM.JJJJ). */
 (function(wurzel){
@@ -88,6 +91,10 @@ function pruefen(t,heute,o){
   l.push(dsinfoPruefen(t,heute,o));
   if(iso(t.weitergabeAm)&&!txt(t.weitergabeAn)) l.push({stufe:'gelb',text:'Weitergabe am '+d(t.weitergabeAm)+': Empfänger eintragen (gehört in die Auskunft).'});
   if(t.stand==='kein') l.push({stufe:'gelb',text:'Kein Interesse: prüfen, ob die Daten in der Kundenakte noch gebraucht werden (Löschung prüfen).'});
+  if(q.art==='extern'){
+    if(iso(t.rueckmeldungEinverstandenAm)) l.push({stufe:'gruen',text:'Einverständnis des Kunden mit der Rückmeldung zum Stand an den externen Tippgeber am '+d(t.rueckmeldungEinverstandenAm)+' vermerkt.'});
+    else if((t.stand||'neu')!=='neu') l.push({stufe:'gelb',text:'Externer Tippgeber: den Stand „'+standName(t.stand)+'“ nur mit Einverständnis des Kunden melden (Bankgeheimnis; Art. 6 Abs. 1 lit. a DSGVO) — bis dahin nur die Eingangsbestätigung.'});
+  }
   const rang={rot:0,gelb:1,gruen:2};
   return l.sort((a,b)=>rang[a.stufe]-rang[b.stufe]);
 }
@@ -102,7 +109,22 @@ function rueckmeldungText(x,o){
     text:'Guten Tag'+(n?' '+n:'')+',\n\nvielen Dank für Ihren Tipp vom '+d(x.datum)+' ('+artName(x.tippArt)+'). Zum Stand: '+stand
       +'\n\nEinzelheiten zum Kunden nenne ich hier aus Datenschutzgründen nicht.\n\nViele Grüße'+(txt(x.berater)?'\n'+txt(x.berater):'')};
 }
-function rueckmeldungOffen(t){ return !!t&&(t.rueckmeldungStand||'')!==((t.stand)||'neu'); }
+/* o.quelle (aktuelle Tippgeber-Liste) vor t.quelle; o darf fehlen oder ein Index sein (Array.filter) */
+function geberExtern(t,o){ const q=(o&&typeof o==='object'&&o.quelle)||(t&&t.quelle)||{}; return q.art==='extern'; }
+function rueckmeldungFrei(t,o){ return !geberExtern(t,o)||!!iso(t&&t.rueckmeldungEinverstandenAm); }
+/* Stand, der gemeldet werden darf: an einen externen Tippgeber ohne Einverständnis nur „neu“ (Eingangsbestätigung) */
+function rueckmeldungMeldbar(t,o){ const s=(t&&t.stand)||'neu'; return rueckmeldungFrei(t,o)?s:'neu'; }
+/* offen, solange der meldbare Stand noch nicht gemeldet ist; ohne Einverständnis genügt eine gegebene Eingangsbestätigung */
+function rueckmeldungOffen(t,o){
+  if(!t) return false;
+  return rueckmeldungFrei(t,o)?(t.rueckmeldungStand||'')!==((t.stand)||'neu'):!t.rueckmeldungStand;
+}
+/* bisherige Rückmeldungen [{am, stand, wie, an}] — aus t.rueckmeldungen, bei älteren Tipps aus dem Verlauf (ohne Empfänger) */
+function rueckmeldungen(t){
+  if(Array.isArray(t&&t.rueckmeldungen)) return t.rueckmeldungen.filter(r=>r&&iso(r.am)).map(r=>Object.assign({},r));
+  return ((t&&t.verlauf)||[]).map(h=>{ const m=/^Rückmeldung an den Tippgeber \(([^)]*)\): (.*)$/.exec((h&&h.text)||'');
+    return m&&iso(h.datum)?{am:h.datum,stand:(STAENDE.find(s=>s[1]===m[2])||[''])[0],wie:m[1],an:''}:null; }).filter(Boolean);
+}
 
 /* Stand aus dem verknüpften Akquise- oder Anfrage-Eintrag (nur lesen) */
 const VG_STAND={akquise:{'Erstkontakt':'kontakt','Termin vereinbart':'termin','Bewertung erstellt':'termin','Angebot abgegeben':'termin','Auftrag erteilt':'auftrag','Kein Auftrag':'kein'},
@@ -141,7 +163,8 @@ function auswertung(tipps,o){
 }
 
 const ImmoTippsRegeln={STAENDE,ARTEN,GEBER_ARTEN,HERKUNFT,DS_WEGE,GRUND,stufe,standName,artName,geberArtName,offen,quartal,erreicht,standSetzen,
-  dsinfoFrist,dsinfoErledigt,dsinfoPruefen,pruefen,rueckmeldungText,rueckmeldungOffen,standAusVorgang,standVorschlag,auswertung};
+  dsinfoFrist,dsinfoErledigt,dsinfoPruefen,pruefen,rueckmeldungText,geberExtern,rueckmeldungFrei,rueckmeldungMeldbar,rueckmeldungOffen,rueckmeldungen,
+  standAusVorgang,standVorschlag,auswertung};
 wurzel.ImmoTippsRegeln=ImmoTippsRegeln;
 if(typeof module==='object'&&module.exports) module.exports=ImmoTippsRegeln;
 })(typeof globalThis!=='undefined'?globalThis:this);

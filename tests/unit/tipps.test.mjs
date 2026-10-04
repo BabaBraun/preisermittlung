@@ -89,6 +89,42 @@ test('Rückmeldung an den Tippgeber: nur Datum, Art und Stand', () => {
   assert.equal(T.rueckmeldungOffen({ stand: 'auftrag', rueckmeldungStand: 'termin' }), true);
 });
 
+test('Rückmeldung an einen externen Tippgeber: über die Eingangsbestätigung hinaus nur mit Einverständnis (D63, Befund 15)', () => {
+  const ext = { name: 'Partner Beispiel', filiale: '', art: 'extern' };
+  // Szenario des Befunds: extern, Stand „Auftrag“, kein Einverständnis → nur „neu“ meldbar, kein Prüfpunkt fehlt mehr
+  let t = tipp({ quelle: ext, stand: 'auftrag', stufe: 3, datum: '2026-09-01' });
+  assert.equal(T.geberExtern(t), true);
+  assert.equal(T.rueckmeldungFrei(t), false);
+  assert.equal(T.rueckmeldungMeldbar(t), 'neu');
+  assert.equal(T.rueckmeldungOffen(t), true);                                                   // Eingangsbestätigung steht noch aus
+  assert.equal(T.rueckmeldungOffen(Object.assign({}, t, { rueckmeldungStand: 'neu' })), false); // danach kein Chip, keine Kennzahl
+  const p = T.pruefen(t, '2026-10-03');
+  assert.ok(p.some(x => x.stufe === 'gelb' && /Externer Tippgeber: den Stand „Auftrag“ nur mit Einverständnis des Kunden melden \(Bankgeheimnis; Art\. 6 Abs\. 1 lit\. a DSGVO\)/.test(x.text)));
+  // der Text für das meldbare „neu“ verrät nichts über den Auftrag
+  const r = T.rueckmeldungText({ datum: t.datum, tippArt: t.tippArt, stand: T.rueckmeldungMeldbar(t) });
+  assert.match(r.text, /Der Tipp ist angekommen und vorgemerkt/); assert.doesNotMatch(r.text + r.betreff, /Auftrag/);
+  // mit Einverständnis: Stand meldbar, Prüfpunkt grün
+  t = Object.assign({}, t, { rueckmeldungEinverstandenAm: '2026-09-20', rueckmeldungStand: 'neu' });
+  assert.equal(T.rueckmeldungMeldbar(t), 'auftrag'); assert.equal(T.rueckmeldungOffen(t), true);
+  assert.ok(T.pruefen(t, '2026-10-03').some(x => x.stufe === 'gruen' && /Rückmeldung zum Stand an den externen Tippgeber am 20\.09\.2026 vermerkt/.test(x.text)));
+  // Stand „neu“: nichts zu klären; Beschäftigte der Bank sind keine Dritten (Art. 4 Nr. 10 DSGVO)
+  assert.ok(!T.pruefen(tipp({ quelle: ext }), '2026-10-03').some(x => /externen? Tippgeber/i.test(x.text)));
+  const intern = tipp({ stand: 'auftrag' });
+  assert.equal(T.rueckmeldungMeldbar(intern), 'auftrag'); assert.ok(!T.pruefen(intern, '2026-10-03').some(x => /Externer Tippgeber/.test(x.text)));
+  // o.quelle (aktuelle Tippgeber-Liste) geht vor; ein Index aus Array.filter stört nicht
+  assert.equal(T.rueckmeldungMeldbar(intern, { quelle: ext }), 'neu');
+  assert.equal(T.rueckmeldungMeldbar(Object.assign({}, intern, { quelle: ext }), { quelle: { art: 'kundenberater' } }), 'auftrag');
+  assert.deepEqual([t, intern].filter(T.rueckmeldungOffen).length, 2);
+});
+
+test('Rückmeldungen für die Auskunft: aus der Liste, bei älteren Tipps aus dem Verlauf (Art. 15 Abs. 1 lit. c DSGVO)', () => {
+  const l = [{ am: '2026-09-25', stand: 'neu', wie: 'E-Mail', an: 'Partner Beispiel, extern' }, { am: 'x', stand: 'kontakt' }];
+  assert.deepEqual(T.rueckmeldungen(tipp({ rueckmeldungen: l })), [l[0]]);
+  const alt = tipp({ verlauf: [{ datum: '2026-09-20', text: 'Tipp erfasst' }, { datum: '2026-09-22', text: 'Rückmeldung an den Tippgeber (kopiert): Kontakt aufgenommen' }] });
+  assert.deepEqual(T.rueckmeldungen(alt), [{ am: '2026-09-22', stand: 'kontakt', wie: 'kopiert', an: '' }]);
+  assert.deepEqual(T.rueckmeldungen(tipp()), []);
+});
+
 test('Stand aus Akquise und Anfrage: Vorschlag nur, wenn der Eintrag weiter ist', () => {
   assert.equal(T.standAusVorgang('akquise', 'Auftrag erteilt', 'In Vermarktung'), 'auftrag');
   assert.equal(T.standAusVorgang('akquise', 'Auftrag erteilt', 'Verkauft'), 'verkauf');

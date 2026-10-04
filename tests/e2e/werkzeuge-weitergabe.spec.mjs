@@ -186,6 +186,7 @@ test('Weitergabe: Rücklauf überfällig, Widerruf, Vorschläge nach dem Kauf, K
   await page.evaluate(async () => { for (const h of KD_LOESCH_HOOKS) await h('k_k'); });
   const x = (await akten(page))[0];
   expect([x.kundeId, x.kundeGeloescht, x.anliegen, x.einwilligung.datum, x.anlass]).toEqual(['', true, '', '', 'baufinanzierung']);
+  expect([x.wvId, x.kollegeId, x.kollege, x.freigabe.kontakt]).toEqual(['', '', null, false]);   // D63: kein Weg zurück über Wiedervorlage oder Kollegen
   await page.evaluate(() => wzOeffnen('weitergabe'));
   await expect(page.locator('#wz_body .wg-karte')).toContainText('(Kunde gelöscht)');
   await expect(page.locator('.wg-auswertung tbody tr', { hasText: 'Baufinanzierung' }).locator('td').nth(1)).toHaveText('1');
@@ -194,5 +195,54 @@ test('Weitergabe: Rücklauf überfällig, Widerruf, Vorschläge nach dem Kauf, K
   await expect(page.getByRole('button', { name: 'Übergabeblatt' })).toHaveCount(0);
   const auskunft2 = await page.evaluate(async () => (await Promise.all(KD_AUSKUNFT_HOOKS.map(h => h('k_k')))).flat().join('\n'));
   expect(auskunft2).toContain('WEITERGABEN AN KOLLEGEN DER BANK\n- keine');
+  await keineSkriptfehler(page);
+});
+
+test('Weitergabe: Personenbezug alter erledigter Weitergaben entfernen — Objekt, Kollege und Wiedervorlage gehen mit (D63)', async ({ page }) => {
+  const meldungen = dialoge(page);
+  const pid = await testhaus(page);
+  await page.evaluate(async pid => {
+    const ein = { ja: true, datum: '2025-07-30', form: 'vordruck', rueckmeldung: true, widerrufen: '' };
+    wgS().kollegen = [{ id: 'c_1', name: 'Max Probe', bereich: 'baufinanzierung', filiale: 'Ilsfeld', tel: '', mail: '' }]; wzSpeichernJetzt();
+    aufStore(aufLoad().concat([
+      { id: 'aWV0', text: 'Rücklauf prüfen: Baufinanzierung', frist: '2025-08-10', objekt: 'Testhaus', kundeId: 'k_w', erledigt: true, angelegt: 1 },
+      { id: 'aWV1', text: 'Rücklauf prüfen: Baufinanzierung bei Max Probe', frist: '2025-08-15', objekt: 'Testhaus', kundeId: 'k_w', erledigt: true, angelegt: 2 },
+      { id: 'aWV2', text: 'Rücklauf prüfen: Bausparen', frist: '2026-10-05', objekt: '', kundeId: 'k_w', erledigt: false, angelegt: 3 },
+      { id: 'aAnders', text: 'Exposé schicken', frist: '2026-10-01', objekt: 'Testhaus', kundeId: 'k_w', erledigt: false, angelegt: 4 }]));
+    await wzdSpeichern('akten', wgLeer({ id: 'we_alt', kundeId: 'k_w', projektId: pid, datum: '2025-08-01', rueckmeldungAm: '2025-09-01', stand: 'abgeschlossen',
+      volumen: '350.000', kaufpreis: '420.000', freigabe: { kontakt: true, ort: true, kaufpreis: true }, kollegeId: 'c_1',
+      kollege: { name: 'Max Probe', bereich: 'baufinanzierung', filiale: 'Ilsfeld' }, anliegen: 'Rückruf abends', notiz: 'Zusage telefonisch', wvId: 'aWV1', einwilligung: ein,
+      verlauf: [{ id: 'h1', datum: '2025-08-01', text: 'Übergeben an Max Probe' }, { id: 'h2', datum: '2025-09-01', text: 'Stand: abgeschlossen' }] }));
+    await wzdSpeichern('akten', wgLeer({ id: 'we_neu', kundeId: 'k_w', anlass: 'bausparen', datum: '2026-09-20', wvId: 'aWV2',
+      einwilligung: { ...ein, datum: '2026-09-20' } }));
+    wzOeffnen('weitergabe');
+  }, pid);
+  await expect(page.locator('#wz_body')).toContainText('1 erledigte Weitergabe ist älter als zwölf Monate');
+  await page.getByRole('button', { name: 'Personenbezug entfernen' }).click();
+  await expect.poll(() => meldungen.join('|')).toContain('Für die Auswertung bleiben Anlass, Stand, Datum und Volumen');
+  await expect.poll(async () => (await akten(page)).find(x => x.id === 'we_alt').kundeGeloescht).toBe(true);
+  const l = await akten(page), alt = l.find(x => x.id === 'we_alt'), neu = l.find(x => x.id === 'we_neu');
+  expect([alt.kundeId, alt.projektId, alt.kaufpreis, alt.kollegeId, alt.kollege, alt.wvId, alt.anliegen, alt.notiz]).toEqual(['', '', '', '', null, '', '', '']);
+  expect(Object.values(alt.freigabe).some(Boolean)).toBe(false);
+  expect([alt.anlass, alt.stand, alt.datum, alt.rueckmeldungAm, alt.volumen]).toEqual(['baufinanzierung', 'abgeschlossen', '2025-08-01', '2025-09-01', '350.000']);
+  for (const t of [pid, 'Max Probe', '420.000', 'aWV1', 'k_w', 'c_1', 'Ilsfeld']) expect(JSON.stringify(alt)).not.toContain(t);
+  expect([neu.kundeId, neu.wvId]).toEqual(['k_w', 'aWV2']);                       // die offene Weitergabe bleibt, wie sie ist
+  // Wiedervorlagen: die verknüpfte und die ältere erledigte zum selben Anlass sind weg, die übrigen bleiben
+  expect(await page.evaluate(() => kdAufgaben('k_w').map(a => a.id).sort())).toEqual(['aAnders', 'aWV2']);
+  // Auswertung zählt weiter; Karte und Editor ohne Kunde, Objekt und Kollege, ohne Notizfeld
+  await expect(page.locator('.wg-auswertung tbody tr', { hasText: 'Baufinanzierung' }).locator('td')).toHaveText(['Baufinanzierung', '0', '0', '0', '1', '0', '1', '100 %', '350.000 €']);
+  await expect(page.locator('#wz_body')).not.toContainText('älter als zwölf Monate');
+  await page.getByRole('button', { name: 'Erledigt', exact: true }).click();
+  const karte = page.locator('#wz_body .wg-karte', { hasText: '(Kunde gelöscht)' });
+  await expect(karte).not.toContainText('Testhaus'); await expect(karte).not.toContainText('Max Probe');
+  await karte.getByRole('button', { name: 'Öffnen' }).click();
+  await expect(page.locator('#wg_pruefung')).toContainText('Der Kunde wurde gelöscht');
+  for (const t of ['Testhaus', 'Max Probe', 'Ilsfeld']) await expect(page.locator('#wz_body')).not.toContainText(t);
+  await expect(page.locator('#wz_body')).toContainText('Ohne Personenbezug');
+  await expect(page.locator('#wz_weitergabe_notiz')).toHaveCount(0);
+  await expect(page.locator('#wz_weitergabe_volumen')).toHaveValue('350.000');
+  // Auskunft des Kunden: nur noch die offene Weitergabe, keine Wiedervorlage der alten
+  const auskunft = await page.evaluate(async () => (await Promise.all(KD_AUSKUNFT_HOOKS.map(h => h('k_w')))).flat().join('\n'));
+  expect(auskunft).toContain('Bausparen'); expect(auskunft).not.toContain('Baufinanzierung für den Kauf');
   await keineSkriptfehler(page);
 });

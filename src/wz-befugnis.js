@@ -3,9 +3,9 @@
    Eigentümer selbst, Erbe oder Erbengemeinschaft, Testamentsvollstrecker, Vorerbe, Nachlasspfleger, Betreuer, Eltern für
    Minderjährige, Ergänzungspfleger, Bevollmächtigter und Ehegatte (Güterstand). Einstiegsfragen schalten die Fälle zu; je Fall
    Prüfpunkte als Ampel mit Normangabe (Regeln in js/befugnis-regeln.js, Einheitstests), Genehmigungskette mit Rechtskraft
-   (letzte Bekanntgabe + 2 Wochen) und Mitteilung an den Käufer. Jeder Nachweis und jede Genehmigung geht als Posten in die
-   Kachel „Unterlagen“ (ulPostenErgaenzen; Stand dort und hier derselbe). Personen nur als Verweis auf die Kundenakte
-   (kundeId) — keine Kopien von Testament, Erbschein, Bestellungsurkunde oder Vollmacht, keine Geburtsdaten, keine Angaben zu
+   (letzte Bekanntgabe + 2 Wochen, Ende am Wochenende oder Feiertag: nächster Werktag) und Mitteilung an den Käufer. Jeder
+   Nachweis und jede Genehmigung geht als Posten in die Kachel „Unterlagen“ (ulPostenErgaenzen; Stand dort und hier derselbe).
+   Personen nur als Verweis auf die Kundenakte (kundeId) — keine Kopien von Testament, Erbschein, Bestellungsurkunde oder Vollmacht, keine Geburtsdaten, keine Angaben zu
    Krankheit oder Gründen einer Betreuung (Art. 5 Abs. 1 lit. c, Art. 9 Abs. 1 DSGVO). Keine eigenen Rechtstexte: Erklärungen,
    Vollmachten und Anträge kommen vom Notariat oder aus den Vordrucken der Bank. Gerätedatenbank, Speicher „akten“ (art
    'befugnis'); Bewertungen und Notaraufträge werden nur gelesen. Schwelle für „Kaufpreis deutlich unter Bewertung“ legt die
@@ -25,6 +25,13 @@ function bfLeer(o){
     personen:o.kundeId?[bfPersonLeer({kundeId:o.kundeId})]:[],notiz:'',ulKeys:[],ulSig:'',wv:{}});
 }
 function bfAkte(pid){ return wzdAkten('befugnis',pid)[0]||null; }
+/* Personen-Ids stehen in Postenschlüsseln und data-Attributen: aus einer Sicherung nur Ids wie von wzdId, doppelte neu (wie skNorm) */
+function bfNorm(r){
+  let alt=JSON.stringify(r.personen), ids=new Set();
+  r.personen=(Array.isArray(r.personen)?r.personen:[]).filter(p=>p&&typeof p==='object'&&!Array.isArray(p));
+  r.personen.forEach(p=>{ if(typeof p.id!=='string'||!/^[\w-]{1,80}$/.test(p.id)||ids.has(p.id)) p.id=wzdId('p'); ids.add(p.id); });
+  return JSON.stringify(r.personen)!==alt;
+}
 
 /* ---------- Kontext: Notarauftrag, Unterlagen, Bewertung (nur lesen) ---------- */
 async function bfNotarLaden(){
@@ -32,26 +39,33 @@ async function bfNotarLaden(){
   try{ await IA_BEREIT_P; BF.notar=IA_DB_BEREIT?await iaAlle('notar'):[]; }catch(e){ BF.notar=[]; }
   BF.notarLaedt=false;
 }
-function bfNotarListe(){ return BF.notar||(typeof FP!=='undefined'&&FP.extra&&FP.extra.notar)||[]; }
+/* Notaraufträge: hier BF.notar, im Fahrplan FP.extra.notar, sonst NO.liste (Kachel „Notarauftrag“ u. a.; BF.notar ist dort schon geleert) */
+function bfNotarListe(){
+  if(BF.notar) return BF.notar;
+  if(typeof FP!=='undefined'&&FP.extra&&Array.isArray(FP.extra.notar)) return FP.extra.notar;
+  return typeof NO!=='undefined'&&Array.isArray(NO.liste)?NO.liste:[];
+}
 function bfGleich(a,b){ let n=x=>String(x||'').toLowerCase().replace(/[^a-z0-9äöüß]/g,''); return !!n(a)&&n(a)===n(b); }
+function bfNotarPasst(n,o){ return !!n&&!!o&&(bfGleich(n.anschrift,o.anschrift)||bfGleich(n.projekt,o.name)); }
 function bfNotarFuer(o){
   if(!o) return null;
-  let l=bfNotarListe().filter(n=>bfGleich(n.anschrift,o.anschrift)||bfGleich(n.projekt,o.name));
+  if(typeof NO!=='undefined'&&typeof WZ!=='undefined'&&WZ.aktiv==='notar'&&bfNotarPasst(NO.aktiv,o)) return NO.aktiv;   // im Notarauftrag: der offene Auftrag mit seinen Eingaben
+  let l=bfNotarListe().filter(n=>bfNotarPasst(n,o));
   return l.sort((a,b)=>(a.stand==='Erledigt')-(b.stand==='Erledigt')||(b.geaendert||b.ts||0)-(a.geaendert||a.ts||0))[0]||null;
 }
 const BF_FAMILIE={'verheiratet':'verheiratet','eingetragene Lebenspartnerschaft':'verpartnert','ledig':'ledig','geschieden':'ledig','verwitwet':'ledig'};
 const BF_GUETER={'Zugewinngemeinschaft (gesetzlich)':'zugewinn','Gütertrennung':'trennung','Gütergemeinschaft':'gemeinschaft','anderer oder ausländischer Güterstand':'anders'};
 function bfStaende(pid){ let u=wzdListe('unterlagen').find(x=>x.projektId===pid), m={}; Object.entries((u&&u.posten)||{}).forEach(([k,s])=>{ if(s&&s.stand) m[k]=s.stand; }); return m; }
 function bfPostenStand(pid,key){ let u=wzdListe('unterlagen').find(x=>x.projektId===pid); return (u&&u.posten&&u.posten[key])||{stand:'offen'}; }
-function bfKontext(r){
-  let o=wzdObjekt(r.projektId), n=bfNotarFuer(o), np={};
+function bfKontext(r,notar){
+  let o=wzdObjekt(r.projektId), n=notar||bfNotarFuer(o), np={};
   ((n&&n.verkaeufer)||[]).forEach(x=>{ if(x&&x.kundeId) np[x.kundeId]={familienstand:BF_FAMILIE[x.familienstand]||'',gueterstand:BF_GUETER[x.gueterstand]||''}; });
   return {heute:aufHeute(),termin:n?wzdDatum(n.termin):'',kaufpreis:n?wzN(n.kaufpreis,true):0,wert:o?zahlLesen(o.empf||'',true):0,schwelle:wzN(bfS().schwelle),
     stand:bfStaende(r.projektId),abt2:[o&&o.f.od_abt2,n&&n.abt2].filter(Boolean).join(' '),name:wzdKundeName,datum:wzDatum,notarPersonen:np,notar:n,objekt:o};
 }
-function bfPruefung(r){ return BFR().pruefen(r,bfKontext(r)); }
-/* für andere Kacheln (Notarauftrag, Provision, Verkaufsfahrplan): Ampel je Verkauf, null ohne Datensatz */
-function bfAmpel(pid){ let r=bfAkte(pid); if(!r||!window.ImmoBefugnisRegeln) return null; let pr=bfPruefung(r); return {stufe:pr.stufe,text:pr.text,genehmigungsfall:pr.genehmigungsfall,genehmigungGruen:pr.genehmigungGruen}; }
+function bfPruefung(r,notar){ return BFR().pruefen(r,bfKontext(r,notar)); }
+/* für andere Kacheln (Notarauftrag, Provision, Verkaufsfahrplan): Ampel je Verkauf, null ohne Datensatz; notar = Auftrag, falls bekannt */
+function bfAmpel(pid,notar){ let r=bfAkte(pid); if(!r||!window.ImmoBefugnisRegeln) return null; let pr=bfPruefung(r,notar); return {stufe:pr.stufe,text:pr.text,genehmigungsfall:pr.genehmigungsfall,genehmigungGruen:pr.genehmigungGruen}; }
 
 /* ---------- Übernahme in die Kachel „Unterlagen“ ---------- */
 async function bfStandSetzen(pid,key,stand,datum,quelle){
@@ -97,6 +111,7 @@ async function bfOeffnen(pid){
   if(BF.notar===null) await bfNotarLaden();
   let r=bfAkte(pid);
   if(!r){ r=bfLeer(o); if(!(await wzdSpeichern('akten',r))) return; }
+  else if(bfNorm(r)) await wzdSpeichern('akten',r);
   BF.aktiv=r; await bfAbgleich(r);
   if(WZ.aktiv==='befugnis') wzZeichnen(); let ov=$('wz_overlay'); if(ov) ov.scrollTop=0;
 }
@@ -175,7 +190,7 @@ function bfListe(){
 }
 function bfStandSelect(pid,key,label){
   let s=bfPostenStand(pid,key);
-  return '<select class="bf-stand" aria-label="Stand: '+sEsc(label)+'" onchange="bfStand(\''+key+'\',this.value)">'+Object.entries(BFR().STAND_TEXT).map(([w,t])=>'<option value="'+w+'"'+(s.stand===w?' selected':'')+'>'+t+'</option>').join('')+'</select>';
+  return '<select class="bf-stand" aria-label="Stand: '+sEsc(label)+'" data-bfkey="'+sEsc(key)+'" onchange="bfStand(this.dataset.bfkey,this.value)">'+Object.entries(BFR().STAND_TEXT).map(([w,t])=>'<option value="'+w+'"'+(s.stand===w?' selected':'')+'>'+t+'</option>').join('')+'</select>';
 }
 function bfKundeZeile(id,knopf,weg){
   return '<div class="vl-empf bf-rolle"><b>'+(id?sEsc(wzdKundeName(id)):'<span class="u">nicht erfasst</span>')+'</b>'+knopf+(id&&weg?weg:'')+'</div>';
@@ -190,12 +205,13 @@ function bfKetteHtml(r,pfad,k,wen){
     +wzFeld(pfad+'.aufforderung','Käufer hat zur Mitteilung aufgefordert am',{typ:'datum',zeichnen:true,hinweis:'§ 1856 Abs. 2 BGB'})+'</div>'
     +'<div class="bf-kfrist" data-bfk="'+sEsc(k.bereich)+'"></div>';
 }
-/* Fristen der Kette: nach jeder Eingabe neu (Datumsfelder bauen die Ansicht nicht neu auf) */
+/* Fristen der Kette: nach jeder Eingabe neu (Datumsfelder bauen die Ansicht erst beim Verlassen neu auf); Fristende am Samstag, Sonntag
+   oder Feiertag: nächster Werktag (§ 16 Abs. 2 FamFG, § 222 Abs. 2 ZPO; § 193 BGB). Bereich kommt aus data-bfk, nie roh in onclick. */
 function bfKetteFristen(k){
   if(!k) return '';
-  return (k.rkAb?'<p class="bf-frist">Frühestens rechtskräftig nach Ablauf des <b>'+wzDatum(k.rkAb)+'</b> (letzte Bekanntgabe + 2 Wochen)</p>':'')
+  return (k.rkAb?'<p class="bf-frist">Frühestens rechtskräftig nach Ablauf des <b>'+wzDatum(k.rkAb)+'</b> (letzte Bekanntgabe + 2 Wochen, Ende am Wochenende oder Feiertag: nächster Werktag)</p>':'')
     +(k.mitteilungBis?'<p class="bf-frist">Mitteilung an den Käufer spätestens am <b>'+wzDatum(k.mitteilungBis)+'</b>'
-      +(wzdDatum(k.g.mitgeteilt)?'':' <button type="button" class="secondary" onclick="bfKetteWv(\''+k.bereich+'\')" data-ic="clock">Wiedervorlage</button>')+'</p>':'');
+      +(wzdDatum(k.g.mitgeteilt)?'':' <button type="button" class="secondary" onclick="bfKetteWv(this.closest(\'.bf-kfrist\').dataset.bfk)" data-ic="clock">Wiedervorlage</button>')+'</p>':'');
 }
 function bfPersonHtml(r,p,i,pr,K){
   let R=BFR(), pfad='personen.'+i+'.', v=p.vertretung||'selbst', fa=pr.fa, name=p.kundeId?wzdKundeName(p.kundeId):'';

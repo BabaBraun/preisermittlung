@@ -37,6 +37,15 @@ test('Werbung und Datenschutz: Feld ändern baut nur den Kasten neu — Notiz-En
   await kanal.locator('select[aria-label="Stand"]').selectOption('keine');
   await expect(kanal.locator('select[aria-label="Stand"]')).toHaveValue('einwilligung');
   expect(await page.evaluate(() => KD_CACHE.find(k => k.id === 'k_w').werbung.email.erteiltAm)).toBe('2026-09-01');
+  // Datum Ziffer für Ziffer tippen: Feld bleibt beim Tippen stehen (Chromium meldet jeden Zwischenstand), Kasten erst beim Verlassen neu
+  const erteilt = kanal.locator('input[aria-label="erteilt am"]');
+  await erteilt.click(); await page.keyboard.press('Home');
+  await page.keyboard.type('28092026', { delay: 30 });
+  expect(await page.evaluate(() => document.activeElement && document.activeElement.getAttribute('aria-label'))).toBe('erteilt am');
+  await expect(erteilt).toHaveValue('2026-09-28');
+  await erteilt.blur();   // Feld verlassen (Tab springt im Datumsfeld erst zwischen Tag, Monat und Jahr)
+  await expect(kanal.locator('.wz-ampel')).toContainText('Einwilligung vom 28.09.2026');
+  expect(await page.evaluate(() => KD_CACHE.find(k => k.id === 'k_w').werbung.email.erteiltAm)).toBe('2026-09-28');
   await keineSkriptfehler(page);
 });
 

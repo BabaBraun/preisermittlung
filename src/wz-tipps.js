@@ -3,8 +3,10 @@
    je Tipp Datum, Tippgeber, Art, Kunde (Kundenakte), Einverständnis mit der Kontaktaufnahme, Stand bis Auftrag oder Verkauf,
    Verweis auf den Akquise- oder Anfrage-Eintrag (nur gelesen, neu über die Kachel), Tippgeberprämie nach Vorgaben der Bank.
    Datenschutzinformation bei Dritterhebung als Ampel (Art. 14 Abs. 3 DSGVO, Regeln in js/tipps-regeln.js); die Quelle steht im
-   Tipp, weil Information und Auskunft sie nennen (Art. 14 Abs. 2 lit. f, Art. 15 Abs. 1 lit. g DSGVO). Rückmeldung an den
-   Tippgeber nur mit dem Stand, ohne Einzelheiten zum Kunden. Auswertung nur je Filiale, Art und Quartal — nie je Person
+   Tipp, weil Information und Auskunft sie nennen (Art. 14 Abs. 2 lit. f, Art. 15 Abs. 1 lit. g DSGVO); erteilt oder „bereits
+   informiert“ übernimmt die App in die Kundenakte (k.werbung.dsinfo, D51). Rückmeldung an den Tippgeber nur mit dem Stand, ohne
+   Einzelheiten zum Kunden; an externe Tippgeber über die Eingangsbestätigung hinaus nur mit Einverständnis des Kunden, jede
+   Rückmeldung mit Empfänger in der Auskunft (Art. 15 Abs. 1 lit. c DSGVO). Auswertung nur je Filiale, Art und Quartal — nie je Person
    (Beschäftigtendatenschutz, Betriebsrat). Tipps liegen im Speicher „akten“ (art 'tipp'), Personen nur als Kunden-Id; die
    Tippgeber-Liste (Beschäftigte und Partner) bleibt in den Werkzeug-Eingaben auf dem Gerät (localStorage „ia_wz“). */
 var TP={aktiv:null,kn:null,wartet:null};
@@ -26,7 +28,7 @@ function tpLeer(felder){
   return wzdAkteNeu('tipp',Object.assign({datum:heute,geberId:'',quelle:{name:'',filiale:'',art:''},tippArt:'verkauf',kundeId:'',einverstandenAm:'',herkunft:'dritter',
     kontaktGeplant:'',ersterKontaktAm:'',weitergabeAm:'',weitergabeAn:'',dsinfo:{erteiltAm:'',weg:'',version:'',bereitsInformiert:false,fundstelle:''},
     stand:'neu',stufe:0,standAm:heute,verlauf:[{datum:heute,text:'Tipp erfasst'}],vorgangId:'',praemie:{stand:'',am:'',notiz:''},
-    rueckmeldungAm:'',rueckmeldungStand:'',notiz:''},felder||{}));
+    rueckmeldungAm:'',rueckmeldungStand:'',rueckmeldungEinverstandenAm:'',rueckmeldungen:[],notiz:''},felder||{}));
 }
 
 /* ---------- Anlegen, öffnen, speichern ---------- */
@@ -43,21 +45,58 @@ async function tpLoeschen(){
   let t=TP.aktiv; if(!t||!confirm('Diesen Tipp mit Verlauf löschen? Der Kunde bleibt in der Kundenakte, ein verknüpfter Akquise- oder Anfrage-Eintrag bleibt bestehen.')) return;
   if(await wzdLoeschen('akten',t.id)){ TP.aktiv=null; wzZeichnen(); }
 }
-function tpSpeichern(){ if(TP.aktiv) wzdSpeichernBald('akten',TP.aktiv); else wzSpeichern(); }
+function tpSpeichern(){ if(TP.aktiv){ tpDsInAkte(TP.aktiv); wzdSpeichernBald('akten',TP.aktiv); } else wzSpeichern(); }
 function tpSofort(neu){ let t=TP.aktiv; if(!t) return; wzdSpeichernSofort('akten',t); if(neu!==false) wzZeichnen(); }
 function tpVerlauf(t,text){ (t.verlauf=Array.isArray(t.verlauf)?t.verlauf:[]).push({datum:aufHeute(),text}); }
 function tpGeberWahl(id){ let t=TP.aktiv; if(!t) return; t.geberId=id||''; t.quelle=id?tpQuelle(t):{name:'',filiale:'',art:''}; tpSofort(); }
 function tpStand(stand){ let t=TP.aktiv; if(!t) return; tpR().standSetzen(t,stand,aufHeute()); tpSofort(); }
 function tpStandUebernehmen(stand){ tpStand(stand); }
 /* Kunde: aus der Kundenakte oder neu (wzdKundeNeu); die Eingaben der Schnellerfassung bleiben nur im Speicher der Seite */
-function tpKundeWaehlen(){ wzdKundeWaehlen(id=>{ let t=TP.aktiv; if(!t) return; t.kundeId=id; TP.kn=null; tpSofort(); }); }
+function tpKundeWaehlen(){ wzdKundeWaehlen(id=>{ let t=TP.aktiv; if(!t) return; t.kundeId=id; TP.kn=null; tpDsInAkte(t); tpSofort(); }); }
 function tpKundeErfassen(){ TP.kn={anrede:'',vorname:'',nachname:'',telefon:'',email:''}; wzZeichnen(); }
+/* Quelle für die Kundenakte: Filiale bzw. Art des Tippgebers, ohne Namen von Beschäftigten (D51) */
+function tpAkteQuelle(t){ let q=tpQuelle(t); return 'Tipp'+(q.filiale?' aus '+q.filiale:q.art?' ('+tpR().geberArtName(q.art)+')':''); }
 async function tpKundeNeu(){
   let t=TP.aktiv, d=TP.kn; if(!t||!d) return;
-  let q=tpQuelle(t);   // Kundenakte: Daten von Dritten mit Quelle (Filiale bzw. Art des Tippgebers, ohne Namen von Beschäftigten) und Datum (D51)
   let k=await wzdKundeNeu({anrede:d.anrede,vorname:d.vorname,nachname:d.nachname,telefon:d.telefon,email:d.email,
-    dsinfoArt:'dritter',quelle:'Tipp'+(q.filiale?' aus '+q.filiale:q.art?' ('+tpR().geberArtName(q.art)+')':''),erlangtAm:wzdDatum(t.datum)||aufHeute()}); if(!k) return;
-  t.kundeId=k.id; TP.kn=null; tpVerlauf(t,'Kunde in der Kundenakte angelegt'); tpSofort();
+    dsinfoArt:'dritter',quelle:tpAkteQuelle(t),erlangtAm:wzdDatum(t.datum)||aufHeute()}); if(!k) return;
+  t.kundeId=k.id; TP.kn=null; tpVerlauf(t,'Kunde in der Kundenakte angelegt'); tpDsInAkte(t); tpSofort();
+}
+/* Datenschutzinformation des Tipps in die Kundenakte (k.werbung.dsinfo), damit beide Ampeln übereinstimmen. Überschrieben wird nur,
+   was dort nicht erledigt ist oder zuletzt aus diesem Tipp kam (Merker dsinfo.akte); eine eigene Eintragung in der Akte bleibt.
+   Die Akte kennt nur das Datum bzw. „bereits informiert“ mit Fundstelle — Weg und Version bleiben im Tipp. */
+function tpDsWerte(ds){ ds=ds||{}; return ds.bereitsInformiert?{erteiltAm:'',bereits:true,fundstelle:String(ds.fundstelle||'').trim()}:{erteiltAm:wzdDatum(ds.erteiltAm),bereits:false,fundstelle:''}; }
+function tpDsSig(x){ x=x||{}; return [wzdDatum(x.erteiltAm),x.bereits?1:0,x.bereits?String(x.fundstelle||'').trim():''].join('|'); }
+function tpDsInAkte(t){
+  let k=t&&!t.kundeGeloescht?wzdKunde(t.kundeId):null; if(!k||typeof kwModell!=='function') return;
+  let ds=t.dsinfo=t.dsinfo||{}, neu=tpDsWerte(ds), w=kwModell(k), a=w.dsinfo, jetzt=tpDsSig(a), soll=tpDsSig(neu);
+  if(jetzt===soll) return;
+  let unsere=ds.akte===k.id+'|'+jetzt, fertig=a&&(wzdDatum(a.erteiltAm)||(a.bereits&&String(a.fundstelle||'').trim()));
+  if(soll==='|0|'?!unsere:!(unsere||!fertig)) return;   // Tipp geleert: nur zurücknehmen, was von hier kam
+  if(!a) a=w.dsinfo={art:t.herkunft==='bank'?'zweckaenderung':'dritter',erhobenAm:aufHeute(),erteiltAm:'',bereits:false,fundstelle:'',
+    quelle:tpAkteQuelle(t),erlangtAm:wzdDatum(t.datum)};
+  Object.assign(a,neu); k.werbung=w; ds.akte=k.id+'|'+soll;
+  kdSpeichern(k);
+}
+/* umgekehrt: in der Akte vermerkt, im Tipp nicht — anbieten, nicht selbst übernehmen (eine Information vor dem Tipp nennt dessen Quelle nicht) */
+function tpDsAkteWerte(t){
+  let k=t&&!t.kundeGeloescht?wzdKunde(t.kundeId):null, a=k&&typeof ImmoWerbung!=='undefined'?ImmoWerbung.norm(k).dsinfo:null;
+  if(!a||tpR().dsinfoErledigt(t)) return null;
+  let dat=wzdDatum(a.erteiltAm), fs=a.bereits?String(a.fundstelle||'').trim():'';
+  if(dat&&wzdDatum(t.datum)&&dat<t.datum) dat='';
+  return dat?{erteiltAm:dat}:fs?{fundstelle:fs}:null;
+}
+function tpDsAkteHtml(t){
+  let a=tpDsAkteWerte(t); if(!a) return '';
+  return wzAmpel('gelb','In der Kundenakte ist '+(a.erteiltAm?'die Datenschutzinformation am '+wzDatum(a.erteiltAm)+' vermerkt':'„bereits informiert“ vermerkt ('+sEsc(a.fundstelle)+')')
+      +'. Übernehmen, wenn sie auch diesen Tipp abdeckt (sie nennt die Quelle, Art. 14 Abs. 2 lit. f DSGVO).')
+    +'<div class="gr-zeile"><button type="button" class="secondary" onclick="tpDsAusAkte()" data-ic="check">Aus der Kundenakte übernehmen</button></div>';
+}
+function tpDsAusAkte(){
+  let t=TP.aktiv, a=tpDsAkteWerte(t); if(!a) return;
+  let ds=t.dsinfo=Object.assign({erteiltAm:'',weg:'',version:'',bereitsInformiert:false,fundstelle:''},t.dsinfo||{});
+  if(a.erteiltAm){ ds.erteiltAm=a.erteiltAm; ds.bereitsInformiert=false; } else { ds.bereitsInformiert=true; ds.fundstelle=a.fundstelle; }
+  tpVerlauf(t,'Datenschutzinformation aus der Kundenakte übernommen'); tpSofort();
 }
 function tpKundeLoesen(){ let t=TP.aktiv; if(!t||!confirm('Die Verknüpfung mit dem Kunden lösen? Der Kunde bleibt in der Kundenakte.')) return; t.kundeId=''; tpSofort(); }
 
@@ -87,9 +126,10 @@ function tpWartetPruefen(){
 }
 
 /* ---------- Rückmeldung an den Tippgeber ---------- */
+/* gemeldet wird nur der meldbare Stand: an einen externen Tippgeber ohne Einverständnis des Kunden nur die Eingangsbestätigung */
 function tpRueck(t){
   let q=tpQuelle(t), K=typeof wzAbsenderKontakt==='function'?wzAbsenderKontakt():{};
-  return tpR().rueckmeldungText({geberName:q.name,datum:t.datum,tippArt:t.tippArt,stand:t.stand,berater:K.name||''},tpDatumFmt());
+  return tpR().rueckmeldungText({geberName:q.name,datum:t.datum,tippArt:t.tippArt,stand:tpR().rueckmeldungMeldbar(t,{quelle:q}),berater:K.name||''},tpDatumFmt());
 }
 function tpRueckMitPflicht(t){ let r=tpRueck(t); return typeof wzMitPflicht==='function'?wzMitPflicht(r.text,{mail:true}):r.text; }
 function tpMailLink(){
@@ -97,8 +137,9 @@ function tpMailLink(){
   return 'mailto:'+encodeURIComponent(g&&g.email||'')+'?subject='+encodeURIComponent(r.betreff)+'&body='+encodeURIComponent(tpRueckMitPflicht(t));
 }
 function tpRueckVermerken(wie){
-  let t=TP.aktiv; if(!t) return;
-  t.rueckmeldungAm=aufHeute(); t.rueckmeldungStand=t.stand||'neu'; tpVerlauf(t,'Rückmeldung an den Tippgeber ('+wie+'): '+tpR().standName(t.stand)); tpSofort();
+  let t=TP.aktiv; if(!t) return; let R=tpR(), q=tpQuelle(t), s=R.rueckmeldungMeldbar(t,{quelle:q}), am=aufHeute();
+  t.rueckmeldungen=R.rueckmeldungen(t).concat([{am,stand:s,wie,an:tpQuelleText(q)}]);   // für die Auskunft (Art. 15 Abs. 1 lit. c DSGVO)
+  t.rueckmeldungAm=am; t.rueckmeldungStand=s; tpVerlauf(t,'Rückmeldung an den Tippgeber ('+wie+'): '+R.standName(s)); tpSofort();
 }
 function tpMail(){
   let t=TP.aktiv; if(!t) return; let g=tpGeber(t.geberId);
@@ -148,7 +189,7 @@ function tpKarte(t,heute){
   let kunde=t.kundeGeloescht?'(Kunde gelöscht)':t.kundeId?wzdKundeName(t.kundeId):'ohne Kunde';
   return '<div class="kd-karte"><div><b>'+sEsc(kunde)+' — '+sEsc(R.artName(t.tippArt))+'</b><span>'+sEsc([wzDatum(t.datum),q.filiale,q.name].filter(x=>x&&x!=='–').join(' · '))+'</span>'
     +'<div class="pa-chips">'+tpChip(['auftrag','verkauf'].includes(st)?'bezahlt':'',R.standName(st))+(t.kundeGeloescht?'':tpDsChip(ds))
-    +(R.rueckmeldungOffen(t)?tpChip('offen','Rückmeldung offen'):'')+'</div></div>'
+    +(R.rueckmeldungOffen(t,{quelle:q})?tpChip('offen','Rückmeldung offen'):'')+'</div></div>'
     +'<div class="kd-k"><button class="secondary" onclick="tpOeffnen(\''+idSicher(t.id)+'\')">Öffnen</button></div></div>';
 }
 function tpListeHtml(){
@@ -202,7 +243,7 @@ function tpUebersicht(){
   let aktiv=l.filter(t=>!t.kundeGeloescht);
   let kpi=wzdKpi('Offene Tipps',String(l.filter(R.offen).length),'')
     +wzdKpi('Datenschutzinfo fehlt',String(aktiv.filter(t=>R.dsinfoPruefen(t,heute).stufe==='rot').length),'rot: Frist abgelaufen oder Kontakt ohne Information')
-    +wzdKpi('Rückmeldung offen',String(l.filter(R.rueckmeldungOffen).length),'an Tippgeber')
+    +wzdKpi('Rückmeldung offen',String(l.filter(t=>R.rueckmeldungOffen(t,{quelle:tpQuelle(t)})).length),'an Tippgeber')
     +wzdKpi('Aufträge '+jahr,String(l.filter(t=>(t.datum||'').slice(0,4)===jahr&&R.erreicht(t)>=3).length),'aus Tipps dieses Jahres');
   return '<div class="wz-kpis grid">'+kpi+'</div>'
     +'<div class="ka-leiste"><div class="ka-schalter" role="group" aria-label="Ansicht">'+[['liste','Tipps'],['auswertung','Auswertung'],['tippgeber','Tippgeber']]
@@ -244,7 +285,7 @@ function tpDsHtml(t){
           +wzFeld('dsinfo.version','Vordruck der Bank (Version)',{typ:'text',ph:'z. B. DSI Immobilien 01/2026'}))
       +wzFeld('kontaktGeplant','Erster Kontakt geplant am',{typ:'datum'})+wzFeld('ersterKontaktAm','Erster Kontakt am',{typ:'datum',hinweis:'setzt die App mit „Kontakt aufgenommen“'})
       +wzFeld('weitergabeAm','Weitergegeben am',{typ:'datum',hinweis:'an einen anderen Empfänger'})+wzFeld('weitergabeAn','an',{typ:'text',ph:'z. B. Baufinanzierung'})+'</div>'
-    +'<div id="tp_ds"></div>'
+    +'<div id="tp_ds"></div><div id="tp_ds_akte"></div>'
     +'<div class="gr-zeile"><button type="button" class="secondary" onclick="tpWiedervorlage()" data-ic="clock">Wiedervorlage zur Frist</button></div>'
     +wzHinweis('Den Text der Datenschutzinformation gibt die Bank vor (Vordruck); er nennt auch die Quelle des Tipps (Art. 14 Abs. 2 lit. f DSGVO). '
       +'Ob ein Tipp aus der Filiale als Dritterhebung (Art. 14) oder als Zweckänderung (Art. 13 Abs. 3 DSGVO) gilt, klärt die Bank mit dem Datenschutzbeauftragten.');
@@ -263,10 +304,12 @@ function tpVorgangHtml(t){
     +wzHinweis(t.kundeId?'Akquise und Anfragen pflegst du in ihren Kacheln; hier steht nur der Verweis. Zurück in „Tipps“ verknüpft die App den neuen Eintrag.':'Erst den Kunden wählen — dann lassen sich seine Akquise- und Anfrage-Einträge verknüpfen.');
 }
 function tpRueckHtml(t){
-  let r=tpRueck(t), g=tpGeber(t.geberId), R=tpR();
+  let r=tpRueck(t), g=tpGeber(t.geberId), R=tpR(), o={quelle:tpQuelle(t)}, m=R.rueckmeldungMeldbar(t,o), st=t.stand||'neu';
   return '<p class="tp-betreff" id="tp_rueck_betreff"><b>Betreff:</b> '+sEsc(r.betreff)+'</p><pre class="tp-text" id="tp_rueck_text">'+sEsc(r.text)+'</pre>'
-    +(R.rueckmeldungOffen(t)?wzAmpel('gelb','Rückmeldung zum Stand „'+sEsc(R.standName(t.stand))+'“ steht aus.')
-      :wzAmpel('gruen','Rückmeldung zum Stand „'+sEsc(R.standName(t.stand))+'“ am '+wzDatum(t.rueckmeldungAm)+' gegeben.'))
+    +(m!==st?wzAmpel('gelb','Externer Tippgeber: den Stand „'+sEsc(R.standName(st))+'“ erst melden, wenn der Kunde damit einverstanden ist (Bankgeheimnis; Art. 6 Abs. 1 lit. a DSGVO). '
+      +'Bis dahin nur die Eingangsbestätigung.'):'')
+    +(R.rueckmeldungOffen(t,o)?wzAmpel('gelb','Rückmeldung zum Stand „'+sEsc(R.standName(m))+'“ steht aus.')
+      :t.rueckmeldungAm?wzAmpel('gruen','Rückmeldung zum Stand „'+sEsc(R.standName(t.rueckmeldungStand))+'“ am '+wzDatum(t.rueckmeldungAm)+' gegeben.'):'')
     +'<div class="gr-zeile"><button type="button" class="primary" onclick="tpMail()" data-ic="mail">Als E-Mail öffnen</button>'
     +'<button type="button" class="secondary" onclick="tpKopieren()" data-ic="clipboard">Kopieren</button></div>'
     +wzHinweis('Nur der Stand, ohne Einzelheiten zum Kunden.'+(g&&g.email?'':' Für die E-Mail die Adresse in der Tippgeber-Liste eintragen.'));
@@ -289,7 +332,9 @@ function tpEditor(t){
     +wzBox('Kunde',tpKundeHtml(t)+(t.kundeGeloescht?'':'<div class="grid tp-schmal">'+wzFeld('einverstandenAm','Einverständnis mit der Kontaktaufnahme am',{typ:'datum',hinweis:'z. B. gegenüber dem Tippgeber erklärt'})+'</div>'))
     +(t.kundeGeloescht?'':wzBox('Datenschutzinformation',tpDsHtml(t)))
     +(t.kundeGeloescht?'':wzBox('Akquise oder Anfrage',tpVorgangHtml(t)))
-    +wzBox('Rückmeldung an den Tippgeber','<div id="tp_rueck">'+tpRueckHtml(t)+'</div>')
+    +wzBox('Rückmeldung an den Tippgeber',(!t.kundeGeloescht&&R.geberExtern(t,{quelle:tpQuelle(t)})?'<div class="grid tp-schmal">'
+        +wzFeld('rueckmeldungEinverstandenAm','Einverständnis des Kunden mit der Rückmeldung zum Stand am',{typ:'datum',hinweis:'externer Tippgeber: ohne Einverständnis nur die Eingangsbestätigung'})+'</div>':'')
+      +'<div id="tp_rueck">'+tpRueckHtml(t)+'</div>')
     +wzBox('Tippgeberprämie','<div class="grid">'+wzFeld('praemie.stand','Prämie',{typ:'wahl',optionen:TP_PRAEMIE})+wzFeld('praemie.am','am',{typ:'datum'})
       +wzFeld('praemie.notiz','Notiz',{typ:'text',ph:'z. B. an die Personalabteilung gemeldet'})+'</div>'
       +wzHinweis('Nach den Vorgaben der Bank — die App rechnet keine Prämie und wertet sie nicht je Person aus.'))
@@ -300,13 +345,14 @@ function tpZeichnen(){
   tpWartetPruefen();
   return TP.aktiv?tpEditor(TP.aktiv):tpUebersicht();
 }
-/* nach jeder Eingabe: Prüfung, Datenschutz-Ampel und Rückmeldung neu, ohne die Felder neu aufzubauen */
+/* nach jeder Eingabe: Prüfung, Datenschutz-Ampel und Rückmeldung neu, ohne die Felder neu aufzubauen (in #tp_rueck stehen nur Knöpfe) */
 function tpRechnen(){
-  iconify($('wz_body')); let t=TP.aktiv; if(!t) return;
+  let t=TP.aktiv; if(!t){ iconify($('wz_body')); return; }
   let heute=aufHeute(), R=tpR(), o=Object.assign(tpDatumFmt(),{quelle:tpQuelle(t)});
   wzH('tp_pruefung',R.pruefen(t,heute,o).map(x=>wzAmpel(x.stufe,sEsc(x.text))).join(''));
   let ds=R.dsinfoPruefen(t,heute,o); wzH('tp_ds',wzAmpel(ds.stufe,sEsc(ds.text)));
-  let r=tpRueck(t); wzH('tp_rueck_betreff','<b>Betreff:</b> '+sEsc(r.betreff)); wzT('tp_rueck_text',r.text);
+  wzH('tp_ds_akte',tpDsAkteHtml(t)); wzH('tp_rueck',tpRueckHtml(t));
+  iconify($('wz_body'));
 }
 
 /* ---------- Auswertung als Dokument (ohne Namen) ---------- */
@@ -333,16 +379,16 @@ KD_LOESCH_HOOKS.push(async id=>{
   await wzdLaden();
   for(const t of tpListe().filter(t=>t.kundeId===id)){
     Object.assign(t,{kundeId:'',quelle:tpQuelle(t),einverstandenAm:'',kontaktGeplant:'',ersterKontaktAm:'',weitergabeAm:'',weitergabeAn:'',vorgangId:'',notiz:'',
-      dsinfo:{erteiltAm:'',weg:'',version:'',bereitsInformiert:false,fundstelle:''},kundeGeloescht:aufHeute()});
+      rueckmeldungEinverstandenAm:'',rueckmeldungen:[],dsinfo:{erteiltAm:'',weg:'',version:'',bereitsInformiert:false,fundstelle:''},kundeGeloescht:aufHeute()});
     t.verlauf=(t.verlauf||[]).filter(h=>/^(Tipp erfasst|Stand: )/.test(h.text||'')).concat([{datum:aufHeute(),text:'Kunde gelöscht'}]);
     await wzdSpeichern('akten',t);
   }
 });
-/* Auskunft: mit Herkunft der Daten (Art. 15 Abs. 1 lit. g DSGVO) und Empfängern einer Weitergabe */
+/* Auskunft: mit Herkunft der Daten (Art. 15 Abs. 1 lit. g DSGVO) und Empfängern einer Weitergabe oder Rückmeldung (lit. c) */
 KD_AUSKUNFT_HOOKS.push(async id=>{
   await wzdLaden();
   let l=tpListe().filter(t=>t.kundeId===id).sort((a,b)=>(a.datum||'').localeCompare(b.datum||''));
-  return ['','TIPPS (HINWEISE AUS FILIALEN UND VON PARTNERN)'].concat(l.length?l.map(t=>{ let q=tpQuelle(t), ds=t.dsinfo||{}, R=tpR();
+  return ['','TIPPS (HINWEISE AUS FILIALEN UND VON PARTNERN)'].concat(l.length?l.map(t=>{ let q=tpQuelle(t), ds=t.dsinfo||{}, R=tpR(), rm=R.rueckmeldungen(t);
     return '- '+wzDatum(t.datum)+' '+R.artName(t.tippArt)+' — Herkunft der Daten: '+(tpQuelleText(q)||'nicht angegeben')
       +(t.herkunft==='bank'?' (aus der Kundenbeziehung der Bank)':'')
       +'; Einverständnis mit der Kontaktaufnahme: '+(wzdDatum(t.einverstandenAm)?wzDatum(t.einverstandenAm):'nicht vermerkt')
@@ -350,6 +396,9 @@ KD_AUSKUNFT_HOOKS.push(async id=>{
         :wzdDatum(ds.erteiltAm)?'erteilt am '+wzDatum(ds.erteiltAm)+[ds.weg,ds.version].filter(Boolean).map(x=>', '+x).join(''):'noch nicht erteilt')
       +(wzdDatum(t.ersterKontaktAm)?'; erster Kontakt am '+wzDatum(t.ersterKontaktAm):'')
       +(wzdDatum(t.weitergabeAm)?'; weitergegeben am '+wzDatum(t.weitergabeAm)+(t.weitergabeAn?' an '+t.weitergabeAn:''):'')
+      +(R.geberExtern(t,{quelle:q})||wzdDatum(t.rueckmeldungEinverstandenAm)?'; Einverständnis mit der Rückmeldung zum Stand an den Tippgeber: '
+        +(wzdDatum(t.rueckmeldungEinverstandenAm)?wzDatum(t.rueckmeldungEinverstandenAm):'nicht vermerkt'):'')
+      +(rm.length?'; Rückmeldung an den Tippgeber: '+rm.map(r=>wzDatum(r.am)+' zum Stand „'+R.standName(r.stand)+'“ an '+(r.an||tpQuelleText(q)||'den Tippgeber')).join(', '):'')
       +'; Stand: '+R.standName(t.stand)+(t.notiz?'; Notiz: '+t.notiz:''); }):['- keine']);
 });
 

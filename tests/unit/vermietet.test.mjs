@@ -180,7 +180,13 @@ test('Nach der Umschreibung: verfrühte Mitteilung ROT (§ 566e), fehlende Mitte
 });
 
 test('Leer verkaufen, Anzeigen und Posten für die Kachel „Unterlagen“', () => {
-  assert.match(texte(R.pruefen(fall({ leerVerkaufen: true }), HEUTE), 'Verkauf ohne Mieter'), /^gelb: Verkauf ist kein Kündigungsgrund.*§ 573 Abs\. 2 Nr\. 3 Hs\. 3 BGB.*keine Vorlage in der App/);
+  // D63: Verwertungskündigung bei erheblichen Nachteilen möglich (§ 573 Abs. 2 Nr. 3 Hs. 1 BGB), ausgeschlossen nur bei Aufteilung (Hs. 3)
+  const leer = texte(R.pruefen(fall({ leerVerkaufen: true }), HEUTE), 'Verkauf ohne Mieter');
+  assert.match(leer, /^gelb: Verkauf ist kein Kündigungsgrund für sich allein: Der Käufer tritt in den Mietvertrag ein \(§ 566 Abs\. 1 BGB\)/);
+  assert.match(leer, /angemessenen Verwertung gehindert .* erhebliche Nachteile .*\(§ 573 Abs\. 2 Nr\. 3 Hs\. 1 BGB\)/);
+  assert.match(leer, /Begründung von Wohnungseigentum verkauft werden soll \(Hs\. 3\) – Rechtsberatung, keine Vorlage in der App\.$/);
+  assert.doesNotMatch(leer, /Verkauf ist kein Kündigungsgrund;/);
+  assert.equal(bereich(R.pruefen(fall(), HEUTE), 'Verkauf ohne Mieter').length, 0);
   assert.deepEqual(R.anzeigePruefen('Schöne Wohnung, sofort frei!', true).map(x => x.stufe), ['rot']);
   assert.match(R.anzeigePruefen('Bezugsfrei ab Januar', true)[0].text, /„Bezugsfrei“.*§ 566 Abs\. 1 BGB/);
   assert.equal(R.anzeigePruefen('Frei ab 01.03.2027', true)[0].stufe, 'rot');

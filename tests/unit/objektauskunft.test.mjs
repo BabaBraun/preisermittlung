@@ -121,10 +121,25 @@ test('Unterschrift gilt je Stand: Änderung an Antwort, Mieten oder Text macht s
   assert.match(R.pruefsumme('x'), /^[0-9a-f]{14}$/);
 });
 
+test('Unterschrift nur als Bild-Daten: fremder Wert aus einer Sicherung gilt nicht, auch mit passender Prüfsumme (D63)', () => {
+  assert.equal(R.bildGueltig('data:image/png;base64,iVBORw0KGgo='), true);
+  assert.equal(R.bildGueltig('data:image/jpeg;base64,/9j/4AAQ'), true);
+  for (const b of ['x" onerror="alert(1)', 'data:image/png;base64,AA" onerror="alert(1)', 'data:image/svg+xml;base64,PHN2Zz4=', 'javascript:alert(1)', 'data:,', '', null, 42])
+    assert.equal(R.bildGueltig(b), false, String(b));
+  const r = { projektId: 'p1', kundeIds: ['k1', 'k2'], antworten: alle('nein'), text: 'X', unterschriften: {} };
+  const s = R.inhaltSchluessel(r, 'X');
+  r.unterschriften.k1 = { bild: 'x" onerror="alert(1)', datum: '2026-09-01', inhalt: s };
+  r.unterschriften.k2 = { bild: 'data:image/png;base64,AA', datum: '2026-09-01', inhalt: s };
+  assert.deepEqual(R.gueltigeUnterschriften(r, s), ['k2']);
+  assert.deepEqual(R.pruefen(r, '2026-09-29', { schluessel: s }).gueltig, ['k2']);
+  assert.equal(R.ungueltigeEntfernen(r, s), 1);
+  assert.deepEqual(Object.keys(r.unterschriften), ['k2']);
+});
+
 test('Fertig, Vorschlag der App, Alter über sechs Monate (§ 188 Abs. 2 und 3 BGB)', () => {
   const r = { projektId: 'p1', kundeIds: ['k1'], antworten: alle('nein'), unterschriften: {} };
   const s = R.inhaltSchluessel(r, 'T');
-  r.unterschriften.k1 = { bild: 'data:,', datum: '2026-03-31', inhalt: s };
+  r.unterschriften.k1 = { bild: 'data:image/png;base64,AA', datum: '2026-03-31', inhalt: s };
   let p = R.pruefen(r, '2026-09-30', { schluessel: s, textVorschlag: true });
   assert.equal(p.fertig, true);
   assert.deepEqual(p.liste, [{ stufe: 'gruen', text: 'Vom Eigentümer unterschrieben am 31.03.2026.' }]);   // kein Vorschlag-Hinweis nach der Unterschrift

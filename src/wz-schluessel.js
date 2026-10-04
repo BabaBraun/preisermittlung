@@ -363,9 +363,12 @@ KD_AKTE_HOOKS.push(id=>{
   if(!wzdBereit()||!skR()) return '';
   let R=skR(), l=[]; wzdAkten('schluessel').forEach(r=>(Array.isArray(r.ausgaben)?r.ausgaben:[]).filter(a=>a&&a.kundeId===id&&R.offen(a)).forEach(a=>l.push({r,a})));
   if(!l.length) return '';
-  return '<h3>Schlüssel</h3><div class="kd-karten">'+l.map(({r,a})=>'<div class="kd-karte"><div><b>'+sEsc(skSchluesselText(r,a))+': '+sEsc(skName(r))+'</b><span>'
-      +sEsc((R.datum(a.datum)?'ausgegeben '+wzDatum(a.datum)+' · ':'')+skStatusText(R.ausgabeStatus(a,aufHeute())))+'</span></div>'
-      +'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();skAusAkte(\''+idSicher(r.projektId)+'\',\''+idSicher(a.id)+'\')">Öffnen</button></div></div>').join('')+'</div>';
+  // Status als Chip wie im Schlüsselbuch: überfällig rot, heute oder ohne Rückgabe gelb (D60, D63)
+  return '<h3>Schlüssel</h3><div class="kd-karten">'+l.map(({r,a})=>{ let st=R.ausgabeStatus(a,aufHeute());
+    return '<div class="kd-karte"><div><b>'+sEsc(skSchluesselText(r,a))+': '+sEsc(skName(r))+'</b>'
+      +(R.datum(a.datum)?'<span>ausgegeben '+sEsc(wzDatum(a.datum))+'</span>':'')
+      +'<div class="sk-chips"><span class="sk-chip sk-'+st.stufe+'">'+sEsc(skStatusText(st))+'</span></div></div>'
+      +'<div class="kd-k"><button class="secondary" onclick="kdSchliessen();skAusAkte(\''+idSicher(r.projektId)+'\',\''+idSicher(a.id)+'\')">Öffnen</button></div></div>'; }).join('')+'</div>';
 });
 /* Verkaufsfahrplan (D49): Schlüssel übernommen und quittiert; alle ausgegebenen Schlüssel zurück */
 if(typeof FP_AUTO_HOOKS!=='undefined') FP_AUTO_HOOKS.push(o=>{

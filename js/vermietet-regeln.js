@@ -245,7 +245,10 @@ function pruefen(eingabe,heute,o){
   let uebergang={stufe:schlimmste(ul)};
 
   // Verkauf ohne Mieter
-  if(d.leerVerkaufen) add('Verkauf ohne Mieter','gelb','Verkauf ist kein Kündigungsgrund; die Absicht, nach einer Aufteilung zu verkaufen, ist ausdrücklich keiner (§ 573 Abs. 2 Nr. 3 Hs. 3 BGB) – Rechtsberatung, keine Vorlage in der App.');
+  // § 573 Abs. 2 Nr. 3 BGB: Verwertung (auch Verkauf) kann ein berechtigtes Interesse sein (Hs. 1); ausgeschlossen sind nur höhere Miete (Hs. 2) und Verkauf wegen Aufteilung (Hs. 3)
+  if(d.leerVerkaufen) add('Verkauf ohne Mieter','gelb','Verkauf ist kein Kündigungsgrund für sich allein: Der Käufer tritt in den Mietvertrag ein (§ 566 Abs. 1 BGB). '
+    +'Eine Kündigung wegen wirtschaftlicher Verwertung setzt voraus, dass der Vermieter durch das Mietverhältnis an einer angemessenen Verwertung gehindert ist und dadurch erhebliche Nachteile erleiden würde (§ 573 Abs. 2 Nr. 3 Hs. 1 BGB); '
+    +'ausgeschlossen ist sie, wenn im Zusammenhang mit einer beabsichtigten oder nach der Überlassung erfolgten Begründung von Wohnungseigentum verkauft werden soll (Hs. 3) – Rechtsberatung, keine Vorlage in der App.');
 
   let stufe=schlimmste(ampeln.map(a=>a.stufe));
   return {daten:d,vorkauf,sperr,eigenbedarf:eigen,kaution,uebergang,ampeln,stufe,rot:ampeln.filter(a=>a.stufe==='rot').length,gelb:ampeln.filter(a=>a.stufe==='gelb').length,

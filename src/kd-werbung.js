@@ -20,7 +20,8 @@ function kwNeu(d){
   if(d.einwilligungTelefon||d.einwilligung) w.telefon=Object.assign(ein(),{mutmasslichGrund:'',verwendungen:[]});
   return w;
 }
-async function kwSetz(pfad,wert){
+/* still: nur speichern, Kasten erst beim Verlassen des Feldes neu (Datumsfelder melden in Chromium jeden Zwischenstand beim Tippen) */
+async function kwSetz(pfad,wert,still){
   let k=kwKunde(); if(!k) return;
   let w=kwModell(k), teile=pfad.split('.');
   if(teile[0]==='dsinfo'&&!w.dsinfo) w.dsinfo=Object.assign({},KW_DS_LEER);
@@ -35,8 +36,18 @@ async function kwSetz(pfad,wert){
     if(wert==='einwilligung'||wert==='bestandskunde'){ o.erfasstAm=aufHeute(); o.widerrufAm=''; o.widerrufWeg=''; if(vorher==='widerrufen'){ o.erteiltAm=''; o.nachweis=''; } }
     if(wert==='keine'){ o.erteiltAm=''; o.form=''; o.nachweis=''; }
   }
-  k.werbung=w; if(await kdSpeichern(k)) kwNeuZeichnen(k);
+  k.werbung=w; if(still) KW_NACH.offen=true;   // vor dem Speichern: das Verlassen des Feldes kann schneller sein
+  if(!(await kdSpeichern(k))) return;
+  if(!still) kwNeuZeichnen(k);
 }
+/* Neuaufbau nach dem Verlassen eines Datumsfeldes — erst wenn der Zeiger wieder oben ist, damit ein Klick auf einen Knopf nicht verloren geht */
+var KW_NACH={offen:false,zeiger:false,warte:false};
+function kwNachher(){
+  if(KW_NACH.zeiger){ KW_NACH.warte=true; return; }
+  setTimeout(()=>{ if(!KW_NACH.offen) return; KW_NACH.offen=false; let k=kwKunde(); if(k) kwNeuZeichnen(k); },0);
+}
+document.addEventListener('pointerdown',()=>{ KW_NACH.zeiger=true; },true);
+document.addEventListener('pointerup',()=>{ KW_NACH.zeiger=false; if(KW_NACH.warte){ KW_NACH.warte=false; setTimeout(kwNachher,0); } },true);
 /* nur den Kasten „Werbung und Datenschutz“ neu aufbauen: Akte, Scrollstand und Eingaben anderer Felder bleiben; Fokus wandert mit */
 function kwNeuZeichnen(k){
   let box=document.querySelector('#kd_inhalt .kw-box'); if(!box){ kdAkte(k.id); return; }
@@ -80,7 +91,8 @@ function kwWahl(pfad,label,wert,optionen){
 }
 function kwText(pfad,label,wert,typ,ph){
   return '<div class="field"><label>'+label+'</label><input'+(typ?' type="'+typ+'"':'')+' value="'+sEsc(wert||'')+'"'+(ph?' placeholder="'+sEsc(ph)+'"':'')
-    +' onchange="kwSetz(\''+pfad+'\',this.value)" aria-label="'+sEsc(label.replace(/<[^>]+>/g,'').trim())+'"></div>';
+    +(typ==='date'?' onchange="kwSetz(\''+pfad+'\',this.value,1)" oninput="kwSetz(\''+pfad+'\',this.value,1)" onblur="kwNachher()"':' onchange="kwSetz(\''+pfad+'\',this.value)"')
+    +' aria-label="'+sEsc(label.replace(/<[^>]+>/g,'').trim())+'"></div>';
 }
 function kwCheck(pfad,label,an){ return '<label class="wz-check full"><input type="checkbox"'+(an?' checked':'')+' onchange="kwSetz(\''+pfad+'\',this.checked)"><span>'+label+'</span></label>'; }
 function kwKanal(k,w,kanal){

@@ -216,3 +216,45 @@ test('Zwei Eigentümer, Wohnungseigentum, Fahrplan, Kundenakte; Auskunft und Lö
   expect(nach).toMatch(/OBJEKTAUSKÜNFTE \(ANGABEN ALS EIGENTÜMER\)\n- keine/);
   await keineSkriptfehler(page);
 });
+
+test('Unterschrift aus einer Sicherung, die kein Bild ist, gilt nicht und kommt nicht ins Dokument (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objekt(page);
+  // eingespielte Akte: Prüfsumme passend nachgerechnet, „Bild“ mit Skript im Attribut
+  await page.evaluate(async pid => {
+    const R = ImmoObjektauskunftRegeln;
+    const r = wzdAkteNeu('objektauskunft', { projektId: pid, objekt: 'Testhaus', kundeIds: ['k_e'], weg: false, antworten: {}, mieten: { anzahl: '', kaltmiete: '', kaution: '' },
+      sonderumlageBetrag: '', text: 'X', textQuelle: 'eigen', textAuto: false, unterschriften: {}, verlauf: [] });
+    for (const q of R.FRAGEN) r.antworten[q.key] = { wert: 'nein', text: '' };
+    r.unterschriften.k_e = { bild: 'x" onerror="window.__xss=1', zeit: '2026-09-01T10:00:00.000Z', datum: '2026-09-01', inhalt: R.inhaltSchluessel(r, 'X') };
+    await iaPut('akten', r); await wzdLaden(true);
+  }, pid);
+  expect(await page.evaluate(() => { const r = wzdAkten('objektauskunft')[0]; return [oaSchluessel(r) === r.unterschriften.k_e.inhalt, oaPruefen(r).gueltig]; })).toEqual([true, []]);
+  await page.evaluate(async pid => { wzOeffnen('objektauskunft'); await oaOeffnen(pid); }, pid);
+  await expect(page.locator('#wz_body')).toContainText('Die Unterschrift wurde entfernt');
+  await expect(page.locator('#oa_pruefung')).toContainText('Noch nicht unterschrieben.');
+  await page.getByRole('button', { name: 'Objektauskunft als Dokument' }).click();
+  await expect(page.locator('#report .pa-entwurf')).toHaveText('Entwurf — nicht unterschrieben');
+  await expect(page.locator('#report .wzd-unterschriften img')).toHaveCount(0);
+  expect(await page.locator('#report').innerHTML()).not.toContain('onerror');
+  expect(await page.evaluate(() => window.__xss)).toBeUndefined();
+  await page.locator('#report .ex-leiste button', { hasText: 'zurück' }).click();
+  await page.evaluate(() => wzSchliessen());
+  await expect.poll(() => page.evaluate(async () => Object.keys((await iaAlle('akten')).find(x => x.art === 'objektauskunft').unterschriften))).toEqual([]);
+  await keineSkriptfehler(page);
+});
+
+test('Löschen direkt nach einer Eingabe: das verzögerte Speichern schreibt den Eintrag nicht zurück (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objekt(page);
+  await page.evaluate(async pid => { wzOeffnen('objektauskunft'); await oaOeffnen(pid); }, pid);
+  await frage(page, 'maengel').locator('textarea').fill('Dachrinne undicht');
+  // Eingabe und Löschen innerhalb der 400 ms des verzögerten Speicherns
+  const offen = await page.evaluate(async () => { OA.aktiv.antworten.maengel.text = 'Dachrinne undicht, Fallrohr lose'; oaSpeichern();
+    const id = OA.aktiv.id, war = id in WZD_TIMER; await oaLoeschen(); return [war, id in WZD_TIMER, OA.aktiv]; });
+  expect(offen).toEqual([true, false, null]);
+  await page.waitForTimeout(800);   // länger als der Speicher-Timer
+  expect(await page.evaluate(async () => [(await iaAlle('akten')).filter(x => x.art === 'objektauskunft').length, wzdAkten('objektauskunft').length])).toEqual([0, 0]);
+  await expect(page.locator('#wz_body .kd-karte', { hasText: 'Testhaus' })).toContainText('noch nicht begonnen');
+  await keineSkriptfehler(page);
+});

@@ -13,16 +13,16 @@ function dialoge(page) {
   return liste;
 }
 
-/* gesicherte Bewertung „Testhaus“ in Vermarktung, Eigentümerin Erika Verkaufbeispiel aus der Kundenakte */
-async function verkauf(page) {
+/* gesicherte Bewertung „Testhaus“ in Vermarktung (oder mit anderem Stand), Eigentümerin Erika Verkaufbeispiel aus der Kundenakte */
+async function verkauf(page, stand = 'In Vermarktung') {
   await appOeffnen(page); await arbeitsflaeche(page);
   await fallAnwenden(page, SZENARIEN.find(s => s.name === 'haus_referenz'));
-  await page.evaluate(async () => {
+  await page.evaluate(async stand => {
     for (const [id, vn, nn] of [['k_v', 'Erika', 'Verkaufbeispiel'], ['k_e', 'Hans', 'Verkaufbeispiel'], ['k_k', 'Max', 'Kaufbeispiel'], ['k_b', 'Ida', 'Vollmachtbeispiel']])
       await kdSpeichern({ id, anrede: '', vorname: vn, nachname: nn, grundlage: 'vertrag', kontakte: [], finanzierungen: [], erstellt: 1 });
-    $('ek_anschrift').value = 'Musterweg 7, 74360 Ilsfeld'; $('vm_status').value = 'In Vermarktung'; $('ex_preis').value = '480.000'; $('ek_kunde_id').value = 'k_v';
+    $('ek_anschrift').value = 'Musterweg 7, 74360 Ilsfeld'; $('vm_status').value = stand; $('ex_preis').value = '480.000'; $('ek_kunde_id').value = 'k_v';
     $('pj_name').value = 'Testhaus'; compute(); await projektSichern(); await wzdLaden(true);
-  });
+  }, stand);
   return page.evaluate(() => pjLoad().find(p => p.name === 'Testhaus').id);
 }
 /* eine fertige Zeile (alle Punkte im Banksystem erledigt) */
@@ -41,8 +41,13 @@ test('Geldwäsche-Prüfung: Personen aus Vorschlag und Kundenakte, Ampeln nach S
   await expect(karte).toContainText('Käufer: noch nicht fällig');
   await expect(page.locator('#wz_body')).toContainText('§ 16a Abs. 1 GwG');
   await expect(page.locator('#wz_body')).toContainText('nicht in der App festhalten');
+  // § 47 Abs. 1 GwG nur beim Verdacht; dass der Vermerk in keinem Dokument für Dritte steht, trägt die Datenminimierung
+  await expect(page.locator('.gwg-hinweise .wz-rot')).toContainText('Notariat nicht informieren (§ 47 Abs. 1 GwG)');
+  await expect(page.locator('.gwg-hinweise')).toContainText('erscheint in keinem Dokument für Dritte, weil Dritte ihn nicht brauchen (Datenminimierung, Art. 5 Abs. 1 lit. c DSGVO).');
+  expect(await page.locator('.gwg-hinweise').innerText()).not.toMatch(/Dokument für Dritte[^.]*§ 47/);
+  await expect(page.locator('.gwg-einst')).toContainText('Rot ab angenommenem Gebot, Reservierung oder Notarauftrag');
   await karte.getByRole('button', { name: 'Öffnen' }).click();
-  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('bald fällig — Auftrag erteilt oder Maklervertrag abgehakt');
+  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('bald fällig — Auftrag erteilt oder Maklervertrag geschlossen');
   await expect(page.locator('#gw_seite_kaeufer')).toContainText('noch nicht fällig');
   // Vorschlag: Eigentümerin aus der Bewertung
   const vorschlag = page.locator('.gwg-abgleich', { hasText: 'Eigentümer in der Bewertung' });
@@ -56,12 +61,14 @@ test('Geldwäsche-Prüfung: Personen aus Vorschlag und Kundenakte, Ampeln nach S
   await page.locator('#kd_overlay .kd-zeile', { hasText: 'Max Kaufbeispiel' }).click();
   await expect(page.locator('#gw_z_1')).toContainText('Max Kaufbeispiel');
   await expect(page.locator('#kd_overlay')).not.toHaveClass(/\bon\b/);
-  // angenommenes Gebot (Kauf ohne Finanzierung): Käuferseite gelb, Hinweis zum Barzahlungsverbot
+  // angenommenes Gebot (Kauf ohne Finanzierung): ernsthaftes Interesse, Parteien bestimmt → beide Seiten fällig (§ 11 Abs. 2 Satz 1 GwG)
   await page.evaluate(async pid => { await wzdSpeichern('bieter', { id: 'b_1', projektId: pid, ende: '2026-10-20', status: 'laufend',
     gebote: [{ id: 'g1', kundeId: 'k_k', betrag: 470000, datum: '2026-09-20', status: 'angenommen', finanzierung: 'Kauf ohne Finanzierung' }] }); wzZeichnen(); }, pid);
-  await expect(page.locator('#gw_seite_kaeufer')).toContainText('bald fällig — Gebot im Bieterverfahren angenommen');
+  await expect(page.locator('#gw_seite_kaeufer')).toContainText('Käufer: fällig — Gebot im Bieterverfahren angenommen (§ 11 Abs. 2 Satz 1 GwG');
+  await expect(page.locator('#gw_seite_kaeufer .wz-ampel')).toHaveClass(/wz-rot/);
+  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('Verkäufer: fällig — Gebot im Bieterverfahren angenommen');
   await expect(page.locator('#wz_body')).toContainText('Kauf ohne Finanzierung: Den Kaufpreis nur unbar zahlen lassen');
-  await expect(page.locator('#gw_z_1')).toHaveClass(/gwg-gelb/);
+  await expect(page.locator('#gw_z_1')).toHaveClass(/gwg-rot/);
   // Checkliste der Verkäuferin: Identifizierung mit Datum und Kürzel, Haken mit Datum (heute), Abschluss → grün
   await page.locator('#wz_gwg_personen_0_identifizierung').selectOption('erledigt');
   await page.locator('#wz_gwg_personen_0_datum').fill('2026-09-25');
@@ -69,15 +76,23 @@ test('Geldwäsche-Prüfung: Personen aus Vorschlag und Kundenakte, Ampeln nach S
   await page.locator('#wz_gwg_personen_0_wbAbgeklaert').check();
   await expect(page.locator('#wz_gwg_personen_0_wbAm')).toHaveValue('2026-09-29');
   await page.locator('#wz_gwg_personen_0_pepImBanksystem').check();
-  await expect(page.locator('#gw_st_0')).toContainText('Alle Punkte erledigt — Abschluss im Banksystem bestätigen.');
+  await expect(page.locator('#gw_st_0')).toContainText('Alle Punkte erledigt — Abschluss im Banksystem mit Datum und Kürzel bestätigen.');
   await page.locator('#wz_gwg_personen_0_abschluss').check();
+  // abgehakt, aber ohne Kürzel: die App nennt das Kürzel
+  await expect(page.locator('#gw_st_0')).toContainText('Alle Punkte erledigt — Abschluss: Kürzel „durch wen“ eintragen.');
   await page.locator('#wz_gwg_personen_0_abschlussKuerzel').fill('FB');
   await expect(page.locator('#gw_st_0')).toContainText('Vollständig im Banksystem dokumentiert.');
   await expect(page.locator('#gw_z_0')).toHaveClass(/gwg-gruen/);
   await expect(page.locator('#gw_seite_verkaeufer')).toContainText('alle Personen vollständig');
-  // Datum in der Zukunft wird abgelehnt
+  // Datum in der Zukunft: beim Tippen nur als offener Punkt, beim Verlassen des Feldes abgelehnt
   await page.locator('#wz_gwg_personen_1_identifizierung').selectOption('erledigt');
-  await page.locator('#wz_gwg_personen_1_datum').fill('2026-10-05');
+  const datum1 = page.locator('#wz_gwg_personen_1_datum');
+  await expect(datum1).toHaveAttribute('max', '2026-09-29');
+  await datum1.fill('2026-10-05');
+  await expect(page.locator('#gw_st_1')).toContainText('Identifizierung im Banksystem mit Datum und Kürzel (Datum liegt in der Zukunft, Kürzel „durch wen“ eintragen)');
+  await expect(datum1).toHaveValue('2026-10-05');
+  expect(meldungen.join('\n')).not.toContain('Ein Datum in der Zukunft');
+  await datum1.blur();
   await expect.poll(() => meldungen.join('\n')).toContain('Ein Datum in der Zukunft ist nicht möglich');
   await expect(page.locator('#wz_gwg_personen_1_datum')).toHaveValue('');
   // Abschluss erst, wenn alles erledigt ist
@@ -88,6 +103,8 @@ test('Geldwäsche-Prüfung: Personen aus Vorschlag und Kundenakte, Ampeln nach S
   await page.locator('#wz_gwg_personen_1_identifizierung').selectOption('frueher');
   await expect(page.locator('#gw_z_1')).toContainText('Bestandskunde: Im Banksystem vermerken');
   await expect(page.locator('#gw_z_1')).toContainText('§ 11 Abs. 3 Satz 2 GwG');
+  await expect(page.locator('#gw_z_1')).toContainText('(§ 11 Abs. 3 Satz 1, § 8 Abs. 2 Satz 5 GwG)');
+  await expect(page.locator('#gw_z_1')).not.toContainText('Satz 6');
   await page.locator('#wz_gwg_personen_1_datum').fill('2026-09-15');
   await page.locator('#wz_gwg_personen_1_kuerzel').fill('FB');
   await expect(page.locator('#gw_st_1')).toContainText('Handelt auf eigene Rechnung');
@@ -238,5 +255,61 @@ test('Geldwäsche-Prüfung: Auskunft und Löschen beim Kunden, Löschprüfung na
   await page.getByRole('button', { name: 'Löschprüfung: Vorgang löschen' }).click();
   await expect(page.locator('.gwg-karte', { hasText: 'Testhaus' })).toContainText('noch nicht begonnen');
   expect(await page.evaluate(async () => (await iaAlle('akten')).filter(a => a.art === 'gwg').length)).toBe(0);
+  await keineSkriptfehler(page);
+});
+
+test('Geldwäsche-Prüfung: erkannter Maklervertrag löst die Verkäuferseite aus, auch beim Stand „Akquise“ (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await verkauf(page, 'Akquise');
+  await page.evaluate(async pid => { wzOeffnen('gwg'); await gwgOeffnen(pid); }, pid);
+  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('Verkäufer: noch nicht fällig');
+  // Verkäufervertrag mit Textform-Datum in der Kachel „Maklerverträge“: der Fahrplan erkennt ihn (Haken dort gesperrt, kein Handhaken)
+  await page.evaluate(async pid => { const a = mvLeer('verkaeufer'); a.projektId = pid; a.kundeId = 'k_v'; a.textform.datum = '2026-09-20';
+    await wzdSpeichern('akten', a); await fpLaden(); wzZeichnen(); }, pid);
+  expect(await page.evaluate(pid => [fpAuto(wzdObjekt(pid)).maklervertrag, !!(fpS()[pid] || {}).maklervertrag], pid)).toEqual([true, false]);
+  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('Verkäufer: bald fällig — Auftrag erteilt oder Maklervertrag geschlossen');
+  await expect(page.locator('#gw_seite_verkaeufer .wz-ampel')).toHaveClass(/wz-gelb/);
+  await expect(page.locator('#gw_seite_kaeufer')).toContainText('Käufer: noch nicht fällig');
+  // nach Widerruf: kein Auslöser mehr
+  await page.evaluate(async pid => { const a = wzdAkten('maklervertrag', pid)[0]; a.widerruf.eingang = '2026-09-25'; await wzdSpeichern('akten', a); wzZeichnen(); }, pid);
+  await expect(page.locator('#gw_seite_verkaeufer')).toContainText('Verkäufer: noch nicht fällig');
+  await keineSkriptfehler(page);
+});
+
+test('Geldwäsche-Prüfung: Datum per Tastatur ändern — Zwischenstand in der Zukunft löscht nichts, geprüft wird beim Verlassen (D63)', async ({ page }) => {
+  const meldungen = dialoge(page);
+  const pid = await verkauf(page);
+  await page.evaluate(async ({ pid, zv }) => {
+    await wzdSpeichern('akten', wzdAkteNeu('gwg', { projektId: pid, kundeIds: ['k_v'], personen: [zv], notarUebermittelt: '', geschaeft: 'kauf', nettokaltmiete: '' }));
+    wzOeffnen('gwg'); await gwgOeffnen(pid); }, { pid, zv: fertig('verkaeufer', 'verkaeufer', 'k_v', { pepAm: '2026-09-29' }) });
+  await expect(page.locator('#gw_st_0')).toContainText('Vollständig im Banksystem dokumentiert.');
+  // PEP-Abgleich war am 30.08. erledigt: am PC Tag „30“ (Zwischenstand 30.09.2026 = Zukunft), dann Monat „08“ tippen
+  const feld = page.locator('#wz_gwg_personen_0_pepAm');
+  await expect(feld).toHaveAttribute('max', '2026-09-29');
+  await feld.focus();
+  await page.keyboard.type('30');   // Chromium: input/change mit 2026-09-03, dann 2026-09-30 (beim Wechsel zum Monat ist document.activeElement kurz body)
+  await expect(feld).toHaveValue('2026-09-30');
+  expect(meldungen.join('\n')).not.toContain('Zukunft');
+  await expect(page.locator('#gw_st_0')).toContainText('PEP-Abgleich im Banksystem erledigt (Datum liegt in der Zukunft)');
+  await expect(feld).toBeFocused();
+  await page.keyboard.type('08');
+  await expect(feld).toHaveValue('2026-08-30');
+  await expect(page.locator('#gw_st_0')).toContainText('Vollständig im Banksystem dokumentiert.');
+  await feld.blur();
+  await page.waitForTimeout(300);
+  expect(meldungen.join('\n')).not.toMatch(/Zukunft|zurückgenommen/);
+  await expect(page.locator('#wz_gwg_personen_0_abschluss')).toBeChecked();
+  await expect.poll(async () => (await page.evaluate(async () => (await iaAlle('akten')).find(a => a.art === 'gwg'))).personen[0].pepAm).toBe('2026-08-30');
+  // bleibt das Datum in der Zukunft, lehnt die App es beim Verlassen ab und nimmt den Abschluss zurück
+  await feld.focus();
+  await page.keyboard.type('30');
+  await page.keyboard.type('09');
+  await expect(feld).toHaveValue('2026-09-30');
+  expect(meldungen.join('\n')).not.toContain('Zukunft');
+  await feld.blur();
+  await expect.poll(() => meldungen.join('\n')).toContain('Ein Datum in der Zukunft ist nicht möglich');
+  expect(meldungen.join('\n')).toContain('Der Abschluss wurde zurückgenommen, weil wieder etwas offen ist: PEP-Abgleich im Banksystem erledigt (Datum eintragen).');
+  await expect(page.locator('#wz_gwg_personen_0_pepAm')).toHaveValue('');
+  await expect(page.locator('#wz_gwg_personen_0_abschluss')).not.toBeChecked();
   await keineSkriptfehler(page);
 });

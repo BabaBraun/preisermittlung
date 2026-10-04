@@ -239,8 +239,9 @@ function oaDokument(){
       if(q.key==='sonderumlage'&&a.wert==='ja'&&betrag(r.sonderumlageBetrag)) z.push('Anteil dieser Wohnung: '+betrag(r.sonderumlageBetrag));
       return [sEsc(q.frage),a.wert==='ja'||a.wert==='unbekannt'?'<b>'+oaAntwortText(a.wert)+'</b>':oaAntwortText(a.wert),z.filter(Boolean).join('<br>')||'–']; })); }).join('');
   let kunden=r.kundeIds||[];
-  let unterschriften='<div class="wzd-unterschriften">'+(kunden.length?kunden:['']).map(kid=>{ let ok=kid&&pr.gueltig.includes(kid);
-    return '<div><p>'+(ok?wzDatum(u[kid].datum||String(u[kid].zeit||'').slice(0,10)):'Ort, Datum')+'</p>'+(ok?'<img src="'+u[kid].bild+'" alt="Unterschrift">':'<div style="height:60px"></div>')
+  // gültig heißt auch: Bild-Daten (oaR().bildGueltig); zusätzlich maskiert, falls ein Eintrag aus einer Sicherung stammt
+  let unterschriften='<div class="wzd-unterschriften">'+(kunden.length?kunden:['']).map(kid=>{ let ok=kid&&pr.gueltig.includes(kid)&&oaR().bildGueltig(u[kid].bild);
+    return '<div><p>'+(ok?wzDatum(u[kid].datum||String(u[kid].zeit||'').slice(0,10)):'Ort, Datum')+'</p>'+(ok?'<img src="'+sEsc(u[kid].bild)+'" alt="Unterschrift">':'<div style="height:60px"></div>')
       +'<p>'+sEsc(kid?wzdKundeName(kid):'Eigentümer')+'</p></div>'; }).join('')+'</div>';
   return {titel:'Objektauskunft '+oaObjektName(r),ohneFuss:true,pflicht:true,
     html:(K.firma?'<p class="wzd-unter">'+sEsc(K.firma)+'</p>':'')

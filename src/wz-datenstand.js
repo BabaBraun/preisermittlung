@@ -3,7 +3,7 @@
    Marktberichte, Preisindex des Wertmonitors) und die eigenen Daten (Sicherung, Liegenschaften, Löschprüfungen)? Je Eintrag
    Stand, erwartete nächste Veröffentlichung und was zu tun ist; fällige Punkte zählt die Kachel auf der Startseite.
    Die Regeln stehen in js/beratung.js (datenstand) und sind dort getestet. Das Dokument dient als Nachweis der Datenstände. */
-var DS={erg:null,laeuft:null,weg:false};
+var DS={erg:null,laeuft:null,weg:false,gezeigt:null};   // gezeigt: Prüfung, die die offene Kachel gerade anzeigt
 const DS_GRUPPEN=[['rechnen','Rechengrundlagen der App'],['markt','Marktdaten'],['daten','Deine Daten'],['recht','Rechtsstand']];
 const DS_STATUS={ok:['gruen','aktuell'],bald:['gelb','bald prüfen'],faellig:['rot','fällig'],info:['grau','nicht hinterlegt']};
 const DS_AKTION={sicherung:['Jetzt sichern','dsSichern()','download'],markt:['Marktdaten öffnen','wzSchliessen();pqOeffnen()','book'],
@@ -40,7 +40,10 @@ async function dsEingaben(){
 }
 async function dsAktualisieren(){
   if(DS.laeuft) return DS.laeuft;
-  DS.laeuft=(async()=>{ try{ DS.erg=ImmoBeratung.datenstand(await dsEingaben(),aufHeute()); }catch(e){ if(!DS.weg) console.error('Datenstand',e); DS.erg=DS.erg||{liste:[],faellig:0,bald:0}; } DS.laeuft=null; dsBadge(); return DS.erg; })();
+  DS.laeuft=(async()=>{ try{ DS.erg=ImmoBeratung.datenstand(await dsEingaben(),aufHeute()); }catch(e){ if(!DS.weg) console.error('Datenstand',e); DS.erg=DS.erg||{liste:[],faellig:0,bald:0}; } DS.laeuft=null; dsBadge();
+    // offene Kachel zeigt noch eine ältere Prüfung (z. B. die Prüfung kurz nach dem Start lief erst danach fertig) → neu aufbauen
+    if(WZ.aktiv==='datenstand'&&DS.gezeigt&&DS.gezeigt!==DS.erg) wzZeichnen();
+    return DS.erg; })();
   return DS.laeuft;
 }
 /* Zahl auf der Kachel der Startseite: fällige und bald zu prüfende Punkte */
@@ -51,8 +54,8 @@ function dsBadge(){
   b.title=DS.erg?(DS.erg.faellig?DS.erg.faellig+' fällig':'')+(DS.erg.faellig&&DS.erg.bald?', ':'')+(DS.erg.bald?DS.erg.bald+' bald prüfen':''):'';
 }
 function dsZeichnen(){
-  if(!DS.erg){ dsAktualisieren().then(()=>{ if(WZ.aktiv==='datenstand') wzZeichnen(); }); return '<p class="hint">Datenstände werden gelesen …</p>'; }
-  let l=DS.erg.liste;
+  if(!DS.erg){ DS.gezeigt=null; dsAktualisieren().then(()=>{ if(WZ.aktiv==='datenstand'&&DS.gezeigt!==DS.erg) wzZeichnen(); }); return '<p class="hint">Datenstände werden gelesen …</p>'; }
+  let l=DS.erg.liste; DS.gezeigt=DS.erg;
   let kopf=wzAmpel(DS.erg.faellig?'rot':DS.erg.bald?'gelb':'gruen',DS.erg.faellig||DS.erg.bald
     ?[DS.erg.faellig?DS.erg.faellig+' Punkt'+(DS.erg.faellig===1?'':'e')+' fällig':'',DS.erg.bald?DS.erg.bald+' bald zu prüfen':''].filter(Boolean).join(', ')+'.'
     :'Alles aktuell.');

@@ -214,6 +214,13 @@ test('Kundenakte zeigt ausgegebene Schlüssel; Auskunft und Löschen für Eigent
   await expect(kd.locator('h3', { hasText: 'Schlüssel' })).toBeVisible();
   await expect(kd).toContainText('Haustür (1): Testhaus');
   await expect(kd).toContainText('überfällig seit 25.9.2026');
+  // überfällig rot wie im Schlüsselbuch (D60, D63)
+  const kdChip = kd.locator('.kd-karte', { hasText: 'Haustür (1): Testhaus' }).locator('.sk-chip');
+  await expect(kdChip).toHaveText('überfällig seit 25.9.2026');
+  await expect(kdChip).toHaveClass(/\bsk-rot\b/);
+  expect(await kdChip.evaluate(e => getComputedStyle(e).color)).toBe(await kd.locator('h3', { hasText: 'Schlüssel' }).evaluate(h => {
+    const p = document.createElement('span'); p.style.color = 'var(--bad)'; h.appendChild(p); const c = getComputedStyle(p).color; p.remove(); return c; }));
+  await expect(kd.locator('.kd-karte', { hasText: 'Haustür (1): Testhaus' })).toContainText('ausgegeben 20.9.2026');
   await kd.locator('.kd-karte', { hasText: 'Haustür (1): Testhaus' }).getByRole('button', { name: 'Öffnen' }).click();
   await expect(page.locator('#wz_titel')).toContainText('Schlüsselbuch');
   await expect(page.locator('.sk-auf .vl-empf')).toContainText('Max Probe');
@@ -238,5 +245,29 @@ test('Kundenakte zeigt ausgegebene Schlüssel; Auskunft und Löschen für Eigent
   // die Sicherung nimmt das Schlüsselbuch mit, die Prüfung beim Einspielen lässt es durch
   const ok = await page.evaluate(async () => ImmoDaten.projektSicherungPruefen({ typ: 'immoapp-projekte', version: 3, projekte: [], kunden: [{ id: 'k_z' }], akten: await iaAlle('akten') }).akten.length);
   expect(ok).toBe(1);
+  await keineSkriptfehler(page);
+});
+
+test('Kundenakte: Rückgabe heute gelb, noch nicht fällig grün; Löschen direkt nach einer Eingabe bleibt gelöscht (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objekt(page);
+  await buch(page, pid, [{ id: 'sa_h', rolle: 'interessent', modus: 'akte', kundeId: 'k_i', rueckgabeBis: '2026-09-29' },
+    { id: 'sa_g', schluesselId: 'sl_b', rolle: 'interessent', modus: 'akte', kundeId: 'k_i', rueckgabeBis: '2026-10-02' }]);
+  await page.evaluate(() => kdOeffnen('k_i'));
+  const kd = page.locator('#kd_inhalt');
+  await expect(kd.locator('.kd-karte', { hasText: 'Haustür (1)' }).locator('.sk-chip')).toHaveClass(/\bsk-gelb\b/);
+  await expect(kd.locator('.kd-karte', { hasText: 'Haustür (1)' }).locator('.sk-chip')).toHaveText('heute zurück');
+  await expect(kd.locator('.kd-karte', { hasText: 'Briefkasten (1)' }).locator('.sk-chip')).toHaveClass(/\bsk-gruen\b/);
+  await page.evaluate(() => kdSchliessen());
+  // Notiz tippen und binnen 400 ms löschen: der Timer des verzögerten Speicherns darf das Schlüsselbuch nicht zurückschreiben
+  await page.evaluate(async pid => { wzOeffnen('schluessel'); await skOeffnen(pid); }, pid);
+  await page.locator('#wz_schluessel_notiz').fill('Schlüssel im Tresor');
+  const offen = await page.evaluate(async () => { SK.aktiv.notiz = 'Schlüssel im Tresor der Filiale'; skSpeichern();
+    const id = SK.aktiv.id, war = id in WZD_TIMER; await skLoeschen(); return [war, id in WZD_TIMER, SK.aktiv]; });
+  expect(offen).toEqual([true, false, null]);
+  await page.waitForTimeout(800);   // länger als der Speicher-Timer
+  expect(await akte(page)).toBeUndefined();
+  expect(await page.evaluate(() => wzdAkten('schluessel').length)).toBe(0);
+  await expect(page.locator('.sk-karte', { hasText: 'Testhaus' })).toContainText('noch kein Schlüsselbuch');
   await keineSkriptfehler(page);
 });

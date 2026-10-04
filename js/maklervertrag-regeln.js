@@ -5,7 +5,8 @@
    - Abschlussweg: Filiale ohne vorherige Ansprache außerhalb → kein Widerrufsrecht (§ 312b Abs. 2, § 312g Abs. 1 BGB);
      beim Kunden, am Objekt oder nach Ansprache außerhalb → außerhalb von Geschäftsräumen (§ 312b Abs. 1 Satz 1 Nr. 1–3 BGB);
      nur E-Mail, Brief oder Telefon → Fernabsatz (§ 312c BGB; BGH I ZR 30/15); Online-Oberfläche → zusätzlich § 312j Abs. 3
-     und 4 BGB (BGH I ZR 159/24) und die Widerrufsfunktion nach § 356a BGB. Unklarer Weg: Die App setzt ein Widerrufsrecht voraus.
+     und 4 BGB (BGH I ZR 159/24) und die Widerrufsfunktion nach § 356a BGB; fehlt in der Belehrung der Hinweis darauf, beginnt die
+     Frist nicht (§ 356 Abs. 3 Satz 1 BGB, Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB). Unklarer Weg: Die App setzt ein Widerrufsrecht voraus.
    - Frist 14 Tage ab Vertragsschluss (§ 355 Abs. 2 BGB), nicht vor der ordnungsgemäßen Belehrung (§ 356 Abs. 3 Satz 1 BGB).
      Außerhalb von Geschäftsräumen zählt die Belehrung nur auf Papier oder mit Zustimmung auf einem dauerhaften Datenträger und
      mit Muster-Widerrufsformular (Art. 246a § 4 Abs. 2 EGBGB; BGH I ZR 169/19). Tag des Ereignisses zählt nicht (§ 187 Abs. 1),
@@ -117,6 +118,8 @@ function pruefen(v,heute,o){
   if(!B.form) fehlt.push('Form der Übergabe');
   else if(aussenForm&&B.form==='angepasst') fehlt.push('Papier oder dauerhafter Datenträger (außerhalb von Geschäftsräumen)');
   else if(aussenForm&&B.form==='datentraeger'&&!gueltig(v.zustimmung)) fehlt.push('Zustimmung zum dauerhaften Datenträger');
+  // Online-Oberfläche ab 19.06.2026: ohne Hinweis auf die Widerrufsfunktion beginnt die Frist nicht (§ 356 Abs. 3 Satz 1, § 356a Abs. 1 BGB)
+  if(v.weg==='online'&&wr&&!alt&&!B.online) fehlt.push('Hinweis auf die Widerrufsfunktion nach § 356a BGB (Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)');
   const belehrt=wr&&!fehlt.length;
 
   /* Fristen */
@@ -164,14 +167,15 @@ function pruefen(v,heute,o){
     if(!On.zahlungspflichtig) A('online','rot','Schaltfläche „zahlungspflichtig …“ nicht als geprüft vermerkt: Ohne sie kommt kein Vertrag zustande (§ 312j Abs. 3 und 4 BGB); „Senden“ reicht nicht (BGH I ZR 159/24).');
     if(!wr){ /* Widerrufsfunktion nur bei Widerrufsrecht */ }
     else if(V&&V<NEUFASSUNG) A('online356a','gelb','Vertrag vor dem 19.06.2026: Ob die Widerrufsfunktion nach § 356a BGB gilt, ist ungeklärt – mit der Rechtsabteilung klären.');
-    else { const f=[]; if(!On.widerrufsfunktion) f.push('Schaltfläche „Vertrag widerrufen“ beim Portal (§ 356a BGB)'); if(!B.online) f.push('Hinweis auf die Online-Funktion im Belehrungs-Vordruck (Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)');
-      if(f.length) A('online356a','gelb','Fristbeginn unsicher – nicht vermerkt: '+f.join('; ')+'. Den Portalanbieter prüft die Bank.'); }
+    else if(!On.widerrufsfunktion) A('online356a','gelb','Fristbeginn unsicher – nicht vermerkt: Schaltfläche „Vertrag widerrufen“ beim Portal (§ 356a BGB). Den Portalanbieter prüft die Bank.');
+    // fehlender Hinweis im Belehrungs-Vordruck: siehe Belehrung (fehlt → Höchstfrist)
   }
   // Belehrung
   if(!wr) A('widerrufsrecht','gruen',grund);
   else if(belehrt){
     A('belehrung','gruen','Belehrung mit Muster-Widerrufsformular am '+dt(Bd)+' ('+(BELEHRUNGSFORMEN.find(x=>x[0]===B.form)||['',''])[1]+'; Art. 246a § 1 Abs. 2 und § 4 EGBGB).');
-    if(Bd>Vfrueh&&Vfrueh) A('nachgeholt','gelb','Belehrung erst nach dem Vertragsschluss am '+dt(Vfrueh)+': Die Frist läuft ab der Belehrung (§ 356 Abs. 3 Satz 1 BGB). Die Belehrung gehört vor die Vertragserklärung (Art. 246a § 4 Abs. 1 EGBGB).');
+    if(Bd>Vfrueh&&Vfrueh) A('nachgeholt','gelb','Belehrung erst nach dem '+(Vfrueh<V?'frühesten möglichen ':'')+'Vertragsschluss am '+dt(Vfrueh)+': Die Frist beginnt nicht vor der Belehrung (§ 356 Abs. 3 Satz 1 BGB); die App rechnet ab '
+      +(fr.nachgeholt?'der Belehrung':'dem spätesten möglichen Vertragsschluss')+' am '+dt(fr.beginn)+'. Die Belehrung gehört vor die Vertragserklärung (Art. 246a § 4 Abs. 1 EGBGB).');
     else if(v.seite==='kaeufer'&&gueltig((v.kaeufer||{}).expose)&&Bd>gueltig(v.kaeufer.expose)) A('nachgeholt','gelb','Belehrung, Vordruck und Muster-Widerrufsformular gehören schon zum Exposé (BGH I ZR 30/15; Art. 246a § 4 Abs. 1 EGBGB).');
     if(!gueltig(B.vordruck)) A('vordruck','gelb','Stand des Belehrungs-Vordrucks der Bank eintragen.');
     else if(B.vordruck<NEUFASSUNG&&V&&V>=NEUFASSUNG) A('vordruck','gelb','Vordruck an Anlage 1 EGBGB in der Fassung vom 19.06.2026 angleichen (BGBl. 2026 I Nr. 28).');
@@ -233,7 +237,7 @@ function pruefen(v,heute,o){
   const stufen=['gruen','gelb','rot'];
   const gesamt=ampeln.concat([prov]).reduce((s,a)=>stufen.indexOf(a.stufe)>stufen.indexOf(s)?a.stufe:s,'gruen');
   return {typ,widerrufsrecht:wr,grund,vertragsschluss:gueltig(v.abschluss)||vorschlag,vorschlag,V,Vfrueh,belehrt,belehrungFehlt:wr?fehlt:[],
-    nachgeholt:belehrt&&!!Vfrueh&&Bd>Vfrueh,beginn:wr?fr.beginn:'',ende,hoechst:H,puffer,phase,erloschen,erloeschenFehlt:wr?ef:[],wertersatz,verlangenOk,
+    nachgeholt:belehrt&&!!Vfrueh&&Bd>Vfrueh,abBelehrung:belehrt&&!!fr.nachgeholt,beginn:wr?fr.beginn:'',ende,hoechst:H,puffer,phase,erloschen,erloeschenFehlt:wr?ef:[],wertersatz,verlangenOk,
     widerrufen,verspaetet,rueckzahlungBis,beurkundet:U,ampeln,provision:prov,gesamt,
     zahl:{rot:ampeln.filter(a=>a.stufe==='rot').length,gelb:ampeln.filter(a=>a.stufe==='gelb').length}};
 }

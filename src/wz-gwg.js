@@ -2,14 +2,14 @@
    Je Verkauf (gesicherte Bewertung, projektId) ein Vorgang; darin je Person eine Zeile: Verkäufer, Käufer, auftretende Person
    (Bevollmächtigter, Betreuer, Testamentsvollstrecker, Eltern, Geschäftsführer) und wirtschaftlich Berechtigte. Festgehalten wird
    nur, DASS die Sorgfaltspflichten im Banksystem erledigt sind — Status, Datum und Kürzel (§ 10 Abs. 1 Nr. 1–4, § 11 Abs. 2–5,
-   § 8 Abs. 2 Satz 6 GwG). Ausweisdaten, Geburtsdaten, Staatsangehörigkeit, PEP-Ergebnis, Herkunft der Mittel und Verdachtsmomente
+   § 8 Abs. 2 Satz 5 GwG). Ausweisdaten, Geburtsdaten, Staatsangehörigkeit, PEP-Ergebnis, Herkunft der Mittel und Verdachtsmomente
    gibt es nicht als Feld, auch kein Freitextfeld; sie gehören ins Banksystem bzw. zum Geldwäschebeauftragten (§ 8, § 43, § 47 GwG).
    Ampeln für Käufer- und Verkäuferseite nach dem Stand des Verkaufs (Fahrplan-Stand der Bewertung, Haken im Verkaufsfahrplan,
-   angenommenes Gebot, Notarauftrag) und Abgleich mit den Personen im Notarauftrag. Regeln und Normen in js/gwg-regeln.js.
+   Maklervertrag aus „Maklerverträge“, angenommenes Gebot, Notarauftrag) und Abgleich mit den Personen im Notarauftrag. Regeln und Normen in js/gwg-regeln.js.
    Die Daten erscheinen in keinem Dokument für Dritte (kein Dokument, keine Notiz in der Kundenakte); nur in dieser Ansicht, in der
    Gesamtsicherung und in der Auskunft aus der Kundenakte (Status, Datum, Kürzel). Speicher „akten“, Art „gwg“. Bewertungen,
    Notaraufträge, Bieterverfahren und Abrechnungen werden nur gelesen. */
-var GW={aktiv:null,meldung:'',meldungTimer:null,notarLaedt:false,haken:{},vorschlaege:[]};
+var GW={aktiv:null,meldung:'',meldungTimer:null,notarLaedt:false,haken:{},vorschlaege:[],datumFeld:null,datumOffen:false};
 const GW_STAENDE=['Akquise','Auftrag erteilt','In Vermarktung','Reserviert','Notartermin','Verkauft'];   // wie FP_STAENDE
 const GW_STUFE_TEXT={rot:'fällig',gelb:'bald fällig',offen:'noch nicht fällig',gruen:'vollständig',grau:'nicht erforderlich'};
 const GW_HAKEN=[['vertretungGeprueft','vertretungAm'],['wbAbgeklaert','wbAm'],['pepImBanksystem','pepAm'],['abschluss','abschlussAm']];
@@ -45,10 +45,16 @@ function gwNotarPersonen(notare){
   return l.filter((x,i)=>l.findIndex(y=>y.seite===x.seite&&(x.kundeId?y.kundeId===x.kundeId:!y.kundeId&&gwGleich(y.name,x.name)))===i);
 }
 function gwNotarStand(notare){ return Math.max(-1,...(notare||[]).map(n=>typeof NO_STAENDE!=='undefined'?NO_STAENDE.indexOf(n.stand||'Entwurf'):0)); }
+/* Maklervertrag mit dem Verkäufer geschlossen — dieselbe Bedingung, mit der der Verkaufsfahrplan ihn erkennt (FP_AUTO_HOOKS in
+   wz-maklervertrag.js). fpAuto selbst geht nicht: Es fragt über FP_AUTO_HOOKS wieder diese Kachel ab. */
+function gwMaklervertrag(o){
+  return wzdAkten('maklervertrag',o.id).some(a=>a&&a.seite==='verkaeufer'&&!wzdDatum(a.widerruf&&a.widerruf.abgesandt)&&!wzdDatum(a.widerruf&&a.widerruf.eingang)
+    &&(a.wohnung!==false?!!wzdDatum(a.textform&&a.textform.datum):!!wzdDatum(a.abschluss)));
+}
 /* Was im Verkauf geschehen ist — Grundlage der Ampeln (js/gwg-regeln.js, REGELWERKE) */
 function gwFakten(o,notare){
   let st=GW_STAENDE.indexOf(o.status), fp=((wzAlle().fahrplan||{})[o.id])||{};
-  return {auftrag:st>=1||!!(fp.maklervertrag&&fp.maklervertrag.ok),
+  return {auftrag:st>=1||!!(fp.maklervertrag&&fp.maklervertrag.ok)||gwMaklervertrag(o),
     gebot:wzdListe('bieter').some(b=>b.projektId===o.id&&(b.gebote||[]).some(g=>g&&g.status==='angenommen')),
     reserviert:st>=3||!!(fp.kaeufer&&fp.kaeufer.ok),
     notar:(notare||gwNotare(o)).length>0};
@@ -88,19 +94,21 @@ async function gwLoeschen(){
   let v=GW.aktiv; if(!v||!confirm('Die Geldwäsche-Prüfung für dieses Objekt löschen? Die Aufzeichnungen im Banksystem bleiben davon unberührt (§ 8 GwG).')) return;
   if(await wzdLoeschen('akten',v.id)){ GW.aktiv=null; wzZeichnen(); }
 }
-/* nach jeder Eingabe: Haken mit Datum, kein Datum in der Zukunft, Abschluss nur wenn alles erledigt, Kürzel ohne Namen */
-function gwNormalisieren(v){
+/* nach jeder Eingabe: Haken mit Datum, kein Datum in der Zukunft, Abschluss nur wenn alles erledigt, Kürzel ohne Namen.
+   vorlaeufig: Es wird gerade in einem Datumsfeld getippt. Chromium meldet jeden Zwischenstand (03.10. → 02.10. → 28.10.); Zukunft und
+   Abschluss prüft die App deshalb erst beim Verlassen des Feldes (focusout unten), bis dahin nennt der Status das Datum als offen. */
+function gwNormalisieren(v,vorlaeufig){
   let R=ImmoGwgRegeln, heute=aufHeute(), meldung='', alt=GW.haken||{}, neu={};
-  const tag=(o,k)=>{ if(o[k]&&R.datumPruefen(o[k],heute)==='zukunft'){ o[k]=''; meldung='Ein Datum in der Zukunft ist nicht möglich. Bitte den Tag eintragen, an dem es im Banksystem erledigt wurde.'; } };
+  const tag=(o,k)=>{ if(!vorlaeufig&&o[k]&&R.datumPruefen(o[k],heute)==='zukunft'){ o[k]=''; meldung='Ein Datum in der Zukunft ist nicht möglich. Bitte den Tag eintragen, an dem es im Banksystem erledigt wurde.'; } };
   tag(v,'notarUebermittelt');
   (v.personen||[]).forEach(z=>{
     GW_HAKEN.forEach(([h,d])=>{ z[h]=!!z[h]; if(z[h]&&!alt[z.id+':'+h]&&!z[d]) z[d]=heute; if(!z[h]) z[d]=''; });
     ['datum','vertretungAm','wbAm','pepAm','abschlussAm'].forEach(k=>tag(z,k));
     z.kuerzel=R.kuerzel(z.kuerzel); z.abschlussKuerzel=R.kuerzel(z.abschlussKuerzel); z.maklerFirma=String(z.maklerFirma||'').slice(0,80);
-    if(z.abschluss){
+    if(z.abschluss&&!vorlaeufig){
       let e=R.zeileAuswerten(Object.assign({},z,{abschluss:false}),{heute,zeilen:v.personen,geschaeft:v.geschaeft,nettokaltmiete:v.nettokaltmiete});
       if(e.pflichtFehlt.length){
-        meldung=(alt[z.id+':abschluss']?'Der Abschluss wurde zurückgenommen, weil wieder etwas offen ist: ':'Den Abschluss erst bestätigen, wenn alle Punkte erledigt sind. Offen: ')+e.pflichtFehlt.map(x=>x.text).join('; ')+'.';
+        meldung=(meldung?meldung+'\n\n':'')+(alt[z.id+':abschluss']?'Der Abschluss wurde zurückgenommen, weil wieder etwas offen ist: ':'Den Abschluss erst bestätigen, wenn alle Punkte erledigt sind. Offen: ')+e.pflichtFehlt.map(x=>x.text).join('; ')+'.';
         z.abschluss=false; z.abschlussAm='';
       }
     }
@@ -114,10 +122,17 @@ function gwMelden(m){
   GW.meldung=m; clearTimeout(GW.meldungTimer);
   GW.meldungTimer=setTimeout(()=>{ let t=GW.meldung; GW.meldung=''; if(t) alert(t); if(WZ.aktiv==='gwg') wzZeichnen(); },0);
 }
-function gwSpeichern(){
+/* Datumsfeld, in dem gerade getippt wird: von focusin bis focusout (document.activeElement ist beim Wechsel von Tag zu Monat kurz body) */
+function gwTipptDatum(){ let f=GW.datumFeld; return !!f&&f.isConnected&&!!$('wz_body')&&$('wz_body').contains(f); }
+function gwSpeichern(endgueltig){
   let v=GW.aktiv; if(!v){ wzSpeichern(); return; }
-  let m=gwNormalisieren(v); wzdSpeichernBald('akten',v); if(m) gwMelden(m);
+  let vorl=endgueltig!==true&&gwTipptDatum(); if(vorl) GW.datumOffen=true;
+  let m=gwNormalisieren(v,vorl); wzdSpeichernBald('akten',v); if(m) gwMelden(m);
 }
+document.addEventListener('focusin',e=>{ let t=e.target; if(WZ.aktiv==='gwg'&&t&&t.type==='date'&&t.dataset&&t.dataset.wz) GW.datumFeld=t; },true);
+/* Datumsfeld verlassen: jetzt Zukunft und Abschluss prüfen */
+document.addEventListener('focusout',e=>{ let t=e.target; if(!t||t!==GW.datumFeld) return; GW.datumFeld=null;
+  if(WZ.aktiv==='gwg'&&GW.aktiv&&GW.datumOffen){ GW.datumOffen=false; gwSpeichern(true); } },true);
 function gwSpeichernSofort(){ let v=GW.aktiv; if(!v) return Promise.resolve(false); gwNormalisieren(v); return wzdSpeichernSofort('akten',v); }
 
 /* ---------- Personen ---------- */
@@ -165,8 +180,8 @@ function gwHinweiseHtml(){
 }
 function gwDatenHinweis(){
   return wzHinweis('In die App gehören nur Status, Datum und Kürzel. Ausweisdaten und -kopien, Geburtsdaten, Staatsangehörigkeit, PEP-Ergebnis, Herkunft der Mittel und Verdachtsmomente gehören ins Banksystem ('
-    +ImmoGwgRegeln.NORMEN.aufzeichnung+'). Der Vermerk hier ersetzt nicht die Aufzeichnung im Banksystem ('+ImmoGwgRegeln.NORMEN.aufbewahrung+') und erscheint in keinem Dokument für Dritte ('
-    +ImmoGwgRegeln.NORMEN.weitergabe+'). Rechtsstand: '+ImmoGwgRegeln.FASSUNG_KURZ+'.');
+    +ImmoGwgRegeln.NORMEN.aufzeichnung+'). Der Vermerk hier ersetzt nicht die Aufzeichnung im Banksystem ('+ImmoGwgRegeln.NORMEN.aufbewahrung+') und erscheint in keinem Dokument für Dritte, weil Dritte ihn nicht brauchen (Datenminimierung, '
+    +ImmoGwgRegeln.NORMEN.datenminimierung+'). Rechtsstand: '+ImmoGwgRegeln.FASSUNG_KURZ+'.');
 }
 function gwChips(x){
   return ImmoGwgRegeln.SEITEN.map(([s,t])=>{ let y=x.seiten[s];
@@ -193,8 +208,8 @@ function gwListeHtml(){
       +wzFeld('einst.gwbTelefon','Telefon',{typ:'text'})
       +wzFeld('einst.regelwerk','Regelwerk für die Ampeln',{typ:'wahl',optionen:Object.keys(R.REGELWERKE).map(k=>[k,R.REGELWERKE[k].titel]),zeichnen:true,
         hinweis:'Ab 10.07.2027 gilt die EU-Geldwäscheverordnung: Auslöser ist dann das angenommene Angebot ('+R.NORMEN.amlr+').'})+'</div>'
-      +wzHinweis('Die Grenzen für Gelb (Auftrag erteilt; Gebot angenommen oder Objekt reserviert) setzt die App selbst — das Gesetz spricht nur von „ernsthaftem Interesse“ ('+R.NORMEN.zeitpunkt
-        +'). Mit dem Geldwäschebeauftragten abstimmen, ebenso den Einsatz der App im Ablauf ('+R.NORMEN.technik+') und mit Datenschutz und Betriebsrat das Kürzel „durch wen“.'),{klasse:'gwg-einst'});
+      +wzHinweis('Rot ab angenommenem Gebot, Reservierung oder Notarauftrag: Dann besteht ernsthaftes Interesse und die Vertragsparteien sind hinreichend bestimmt ('+R.NORMEN.zeitpunkt
+        +'). Gelb (Verkäufer: Auftrag erteilt oder Maklervertrag geschlossen) ist eine Vorwarnung der App. Die Grenzen mit dem Geldwäschebeauftragten abstimmen, ebenso den Einsatz der App im Ablauf ('+R.NORMEN.technik+') und mit Datenschutz und Betriebsrat das Kürzel „durch wen“.'),{klasse:'gwg-einst'});
 }
 function gwSeitenHtml(x){
   return ImmoGwgRegeln.SEITEN.map(([s,t])=>{ let y=x.seiten[s], a=y.ausloeser, f=y.fehlenImNotar;
@@ -290,6 +305,7 @@ function gwZeichnen(){
 /* nach jeder Eingabe: Ampeln und Status neu, ohne die Felder neu aufzubauen */
 function gwRechnen(){
   iconify($('wz_body')); wzH('gw_gwb',gwBeauftragterHtml());
+  let heute=aufHeute(); ($('wz_body')?$('wz_body').querySelectorAll('input[type="date"]'):[]).forEach(el=>{ if(el.max!==heute) el.max=heute; });   // nur erledigte Tage; nicht beim Tippen neu setzen
   let v=GW.aktiv, o=v&&wzdObjekt(v.projektId); if(!v||!o) return;
   let x=gwAuswerten(v,o);
   wzH('gw_seiten',gwSeitenHtml(x)); wzH('gw_uebermittelt',gwUebermitteltHtml(v,gwNotarStand(gwNotare(o))));

@@ -9,7 +9,8 @@
      Eigentümers), „nein“ beim Denkmalschutz (Vorgabe des Auswahlfelds — ob jemand es geprüft hat, lässt sich nicht erkennen)
      und Texte zur Vermietung (sie können Namen von Mietern enthalten).
    - Eine Unterschrift gilt für einen Stand: Prüfsumme über Objekt, Antworten, Mieten und Text der Bestätigung. Ändert sich
-     etwas davon, gilt sie nicht mehr. Wer unterschreibt (Kunden-Ids), gehört nicht zum Stand.
+     etwas davon, gilt sie nicht mehr. Wer unterschreibt (Kunden-Ids), gehört nicht zum Stand. Gültig nur mit Bild-Daten
+     (data:image/png, jpeg oder webp; D63) — die Prüfsumme lässt sich nachrechnen und schützt nicht vor fremden Werten.
    - Keine Rechtsaussagen: Hinweise verweisen auf Unterlagen, Gemeinde oder Notariat.
    Daten als ISO-Text (JJJJ-MM-TT); Monatsfrist über ImmoFristen (§§ 187, 188 BGB). */
 (function(wurzel){
@@ -119,15 +120,18 @@ function inhaltSchluessel(r,text){
     ['m='+n(M.anzahl)+'|'+n(M.kaltmiete)+'|'+n(M.kaution),'s='+n(r.sonderumlageBetrag),'t='+n(text==null?r.text:text)]);
   return pruefsumme(teile.join('\n'));
 }
+/* Unterschrift nur als Bild-Daten (PNG, JPEG, WebP) — alles andere (z. B. aus einer eingespielten Sicherung) gilt nicht und kommt nie ins Dokument */
+const BILD=/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/;
+function bildGueltig(b){ return typeof b==='string'&&BILD.test(b); }
 function gueltigeUnterschriften(r,schluessel){
   const u=(r&&r.unterschriften)||{};
-  return ((r&&r.kundeIds)||[]).filter(k=>u[k]&&u[k].bild&&u[k].inhalt===schluessel);
+  return ((r&&r.kundeIds)||[]).filter(k=>u[k]&&bildGueltig(u[k].bild)&&u[k].inhalt===schluessel);
 }
-/* Unterschriften entfernen, die nicht mehr zum Stand passen oder zu niemandem mehr gehören; gibt die Zahl zurück */
+/* Unterschriften entfernen, die nicht mehr zum Stand passen, kein Bild sind oder zu niemandem mehr gehören; gibt die Zahl zurück */
 function ungueltigeEntfernen(r,schluessel){
   if(!r||!r.unterschriften||typeof r.unterschriften!=='object') return 0;
   let n=0; Object.keys(r.unterschriften).forEach(k=>{ const u=r.unterschriften[k];
-    if(!u||!u.bild||u.inhalt!==schluessel||!(r.kundeIds||[]).includes(k)){ delete r.unterschriften[k]; n++; } });
+    if(!u||!bildGueltig(u.bild)||u.inhalt!==schluessel||!(r.kundeIds||[]).includes(k)){ delete r.unterschriften[k]; n++; } });
   return n;
 }
 
@@ -174,7 +178,7 @@ function pruefen(r,heute,o){
 }
 
 const ImmoObjektauskunftRegeln={FRAGEN,ANTWORTEN,GRUPPEN,UL,STANDARD_MAENGEL,ausBewertung,anwenden,herkunft,fragenFuer,antwort,pruefsumme,
-  inhaltSchluessel,gueltigeUnterschriften,ungueltigeEntfernen,pruefen,mieterNamenVerdacht,negativ,unbekanntText,fragmente,zahl,deDatum};
+  inhaltSchluessel,bildGueltig,gueltigeUnterschriften,ungueltigeEntfernen,pruefen,mieterNamenVerdacht,negativ,unbekanntText,fragmente,zahl,deDatum};
 wurzel.ImmoObjektauskunftRegeln=ImmoObjektauskunftRegeln;
 if(typeof module==='object'&&module.exports) module.exports=ImmoObjektauskunftRegeln;
 })(typeof globalThis!=='undefined'?globalThis:this);

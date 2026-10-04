@@ -28,8 +28,11 @@ async function wzdSpeichern(s,o){
   return true;
 }
 async function wzdLoeschen(s,id){
+  // ausstehendes Speichern (wzdSpeichernBald) schriebe den Eintrag sonst nach dem Löschen zurück — vorher und nachher anhalten (D63)
+  const halt=()=>{ clearTimeout(WZD_TIMER[id]); delete WZD_TIMER[id]; };
+  halt();
   try{ await iaDel(s,id); }catch(e){ alert('Konnte nicht gelöscht werden: '+iaFehlerText(e)+'.'); return false; }
-  WZD[s]=(WZD[s]||[]).filter(x=>x.id!==id); return true;
+  halt(); WZD[s]=(WZD[s]||[]).filter(x=>x.id!==id); return true;
 }
 /* ---------- Akten (D49): ein Speicher für Verträge, Prüfungen und Vorgänge der Kacheln ab D49 ----------
    Jeder Eintrag hat id, art (z. B. 'maklervertrag', 'gwg', 'tipp'), meist projektId und kundeId bzw. kundeIds. Personen stehen nur in

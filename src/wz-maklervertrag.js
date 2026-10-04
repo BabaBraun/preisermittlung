@@ -74,20 +74,24 @@ function mvKundeWaehlen(){ wzdKundeWaehlen(id=>{ let a=MV.aktiv; if(!a||!wzdKund
 function mvFilter(f){ mvS().filter=f; wzSpeichern(); wzZeichnen(); }
 
 /* ---------- Wiedervorlagen: Fristen in den Kalender (Liste „Wiedervorlagen“) ----------
-   Je Frist ein Eintrag; schon angelegte, offene Einträge werden mit neuem Datum fortgeschrieben statt verdoppelt. */
+   Je Frist ein Eintrag; schon angelegte, offene Einträge werden mit neuem Datum fortgeschrieben statt verdoppelt.
+   Überholte Fristen (z. B. „frist“ nach Wegfall der Belehrung, nach Widerruf) werden aus der Liste entfernt, wenn noch offen. */
 function mvFristenVormerken(still){
   let a=MV.aktiv; if(!a) return 0;
   let p=mvPruef(a), bz=mvBezahlt(a), l=mvR().wiedervorlagen(a,p,{datum:wzDatum,bezahlt:bz.abrechnung?!!bz.bezahltAm:undefined});
-  if(!l.length){ if(!still) alert('Keine Frist zum Vormerken. Erst Vertragsschluss, Belehrung, Widerruf oder Laufzeit eintragen.'); return 0; }
   if(!a.wv||typeof a.wv!=='object') a.wv={};
-  let auf=aufLoad(), name=mvObjektName(a), neu=[], geaendert=0;
+  let auf=aufLoad(), name=mvObjektName(a), neu=[], geaendert=0, weg=Object.keys(a.wv).filter(k=>!l.some(x=>x.key===k)), entfernt=0;
+  if(!l.length&&!weg.length){ if(!still) alert('Keine Frist zum Vormerken. Erst Vertragsschluss, Belehrung, Widerruf oder Laufzeit eintragen.'); return 0; }
+  weg.forEach(k=>{ let i=auf.findIndex(y=>y.id===a.wv[k]&&!y.erledigt); if(i>=0){ auf.splice(i,1); entfernt++; } });
   l.forEach(x=>{ let text='Maklervertrag '+name+' ('+mvText(mvR().SEITEN,a.seite)+'): '+x.text, alt=a.wv[x.key]&&auf.find(y=>y.id===a.wv[x.key]&&!y.erledigt);
     if(alt){ if(alt.frist!==x.datum||alt.text!==text){ alt.frist=x.datum; alt.text=text; geaendert++; } } else neu.push({x,text}); });
-  if(geaendert&&!aufStore(auf)) return 0;
+  if((geaendert||entfernt)&&!aufStore(auf)) return 0;
+  weg.forEach(k=>{ delete a.wv[k]; });
   neu.forEach(({x,text})=>{ let w=wzdWiedervorlage(text,x.datum,name,a.kundeId); if(w) a.wv[x.key]=w.id; });
   try{ aufBadge(); aufStartRender(); }catch(e){}
   wzdSpeichernSofort('akten',a);
-  if(!still) alert(l.map(x=>wzDatum(x.datum)+': '+x.text).join('\n')+'\n\nIm Kalender und unter „Wiedervorlagen“ vorgemerkt.');
+  let hinweis=entfernt?'\n\n'+(entfernt===1?'Eine überholte Wiedervorlage':entfernt+' überholte Wiedervorlagen')+' entfernt.':'';
+  if(!still) alert(l.length?l.map(x=>wzDatum(x.datum)+': '+x.text).join('\n')+'\n\nIm Kalender und unter „Wiedervorlagen“ vorgemerkt.'+hinweis:'Keine Frist zum Vormerken.'+hinweis);
   return l.length;
 }
 function mvZusammenfassung(a,p){
@@ -138,7 +142,7 @@ function mvListeHtml(){
 function mvKpis(a,p){
   let typ={aussen:'außerhalb von Geschäftsräumen',fern:'Fernabsatz',online:'Fernabsatz über Online-Oberfläche',unklar:'Abschlussweg offen – angenommen',keins:''}[p.typ]||'';
   return wzdKpi('Widerrufsrecht',p.widerrufsrecht?'ja':'nein',p.widerrufsrecht?typ:(a.verbraucher===false?'kein Verbraucher':a.provision===false?'keine Provision vereinbart':'Filiale'))
-    +wzdKpi('Widerrufsfrist bis',p.widerrufsrecht&&p.ende?wzDatum(p.ende):'–',p.widerrufsrecht?(p.belehrt?'ab '+(p.nachgeholt?'Belehrung':'Vertragsschluss')+' am '+wzDatum(p.beginn):p.V?'Höchstfrist – nicht belehrt':'Vertragsschluss fehlt'):'')
+    +wzdKpi('Widerrufsfrist bis',p.widerrufsrecht&&p.ende?wzDatum(p.ende):'–',p.widerrufsrecht?(p.belehrt?'ab '+(p.abBelehrung?'Belehrung':'Vertragsschluss')+' am '+wzDatum(p.beginn):p.V?'Höchstfrist – nicht belehrt':'Vertragsschluss fehlt'):'')
     +wzdKpi('Höchstfrist',p.hoechst.ende?wzDatum(p.hoechst.ende):'–',p.hoechst.ende?'§ 356 Abs. 4 Satz 1 BGB · Weg a '+wzDatum(p.hoechst.a)+', Weg b '+wzDatum(p.hoechst.b):'ohne Belehrung')
     +wzdKpi('Ampel zur Provision',{rot:'Rot',gelb:'Gelb',gruen:'Grün'}[p.provision.stufe],p.provision.text);
 }
@@ -197,7 +201,7 @@ function mvEditor(a){
       +(aussen?wzFeld('zustimmung','Zustimmung zum dauerhaften Datenträger am',{typ:'datum',hinweis:'Nur nötig, wenn nicht auf Papier übergeben (Art. 246a § 4 Abs. 2 EGBGB, § 312f Abs. 1 BGB).'}):'')
       +wzFeld('belehrung.vordruck','Stand des Belehrungs-Vordrucks der Bank',{typ:'datum'})
       +wzFeld('belehrung.formular','Muster-Widerrufsformular dabei',{typ:'check'})
-      +(a.weg==='online'?wzFeld('belehrung.online','Vordruck mit Hinweis auf die Online-Widerrufsfunktion (Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)',{typ:'check',voll:true}):'')+'</div>'
+      +(a.weg==='online'?wzFeld('belehrung.online','Vordruck mit Hinweis auf die Widerrufsfunktion nach § 356a BGB – ohne ihn beginnt die Frist nicht (§ 356 Abs. 3 Satz 1 BGB; Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)',{typ:'check',voll:true}):'')+'</div>'
       +wzHinweis('Die Belehrung gehört vor die Vertragserklärung des Kunden (Art. 246a § 4 Abs. 1 EGBGB). Der Schutz durch das Muster greift nur, wenn der Vordruck unverändert und richtig ausgefüllt ist (BGH I ZR 28/22).'))
     +wzBox('Vorzeitiger Beginn und Erlöschen','<div class="grid">'
       +wzFeld('verlangen.datum','Verlangen auf Beginn vor Fristablauf am',{typ:'datum'})+wzFeld('verlangen.datentraeger','Verlangen auf dauerhaftem Datenträger',{typ:'check'})
@@ -235,7 +239,7 @@ function mvDokument(){
       ['Wohnung oder Einfamilienhaus (§ 656a BGB)',ja(a.wohnung!==false)],['Vertragsschluss',d(p.vertragsschluss)+(p.vorschlag?' (Vorschlag: erste Bitte um Besichtigung)':'')]];
     if(a.seite==='kaeufer') zeilen.push(['Exposé gesendet / Link geöffnet',d(k.expose)+' / '+d(k.link)],['Erste Bitte um Besichtigung / Vereinbarung',d(k.bitte)+' / '+d(k.vereinbarung)]);
     zeilen.push(['Abschlussweg',sEsc(mvText(R.WEGE,a.weg)||'noch offen')],['Textform',d(a.textform&&a.textform.datum)+(a.textform&&a.textform.form?' ('+mvText(R.TEXTFORMEN,a.textform.form)+')':'')],
-      ['Belehrung',d(B.datum)+(B.form?' ('+mvText(R.BELEHRUNGSFORMEN,B.form)+')':'')+(B.formular?', mit Muster-Widerrufsformular':', ohne Muster-Widerrufsformular')],
+      ['Belehrung',d(B.datum)+(B.form?' ('+mvText(R.BELEHRUNGSFORMEN,B.form)+')':'')+(B.formular?', mit Muster-Widerrufsformular':', ohne Muster-Widerrufsformular')+(a.weg==='online'?(B.online?', mit':', ohne')+' Hinweis auf die Widerrufsfunktion (§ 356a BGB)':'')],
       ['Stand des Belehrungs-Vordrucks',d(B.vordruck)],['Zustimmung zum dauerhaften Datenträger',d(a.zustimmung)],
       ['Verlangen auf vorzeitigen Beginn',d(a.verlangen&&a.verlangen.datum)+(a.verlangen&&a.verlangen.datentraeger?' (dauerhafter Datenträger)':'')],
       ['Bestätigung zum Erlöschen',d(a.erloeschen)],['Beginn der Tätigkeit',d(a.beginn)],['Kaufvertrag beurkundet',d(p.beurkundet)],

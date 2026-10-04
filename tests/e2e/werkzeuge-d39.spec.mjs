@@ -161,7 +161,7 @@ test('Datenstand: Zahl auf der Kachel, Einträge mit Stand und Quelle, Sicherung
   await expect(page.locator('#ds_badge')).toHaveText('1');
   await page.evaluate(async () => { $('pj_name').value = 'Sicherung Test'; $('ek_anschrift').value = 'Musterweg 7, 74360 Ilsfeld'; await projektSichern(); });
   await page.evaluate(() => wzOeffnen('datenstand'));
-  // Liste und Anzeige vergleichen, bis die Prüfung nach dem Sichern durch ist (unter Last kam die Anzeige einmal später)
+  // Liste und Anzeige stimmen überein — auch wenn die Prüfung kurz nach dem Start erst nach dem Öffnen fertig wird
   await expect.poll(async () => (await page.locator('#wz_body .ds-zeile').count()) === await page.evaluate(() => DS.erg.liste.length)).toBe(true);
   await page.getByRole('button', { name: 'Neu prüfen' }).click();
   const zeile = page.locator('.ds-zeile', { hasText: 'Gesamtsicherung' });
@@ -178,5 +178,21 @@ test('Datenstand: Zahl auf der Kachel, Einträge mit Stand und Quelle, Sicherung
   await page.locator('#report .ex-leiste button', { hasText: 'zurück' }).click();
   await page.evaluate(() => wzSchliessen());
   await expect(page.locator('#ds_badge')).toHaveText('1');
+  await keineSkriptfehler(page);
+});
+
+test('Datenstand: offene Kachel übernimmt eine Prüfung, die erst nach dem Öffnen fertig wird (Befund der CI, 04.10.2026)', async ({ page }) => {
+  dialoge(page);
+  await appOeffnen(page);
+  await page.evaluate(async () => { await dsAktualisieren(); wzOeffnen('datenstand'); });
+  const loeschen = page.locator('#wz_body .ds-zeile', { hasText: 'Kundendaten: Löschung prüfen' });
+  await expect(loeschen).toHaveCount(0);
+  // neue Prüfung im Hintergrund (wie die Prüfung kurz nach dem Start), ohne dass jemand die Kachel neu aufbaut
+  await page.evaluate(async () => {
+    await kdSpeichern({ id: 'k_lp', anrede: 'Frau', vorname: 'Ida', nachname: 'Loeschbeispiel', grundlage: 'vertrag', loeschpruefung: '2026-09-01', kontakte: [], finanzierungen: [], erstellt: 1 });
+    await dsAktualisieren();
+  });
+  await expect(loeschen).toContainText('1 fällig');
+  await expect.poll(async () => (await page.locator('#wz_body .ds-zeile').count()) === await page.evaluate(() => DS.erg.liste.length)).toBe(true);
   await keineSkriptfehler(page);
 });

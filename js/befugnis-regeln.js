@@ -10,7 +10,10 @@
      § 1960, § 1962, § 1888 BGB; § 40 Abs. 2, § 41 Abs. 3, § 45, § 46 Abs. 2, § 63, § 290 FamFG
    - Bevollmächtigter: § 167, § 168, § 172, § 181, § 672, § 1820 Abs. 4 BGB; § 29 GBO; § 7 BtOG
    - Ehegatte: § 1358, § 1365, § 1366, § 1424 BGB; § 6 LPartG
-   Fristen nach §§ 187, 188 BGB über js/fristen.js (ImmoFristen). Daten als ISO-Text (JJJJ-MM-TT). Keine Gesundheitsangaben,
+   Fristen nach §§ 187, 188 BGB über js/fristen.js (ImmoFristen). Endet eine Frist an einem Samstag, Sonntag oder Feiertag (BW),
+   tritt der nächste Werktag an seine Stelle: Mitteilung (§ 1856 Abs. 2 BGB) und Genehmigung des Ehegatten (§ 1366 Abs. 3 BGB)
+   nach § 193 BGB, Beschwerdefrist (§ 63 FamFG) nach § 16 Abs. 2 FamFG, § 222 Abs. 2 ZPO (Wortlaut geprüft am 04.10.2026).
+   Daten als ISO-Text (JJJJ-MM-TT). Keine Gesundheitsangaben,
    keine Geburtsdaten: Die Regeln fragen nur Rolle, Stand und Datum ab. Unklares steht als Hinweis „mit dem Notariat klären“. */
 (function(wurzel){
 'use strict';
@@ -48,19 +51,21 @@ function genehmigung(g,o){
   g=g||{}; o=o||{};
   const heute=o.heute||'', D=o.datum||datumText, punkte=[], P=(stufe,t)=>punkte.push({stufe,text:t});
   const n1856='§ 1856 Abs. 1 Satz 2 BGB'+(o.iVm?' i. V. m. '+o.iVm:''), n1856b='§ 1856 Abs. 2 BGB'+(o.iVm?' i. V. m. '+o.iVm:'');
-  const rkAb=dOk(g.bekanntgabe)?F.fristTage(g.bekanntgabe,14):'';                 // § 63 Abs. 2 Nr. 2 und Abs. 3 FamFG: zwei Wochen ab Bekanntgabe
-  const mitteilungBis=dOk(g.aufforderung)?F.fristMonate(g.aufforderung,2):'';       // § 1856 Abs. 2 BGB: bis zum Ablauf des zweiten Monats
+  const rkAb=dOk(g.bekanntgabe)?F.fristTage(g.bekanntgabe,14,{werktag:true}):'';   // § 63 Abs. 2 Nr. 2 und Abs. 3 FamFG: zwei Wochen ab Bekanntgabe; § 16 Abs. 2 FamFG, § 222 Abs. 2 ZPO
+  const mitteilungBis=dOk(g.aufforderung)?F.fristMonate(g.aufforderung,2,{werktag:true}):'';   // § 1856 Abs. 2 BGB: bis zum Ablauf des zweiten Monats; § 193 BGB
+  const rkWt=rkAb&&rkAb!==F.fristTage(g.bekanntgabe,14)?' (nächster Werktag, § 16 Abs. 2 FamFG, § 222 Abs. 2 ZPO)':'';
+  const mWt=mitteilungBis&&mitteilungBis!==F.fristMonate(g.aufforderung,2)?' (nächster Werktag, § 193 BGB)':'';
   const gericht=o.gericht||'Gericht';
   if(!dOk(g.beantragt)&&!dOk(g.beschluss)) P('gelb','Genehmigung beim '+gericht+' beantragen ('+(o.norm||'')+'). Bis dahin ist der Kaufvertrag schwebend unwirksam.');
   else if(!dOk(g.beschluss)) P('gelb','Genehmigung beantragt am '+D(g.beantragt)+' — der Beschluss steht aus.');
   else if(!rkAb) P('gelb','Beschluss vom '+D(g.beschluss)+': Tag der letzten schriftlichen Bekanntgabe eintragen'+(o.wen?' — auch an '+o.wen+' (§ 41 Abs. 3 FamFG)':'')+'.');
-  if(rkAb&&!o.rk) P('gelb','Beschwerdefrist endet am '+D(rkAb)+' — frühestens danach rechtskräftig (§ 63 Abs. 2 Nr. 2 und Abs. 3, § 45 FamFG). Wirksam erst mit Rechtskraft; das Rechtskraftzeugnis fehlt noch (§ 40 Abs. 2, § 46 Abs. 2 FamFG).');
+  if(rkAb&&!o.rk) P('gelb','Beschwerdefrist endet am '+D(rkAb)+rkWt+' — frühestens danach rechtskräftig (§ 63 Abs. 2 Nr. 2 und Abs. 3, § 45 FamFG). Wirksam erst mit Rechtskraft; das Rechtskraftzeugnis fehlt noch (§ 40 Abs. 2, § 46 Abs. 2 FamFG).');
   if(!dOk(g.mitgeteilt)){
     if(mitteilungBis){
       const t=F.tageBis(heute,mitteilungBis);
-      if(t!=null&&t<0) P('rot','Mitteilungsfrist am '+D(mitteilungBis)+' abgelaufen — die Genehmigung gilt als verweigert ('+n1856b+'). Mit dem Notariat klären.');
-      else if(t!=null&&t<=14) P('rot','Mitteilung an den Käufer spätestens am '+D(mitteilungBis)+' — sonst gilt die Genehmigung als verweigert ('+n1856b+').');
-      else P('gelb','Der Käufer hat zur Mitteilung aufgefordert: Mitteilung spätestens am '+D(mitteilungBis)+', sonst gilt die Genehmigung als verweigert ('+n1856b+').');
+      if(t!=null&&t<0) P('rot','Mitteilungsfrist am '+D(mitteilungBis)+mWt+' abgelaufen — die Genehmigung gilt als verweigert ('+n1856b+'). Mit dem Notariat klären.');
+      else if(t!=null&&t<=14) P('rot','Mitteilung an den Käufer spätestens am '+D(mitteilungBis)+mWt+' — sonst gilt die Genehmigung als verweigert ('+n1856b+').');
+      else P('gelb','Der Käufer hat zur Mitteilung aufgefordert: Mitteilung spätestens am '+D(mitteilungBis)+mWt+', sonst gilt die Genehmigung als verweigert ('+n1856b+').');
     } else if(o.rk) P('gelb','Die rechtskräftige Genehmigung dem Käufer mitteilen — erst dann wird der Vertrag wirksam ('+n1856+').');
   } else if(!o.rk) P('gelb','Dem Käufer am '+D(g.mitgeteilt)+' mitgeteilt — wirksam wird nur die Mitteilung der wirksam gewordenen, also rechtskräftigen Genehmigung ('+n1856+').');
   const gruen=!!o.rk&&!!dOk(g.mitgeteilt);
@@ -177,9 +182,9 @@ function pruefen(r,ctx){
     } else if(e.gs==='anders') P('gelb',L+': anderer oder ausländischer Güterstand — mit dem Notariat klären.',b);
     if(key&&!ok(key)){
       schwebend=true;
-      if(dOk(p.ehAufforderung)){ const bis=F.fristTage(p.ehAufforderung,14);
-        if(heute&&heute>bis) P('rot',L+': Nach der Aufforderung des Käufers konnte die Genehmigung nur bis '+D(bis)+' erklärt werden (§ 1366 Abs. 3 BGB) — mit dem Notariat klären.',b);
-        else P('gelb',L+': Der Käufer hat aufgefordert — Genehmigung nur bis '+D(bis)+' möglich (§ 1366 Abs. 3 BGB); wird sie verweigert, ist der Vertrag unwirksam (§ 1366 Abs. 4 BGB).',b); }
+      if(dOk(p.ehAufforderung)){ const bis=F.fristTage(p.ehAufforderung,14,{werktag:true}), wt=bis!==F.fristTage(p.ehAufforderung,14)?' (nächster Werktag, § 193 BGB)':'';
+        if(heute&&heute>bis) P('rot',L+': Nach der Aufforderung des Käufers konnte die Genehmigung nur bis '+D(bis)+wt+' erklärt werden (§ 1366 Abs. 3 BGB) — mit dem Notariat klären.',b);
+        else P('gelb',L+': Der Käufer hat aufgefordert — Genehmigung nur bis '+D(bis)+wt+' möglich (§ 1366 Abs. 3 BGB); wird sie verweigert, ist der Vertrag unwirksam (§ 1366 Abs. 4 BGB).',b); }
     }
   };
   if(!fa.tv) pers.forEach((p,i)=>{

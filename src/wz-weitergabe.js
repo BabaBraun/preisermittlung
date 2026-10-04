@@ -265,10 +265,19 @@ function wgListeHtml(){
     +wzBox('Nach dem Kauf: Anlässe',wgVorschlaegeHtml())
     +wzBox('',wgKollegenHtml());
 }
+/* Wiedervorlagen „Rücklauf prüfen“ dieser Weitergaben löschen: die verknüpfte (wvId) und ältere erledigte desselben Kunden und
+   Anlasses, auf die keine Weitergabe mehr verweist — sonst führten Kunden-Id und Text in der Liste zurück zum Kunden */
+function wgWvWeg(l){
+  let alle=wgListe(), ids=new Set(l.map(w=>w.wvId).filter(Boolean)), auf=aufLoad();
+  let frei=a=>a.erledigt&&!alle.some(w=>w.wvId===a.id)&&l.some(w=>w.kundeId&&a.kundeId===w.kundeId&&String(a.text||'').startsWith('Rücklauf prüfen: '+WGR.anlass(w.anlass).name));
+  let rest=auf.filter(a=>!ids.has(a.id)&&!frei(a));
+  if(rest.length<auf.length&&aufStore(rest)){ try{ aufBadge(); aufStartRender(); }catch(e){} }
+}
 async function wgAlteAnonymisieren(){
   let l=WGR.alteErledigte(wgListe(),aufHeute()); if(!l.length) return;
-  if(!confirm(l.length+' erledigte Weitergabe'+(l.length===1?'':'n')+' ohne Personenbezug behalten? Kunde, Anliegen, Notiz und Einwilligungsdaten werden entfernt, die Auswertung bleibt.')) return;
-  for(const w of l){ let a=WGR.anonymisieren(w); Object.keys(w).forEach(k=>delete w[k]); Object.assign(w,a); await wzdSpeichern('akten',w); }
+  if(!confirm(l.length+' erledigte Weitergabe'+(l.length===1?'':'n')+' ohne Personenbezug behalten? Kunde, Objekt, Kaufpreis, Kollege, Freigaben, Anliegen, Notiz, Einwilligungsdaten und die Wiedervorlage „Rücklauf prüfen“ werden entfernt. Für die Auswertung bleiben Anlass, Stand, Datum und Volumen.')) return;
+  wgWvWeg(l);
+  for(const w of l){ clearTimeout(WZD_TIMER[w.id]); delete WZD_TIMER[w.id]; let a=WGR.anonymisieren(w); Object.keys(w).forEach(k=>delete w[k]); Object.assign(w,a); await wzdSpeichern('akten',w); }
   wzZeichnen();
 }
 
@@ -313,7 +322,7 @@ function wgStandBox(w){
   return wzBox('Stand und Rücklauf','<div class="grid">'+wzFeld('stand','Stand',{typ:'wahl',optionen:WGR.STAENDE.map(([k])=>[k,WGR.standName(k,w.anlass)]),zeichnen:true})
       +wzFeld('rueckmeldungAm','Rückmeldung am',{typ:'datum',zeichnen:true})
       +(A.volumen?wzFeld('volumen',A.volumen,{typ:'betrag',einheit:'€',hinweis:'optional'}):'')
-      +wzFeld('notiz','Notiz',{typ:'lang',zeilen:2,voll:true,ph:'nur zum Stand — keine Angaben zu Einkommen, Vermögen oder Gesundheit'})+'</div>'
+      +(w.kundeGeloescht?'':wzFeld('notiz','Notiz',{typ:'lang',zeilen:2,voll:true,ph:'nur zum Stand — keine Angaben zu Einkommen, Vermögen oder Gesundheit'}))+'</div>'
     +wgWvHtml(w)
     +(verlauf.length?'<ul class="vg-verlauf">'+verlauf.map(h=>'<li><span>'+wzDatum(h.datum)+'</span><span>'+sEsc(h.text)+'</span></li>').join('')+'</ul>':''));
 }
@@ -333,7 +342,7 @@ function wgEditor(w){
       +'<button type="button" class="secondary" onclick="wgNotiz()" data-ic="users">In der Kundenakte vermerken</button>')
     +'<button type="button" class="secondary" onclick="wgLoeschen()" data-ic="trash">Löschen</button></div>';
   if(w.kundeGeloescht) return kopf+'<div id="wg_pruefung" class="wg-pruefung"></div>'
-    +wzBox('Weitergabe',wzDokTabelle([['Anlass',sEsc(A.lang)],['Weitergegeben am',wzDatum(w.datum)],['Kollege',sEsc(wgKollegeText(w)||'–')],['Objekt',sEsc(wzdObjektName(w.projektId,'–'))]]))+wgStandBox(w);
+    +wzBox('Weitergabe',wzDokTabelle([['Anlass',sEsc(A.lang)],['Weitergegeben am',wzDatum(w.datum)]])+wzHinweis('Ohne Personenbezug: Kunde, Objekt, Kollege und Freitexte sind entfernt.'))+wgStandBox(w);
   return kopf+'<div id="wg_pruefung" class="wg-pruefung"></div>'
     +wgKundeBox(w,false)+wgWeitergabeBox(w)+wgStandBox(w)+wgEinwilligungBox(w,false)+wgFreigabeBox(w);
 }

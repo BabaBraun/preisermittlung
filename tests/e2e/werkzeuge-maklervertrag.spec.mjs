@@ -190,3 +190,95 @@ test('Abschlussweg mit Folgen: Filiale ohne Widerrufsrecht, Mehrfamilienhaus ohn
   await expect(page.locator('#report .wzd')).not.toContainText('Erika Beispiel');
   await keineSkriptfehler(page);
 });
+
+/* D63: leichter Einstieg ohne Bewertung — Kundin aus der Kundenakte, Vertrag mit freier Objektbezeichnung */
+async function vertragOhneObjekt(page, seite, bezeichnung) {
+  await appOeffnen(page); await arbeitsflaeche(page);
+  await page.evaluate(async seite => {
+    await kdSpeichern({ id: 'k_f', anrede: 'Frau', vorname: 'Frieda', nachname: 'Muster', grundlage: 'vertrag', kontakte: [], finanzierungen: [], erstellt: 3 });
+    wzOeffnen('maklervertrag'); await mvNeu(seite, { kundeId: 'k_f' });
+  }, seite);
+  await feld(page, 'objekt').fill(bezeichnung);
+}
+const wvListe = (page, name) => page.evaluate(n => aufLoad().filter(a => a.text.startsWith('Maklervertrag ' + n)).map(a => [a.frist, a.text.replace(/^[^:]*: /, '').split(' am ')[0], a.erledigt]), name);
+
+test('Fristen vormerken: überholte Wiedervorlage wird entfernt — Belehrung entfällt, Widerruf, Verlassen der Kachel (D63)', async ({ page }) => {
+  const meldungen = dialoge(page);
+  await vertragOhneObjekt(page, 'verkaeufer', 'Probehaus Fristweg 1');
+  await feld(page, 'vertragsart').selectOption('einfach');
+  await feld(page, 'abschluss').fill('2026-09-28');
+  await feld(page, 'weg').selectOption('fern');
+  await feld(page, 'textform.datum').fill('2026-09-28');
+  await feld(page, 'belehrung.datum').fill('2026-09-28');
+  await feld(page, 'belehrung.form').selectOption('angepasst');
+  await feld(page, 'belehrung.formular').check();
+  await expect(page.locator('#mv_pruefung')).toContainText('Widerrufsfrist läuft bis 12.10.2026');
+  await page.getByRole('button', { name: 'Fristen vormerken' }).click();
+  expect(await wvListe(page, 'Probehaus')).toEqual([['2026-10-12', 'Ende der Widerrufsfrist', false]]);
+  // Formular fehlt → Höchstfrist; die Wiedervorlage zum 12.10. ist überholt
+  await feld(page, 'belehrung.formular').uncheck();
+  await expect(page.locator('#mv_kpis')).toContainText('Höchstfrist – nicht belehrt');
+  await page.getByRole('button', { name: 'Fristen vormerken' }).click();
+  expect(await wvListe(page, 'Probehaus')).toEqual([['2027-10-12', 'Ende der Höchstfrist (nicht belehrt)', false]]);
+  expect(meldungen.at(-1)).toContain('Eine überholte Wiedervorlage entfernt.');
+  // Widerruf erfasst, Kachel verlassen: Höchstfrist entfällt, Rückzahlung kommt hinzu (beim Verlassen fortgeschrieben)
+  await feld(page, 'widerruf.abgesandt').fill('2026-09-29');
+  await feld(page, 'widerruf.eingang').fill('2026-09-29');
+  await page.getByRole('button', { name: 'Alle Verträge' }).click();
+  expect(await wvListe(page, 'Probehaus')).toEqual([['2026-10-13', 'Rückzahlung der Provision nach Widerruf spätestens', false]]);
+  expect(await page.evaluate(() => Object.keys(wzdAkten('maklervertrag')[0].wv))).toEqual(['rueckzahlung']);
+  // erledigte Wiedervorlagen bleiben stehen
+  await page.evaluate(() => { const l = aufLoad(); l.forEach(a => { a.erledigt = true; }); aufStore(l); });
+  await page.locator('.mv-karte button', { hasText: 'Öffnen' }).click();
+  await feld(page, 'widerruf.abgesandt').fill('');
+  await feld(page, 'widerruf.eingang').fill('');
+  await page.getByRole('button', { name: 'Fristen vormerken' }).click();
+  expect(await wvListe(page, 'Probehaus')).toEqual([['2026-10-13', 'Rückzahlung der Provision nach Widerruf spätestens', true], ['2027-10-12', 'Ende der Höchstfrist (nicht belehrt)', false]]);
+  await keineSkriptfehler(page);
+});
+
+test('Online-Abschluss: ohne Hinweis auf die Widerrufsfunktion keine ordnungsgemäße Belehrung; Kennzahl nennt den Fristbeginn richtig (D63)', async ({ page }) => {
+  dialoge(page);
+  await vertragOhneObjekt(page, 'verkaeufer', 'Probewohnung Portalweg 2');
+  await feld(page, 'vertragsart').selectOption('einfach');
+  await feld(page, 'abschluss').fill('2026-09-21');
+  await feld(page, 'weg').selectOption('online');
+  await feld(page, 'online.zahlungspflichtig').check();
+  await feld(page, 'online.widerrufsfunktion').check();
+  await feld(page, 'textform.datum').fill('2026-09-21');
+  await feld(page, 'belehrung.datum').fill('2026-09-21');
+  await feld(page, 'belehrung.form').selectOption('datentraeger');
+  await feld(page, 'belehrung.formular').check();
+  const pruef = page.locator('#mv_pruefung');
+  await expect(pruef).toContainText('Keine ordnungsgemäße Belehrung vermerkt (fehlt: Hinweis auf die Widerrufsfunktion nach § 356a BGB (Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)): Widerruf möglich bis 5.10.2027');
+  await expect(page.locator('#mv_kpis')).toContainText('Höchstfrist – nicht belehrt');
+  await expect(pruef).not.toContainText('Fristbeginn unsicher');
+  await feld(page, 'belehrung.online').check();
+  await expect(pruef).toContainText('Widerrufsfrist läuft bis 5.10.2026');
+  await expect(page.locator('#mv_kpis')).toContainText('ab Vertragsschluss am 21.9.2026');
+  await feld(page, 'belehrung.datum').fill('2026-09-23');
+  await expect(page.locator('#mv_kpis')).toContainText('ab Belehrung am 23.9.2026');
+  await expect(pruef).toContainText('die App rechnet ab der Belehrung am 23.9.2026');
+  // Prüfbogen nennt den Hinweis
+  await page.getByRole('button', { name: 'Dokument' }).click();
+  await expect(page.locator('#report .wzd')).toContainText('mit Hinweis auf die Widerrufsfunktion (§ 356a BGB)');
+  await page.locator('#report .ex-leiste button', { hasText: 'zurück' }).click();
+  await keineSkriptfehler(page);
+});
+
+test('Käuferseite: Belehrung zwischen frühestem und spätestem Vertragsschluss — Kennzahl „ab Vertragsschluss“ mit dem späteren Tag (D63)', async ({ page }) => {
+  dialoge(page);
+  await vertragOhneObjekt(page, 'kaeufer', 'Probehaus Linkweg 4');
+  await feld(page, 'weg').selectOption('fern');
+  await feld(page, 'kaeufer.link').fill('2026-09-01');
+  await feld(page, 'kaeufer.bitte').fill('2026-09-05');
+  await feld(page, 'textform.datum').fill('2026-09-05');
+  await feld(page, 'belehrung.datum').fill('2026-09-03');
+  await feld(page, 'belehrung.form').selectOption('datentraeger');
+  await feld(page, 'belehrung.formular').check();
+  await expect(page.locator('#mv_kpis')).toContainText('Widerrufsfrist bis21.9.2026');
+  await expect(page.locator('#mv_kpis')).toContainText('ab Vertragsschluss am 5.9.2026');
+  await expect(page.locator('#mv_kpis')).not.toContainText('ab Belehrung');
+  await expect(page.locator('#mv_pruefung')).toContainText('Belehrung erst nach dem frühesten möglichen Vertragsschluss am 1.9.2026: Die Frist beginnt nicht vor der Belehrung (§ 356 Abs. 3 Satz 1 BGB); die App rechnet ab dem spätesten möglichen Vertragsschluss am 5.9.2026.');
+  await keineSkriptfehler(page);
+});

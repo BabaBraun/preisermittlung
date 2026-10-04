@@ -22,7 +22,7 @@ const FP_PHASEN=[
   ['Übergabe und Abschluss',[['schluessel_zurueck','Ausgegebene Schlüssel vollständig zurück','schluessel_zurueck',3],['uebergabe','Übergabe mit Protokoll','uebergabe'],['provision','Provision abgerechnet und eingegangen','provision'],['nachbetreuung','Nachbetreuung: Glückwunsch, Löschprüfung in der Kundenakte gesetzt']]]
 ];
 /* Schritt: [id, Text, Schlüssel der Erkennung, nur bei (1 Wohnung · 2 Eintrag in „Vermietet verkaufen“ · 3 Eintrag im Schlüsselbuch), 'intern']
-   intern: nur aus der Kachel erkannt, nicht von Hand abzuhaken und nicht in der Übersicht für den Eigentümer (Geldwäsche, § 47 Abs. 1 GwG) */
+   intern: nur aus der Kachel erkannt, nicht von Hand abzuhaken und nicht in der Übersicht für den Eigentümer (Geldwäsche: Datenminimierung, Art. 5 Abs. 1 lit. c DSGVO) */
 const FP_STAENDE=['Akquise','Auftrag erteilt','In Vermarktung','Reserviert','Notartermin','Verkauft'];
 const FP_UL="wzOeffnen('unterlagen');ulOeffnen(FP.aktiv)";
 const FP_LINK={unterlagen:FP_UL,grundbuch:FP_UL,flurkarte:FP_UL,baulasten:FP_UL,weg:FP_UL,fotos:"wzOeffnen('foto')",portal:"wzOeffnen('portal')",gesuche:"wzOeffnen('interessenten');vgSetz('ansicht','abgleich')",

@@ -141,8 +141,9 @@ test('Käuferseite: Vorschlag erste Bitte um Besichtigung, für das Fristende da
 test('Online-Abschluss, Vordruck-Stand und Normzitate vor und nach dem 19.06.2026', () => {
   let p = R.pruefen(mit({ weg: 'online', online: {} }), '2026-10-10');
   assert.equal(ampel(p, 'online').stufe, 'rot'); assert.equal(p.provision.text, 'Schaltfläche „zahlungspflichtig …“ nicht geprüft');
-  p = R.pruefen(mit({ weg: 'online', online: { zahlungspflichtig: true } }), '2026-10-27');
+  p = R.pruefen(mit({ weg: 'online', online: { zahlungspflichtig: true }, belehrung: { online: true } }), '2026-10-27');
   assert.equal(ampel(p, 'online356a').stufe, 'gelb'); assert.equal(p.provision.text, 'Fristbeginn unsicher (Online-Abschluss)');
+  assert.match(ampel(p, 'online356a').text, /^Fristbeginn unsicher – nicht vermerkt: Schaltfläche „Vertrag widerrufen“ beim Portal \(§ 356a BGB\)\./);
   p = R.pruefen(mit({ weg: 'online', online: { zahlungspflichtig: true, widerrufsfunktion: true }, belehrung: { online: true } }), '2026-10-27');
   assert.equal(ampel(p, 'online356a'), undefined); assert.equal(p.provision.stufe, 'gruen');
   p = R.pruefen(mit({ belehrung: { vordruck: '2025-03-01' } }), '2026-10-10');
@@ -167,4 +168,53 @@ test('Abschrift (§ 312f), Laufzeit des Alleinauftrags und Wiedervorlagen', () =
   const w = mit({ widerruf: { abgesandt: '2026-10-12', eingang: '2026-10-13' } }), pw = R.pruefen(w, '2026-10-14');
   assert.deepEqual(R.wiedervorlagen(w, pw).map(x => x.key), ['rueckzahlung', 'laufzeit']);
   assert.deepEqual(R.wiedervorlagen(w, pw, { bezahlt: false }).map(x => x.key), ['laufzeit']);
+});
+
+test('Online-Abschluss ohne Hinweis auf die Widerrufsfunktion: Frist beginnt nicht (§ 356 Abs. 3 Satz 1, § 356a BGB; Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)', () => {
+  const v = mit({ vertragsart: 'einfach', weg: 'online', abschluss: '2026-07-01', textform: { datum: '2026-07-01', form: 'datei' },
+    belehrung: { datum: '2026-07-01', form: 'datentraeger', online: false }, online: { zahlungspflichtig: true, widerrufsfunktion: true },
+    abschrift: { datum: '2026-07-01', form: 'datentraeger' } });
+  let p = R.pruefen(v, '2026-07-25', { notarTermin: '2026-07-28' });
+  assert.equal(p.belehrt, false);
+  assert.deepEqual(p.belehrungFehlt, ['Hinweis auf die Widerrufsfunktion nach § 356a BGB (Art. 246a § 1 Abs. 2 Satz 1 Nr. 1 EGBGB)']);
+  assert.equal(p.ende, '2027-07-15'); assert.equal(p.phase, 'laeuft');                       // Höchstfrist (§ 356 Abs. 4 Satz 1 BGB)
+  assert.equal(ampel(p, 'belehrung').stufe, 'rot'); assert.match(ampel(p, 'belehrung').text, /fehlt: Hinweis auf die Widerrufsfunktion/);
+  assert.equal(ampel(p, 'notar').stufe, 'rot');                                               // § 357a Abs. 2 BGB
+  assert.equal(ampel(p, 'online356a'), undefined); assert.equal(p.provision.stufe, 'rot');
+  assert.deepEqual(R.wiedervorlagen(v, p).map(x => [x.key, x.datum]), [['hoechst', '2027-07-15']]);
+  // mit Hinweis: 14 Tage ab Belehrung
+  p = R.pruefen(mit({ ...v, belehrung: { ...v.belehrung, online: true } }), '2026-07-25', { notarTermin: '2026-07-28' });
+  assert.equal(p.belehrt, true); assert.equal(p.ende, '2026-07-15'); assert.equal(p.phase, 'abgelaufen');
+  assert.equal(ampel(p, 'notar'), undefined); assert.equal(p.provision.stufe, 'gruen');
+  // vor dem 19.06.2026: § 356a galt noch nicht – nur der gelbe Hinweis
+  const alt = mit({ ...v, abschluss: '2026-05-04', textform: { ...v.textform, datum: '2026-05-04' }, belehrung: { ...v.belehrung, datum: '2026-05-04' } });
+  p = R.pruefen(alt, '2026-10-10');
+  assert.equal(p.belehrt, true); assert.equal(ampel(p, 'online356a').stufe, 'gelb');
+  // anderer Abschlussweg: kein Hinweis nötig
+  assert.equal(R.pruefen(mit({ ...v, weg: 'fern' }), '2026-07-25').belehrt, true);
+});
+
+test('Fristbeginn nach Vertragsschluss oder Belehrung: Kennzahl und Ampel nennen den Tag, ab dem die App rechnet', () => {
+  // Käuferseite: Link 01.09., Belehrung 03.09., erste Bitte 05.09. → Frist ab dem spätesten möglichen Vertragsschluss
+  const k = mit({ seite: 'kaeufer', vertragsart: 'nachweis', weg: 'fern', abschluss: '', kaeufer: { link: '2026-09-01', bitte: '2026-09-05' },
+    belehrung: { datum: '2026-09-03', form: 'datentraeger' }, abschrift: { datum: '2026-09-05', form: 'datentraeger' } });
+  let p = R.pruefen(k, '2026-09-10');
+  assert.equal(p.V, '2026-09-05'); assert.equal(p.beginn, '2026-09-05'); assert.equal(p.ende, '2026-09-21');
+  assert.equal(p.abBelehrung, false); assert.equal(p.nachgeholt, true);
+  assert.equal(ampel(p, 'nachgeholt').text, 'Belehrung erst nach dem frühesten möglichen Vertragsschluss am 01.09.2026: Die Frist beginnt nicht vor der Belehrung (§ 356 Abs. 3 Satz 1 BGB); die App rechnet ab dem spätesten möglichen Vertragsschluss am 05.09.2026. Die Belehrung gehört vor die Vertragserklärung (Art. 246a § 4 Abs. 1 EGBGB).');
+  // Belehrung nach dem spätesten Datum → ab Belehrung
+  p = R.pruefen(mit({ ...k, belehrung: { ...k.belehrung, datum: '2026-09-07' } }), '2026-09-10');
+  assert.equal(p.abBelehrung, true); assert.equal(p.beginn, '2026-09-07'); assert.match(ampel(p, 'nachgeholt').text, /die App rechnet ab der Belehrung am 07\.09\.2026\./);
+  // Verkäuferseite: nur ein Datum
+  p = R.pruefen(mit({ belehrung: { datum: '2026-10-08' } }), '2026-10-10');
+  assert.equal(p.abBelehrung, true); assert.match(ampel(p, 'nachgeholt').text, /^Belehrung erst nach dem Vertragsschluss am 05\.10\.2026: .*ab der Belehrung am 08\.10\.2026\./);
+  assert.equal(R.pruefen(BASIS, '2026-10-10').abBelehrung, false);
+});
+
+test('Wiedervorlagen: Schlüssel wechseln mit der Belehrung und entfallen nach Widerruf (Grundlage für das Aufräumen in der Kachel)', () => {
+  const v = mit({ vertragsart: 'einfach', weg: 'fern', abschluss: '2026-10-01', textform: { datum: '2026-10-01' }, belehrung: { datum: '2026-10-01', form: 'papier' } });
+  const keys = (x, h) => R.wiedervorlagen(x, R.pruefen(x, h)).map(y => [y.key, y.datum]);
+  assert.deepEqual(keys(v, '2026-10-04'), [['frist', '2026-10-15']]);
+  assert.deepEqual(keys(mit({ ...v, belehrung: { ...v.belehrung, formular: false } }), '2026-10-04'), [['hoechst', '2027-10-15']]);
+  assert.deepEqual(keys(mit({ ...v, widerruf: { abgesandt: '2026-10-03' } }), '2026-10-04'), []);
 });

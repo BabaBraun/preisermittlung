@@ -23,14 +23,14 @@ test('Neue Kundin: Einwilligung je Kanal mit Nachweis, Datenschutzinformation f�
   await expect(kanal(page, 'E-Mail')).toContainText('In der App erfasst am 29.09.2026');
   await expect(kanal(page, 'E-Mail').locator('.wz-ampel.wz-gelb')).toContainText('Nachweis prüfen: erteilt am, Form, Fundstelle des Nachweises');
   await kanal(page, 'E-Mail').locator('input[aria-label="erteilt am"]').fill('2026-09-29');
-  await kanal(page, 'E-Mail').locator('input[aria-label="erteilt am"]').dispatchEvent('change');
+  await kanal(page, 'E-Mail').locator('input[aria-label="erteilt am"]').blur();   // Datumsfelder: Kasten erst beim Verlassen neu
   await kanal(page, 'E-Mail').locator('select[aria-label="Form"]').selectOption('Vordruck der Bank');
   const nw = kanal(page, 'E-Mail').locator('input[aria-label="Nachweis im Banksystem Fundstelle"]');
   await nw.fill('Vordruck Werbung 2026, DMS'); await nw.dispatchEvent('change');
   await expect(kanal(page, 'E-Mail').locator('.wz-ampel.wz-gruen')).toContainText('Einwilligung vom 29.09.2026');
   await expect(kanal(page, 'Telefon')).toContainText('keine Einwilligung — keine Werbeanrufe (§ 7 Abs. 2 Nr. 1 UWG)');
   const ds = akte(page).locator('input[aria-label="Datenschutzinformation gegeben am"]');
-  await ds.fill('2026-09-29'); await ds.dispatchEvent('change');
+  await ds.fill('2026-09-29'); await ds.blur();
   await expect(akte(page).locator('.kw-box')).toContainText('Datenschutzinformation gegeben am 29.09.2026');
   const k = await page.evaluate(() => KD_CACHE.find(x => x.nachname === 'Kanalbeispiel').werbung);
   expect([k.email.stand, k.email.erfasstAm, k.telefon ? k.telefon.stand : 'keine', k.dsinfo.erteiltAm]).toEqual(['einwilligung', '2026-09-29', 'keine', '2026-09-29']);

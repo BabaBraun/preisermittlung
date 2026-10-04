@@ -171,10 +171,15 @@ function fahrplanFinanzierung(liste,projektId,o){
   return !!o.reserviert&&z.length===1;
 }
 
-/* Personenbezug entfernen (Kunde gelöscht oder nicht mehr gebraucht): Auswertung bleibt, Name und Freitexte gehen */
+/* Personenbezug entfernen (Kunde gelöscht oder nicht mehr gebraucht): nur, was die Auswertung braucht (Anlass, Stand, Tag der
+   Weitergabe und der Rückmeldung, Volumen) und der Verlauf der Stände. Objekt, Kaufpreis, Freigaben, Kollege und der Verweis auf
+   die Wiedervorlage gehen mit — sonst wäre der Käufer über Objekt und Volumen oder über die Wiedervorlage wieder bestimmbar. */
+const BLEIBT=['id','art','ts','geaendert','anlass','stand','datum','rueckmeldungAm','volumen'];
 function anonymisieren(w){
-  w=w||{}; const e=w.einwilligung||{};
-  return Object.assign({},w,{kundeId:'',kundeGeloescht:true,anliegen:'',notiz:'',einwilligung:{ja:!!e.ja,datum:'',form:'',rueckmeldung:false,widerrufen:''},
+  w=w||{}; const e=w.einwilligung||{}, r={}, frei={};
+  BLEIBT.forEach(k=>{ if(k in w) r[k]=w[k]; }); FREIGABEN.forEach(([k])=>{ frei[k]=false; });
+  return Object.assign(r,{kundeId:'',kundeGeloescht:true,projektId:'',kaufpreis:'',kollegeId:'',kollege:null,anliegen:'',notiz:'',wvId:'',freigabe:frei,
+    einwilligung:{ja:!!e.ja,datum:'',form:'',rueckmeldung:false,widerrufen:''},
     verlauf:(Array.isArray(w.verlauf)?w.verlauf:[]).filter(h=>h&&/^Stand: /.test(h.text||'')).map(h=>({datum:h.datum,text:h.text}))});
 }
 /* erledigte Weitergaben, deren letzter Tag länger als `monate` zurückliegt (noch mit Personenbezug) */

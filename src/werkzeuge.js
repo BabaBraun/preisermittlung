@@ -54,8 +54,8 @@ function wzFeld(pfad,label,o){
   if(o.typ==='check') return '<label class="wz-check'+(o.voll?' full':'')+'"><input type="checkbox" id="'+id+'" data-wz="'+pfad+'"'+z+(w?' checked':'')+'><span>'+label+'</span></label>';
   let lbl='<label for="'+id+'">'+label+(o.einheit?' <span class="u">'+o.einheit+'</span>':'')+'</label>', feld;
   if(o.typ==='wahl') feld='<select id="'+id+'" data-wz="'+pfad+'"'+z+'>'+o.optionen.map(([v,t])=>'<option value="'+sEsc(v)+'"'+(String(w==null?'':w)===String(v)?' selected':'')+'>'+sEsc(t)+'</option>').join('')+'</select>';
-  else if(o.typ==='lang') feld='<textarea id="'+id+'" data-wz="'+pfad+'" rows="'+(o.zeilen||3)+'"'+(o.ph?' placeholder="'+sEsc(o.ph)+'"':'')+'>'+sEsc(w==null?'':String(w))+'</textarea>';
-  else feld='<input id="'+id+'" data-wz="'+pfad+'" type="'+(o.typ==='datum'?'date':'text')+'"'
+  else if(o.typ==='lang') feld='<textarea id="'+id+'" data-wz="'+pfad+'"'+(o.zeichnen?' data-zeichnen="nachher"':'')+' rows="'+(o.zeilen||3)+'"'+(o.ph?' placeholder="'+sEsc(o.ph)+'"':'')+'>'+sEsc(w==null?'':String(w))+'</textarea>';
+  else feld='<input id="'+id+'" data-wz="'+pfad+'"'+(o.zeichnen?' data-zeichnen="nachher"':'')+' type="'+(o.typ==='datum'?'date':'text')+'"'
     +(['zahl','betrag','prozent'].includes(o.typ)?' inputmode="decimal"':'')+' value="'+sEsc(w==null?'':String(w))+'"'+(o.ph?' placeholder="'+sEsc(o.ph)+'"':'')+'>';
   return '<div class="field'+(o.voll?' full':'')+'">'+lbl+feld+(o.hinweis?'<span class="wz-feldhinweis">'+o.hinweis+'</span>':'')+'</div>';
 }
@@ -98,6 +98,20 @@ function wzZeichnen(){
   let d=WZ.reg[WZ.aktiv], box=$('wz_body'); if(!d||!box) return;
   box.innerHTML=d.zeichnen(wzZustand(d.id)); iconify(box); wzRechnen();
 }
+/* Neuaufbau nach dem Verlassen eines Feldes mit data-zeichnen="nachher" (Text-, Zahl- und Datumsfelder): erst wenn der Zeiger wieder
+   oben ist (sonst ginge ein Klick auf einen Knopf verloren, weil der Knopf ersetzt wird), danach bekommt das zuletzt fokussierte
+   Feld den Fokus zurück und der Bildlauf bleibt. Datumsfelder melden in Chromium jeden Zwischenstand — deshalb nie beim Tippen. */
+var WZ_NACH={offen:false,zeiger:false,warte:false};
+function wzZeichnenNachher(){
+  if(WZ_NACH.zeiger){ WZ_NACH.warte=true; return; }
+  setTimeout(()=>{
+    let box=$('wz_body'), o=$('wz_overlay'); if(!box) return;
+    let a=document.activeElement, id=a&&a.id&&box.contains(a)?a.id:'', st=o?o.scrollTop:0, pos=null;
+    try{ if(id&&a.selectionStart!=null) pos=[a.selectionStart,a.selectionEnd]; }catch(e){}
+    wzZeichnen(); if(o) o.scrollTop=st;
+    let n=id&&$(id); if(n&&n!==document.activeElement){ try{ n.focus({preventScroll:true}); if(pos) n.setSelectionRange(pos[0],pos[1]); }catch(e){} }
+  },0);
+}
 function wzRechnen(){ let d=WZ.reg[WZ.aktiv]; if(d&&d.rechnen) try{ d.rechnen(wzZustand(d.id)); }catch(e){ console.error('Werkzeug '+d.id,e); } }
 function wzNeu(){
   let d=WZ.reg[WZ.aktiv]; if(!d||!d.start) return;
@@ -110,7 +124,8 @@ function wzEingabe(ev){
   wzSetz(S,el.dataset.wz,el.type==='checkbox'?el.checked:el.value);
   if(d&&d.speichern) d.speichern(); else wzSpeichern();
   // Textfelder, die die Ansicht ändern, erst beim Verlassen neu aufbauen (sonst verlöre das Feld beim Tippen den Fokus)
-  if(el.dataset.zeichnen&&!(ev.type==='input'&&el.tagName!=='SELECT'&&el.type!=='checkbox')) wzZeichnen(); else wzRechnen();
+  if(el.dataset.zeichnen==='nachher'){ WZ_NACH.offen=true; wzRechnen(); }   // Neuaufbau beim Verlassen (focusout)
+  else if(el.dataset.zeichnen&&!(ev.type==='input'&&el.tagName!=='SELECT'&&el.type!=='checkbox')) wzZeichnen(); else wzRechnen();
 }
 /* Werte der geöffneten Bewertung — nur mit berechnetem Ergebnis */
 function wzBewertung(){ let R=window._R||{}; return R.empfehlung>0?R:null; }
@@ -174,6 +189,10 @@ function wzZahlig(c){ return /^[−+–-]?\s?\d/.test(String(c==null?'':c).repla
   o.addEventListener('input',e=>{ e.stopPropagation(); let t=e.target; if(t&&(t.tagName==='SELECT'||t.type==='checkbox')) return; wzEingabe(e); });
   o.addEventListener('change',e=>{ e.stopPropagation(); let t=e.target; if(t&&(t.tagName==='SELECT'||t.type==='checkbox'||t.type==='date'||(t.dataset&&t.dataset.zeichnen))) wzEingabe(e); });
   o.addEventListener('click',e=>{ if(e.target===o) wzSchliessen(); });
+  o.addEventListener('focusout',e=>{ let t=e.target; if(t&&t.dataset&&t.dataset.zeichnen==='nachher'&&WZ_NACH.offen){ WZ_NACH.offen=false; wzZeichnenNachher(); } });
+  o.addEventListener('pointerdown',()=>{ WZ_NACH.zeiger=true; },true);
+  const hoch=()=>{ WZ_NACH.zeiger=false; if(WZ_NACH.warte){ WZ_NACH.warte=false; setTimeout(wzZeichnenNachher,0); } };   // nach dem Klick
+  document.addEventListener('pointerup',hoch,true); document.addEventListener('pointercancel',hoch,true);
 })();
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ let o=$('wz_overlay'); if(o&&o.classList.contains('on')) wzSchliessen(); } });
 

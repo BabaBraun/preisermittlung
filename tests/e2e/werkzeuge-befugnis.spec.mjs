@@ -81,7 +81,9 @@ test('Erbengemeinschaft mit minderjährigem Miterben: Fragen, Ampeln, Posten in 
   await expect(page.locator('.bf-person').nth(2)).toContainText('Beschwerdefrist endet am 6.10.2026');
   await expect.poll(() => stand(page, pid, 'bf_' + p3 + '_gen')).toBe('da');
   await feld(page, 'personen.2.gen.aufforderung').fill('2026-08-10');
-  await expect(page.locator('.bf-person').nth(2)).toContainText('Mitteilung an den Käufer spätestens am 10.10.2026');
+  // 10.10.2026 ist ein Samstag: Fristende am Montag, 12.10.2026 (§ 193 BGB)
+  await expect(page.locator('.bf-person').nth(2)).toContainText('Mitteilung an den Käufer spätestens am 12.10.2026');
+  await expect(page.locator('.bf-person').nth(2).locator('.wz-rot')).toContainText('spätestens am 12.10.2026 (nächster Werktag, § 193 BGB)');
   await expect(page.locator('.bf-person').nth(2).locator('.wz-rot')).toContainText('sonst gilt die Genehmigung als verweigert (§ 1856 Abs. 2 BGB i. V. m. § 1644 Abs. 3 BGB)');
   await expect(gesamt(page)).toContainText('Rot:');
   await page.locator('.bf-person').nth(2).getByRole('button', { name: 'Wiedervorlage' }).click();
@@ -234,5 +236,71 @@ test('Auskunft und Löschen beim Kunden: Rolle, Vertretung und Genehmigung; Pers
   await page.evaluate(async pid => { wzOeffnen('befugnis'); await bfOeffnen(pid); }, pid);
   await expect(page.locator('.bf-person').first()).toContainText('(Kunde gelöscht) — neu wählen');
   await expect(page.locator('#wz_body')).toContainText('Miterbe 1: nicht erfasst');
+  await keineSkriptfehler(page);
+});
+
+test('Notarauftrag: Ampel „Wer verkauft?“ rechnet mit Termin und Güterstand des offenen Auftrags (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objekt(page, { ek_kunde_id: 'k_e1' });
+  // Erbe mit Europäischem Nachlasszeugnis (gültig bis 15.11.2026, liegt vor); Termin und Güterstand stehen nur im Notarauftrag
+  await page.evaluate(async pid => {
+    await iaPut('notar', Object.assign(noLeer(), { id: 'no_bf', anschrift: 'Musterweg 9, 74360 Ilsfeld', termin: '2026-11-20',
+      verkaeufer: [Object.assign(noPerson(), { kundeId: 'k_e1', name: 'Erika Erbebeispiel', familienstand: 'verheiratet', gueterstand: 'Gütergemeinschaft' })] }));
+    wzOeffnen('befugnis'); await bfOeffnen(pid);
+    Object.assign(BF.aktiv, { eigentuemer: 'verstorben', erben: 'einer', tv: 'nein', nacherbfolge: 'nein', nachweis: 'enz', enzBis: '2026-11-15' });
+    await wzdSpeichernSofort('akten', BF.aktiv); await bfAbgleich(BF.aktiv); await bfStandSetzen(pid, 'bf_enz', 'da', '2026-09-29', '');
+  }, pid);
+  expect(await page.evaluate(pid => bfAmpel(pid).stufe, pid)).toBe('rot');
+  // Wechsel in den Notarauftrag: „Wer verkauft?“ hat seine Liste beim Schließen geleert
+  await page.evaluate(async () => { wzOeffnen('notar'); await noLaden(); noOeffnenAuftrag('no_bf'); });
+  expect(await page.evaluate(() => [BF.notar, WZ.aktiv])).toEqual([null, 'notar']);
+  const box = page.locator('#no_pruef');
+  await expect(box.locator('.wz-rot', { hasText: 'Wer verkauft?:' })).toHaveCount(1);
+  expect(await page.evaluate(pid => bfAmpel(pid).stufe, pid)).toBe('rot');
+  // Termin im offenen Auftrag vor den Ablauf der Abschrift legen: kein Rot mehr, die Einwilligung des Ehegatten (§ 1424 BGB) bleibt Gelb
+  await page.locator('#wz_notar_termin').fill('2026-11-10');
+  await page.locator('#wz_notar_termin').press('Tab');
+  await expect(box.locator('.wz-rot', { hasText: 'Wer verkauft?:' })).toHaveCount(0);
+  await expect(box.locator('.wz-gelb', { hasText: 'Wer verkauft?:' })).toContainText('1 Nachweis oder Genehmigung stehen aus');
+  // ausdrücklich übergebener Auftrag (für andere Kacheln)
+  expect(await page.evaluate(pid => bfAmpel(pid, { termin: '2026-11-20', verkaeufer: [] }).stufe, pid)).toBe('rot');
+  await keineSkriptfehler(page);
+});
+
+test('Personen-Id aus einer Sicherung: kein Ausbruch aus onchange und onclick, Stand und Wiedervorlage wirken weiter (D63)', async ({ page }) => {
+  dialoge(page);
+  const pid = await objekt(page);
+  const boese = 'x" onmouseover="window.__bfXss=1" a="';
+  await page.evaluate(async ({ pid, boese }) => {
+    const p = bfPersonLeer({ id: boese, kundeId: 'k_e1', vertretung: 'betreuer', vertreterIds: ['k_betreuer'], aufgabenkreis: 'ja',
+      gen: { beantragt: '2026-09-01', beschluss: '2026-09-10', bekanntgabe: '2026-09-11', mitgeteilt: '', aufforderung: '2026-09-01' } });
+    await wzdSpeichern('akten', Object.assign(bfLeer(wzdObjekt(pid)), { id: 'bf_x', eigentuemer: 'lebt', personen: [p, bfPersonLeer({ id: 'p_doppelt', kundeId: 'k_e2' }), bfPersonLeer({ id: 'p_doppelt', kundeId: 'k_kind' })] }));
+    wzOeffnen('befugnis'); await bfOeffnen(pid);
+  }, { pid, boese });
+  await expect(page.locator('.bf-person')).toHaveCount(3);
+  expect(await page.locator('#wz_overlay [onmouseover]').count()).toBe(0);
+  const ids = await page.evaluate(() => BF.aktiv.personen.map(p => p.id));
+  expect(ids[0]).toMatch(/^[\w-]+$/);
+  expect(new Set(ids).size).toBe(3);                                       // doppelte Id neu vergeben
+  expect(await page.evaluate(async () => (await iaAlle('akten')).find(x => x.id === 'bf_x').personen.map(p => p.id))).toEqual(ids);
+  expect((await zusatz(page, pid)).map(z => z[0]).join(' ')).not.toMatch(/onmouseover|"/);
+  // Stand und Wiedervorlage funktionieren mit der neuen Id; Mitteilung bis 01.11.2026 (Sonntag, Allerheiligen) → 02.11.2026 (§ 193 BGB)
+  const p1 = page.locator('.bf-person').first();
+  await p1.getByLabel('Stand: Bestellungsurkunde', { exact: true }).selectOption('da');
+  await expect.poll(() => stand(page, pid, 'bf_' + ids[0] + '_bestellung')).toBe('da');
+  await expect(p1).toContainText('Mitteilung an den Käufer spätestens am 2.11.2026');
+  await p1.getByRole('button', { name: 'Wiedervorlage' }).click();
+  expect(await page.evaluate(() => aufLoad().filter(a => /Genehmigung des Betreuungsgerichts \(Eigentümer 1\) dem Käufer mitteilen — spätestens am 2\.11\.2026/.test(a.text)).map(a => a.frist))).toEqual(['2026-10-19']);
+  // auch ohne Bereinigung: Schlüssel und Bereich stehen nur escaped in data-Attributen
+  const attr = await page.evaluate(b => {
+    const d = document.createElement('div');
+    d.innerHTML = bfStandSelect(BF.aktiv.projektId, 'bf_' + b + '_bestellung', 'X') + '<div class="bf-kfrist" data-bfk="' + sEsc('p:' + b) + '">'
+      + bfKetteFristen({ rkAb: '', mitteilungBis: '2026-11-02', g: {}, bereich: 'p:' + b }) + '</div>';
+    return { namen: [...d.querySelectorAll('*')].flatMap(e => [...e.attributes].map(a => a.name)), key: d.querySelector('select').dataset.bfkey,
+      bfk: d.querySelector('button').closest('.bf-kfrist').dataset.bfk };
+  }, boese);
+  expect(attr.namen).not.toContain('onmouseover');
+  expect([attr.key, attr.bfk]).toEqual(['bf_' + boese + '_bestellung', 'p:' + boese]);
+  expect(await page.evaluate(() => window.__bfXss)).toBeUndefined();
   await keineSkriptfehler(page);
 });

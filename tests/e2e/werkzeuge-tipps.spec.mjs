@@ -211,3 +211,100 @@ test('Tipps beim Kunden: Akte, Auskunft mit Herkunft der Daten, Löschen entfern
   expect(a).toBe(1);
   await keineSkriptfehler(page);
 });
+
+test('Tipp von einem externen Partner: Stand nur mit Einverständnis melden, jede Rückmeldung in der Auskunft (D63, Befund 15)', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  dialoge(page);
+  await appOeffnen(page);
+  await page.evaluate(g => { tpS().geber = JSON.parse(JSON.stringify(g)); wzSpeichernJetzt(); },
+    GEBER.concat([{ id: 'tg_x', name: 'Partner Beispiel', filiale: '', art: 'extern', email: 'partner@example.org' }]));
+  const id = await page.evaluate(async () => {
+    await kdSpeichern({ id: 'k_x', anrede: 'Frau', vorname: 'Erika', nachname: 'Auftragsbeispiel', grundlage: 'vertrag', kontakte: [], finanzierungen: [], erstellt: 1 });
+    await wzdLaden(); const t = tpLeer({ datum: '2026-09-01', geberId: 'tg_x', kundeId: 'k_x', stand: 'auftrag', stufe: 3 }); await wzdSpeichern('akten', t); return t.id; });
+  await page.evaluate(() => { wzOeffnen('tipps'); tpSetz('ansicht', 'liste'); tpSetz('filter', 'alle'); });
+  await expect(page.locator('#wz_body .wz-kpis')).toContainText('Rückmeldung offen1');   // nur die Eingangsbestätigung
+  await page.evaluate(id => tpOeffnen(id), id);
+  // ohne Einverständnis: Prüfpunkt, nur die Eingangsbestätigung, nichts zum Auftrag
+  await expect(page.locator('#tp_pruefung .wz-gelb', { hasText: 'Externer Tippgeber' })).toContainText('nur mit Einverständnis des Kunden melden (Bankgeheimnis; Art. 6 Abs. 1 lit. a DSGVO)');
+  await expect(page.locator('#tp_rueck')).toContainText('erst melden, wenn der Kunde damit einverstanden ist');
+  await expect(page.locator('#tp_rueck_text')).toContainText('Der Tipp ist angekommen und vorgemerkt.');
+  await expect(page.locator('#tp_rueck_text')).not.toContainText('Auftrag');
+  await expect(page.locator('#tp_rueck_betreff')).not.toContainText('Auftrag');
+  expect(await page.evaluate(() => decodeURIComponent(tpMailLink()))).not.toContain('Auftrag');
+  await page.getByRole('button', { name: 'Kopieren' }).click();
+  await expect(page.locator('#tp_rueck .wz-gruen')).toContainText('Rückmeldung zum Stand „neu“ am 29.9.2026 gegeben');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).not.toContain('Auftrag');
+  // danach kein Chip und keine Kennzahl „Rückmeldung offen“
+  await page.getByRole('button', { name: 'Alle Tipps' }).click();
+  await expect(page.locator('#wz_body .wz-kpis')).toContainText('Rückmeldung offen0');
+  const karte = page.locator('#wz_body .kd-karte', { hasText: 'Auftragsbeispiel' });
+  await expect(karte).not.toContainText('Rückmeldung offen');
+  // Einverständnis vermerkt: der Stand ist meldbar
+  await karte.getByRole('button', { name: 'Öffnen' }).click();
+  await page.locator('#wz_tipps_rueckmeldungEinverstandenAm').fill('2026-09-28');
+  await expect(page.locator('#tp_rueck_text')).toContainText('Daraus ist ein Auftrag geworden');
+  await expect(page.locator('#tp_rueck .wz-gelb')).toContainText('Rückmeldung zum Stand „Auftrag“ steht aus');
+  await expect(page.locator('#tp_pruefung .wz-gruen')).toContainText('an den externen Tippgeber am 28.9.2026 vermerkt');
+  await page.getByRole('button', { name: 'Kopieren' }).click();
+  await expect(page.locator('#tp_rueck .wz-gruen')).toContainText('Rückmeldung zum Stand „Auftrag“ am 29.9.2026 gegeben');
+  // Auskunft: Einverständnis und jede Rückmeldung mit Datum, Stand und Empfänger (Art. 15 Abs. 1 lit. c DSGVO)
+  const auskunft = await page.evaluate(async () => (await Promise.all(KD_AUSKUNFT_HOOKS.map(h => h('k_x')))).flat().join('\n'));
+  expect(auskunft).toContain('; Einverständnis mit der Rückmeldung zum Stand an den Tippgeber: 28.9.2026; Rückmeldung an den Tippgeber: '
+    + '29.9.2026 zum Stand „neu“ an Partner Beispiel, extern, 29.9.2026 zum Stand „Auftrag“ an Partner Beispiel, extern; Stand: Auftrag');
+  // Kunde gelöscht: Einverständnis und Rückmeldungen ohne Personenbezug weg
+  await page.evaluate(() => wzSchliessen());
+  await page.evaluate(() => kdLoeschen('k_x'));
+  await expect.poll(() => page.evaluate(() => KD_CACHE.some(k => k.id === 'k_x'))).toBe(false);
+  const t = await page.evaluate(async id => (await iaAlle('akten')).find(a => a.id === id), id);
+  expect([t.rueckmeldungEinverstandenAm, t.rueckmeldungen]).toEqual(['', []]);
+  await keineSkriptfehler(page);
+});
+
+test('Datenschutzinformation aus dem Tipp in der Kundenakte, eine Eintragung der Akte im Tipp angeboten (D63, Befund 21)', async ({ page }) => {
+  dialoge(page);
+  await appOeffnen(page);
+  await geberAnlegen(page);
+  await page.evaluate(async () => {
+    wzOeffnen('tipps'); await wzdLaden();
+    const t = tpLeer({ datum: '2026-08-20', geberId: 'tg_e' }); await wzdSpeichern('akten', t); await tpOeffnen(t.id);
+    TP.kn = { anrede: 'Herr', vorname: 'Max', nachname: 'Infobeispiel', telefon: '', email: '' }; await tpKundeNeu();
+  });
+  // Ampel der Akte und Marke der Kundenliste („Datenschutzinfo fällig“) am Tag der Testuhr
+  const akte = () => page.evaluate(() => { const k = KD_CACHE.find(x => x.nachname === 'Infobeispiel'), d = k.werbung.dsinfo;
+    return [ImmoWerbung.dsinfoStand(k, aufHeute()).stufe, d.erteiltAm, d.bereits, d.fundstelle, kwMarken(k).some(m => m.text === 'Datenschutzinfo fällig')]; });
+  expect(await akte()).toEqual(['rot', '', false, '', true]);
+  await page.locator('#wz_tipps_dsinfo_erteiltAm').fill('2026-09-15');
+  await page.locator('#wz_tipps_dsinfo_weg').selectOption('E-Mail');
+  await page.locator('#wz_tipps_dsinfo_version').fill('DSI Immobilien 01/2026');
+  await expect(page.locator('#tp_ds .wz-gruen')).toContainText('am 15.9.2026 erteilt');
+  await expect.poll(akte).toEqual(['gruen', '2026-09-15', false, '', false]);
+  // „bereits informiert“ mit Fundstelle wandert mit, zurück auf das Datum ebenso
+  await page.locator('#wz_tipps_dsinfo_bereitsInformiert').check();
+  await page.locator('#wz_tipps_dsinfo_fundstelle').fill('Datenschutzhinweise der Bank 2025');
+  await expect.poll(akte).toEqual(['gruen', '', true, 'Datenschutzhinweise der Bank 2025', false]);
+  await page.locator('#wz_tipps_dsinfo_bereitsInformiert').uncheck();
+  await expect.poll(akte).toEqual(['gruen', '2026-09-15', false, '', false]);
+  // im Tipp geleert: was aus dem Tipp kam, nimmt die App in der Akte zurück
+  await page.locator('#wz_tipps_dsinfo_erteiltAm').fill('');
+  await expect.poll(akte).toEqual(['rot', '', false, '', true]);
+  // eigene Eintragung in der Akte vor dem Tipp: nicht angeboten (sie nennt die Quelle des Tipps nicht)
+  const akteSetzen = datum => page.evaluate(async d => { const k = KD_CACHE.find(x => x.nachname === 'Infobeispiel'); k.werbung.dsinfo.erteiltAm = d; await kdSpeichern(k); wzZeichnen(); }, datum);
+  await akteSetzen('2026-08-01');
+  await expect(page.locator('#tp_ds_akte')).toBeEmpty();
+  // danach: der Tipp bietet sie an
+  await akteSetzen('2026-09-17');
+  await expect(page.locator('#tp_ds_akte .wz-gelb')).toContainText('In der Kundenakte ist die Datenschutzinformation am 17.9.2026 vermerkt');
+  await page.getByRole('button', { name: 'Aus der Kundenakte übernehmen' }).click();
+  await expect(page.locator('#wz_tipps_dsinfo_erteiltAm')).toHaveValue('2026-09-17');
+  await expect(page.locator('#tp_ds .wz-gruen')).toContainText('am 17.9.2026 erteilt');
+  await expect(page.locator('#tp_ds_akte')).toBeEmpty();
+  await expect(page.locator('#wz_body .vg-verlauf')).toContainText('Datenschutzinformation aus der Kundenakte übernommen');
+  // eine Änderung im Tipp überschreibt die eigene Eintragung der Akte nicht
+  await page.locator('#wz_tipps_dsinfo_erteiltAm').fill('2026-09-18');
+  await expect(page.locator('#tp_ds .wz-gruen')).toContainText('am 18.9.2026 erteilt');
+  expect(await akte()).toEqual(['gruen', '2026-09-17', false, '', false]);
+  // in der Kundenakte sichtbar
+  await page.evaluate(() => kdOeffnen(KD_CACHE.find(x => x.nachname === 'Infobeispiel').id));
+  await expect(page.locator('#kd_inhalt .kw-box')).toContainText('Datenschutzinformation gegeben am 17.09.2026');
+  await keineSkriptfehler(page);
+});
