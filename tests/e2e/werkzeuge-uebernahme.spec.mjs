@@ -105,3 +105,20 @@ test('Eckdaten übernehmen: keine Eckdaten-Datei, falsche Fassung, Wohnung statt
   await expect(page.locator('#wz_uebernahme_typ')).toHaveCount(0);
   await keineSkriptfehler(page);
 });
+
+test('Eckdaten übernehmen steht oben bei den Schnellaktionen (sechste Kachel, alle gleich groß) und unter „Mehr“ (D65)', async ({ page }) => {
+  await appOeffnen(page);
+  await page.evaluate(() => appSetTab('home'));
+  const oben = page.locator('#start-step0 > .quick > .tile');
+  await expect(oben.locator('.t')).toHaveText(['Neue Bewertung', 'Objekt erfassen', 'Finanzierung', 'Marktüberblick', 'Liegenschaften', 'Eckdaten übernehmen']);
+  const groessen = await oben.evaluateAll(l => l.map(t => { const r = t.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
+  expect(new Set(groessen.map(g => g.join('x'))).size).toBe(1);                   // „Neue Bewertung“ nicht mehr breiter
+  await expect(page.locator('#start_wz .tile[onclick="wzOeffnen(\'uebernahme\')"]')).toHaveCount(0);   // nicht doppelt
+  await oben.nth(5).click();
+  await expect(page.locator('#wz_titel')).toHaveText('Eckdaten übernehmen');
+  await page.getByRole('button', { name: 'Schließen', exact: true }).last().click();
+  await page.evaluate(() => appSetTab('more'));
+  await page.locator('#app_more').getByRole('button', { name: 'Eckdaten übernehmen', exact: true }).click();
+  await expect(page.locator('#wz_titel')).toHaveText('Eckdaten übernehmen');
+  await keineSkriptfehler(page);
+});

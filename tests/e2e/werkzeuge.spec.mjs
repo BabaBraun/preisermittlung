@@ -5,7 +5,7 @@ import { appOeffnen, arbeitsflaeche, fallAnwenden, keineSkriptfehler, JETZT } fr
 import { SZENARIEN } from '../fixtures/szenarien.mjs';
 import { FOTO_JPEG } from '../fixtures/medien.mjs';
 
-const WERKZEUGE = [['tipps', 'Tipps'], ['akquise', 'Akquise'], ['maklervertrag', 'Maklerverträge'], ['interessenten', 'Interessenten'], ['bieter', 'Bieterverfahren'], ['eigentuemerbericht', 'Eigentümerbericht'], ['portal', 'Portal-Export'], ['aushang', 'Aushang'], ['social', 'Social Media'], ['vorlagen', 'Vorlagen'], ['rundschreiben', 'Rundschreiben'], ['uebernahme', 'Eckdaten übernehmen'], ['unterlagen', 'Unterlagen'], ['objektauskunft', 'Objektauskunft'], ['befugnis', 'Wer verkauft?'], ['vermietet', 'Vermietet verkaufen'], ['schluessel', 'Schlüsselbuch'], ['foto', 'Fotostudio'], ['schwaerzen', 'PDF schwärzen'], ['fahrplan', 'Verkaufsfahrplan'], ['notar', 'Notarauftrag'], ['gwg', 'Geldwäsche-Prüfung'], ['provision', 'Provision'], ['uebergabe', 'Übergabeprotokoll'], ['weitergabe', 'Weitergaben'], ['erbe', 'Übergeben & Vererben'], ['rente', 'Wohnen im Alter'], ['kaufmiete', 'Kaufen oder Mieten'], ['nebenkosten', 'Kaufnebenkosten'], ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor'], ['kalender', 'Kalender'], ['aktivitaeten', 'Aktivitäten'], ['jahr', 'Mein Jahr'], ['datenstand', 'Datenstand']];   // D38–D61 — in der Reihenfolge der Bereiche   // D38–D53 — in der Reihenfolge der Bereiche
+const WERKZEUGE = [['tipps', 'Tipps'], ['akquise', 'Akquise'], ['maklervertrag', 'Maklerverträge'], ['interessenten', 'Interessenten'], ['bieter', 'Bieterverfahren'], ['eigentuemerbericht', 'Eigentümerbericht'], ['portal', 'Portal-Export'], ['aushang', 'Aushang'], ['social', 'Social Media'], ['vorlagen', 'Vorlagen'], ['rundschreiben', 'Rundschreiben'], ['unterlagen', 'Unterlagen'], ['objektauskunft', 'Objektauskunft'], ['befugnis', 'Wer verkauft?'], ['vermietet', 'Vermietet verkaufen'], ['schluessel', 'Schlüsselbuch'], ['foto', 'Fotostudio'], ['schwaerzen', 'PDF schwärzen'], ['fahrplan', 'Verkaufsfahrplan'], ['notar', 'Notarauftrag'], ['gwg', 'Geldwäsche-Prüfung'], ['provision', 'Provision'], ['uebergabe', 'Übergabeprotokoll'], ['weitergabe', 'Weitergaben'], ['erbe', 'Übergeben & Vererben'], ['rente', 'Wohnen im Alter'], ['kaufmiete', 'Kaufen oder Mieten'], ['nebenkosten', 'Kaufnebenkosten'], ['grundstueck', 'Grundstückspotenzial'], ['etw', 'ETW-Kaufcheck'], ['wertmonitor', 'Wertmonitor'], ['kalender', 'Kalender'], ['aktivitaeten', 'Aktivitäten'], ['jahr', 'Mein Jahr'], ['datenstand', 'Datenstand']];   // D38–D61 — in der Reihenfolge der Bereiche   // D38–D53 — in der Reihenfolge der Bereiche
 function dialoge(page) {
   const liste = [];
   page.on('dialog', async d => { liste.push(d.message()); await d.accept(d.type() === 'prompt' ? (d.defaultValue() || 'x') : undefined); });
@@ -14,7 +14,7 @@ function dialoge(page) {
 const feld = (page, id) => page.locator('#wz_' + id);
 async function eintragen(page, werte) { for (const [id, v] of Object.entries(werte)) await feld(page, id).fill(v); }
 
-test('Sechsunddreißig Kacheln in fünf Bereichen auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38–D64)', async ({ page }) => {
+test('Fünfunddreißig Kacheln in fünf Bereichen auf der Startseite und unter „Mehr“, jede öffnet ihr Werkzeug (D38–D61)', async ({ page }) => {
   await appOeffnen(page);
   await page.evaluate(() => appSetTab('home'));
   const kacheln = page.locator('#start_wz .tile');

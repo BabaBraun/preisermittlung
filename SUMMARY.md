@@ -2,7 +2,8 @@
 
 Neue Kachel „Eckdaten übernehmen“ (Objekt & Unterlagen): Claude liest die Objektunterlagen nach der Anleitung der Kachel und liefert eine
 Eckdaten-Datei; die App zeigt jede Angabe mit Quelle zum Anhaken und legt daraus eine neue Bewertung an — vorhandene Bewertungen bleiben
-unverändert, der Quellennachweis bleibt bei der Kachel (D64).
+unverändert, der Quellennachweis bleibt bei der Kachel (D64). Sie steht oben bei den Schnellaktionen; „Neue Bewertung“ ist jetzt so
+groß wie die übrigen fünf (D65).
 
 # Zusammenfassung — acht neue Kacheln (2026-10-03)
 

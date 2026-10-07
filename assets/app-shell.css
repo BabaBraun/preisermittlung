@@ -37,10 +37,10 @@ body.app-shell{--bg:#f4f6f6;--card:#fff;--surface-2:#f0f4f3;--field:#fbfcfc;--te
 .app-shell .tile .t{font-size:15px;font-weight:600;line-height:1.3;margin:0}
 .app-shell .tile .d{font-size:12px;line-height:1.45;color:var(--text-2);margin:0}
 .app-shell .tile.q .qi{width:34px;height:34px;border-radius:10px;background:var(--tint);color:var(--accent);margin:0}
-.app-shell .quick .app-hero-action{grid-column:1/-1;min-height:146px;background:#134c45;color:#fff;border-color:#134c45;padding:24px;grid-template-columns:44px 1fr;gap:8px 16px}
-.app-shell .app-hero-action .qi{grid-row:1/3;width:44px;height:44px;background:rgba(255,255,255,.14);color:#fff;align-self:center}
-.app-shell .app-hero-action .t{font-size:23px;letter-spacing:-.5px;align-self:end}
-.app-shell .app-hero-action .d{color:#d4eee5;font-size:14px;max-width:50ch}
+/* „Neue Bewertung“: gleiche Größe wie die übrigen Schnellaktionen, nur farbig hervorgehoben (D65) */
+#start-step0>.quick{grid-auto-rows:1fr}
+.app-shell .quick .app-hero-action{background:#134c45;color:#fff;border-color:#134c45}
+.app-shell .app-hero-action .d{color:#d4eee5}
 .app-shell .recent-head h2{font-size:18px;letter-spacing:-.3px}
 .app-shell .recent-list{border:1px solid var(--line);border-radius:16px;box-shadow:none;overflow:hidden;background:var(--card)}
 .app-shell .recent-empty{padding:24px;font-size:14px;line-height:1.6;color:var(--text-2)}
@@ -147,11 +147,8 @@ body.app-shell.report-mode{padding:0}
  .app-shell .greet h1,.app-shell .app-page-heading h1{font-size:27px}
  .app-shell .quick{gap:8px;margin-bottom:24px}
  .app-shell .tile.q{padding:12px;min-height:98px;gap:8px}
- .app-shell .quick>.tile.q:not(.app-hero-action) .d{display:none}
- .app-shell .quick>.tile.q:not(.app-hero-action) .t{font-size:12px}
- .app-shell .quick .app-hero-action{padding:20px;min-height:132px;grid-template-columns:40px 1fr;gap:8px 12px}
- .app-shell .app-hero-action .t{font-size:21px}
- .app-shell .app-hero-action .d{font-size:13px}
+ .app-shell .quick>.tile.q .d{display:none}
+ .app-shell .quick>.tile.q .t{font-size:12px}
  .app-shell .card{padding:20px 16px}
  .app-shell .card h2{font-size:20px}
  .app-shell .grid,.app-shell .grid.three,.app-shell .grid.four{grid-template-columns:1fr}

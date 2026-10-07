@@ -1951,3 +1951,11 @@ eine Eckdaten-Datei (JSON, `immoapp_eckdaten: 1`); die Kachel prüft sie und leg
   auf „falsy“. Kürzel `ed` (Eckdaten), weil `UB`/`ub…` schon dem Übergabeprotokoll gehören.
 - Tests: `tests/unit/uebernahme.test.mjs` (8), `tests/e2e/werkzeuge-uebernahme.spec.mjs` (3), Klicktest-Bereiche „Werkzeug – Eckdaten …“
   (PC und iPhone ohne Befunde); synthetische Beispieldatei `tests/fixtures/eckdaten-beispiel.json`.
+
+## D65 (2026-10-07) — Startseite: „Eckdaten übernehmen“ bei den Schnellaktionen, alle sechs gleich groß
+Wunsch von Fabian: die Kachel nach oben zu „Neue Bewertung“, „Objekt erfassen“, „Finanzierung“, „Marktüberblick“ und „Liegenschaften“,
+und „Neue Bewertung“ in derselben Größe wie die anderen.
+- „Eckdaten übernehmen“ ist die sechste Schnellaktion (index.html) und steht unter „Mehr“ neben „Liegenschaften“; im Bereich
+  „Objekt & Unterlagen“ entfällt sie (nicht doppelt). Weiterhin 35 Kacheln in den fünf Bereichen.
+- „Neue Bewertung“ (`.app-hero-action`) überspannt nicht mehr die ganze Breite und hat keine größere Schrift mehr; sie bleibt nur farbig
+  hervorgehoben. Am PC 3 × 2, alle Zeilen gleich hoch (`grid-auto-rows:1fr`); am Handy wie die übrigen ohne Beschreibung.

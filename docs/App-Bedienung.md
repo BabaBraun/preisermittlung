@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 36 Werkzeug-Kacheln in fünf Bereichen (Akquise & Vermarktung, Objekt & Unterlagen, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 35 Werkzeug-Kacheln in fünf Bereichen (Akquise & Vermarktung, Objekt & Unterlagen, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Sechsunddreißig Kacheln auf der Startseite in fünf Bereichen mit eigener Farbe — Akquise & Vermarktung, Objekt & Unterlagen,
+Fünfunddreißig Kacheln auf der Startseite in fünf Bereichen mit eigener Farbe — Akquise & Vermarktung, Objekt & Unterlagen,
 Abschluss, Beratung, Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -282,7 +282,7 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   - Sind alle Fragen beantwortet, unterschreibt der Eigentümer auf dem Gerät. Danach sind die Angaben gesperrt; „Angaben ändern“ entfernt die Unterschrift.
   - „Objektauskunft als Dokument“ für Interessenten und die Akte.
   - Den Text der Bestätigung hinterlegt die Bank in der Übersicht der Kachel. Ihn mit der Rechtsabteilung abstimmen.
-- **Eckdaten übernehmen:** Eckdaten aus den Objektunterlagen als neue Bewertung anlegen.
+- **Eckdaten übernehmen** (oben auf der Startseite neben „Liegenschaften“ und unter „Mehr“): Eckdaten aus den Objektunterlagen als neue Bewertung anlegen.
   - Unterlagen sammeln, Namen, Geburtsdaten und Kontonummern vorher schwärzen („PDF schwärzen“).
   - „Anleitung für Claude kopieren“ und zusammen mit den Unterlagen an Claude geben. Claude liefert eine Eckdaten-Datei mit Quelle je Wert.
   - Die Datei laden oder die Antwort einfügen und „Prüfen“. Jede Angabe steht mit Wert und Quelle da. Angehakt sind sichere Angaben mit

@@ -2,7 +2,8 @@
    Eine Liste für beide Stellen: Bereich → Kacheln [id, Name (weiche Trennstellen erlaubt), Symbol, Text Startseite, Text „Mehr“].
    Jeder Bereich hat eine eigene Farbe (assets/werkzeuge.css, data-gruppe). Kacheln, deren Werkzeug nicht geladen ist,
    entfallen. Die Kacheln der Bewertung und der Liegenschaften stehen unverändert darüber. Seit D54–D61 fünf Bereiche: „Objekt & Unterlagen“
-   bündelt, was je Verkauf am Objekt zu klären ist (Kacheln nur verschoben). */
+   bündelt, was je Verkauf am Objekt zu klären ist (Kacheln nur verschoben). „Eckdaten übernehmen“ (D64) steht oben bei den
+   Schnellaktionen der Startseite (index.html) und unter „Mehr“ neben den Liegenschaften (D65). */
 const WZ_GRUPPEN=[
   {id:'vermarkten',titel:'Akquise & Vermarktung',kacheln:[
     ['tipps','Tipps','store','Hinweise aus Filialen und von Partnern — Stand, Datenschutzinformation, Rückmeldung an den Tippgeber.','Hinweise aus Filialen, Rückmeldung, Auswertung je Filiale'],
@@ -17,7 +18,6 @@ const WZ_GRUPPEN=[
     ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails'],
     ['rundschreiben','Rund­schreiben','send','Ein Schreiben an viele: Suchkunden zum Objekt oder alle mit Einwilligung — Serienbrief oder E-Mail in Bcc.','Serienbrief und E-Mail an viele']]},
   {id:'objekt',titel:'Objekt & Unterlagen',kacheln:[
-    ['uebernahme','Eckdaten übernehmen','upload','Eckdaten aus den Objektunterlagen — von Claude ausgelesen — mit Quelle je Wert prüfen und als neue Bewertung anlegen.','Eckdaten aus Unterlagen als neue Bewertung'],
     ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
     ['objektauskunft','Objekt­auskunft','clipboard','Angaben des Eigentümers zu Mängeln, Rechten und Vermietung — mit Unterschrift auf dem Gerät.','Angaben des Eigentümers mit Unterschrift'],
     ['befugnis','Wer verkauft?','users','Erben, Betreuer, Eltern, Vollmacht, Ehegatte — Nachweise und Genehmigungen je Verkauf, direkt in „Unterlagen“.','Verfügungsbefugnis: Nachweise und Genehmigungen'],
