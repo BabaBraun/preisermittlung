@@ -375,6 +375,16 @@ const BEREICHE = [
     const r = OA.aktiv; if (!r.kundeIds.includes('k_test')) r.kundeIds.push('k_test');
     for (const q of ImmoObjektauskunftRegeln.fragenFuer(r)) if (!(r.antworten[q.key] || {}).wert) r.antworten[q.key] = Object.assign({ text: '' }, r.antworten[q.key], { wert: 'nein' });
     await wzdSpeichernSofort('akten', r); wzZeichnen(); }) },
+  // Eckdaten übernehmen (D64): Übersicht, Prüfansicht mit der synthetischen Beispieldatei, Quellennachweis
+  { name: 'Werkzeug – Eckdaten übernehmen', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('uebernahme'); await wzdLaden(); Object.assign(ED, { zeigen: null, erg: null, datei: null, fehler: '' }); wzZeichnen(); }) },
+  { name: 'Werkzeug – Eckdaten prüfen', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('uebernahme'); await wzdLaden(); ED.zeigen = null;
+    edLesen(await (await fetch('tests/fixtures/eckdaten-beispiel.json')).text(), 'Eckdaten Beispiel.json'); }) },
+  { name: 'Werkzeug – Eckdaten Quellennachweis', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('uebernahme'); await wzdLaden(); if (!p) return;
+    let r = wzdAkten('uebernahme').find(x => x.projektId === p.id);
+    if (!r) { r = wzdAkteNeu('uebernahme', { projektId: p.id, objekt: p.name, datei: 'Eckdaten Beispiel.json', am: '2026-09-28', nichtUebernommen: 1,
+      eintraege: [{ gruppe: 'flaechen', label: 'Wohnfläche', anzeige: '142,5 m²', quelle: 'Wohnflächenberechnung, S. 2', sicher: true, hinweis: '' }],
+      geschosse: [], raeume: [], widersprueche: [], fehlt: ['Bodenrichtwert'], hinweise: [], unterlagen: ['Wohnflächenberechnung'] }); await wzdSpeichern('akten', r); }
+    edZeigen(r.id); }) },
   { name: 'Werkzeug – Schlüsselbuch', wurzel: '#wz_overlay', auf: js(async () => { wzOeffnen('schluessel'); await wzdLaden(); SK.aktiv = null; SK.offen = ''; wzZeichnen(); }) },
   { name: 'Werkzeug – Schlüsselbuch je Objekt', wurzel: '#wz_overlay', auf: js(async () => { const p = pjLoad()[0]; wzOeffnen('schluessel'); await wzdLaden(); if (!p) return;
     await skOeffnen(p.id); const r = SK.aktiv; if (!r) return;

@@ -1920,3 +1920,34 @@ Vier Prüfer (Logik, Rechtsangaben am Wortlaut, Datenschutz, Bedienung) mit Gege
 - **Werkzeug-Rahmen** (`src/werkzeuge.js`): `zeichnen:true` an Text-, Zahl- und Datumsfeldern wurde bisher nie umgesetzt (betraf u. a. Schlüsselbuch, Weitergaben, Provision, Kalender, Bieterverfahren). Jetzt baut die Kachel beim Verlassen des Feldes neu auf — nicht beim Tippen (Chromium meldet bei Datumsfeldern jeden Zwischenstand), erst nach dem Loslassen des Zeigers (sonst ginge ein Klick verloren), Fokus und Bildlauf bleiben. Ebenso die Datumsfelder unter „Werbung und Datenschutz“ in der Kundenakte (Befund des Klicktests).
 - **Datenstand** (Fehler in GitHub ab ed7c2d7): Die Prüfung kurz nach dem Start lief auf dem langsameren CI-Rechner erst nach dem Öffnen der Kachel fertig; die Kachel zeigte den alten Stand. Jetzt baut die offene Kachel neu auf, sobald eine neuere Prüfung vorliegt (Test in `tests/e2e/werkzeuge-d39.spec.mjs`).
 - **Klicktest in GitHub** nur noch auf Anfrage (Actions → „Run workflow“, Feld „Bereiche“); lokal nur noch geänderte Bereiche (Wunsch von Fabian, 04.10.2026).
+
+## D64 (2026-10-07) — Kachel „Eckdaten übernehmen“ (Objektunterlagen → neue Bewertung)
+Wunsch von Fabian: alle Objektunterlagen zur Verfügung stellen, Claude liest die Eckdaten für die Bewertung heraus. Die App selbst hat
+weiter keine KI und keinen Server: Claude liest die Unterlagen (im Chat oder in der Claude-App) nach der Anleitung der Kachel und liefert
+eine Eckdaten-Datei (JSON, `immoapp_eckdaten: 1`); die Kachel prüft sie und legt daraus eine **neue** Bewertung an.
+- **Bewertungen bleiben unverändert** (Vorgabe: Bewertungen nicht umbauen, Neues als eigene Kachel). Eine angefangene Bewertung wird vorher
+  als Projekt gesichert (wie „Neue Bewertung“ aus der Kundenakte), dann beginnt ein leeres Formular (`neuOhneFrage`); nach dem Neustart
+  übernimmt die Kachel die gewählten Werte (sessionStorage `ia_uebernahme`, danach gelöscht) und sichert die neue Bewertung unter einem
+  freien Namen (gleicher Name → „… (Übernahme TT.MM.JJJJ)“, sonst würde „Projekt sichern“ später das falsche Projekt überschreiben).
+- **Feste Feldliste** (`js/uebernahme-regeln.js`, 130 Felder): Objekt, Grundstück/Grundbuch/Planungsrecht, Gebäude, Flächen, Wohnung,
+  Mieten, Energieausweis, Ausstattung, Modernisierung, Beschreibungen (Entwurf), Unterlagen, Bauteile; dazu Geschosse der BGF und Räume
+  der Raumliste. **Keine Personenfelder** (Auftraggeber, Eigentümer, Mieter); Texte mit „Herr/Frau/Eheleute“ oder Geburtsdatum werden
+  markiert. Auswahlfelder nur mit den Werten der Bewertung — die kopierten Listen gleicht `tests/unit/uebernahme.test.mjs` mit
+  index.html und den Quelldateien ab.
+- **Vorauswahl** nur für Angaben, die als sicher markiert sind, eine Quelle haben, zur Objektart passen und keinen Hinweis tragen. Alles
+  andere hakt man nach Prüfung selbst an. Widersprüche, fehlende Angaben und verworfene Werte (mit Grund) stehen sichtbar dabei.
+- **Modernisierung als Fakten:** Umfang und Jahr je Bauteil in den Aufnahmebogen; die Punkte nach Anlage 2 ImmoWertV setzt die vorhandene
+  Übertragung des Aufnahmebogens (`auUebertragen`: vollständig = Höchstpunkte, nicht modernisiert = 0). Claude vergibt keine Punkte.
+  Ebenso laufen Keller, Aufzug, Energieausweis, Fenster und Heizung des Aufnahmebogens über diese Übertragung; ausdrücklich übernommene
+  Objektdaten gehen danach vor.
+- **Energieausweis:** Art, Kennwert und Klasse fürs Exposé, gespiegelt in Aufnahmebogen und Objektdaten; Ausstellungsdatum, gültig bis und
+  Primärenergie beim Portal-Export der neuen Bewertung (D50: das Ausstellungsdatum entscheidet über die Pflichtangaben ab 2027).
+- **Zahlen** werden ohne Tausenderpunkt mit Komma geschrieben, damit `zahlLesen` sie in Betrags- und Flächenfeldern gleich liest.
+- **Quellennachweis** (Angabe, Wert, Quelle, sicher; Widersprüche, Fehlendes, gelesene Unterlagen) im Speicher `akten`
+  (art `uebernahme`), ohne Personen; die Datei selbst wird nicht gespeichert.
+- **Datenschutz:** Was Claude liest, wird an Anthropic übertragen. Die Kachel sagt das und empfiehlt, die Verarbeitung echter
+  Kundenunterlagen mit dem Datenschutzbeauftragten der Bank zu klären und bis dahin nur geschwärzte Unterlagen zu verwenden.
+- Gefunden beim Bauen: `src/app-shell.js` ersetzt `pickVordruck` durch eine Fassung ohne Rückgabewert — Prüfungen auf `=== false`, nicht
+  auf „falsy“. Kürzel `ed` (Eckdaten), weil `UB`/`ub…` schon dem Übergabeprotokoll gehören.
+- Tests: `tests/unit/uebernahme.test.mjs` (8), `tests/e2e/werkzeuge-uebernahme.spec.mjs` (3), Klicktest-Bereiche „Werkzeug – Eckdaten …“
+  (PC und iPhone ohne Befunde); synthetische Beispieldatei `tests/fixtures/eckdaten-beispiel.json`.

@@ -523,3 +523,26 @@
 #report.wz-dok .oa-tab .oa-sp-antwort{width:6.5em}
 #report.wz-dok .oa-tab td{white-space:normal;text-align:left;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 @media (max-width:600px){ #report.wz-dok .oa-tab .oa-sp-frage{width:40%} #report.wz-dok .oa-tab .oa-sp-antwort{width:5.5em} }
+
+/* Eckdaten übernehmen (D64): Angaben mit Quelle zum Anhaken; am Handy je Angabe eine Karte */
+.ed-schritte{margin:0 0 12px;padding-left:20px;display:grid;gap:6px;font-size:14px;line-height:1.45}
+.ed-tab{width:100%;border-collapse:collapse;font-size:13.5px}
+.ed-tab th{text-align:left;font-weight:600;color:var(--text-2);font-size:12px;padding:6px 8px;border-bottom:1px solid var(--line)}
+.ed-tab td{padding:8px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.ed-tab td.ed-wahl{width:36px}
+.ed-tab td.ed-wahl input{width:20px;height:20px;margin:0}
+.ed-tab td.ed-label{width:28%;color:var(--text-2)}
+.ed-tab td.ed-wert{width:32%;font-weight:600;overflow-wrap:anywhere}
+.ed-tab td.ed-quelle{font-size:12.5px;color:var(--text-2);overflow-wrap:anywhere}
+.ed-tab tr.ed-warn td.ed-wahl{box-shadow:inset 3px 0 0 var(--warn)}
+.ed-lang{font-weight:400;white-space:pre-wrap;max-height:9em;overflow:auto}
+.ed-w{color:var(--warn);font-size:12px;margin-top:3px}
+.ed-hinweis{font-size:12px;margin-top:3px;color:var(--muted)}
+@media (max-width:640px){
+  .ed-tab thead{display:none}
+  .ed-tab tr{display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 8px;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  .ed-tab td{border:0;padding:0;width:auto!important}
+  .ed-tab td.ed-wahl{grid-row:span 3;padding-top:2px}
+  .ed-tab tr.ed-warn td.ed-wahl{box-shadow:none}
+  .ed-tab tr.ed-warn{box-shadow:inset 3px 0 0 var(--warn);padding-left:6px}
+}

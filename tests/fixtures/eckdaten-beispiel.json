@@ -1,0 +1,41 @@
+{
+  "immoapp_eckdaten": 1,
+  "objekt": "Musterweg 7, 74360 Ilsfeld",
+  "objektart": "wohnhaus",
+  "gebaeudetyp": "Doppel-/Reihenendhaus · unterkellert, DG ausgeb.",
+  "unterlagen": ["Grundbuchauszug vom 02.09.2026 (4 Seiten)", "Wohnflächenberechnung vom 12.03.1998", "Energieausweis vom 14.05.2019", "Baubeschreibung 1997"],
+  "werte": [
+    { "feld": "ek_anschrift", "wert": "Musterweg 7, 74360 Ilsfeld", "quelle": "Grundbuchauszug, S. 1", "sicher": true },
+    { "feld": "ek_gs_flaeche", "wert": 412, "quelle": "Grundbuchauszug, Bestandsverzeichnis", "sicher": true },
+    { "feld": "ek_flst", "wert": "3285/6", "quelle": "Grundbuchauszug, Bestandsverzeichnis", "sicher": true },
+    { "feld": "ek_wohnflaeche", "wert": 142.5, "quelle": "Wohnflächenberechnung, S. 2", "sicher": true },
+    { "feld": "ek_baujahr", "wert": 1998, "quelle": "Baubeschreibung, S. 1", "sicher": true },
+    { "feld": "ek_miete_wohnen", "wert": "14.400", "quelle": "Mietaufstellung", "sicher": false, "hinweis": "Monatsmiete 1.200 € hochgerechnet" },
+    { "feld": "od_heizung", "wert": "wärmepumpe", "quelle": "Energieausweis, S. 1", "sicher": true },
+    { "feld": "od_abt2", "wert": "Wohnrecht für Frau Beispiel", "quelle": "Grundbuchauszug, Abt. II", "sicher": true },
+    { "feld": "od_nutzungsart", "wert": "WA", "quelle": "Bebauungsplan „Im Grund“", "sicher": true },
+    { "feld": "ex_ea_art", "wert": "Bedarfsausweis", "quelle": "Energieausweis, S. 1", "sicher": true },
+    { "feld": "ex_ea_wert", "wert": 98.4, "quelle": "Energieausweis, S. 2", "sicher": true },
+    { "feld": "ex_ea_klasse", "wert": "C", "quelle": "Energieausweis, S. 2", "sicher": true },
+    { "feld": "ea_ausgestellt", "wert": "2019-05-14", "quelle": "Energieausweis, S. 1", "sicher": true },
+    { "feld": "au_keller", "wert": "voll unterkellert", "quelle": "Baubeschreibung, S. 2", "sicher": true },
+    { "feld": "au_mod_u3", "wert": "vollständig erneuert", "quelle": "Rechnung Heizungsbau 2021", "sicher": true },
+    { "feld": "au_mod_j3", "wert": 2021, "quelle": "Rechnung Heizungsbau 2021", "sicher": true },
+    { "feld": "au_ul0", "wert": true, "quelle": "liegt bei", "sicher": true },
+    { "feld": "au_bt6", "wert": true, "quelle": "Baubeschreibung, S. 3", "sicher": true },
+    { "feld": "ek_mea", "wert": "78/1000", "quelle": "Teilungserklärung", "sicher": true },
+    { "feld": "ek_ag", "wert": "Erika Beispiel" }
+  ],
+  "geschosse": [
+    { "geschoss": "Erdgeschoss", "laenge": 10.49, "breite": 8.74, "quelle": "Grundriss EG", "sicher": true },
+    { "geschoss": "Dachgeschoss", "flaeche": 70.2, "quelle": "Grundriss DG", "sicher": true },
+    { "geschoss": "Spitzboden", "flaeche": 30, "quelle": "Schnitt", "sicher": false }
+  ],
+  "raeume": [
+    { "name": "Wohnzimmer", "geschoss": "EG", "flaeche": 31.2, "anrechnung": "voll", "quelle": "Wohnflächenberechnung, S. 2", "sicher": true },
+    { "name": "Balkon", "geschoss": "DG", "flaeche": 8, "quelle": "Wohnflächenberechnung, S. 2", "sicher": true }
+  ],
+  "widersprueche": ["Wohnfläche: Exposé 150 m², Wohnflächenberechnung 142,5 m² — Berechnung übernommen"],
+  "fehlt": ["Bodenrichtwert", "Baulastenauskunft"],
+  "hinweise": ["Grundriss DG ohne Maßkette"]
+}

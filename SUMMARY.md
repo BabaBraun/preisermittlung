@@ -1,3 +1,9 @@
+# Zusammenfassung — Eckdaten übernehmen (2026-10-07)
+
+Neue Kachel „Eckdaten übernehmen“ (Objekt & Unterlagen): Claude liest die Objektunterlagen nach der Anleitung der Kachel und liefert eine
+Eckdaten-Datei; die App zeigt jede Angabe mit Quelle zum Anhaken und legt daraus eine neue Bewertung an — vorhandene Bewertungen bleiben
+unverändert, der Quellennachweis bleibt bei der Kachel (D64).
+
 # Zusammenfassung — acht neue Kacheln (2026-10-03)
 
 Neu: Maklerverträge (Abschlussweg, Textform, Belehrung, Widerrufsfrist), Geldwäsche-Prüfung (ohne Ausweisdaten), Tipps aus Filialen,

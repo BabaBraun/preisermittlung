@@ -4,7 +4,7 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Hauptbereiche
 
-- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 35 Werkzeug-Kacheln in fünf Bereichen (Akquise & Vermarktung, Objekt & Unterlagen, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
+- **Übersicht:** neue Bewertung beginnen, Objekte suchen, die 36 Werkzeug-Kacheln in fünf Bereichen (Akquise & Vermarktung, Objekt & Unterlagen, Abschluss, Beratung, Organisation), zuletzt bearbeitete Bewertungen und fällige Aufgaben finden.
 - **Objekte:** Bewertungen öffnen und sichern, Projektdateien übertragen und Sicherungen wiederherstellen.
 - **Markt:** die eigene Marktdatenbank erfassen, vergleichen und auswerten.
 - **Mehr:** Finanzierung, Kunden, Wiedervorlagen, Liegenschaften, Beratung & Werkzeuge, Darstellung, Datensicherung, Datenschutz und App-Sperre.
@@ -125,7 +125,7 @@ eingebauten Quartal, steht „vorläufig“ dabei — den neueren Wert dann aus 
 
 ## Beratung & Werkzeuge (seit 02.10.2026)
 
-Fünfunddreißig Kacheln auf der Startseite in fünf Bereichen mit eigener Farbe — Akquise & Vermarktung, Objekt & Unterlagen,
+Sechsunddreißig Kacheln auf der Startseite in fünf Bereichen mit eigener Farbe — Akquise & Vermarktung, Objekt & Unterlagen,
 Abschluss, Beratung, Organisation —, dieselben im Bereich „Mehr“. Jede öffnet ein eigenes
 Fenster. Oben stehen immer dieselben Knöpfe:
 - **Aus Bewertung:** übernimmt passende Werte der geöffneten Bewertung.
@@ -282,6 +282,19 @@ Die Eingaben bleiben auf dem Gerät und sind Teil der Gesamtsicherung. Die Rechn
   - Sind alle Fragen beantwortet, unterschreibt der Eigentümer auf dem Gerät. Danach sind die Angaben gesperrt; „Angaben ändern“ entfernt die Unterschrift.
   - „Objektauskunft als Dokument“ für Interessenten und die Akte.
   - Den Text der Bestätigung hinterlegt die Bank in der Übersicht der Kachel. Ihn mit der Rechtsabteilung abstimmen.
+- **Eckdaten übernehmen:** Eckdaten aus den Objektunterlagen als neue Bewertung anlegen.
+  - Unterlagen sammeln, Namen, Geburtsdaten und Kontonummern vorher schwärzen („PDF schwärzen“).
+  - „Anleitung für Claude kopieren“ und zusammen mit den Unterlagen an Claude geben. Claude liefert eine Eckdaten-Datei mit Quelle je Wert.
+  - Die Datei laden oder die Antwort einfügen und „Prüfen“. Jede Angabe steht mit Wert und Quelle da. Angehakt sind sichere Angaben mit
+    Quelle, die zur Objektart passen; unsichere, ohne Quelle oder mit Hinweis (z. B. ein Name in Abt. II) erst nach Prüfung selbst anhaken.
+    Widersprüche in den Unterlagen stehen gelb oben, fehlende Angaben und nicht übernehmbare Werte unten.
+  - Objektart, Gebäudetyp, Name des Projekts und bei Bedarf den Kunden wählen, dann „Als neue Bewertung anlegen“. Eine angefangene
+    Bewertung wird vorher als Projekt gesichert; bestehende Bewertungen ändert die Kachel nie. Die neue Bewertung ist gleich gesichert.
+  - Modernisierungen kommen als Umfang und Jahr in den Aufnahmebogen; die Punkte setzt die Bewertung daraus (vollständig erneuert =
+    Höchstpunkte, nicht modernisiert = 0, teilweise selbst eintragen). Bodenrichtwert, Zustand und Ausstattungsstandard prüfst du selbst.
+  - „Bisherige Übernahmen“ → „Quellen“ zeigt den Quellennachweis je Bewertung, auch als Dokument.
+  - Datenschutz: Was Claude liest, wird an Anthropic übertragen. Ob echte Kundenunterlagen so verarbeitet werden dürfen, mit dem
+    Datenschutzbeauftragten der Bank klären — bis dahin nur geschwärzte Unterlagen.
 - **PDF schwärzen:** PDF wählen, dann Stellen schwärzen — über die Suche (Name, Anschrift) oder die Knöpfe IBAN, E-Mail-Adressen,
   Telefonnummern und Daten, oder ein Rechteck aufziehen. Seiten lassen sich weglassen. „Geschwärzte PDF speichern“ erzeugt eine
   neue PDF aus Bildern der Seiten: Der Text unter den Balken ist weg. Gescannte Seiten findet die Suche nicht — dort von Hand.

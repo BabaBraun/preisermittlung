@@ -17,6 +17,7 @@ const WZ_GRUPPEN=[
     ['vorlagen','Vorlagen','mail','Schreiben und E-Mails mit Kunde, Objekt und Termin — kopieren, mailen, als Word.','Schreiben und E-Mails'],
     ['rundschreiben','Rund­schreiben','send','Ein Schreiben an viele: Suchkunden zum Objekt oder alle mit Einwilligung — Serienbrief oder E-Mail in Bcc.','Serienbrief und E-Mail an viele']]},
   {id:'objekt',titel:'Objekt & Unterlagen',kacheln:[
+    ['uebernahme','Eckdaten übernehmen','upload','Eckdaten aus den Objektunterlagen — von Claude ausgelesen — mit Quelle je Wert prüfen und als neue Bewertung anlegen.','Eckdaten aus Unterlagen als neue Bewertung'],
     ['unterlagen','Unterlagen','folder-open','Was liegt vor, was fehlt? Je Verkauf mit Vollmacht des Eigentümers und Anforderung je Stelle.','Unterlagen je Verkauf, Vollmacht, Anforderung'],
     ['objektauskunft','Objekt­auskunft','clipboard','Angaben des Eigentümers zu Mängeln, Rechten und Vermietung — mit Unterschrift auf dem Gerät.','Angaben des Eigentümers mit Unterschrift'],
     ['befugnis','Wer verkauft?','users','Erben, Betreuer, Eltern, Vollmacht, Ehegatte — Nachweise und Genehmigungen je Verkauf, direkt in „Unterlagen“.','Verfügungsbefugnis: Nachweise und Genehmigungen'],
