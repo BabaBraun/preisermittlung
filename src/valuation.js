@@ -72,10 +72,14 @@ function anzeigen(R,D){
   $('mietrolle_body').style.display=R.mietrolleAktiv?'':'none';
   D.mietrolle.zeilen.forEach((pa,i)=>setT('mr_pa'+i,eur(pa))); setT('o_mr_summe',eur(R.mrSumme));
   setT('o_er_rohsrc', R.mietrolleAktiv?'(aus Mietrolle)':'(Wohnen + Gewerbe + Stellplätze aus den Allgemeinen Angaben)');
-  $('bw_pausch').style.display=R.bwDetail?'none':'';
-  $('bw_detail').style.display=R.bwDetail?'':'none';
+  $('bw_pausch').style.display=(R.bwDetail||R.bwMisch)?'none':'';
+  $('bw_detail').style.display=(R.bwDetail||R.bwMisch)?'':'none';
   let q=D.bwQuelle, bwInfo;
-  if(q.art==='detail'){
+  if(q.art==='misch'){   // Gemischte Nutzung (D66): Wohnen und Gewerbe getrennt nach Anlage 3 ImmoWertV
+    let sw=q.wohnen.verw+q.wohnen.inst+q.wohnen.mausf, sg=q.gewerbe.verw+q.gewerbe.inst+q.gewerbe.mausf;
+    bwInfo='(Anlage 3, getrennt: Wohnen '+eur(sw)+' + Gewerbe '+eur(sg)+(q.nuk?' + n.uml. '+eur(q.nuk):'')+' — siehe „Gemischte Nutzung“)';
+    setT('o_bw_basis','WE '+num2(R.anzWE)+' · Stellpl. '+num2(R.anzSP)+' · Wohnfl. '+num2(num('ek_wohnflaeche'))+' m² · Nutzfl. '+num2(num('ek_nutzflaeche'))+' m²');
+  } else if(q.art==='detail'){
     bwInfo='(§ 32: Verw. '+eur(q.verw)+' + Inst. '+eur(q.inst)+' + Mietausf. '+eur(q.mausf)+(q.nuk?' + n.uml. '+eur(q.nuk):'')+')';
     setT('o_bw_basis','WE '+num2(R.anzWE)+' · Stellpl. '+num2(R.anzSP)+' · Wohnfl. '+num2(num('ek_wohnflaeche'))+' m²');
   } else if(q.art==='hausgeld') bwInfo='(aus nicht-umlagef. Hausgeld)';
@@ -94,6 +98,7 @@ function anzeigen(R,D){
     setT('o_er_an_info','('+proz(eg.anteilAN)+' der Miete: '+eur(eg.gebReinAN)+' × '+num2(eg.vfAN)+' bei '+num2(eg.rndAN)+' J)'); setT('o_er_an_wert',eur(eg.gebWertAN));
   }
   setT('o_er_boden',eur(R.bodenwert));setT('o_ertrag',eur(R.ertrag));
+  if(typeof mxAnzeige==='function') mxAnzeige(R,D);   // Gemischte Nutzung (D66)
   // 7 Nießbrauch / Wohnrecht / Leibrente
   $('niess_body').style.opacity=D.niessAktiv?1:.4;
   let istRente=D.istRente, istWohnrecht=D.istWohnrecht;

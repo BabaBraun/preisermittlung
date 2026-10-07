@@ -306,13 +306,13 @@ function voll(){
 
 /* ---------- Navigation mit Status ---------- */
 /* Reihenfolge wie im Formular — die Abschnittsnummern laufen in dieser Folge */
-var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-technik','s-allg','s-hg','s-anbau','s-grundlagen']],
+var NAV_GROUPS=[['Erfassung',['s-eck','s-aufnahme','s-technik','s-allg','s-misch','s-hg','s-anbau','s-grundlagen']],
                   ['Verfahren',['s-substanz','s-vergleich','s-ertrag','s-niess','s-erbbau','s-wk','s-pv','s-energie','s-sanierung']],
                   ['Abschluss',['s-fotos','s-empfehlung','s-belwert','s-rendite','s-sign','s-expose','s-praesentation','s-vermarktung']]];
-var NAV_TOGGLE={'s-sanierung':'san_aktiv','s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
+var NAV_TOGGLE={'s-misch':'mx_aktiv','s-sanierung':'san_aktiv','s-anbau':'anbau_aktiv','s-niess':'niess_aktiv','s-erbbau':'eb_aktiv','s-pv':'pv_aktiv','s-vergleich':'vw_aktiv','s-energie':'en_aktiv','s-belwert':'bw_aktiv'};
 var NAV_OUT={'s-substanz':'o_substanz','s-ertrag':'o_ertrag','s-vergleich':'o_vergleich','s-niess':'o_e_niess','s-pv':'o_e_pv','s-erbbau':'o_e_erbbau','s-energie':'o_energie','s-belwert':'o_beleihungswert','s-empfehlung':'o_empfehlung'};
 function navLabel(s){ return (s.dataset.nav||'').replace(/^[①-⑳]\s?[a-z]?\s*/,'').replace(/^Preis n\. /,'Preis nach ').replace(/ § 8$/,''); }
-function navSichtbar(s){ let w=modus()==='wohnung'; return !(w&&s.classList.contains('haus-only'))&&!(!w&&s.classList.contains('wohnung-only')); }
+function navSichtbar(s){ let w=modus()==='wohnung'; return !s.hidden&&!(w&&s.classList.contains('haus-only'))&&!(!w&&s.classList.contains('wohnung-only')); }
 function navLink(s){
   let a=document.createElement('a'); a.href='#'+s.id; a.dataset.sec=s.id;
   a.innerHTML='<i class="st"></i><span>'+navLabel(s)+'</span><em></em>';

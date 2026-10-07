@@ -1149,3 +1149,14 @@
   /* Hinweis „Neue Version“ (src/pwa.js) */
   .sw-neu{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:900;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 32px);padding:10px 14px;border-radius:18px;background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 30px rgba(0,0,0,.18));font-size:14px}
   .sw-neu button{min-height:40px}
+
+/* Gemischte Nutzung (D66): nur beim Wohn- und Geschäftshaus sichtbar; Anteile und Bewirtschaftungskosten als kleine Tabellen */
+section.card#s-misch[hidden]{display:none!important}
+.mx-tab{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 10px}
+.mx-tab td{padding:6px 8px;border-bottom:1px solid var(--line-soft,var(--line));vertical-align:top}
+.mx-tab td{overflow-wrap:anywhere}
+.mx-tab td:first-child{width:42%;color:var(--text-2)}
+.mx-tab.mx-zahlen td:not(:first-child){text-align:right;white-space:nowrap}
+.mx-tab.mx-zahlen td:first-child{width:auto}
+.mx-tab tr.total td{font-weight:600}
+#mx_body .toggle{margin:4px 0}

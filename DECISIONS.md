@@ -1959,3 +1959,38 @@ und „Neue Bewertung“ in derselben Größe wie die anderen.
   „Objekt & Unterlagen“ entfällt sie (nicht doppelt). Weiterhin 35 Kacheln in den fünf Bereichen.
 - „Neue Bewertung“ (`.app-hero-action`) überspannt nicht mehr die ganze Breite und hat keine größere Schrift mehr; sie bleibt nur farbig
   hervorgehoben. Am PC 3 × 2, alle Zeilen gleich hoch (`grid-auto-rows:1fr`); am Handy wie die übrigen ohne Beschreibung.
+
+## D66 (2026-10-07) — Objektart „Wohn- und Geschäftshaus“ und Abschnitt „Gemischte Nutzung“
+Wunsch von Fabian: eine fünfte Objektart für Wohnen und Gewerbe in einem Gebäude (Beispiel: Obergeschoss privat genutzt,
+Erd- und Untergeschoss die Firma des Eigentümers), mit zusammengelegten Verfahren. Ausdrücklicher Wunsch → Ausnahme von „Bewertungen nicht
+umbauen“: neue Objektart-Kachel und ein **eigener Abschnitt**; bestehende Abschnitte rechnen unverändert, solange er aus ist.
+Geprüft am Wortlaut (gesetze-im-internet.de, 07.10.2026):
+- **§ 31 Abs. 2 ImmoWertV:** Rohertrag aus den marktüblich erzielbaren Erträgen; tatsächliche nur, wenn sie marktüblich sind →
+  Marktmiete je m² für eigengenutzte Teile (auch Vermietung an die eigene Firma), Übernahme in die Allgemeinen Angaben auf Knopfdruck.
+- **Anlage 3 ImmoWertV (Modellansätze Bewirtschaftungskosten):** Wohnen Verwaltung je Wohnung (2021: 298 €), Instandhaltung je m²
+  (2021: 11,70 €), Mietausfallwagnis 2 %; Gewerbe Verwaltung 3 % und Mietausfallwagnis 4 % des marktüblichen Rohertrags „bei reiner
+  und gemischter gewerblicher Nutzung“, Instandhaltung 100 % (Büros, Praxen, Geschäfte), 50 % (SB-Verbrauchermärkte) oder 30 %
+  (Lager, Logistik, Produktion) der Instandhaltung für Wohnen. Die Beträge werden jährlich nach dem Verbraucherpreisindex angepasst —
+  die Wohnwerte kommen deshalb aus den Feldern „detailliert“ in ⑥ (vom Nutzer zum Stichtag gepflegt), nicht fest aus dem Code.
+- **Anlage 4 ImmoWertV (NHK 2010):** 5.1 Wohnhäuser mit Mischnutzung 860/1.085/1.375 €/m² (Fußnote 9: Wohnfläche ca. 75 %, „bei
+  deutlich abweichenden Nutzungsanteilen ist eine Ermittlung durch Gebäudemix sinnvoll“), 5.2 Geschäftshäuser mit Wohnungen
+  890/1.375/1.720 €/m² (Fußnote 10: Wohnfläche ca. 20–25 %). Gebäudemix = Kostenkennwerte und Gesamtnutzungsdauer zweier Gebäudetypen,
+  gewichtet nach dem Wohnanteil (eigene Angabe oder Wohn- zu Nutzfläche). Vorschlag mit eigener Schwelle (rund ±10 Prozentpunkte um die
+  Fußnoten): ab 65 % Typ 5.1, 15–30 % Typ 5.2, sonst Gebäudemix. Der Abschnitt schreibt die Werte nach 2.2/2.3 wie ein Wechsel des
+  Gebäudetyps (die Gewichtung bleibt) und zieht sie nach, wenn sich Flächen oder der Gebäudetyp ändern; „Gebäudetyp aus ①“ schaltet das ab.
+- **§ 249 BewG** (Grundsteuer, nach Wohn- und Nutzfläche): Mietwohngrundstück über 80 % Wohnen, Geschäftsgrundstück über 80 %
+  betrieblich, sonst gemischt genutzt; Ein- und Zweifamilienhaus auch mit Mitbenutzung unter 50 %. Nur als Orientierung angezeigt.
+- **Rechenkern** (`js/kern.js`, nur mit `mx_aktiv`): Rohertrag nach Wohnen (mit Stellplätzen) und Gewerbe geteilt — aus den Mieten,
+  mit Mietrolle deren Summe nach diesen Anteilen, ohne Mieten nach der Fläche; Bewirtschaftungskosten getrennt (`bwQuelle.art 'misch'`);
+  Liegenschaftszins wahlweise anteilig nach Rohertrag (+ Zu-/Abschlag aus ⑥). Der „Abschlag gewerbl. Vermietung“ aus ⑥ bleibt, wie er
+  ist (Vorgabe der Bank); das Gewerberisiko steckt schon im Mietausfallwagnis von 4 %.
+- **Gewichtung** wie der Gebäudetyp „Wohn-/Geschäftshaus“ in der App: 40 : 60 (Substanz : Ertrag), änderbar.
+- **Sichtbar** nur beim Wohn- und Geschäftshaus oder sobald der Abschnitt in der Bewertung einmal eingeschaltet war (verstecktes Feld
+  `mx_sichtbar`, mit der Bewertung gespeichert) — bei Wohnhaus und Gewerbe bleibt die gewohnte Gliederung samt Nummern. Ausschalten
+  lässt ihn stehen (Befund des Klicktests: sonst verschwände der Schalter unter dem Finger).
+- Referenzfälle unverändert: neue Ergebnisfelder nur bei eingeschaltetem Abschnitt, Anzeigen heißen `mxo_…` statt `o_…`
+  (die Charakterisierung liest alle `o_`-Ausgaben). Prüfhinweise: Gewerbefläche ohne Gewerbemiete, anteiliger Zins ohne Zinssätze,
+  keine getrennten Angaben.
+- Auch bei „Eckdaten übernehmen“ (D64) als Objektart `gemischt`.
+- Tests: `tests/unit/misch.test.mjs` (Sollwerte von Hand), `tests/e2e/bewertung-misch.spec.mjs`, Klicktest-Bereich
+  „Bewertung Wohn- und Geschäftshaus – Gemischte Nutzung“ (PC und iPhone ohne Befunde).

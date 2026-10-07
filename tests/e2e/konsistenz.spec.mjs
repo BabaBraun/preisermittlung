@@ -36,7 +36,7 @@ async function pruefeUeberall(page, wo) {
 test('nach jedem Vorlagenwechsel stimmen Empfehlung, Gewichtung und Spanne überall überein', async ({ page }) => {
   await appOeffnen(page); await arbeitsflaeche(page);
   const vordrucke = await page.evaluate(() => VORDRUCKE.map(v => ({ id: v.id, modus: v.modus })));
-  expect(vordrucke.map(v => v.id)).toEqual(['etw_vergleich', 'wh_bgf', 'laden_buero_praxis', 'gewerbe_bgf']);
+  expect(vordrucke.map(v => v.id)).toEqual(['etw_vergleich', 'wh_bgf', 'wgh_misch', 'laden_buero_praxis', 'gewerbe_bgf']);
   // die früheren Untervarianten (ETW mit Nießbrauch, Wohnhaus mit PV, mit Anbau und Nießbrauch, Gewichtung 40 : 60)
   // sind jetzt Schalter in der Bewertung (D30) — dieselben Fälle werden so geprüft
   const zusaetze = [{}, { niess_aktiv: true }, { pv_aktiv: true }, { anbau_aktiv: true, niess_aktiv: true }, { anbau_aktiv: true, niess_aktiv: true, gewichtung: '0.4' }];

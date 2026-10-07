@@ -110,6 +110,7 @@
       <div class="big-choice">
         <div class="tile" onclick="pickVordruck('etw_vergleich')"><div class="ic" data-ic="building"></div><div class="t">Eigentumswohnung</div><div class="d">Vergleichs- + Ertragswert</div></div>
         <div class="tile" onclick="pickVordruck('wh_bgf')"><div class="ic" data-ic="home"></div><div class="t">Wohnhaus</div><div class="d">Substanz (NHK) + Ertrag</div></div>
+        <div class="tile" onclick="pickVordruck('wgh_misch')"><div class="ic" data-ic="layers"></div><div class="t">Wohn- und Geschäftshaus</div><div class="d">Wohnen und Gewerbe gemischt · getrennt angesetzt</div></div>
         <div class="tile" onclick="pickVordruck('laden_buero_praxis')"><div class="ic" data-ic="store"></div><div class="t">Laden / Büro / Praxis</div><div class="d">Geschäftshaus · Substanz + Ertrag</div></div>
         <div class="tile" onclick="pickVordruck('gewerbe_bgf')"><div class="ic" data-ic="factory"></div><div class="t">Gewerbe / Betrieb</div><div class="d">Betriebs- und Werkstattgebäude</div></div>
       </div>
@@ -622,6 +623,77 @@
         <div class="field"><label>Grundsteuer <span class="u">€/Jahr</span></label><input id="ek_grundsteuer" type="text" value="0"></div>
       </div>
       <div class="flag" id="miete_plausi"></div>
+    </section>
+
+    <!-- GEMISCHTE NUTZUNG (D66): Wohnen und Gewerbe in einem Gebäude — src/misch.js, Rechnung in js/kern.js -->
+    <section class="card haus-only" id="s-misch" data-nav="Gemischte Nutzung" hidden>
+      <h2>Gemischte Nutzung · Wohnen und Gewerbe</h2>
+      <input type="hidden" id="mx_sichtbar" value="">
+      <label class="toggle no-print"><input type="checkbox" id="mx_aktiv" onchange="compute()"> Wohnen und Gewerbe in einem Gebäude (z. B. Wohnung im Obergeschoss, Firma oder Laden im Erdgeschoss)</label>
+      <div id="mx_body">
+        <p class="hint">Beide Nutzungen werden getrennt angesetzt: Miete, Bewirtschaftungskosten und — wenn gewünscht — Liegenschaftszins je Nutzung,
+          bei den Normalherstellungskosten der passende Gebäudetyp oder ein Gebäudemix. Flächen und Mieten stehen unter „Allgemeine Angaben“
+          (Wohnfläche, Gewerbe-/Nutzfläche, Miete Wohnen, Miete Gewerbe).</p>
+        <h3>Nutzungsanteile</h3>
+        <div id="mxo_anteile"></div>
+        <div class="grid"><div class="field"><label>Wohnanteil für den Gebäudemix <span class="u">% (leer = aus den Flächen)</span></label><input id="mx_anteil_w" type="text" value=""></div></div>
+
+        <h3>Marktübliche Miete</h3>
+        <p class="hint">Angesetzt wird die marktüblich erzielbare Miete; die tatsächliche nur, wenn sie marktüblich ist (§ 31 Abs. 2 ImmoWertV).
+          Nutzt der Eigentümer selbst oder seine Firma, gilt die Miete, die ein fremder Mieter zahlen würde.</p>
+        <div class="grid">
+          <label class="toggle"><input type="checkbox" id="mx_eigen_w"> Wohnteil vom Eigentümer selbst genutzt</label>
+          <label class="toggle"><input type="checkbox" id="mx_eigen_g"> Gewerbeteil vom Eigentümer oder seiner Firma genutzt</label>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Marktmiete Wohnen <span class="u">€/m² Wohnfläche · Monat</span></label><input id="mx_miete_w_m2" type="text" value=""></div>
+          <div class="field"><label>Marktmiete Gewerbe <span class="u">€/m² Nutzfläche · Monat</span></label><input id="mx_miete_g_m2" type="text" value=""></div>
+        </div>
+        <div class="row-calc"><span>ergibt im Jahr</span><b id="mxo_miete">–</b></div>
+        <button type="button" class="secondary no-print" onclick="mxMieteUebernehmen()">In „Allgemeine Angaben“ übernehmen</button>
+
+        <h3>Gebäude: Normalherstellungskosten (NHK 2010)</h3>
+        <div class="grid">
+          <div class="field"><label>Ansatz</label><select id="mx_nhk" onchange="compute()">
+            <option value="vorschlag">Vorschlag aus dem Wohnanteil</option>
+            <option value="51">Typ 5.1 Wohnhaus mit Mischnutzung (Wohnfläche ca. 75 %)</option>
+            <option value="52">Typ 5.2 Geschäftshaus mit Wohnungen (Wohnfläche ca. 20–25 %)</option>
+            <option value="mix">Gebäudemix nach den Anteilen</option>
+            <option value="typ">Gebäudetyp aus ① (2.2 und 2.3 nicht anpassen)</option></select></div>
+        </div>
+        <div class="grid" id="mx_mix_felder">
+          <div class="field"><label>Gebäudemix: Wohnteil wie</label><select id="mx_typ_w" onchange="compute()"></select></div>
+          <div class="field"><label>Gebäudemix: Gewerbeteil wie</label><select id="mx_typ_g" onchange="compute()"></select></div>
+        </div>
+        <p class="feld-info" id="mxo_nhk"></p>
+        <p class="hint">Anlage 4 ImmoWertV: Wohnhäuser mit Mischnutzung haben einen Wohnflächenanteil von ca. 75 %, Geschäftshäuser von ca. 20–25 %;
+          „bei deutlich abweichenden Nutzungsanteilen ist eine Ermittlung durch Gebäudemix sinnvoll“. Den Baupreisindex (2.3) passend zur
+          überwiegenden Nutzung wählen.</p>
+
+        <h3>Bewirtschaftungskosten getrennt (Anlage 3 ImmoWertV)</h3>
+        <label class="toggle"><input type="checkbox" id="mx_bwk" checked onchange="compute()"> Wohnen und Gewerbe getrennt ansetzen (statt der Pauschale in ⑥)</label>
+        <div class="grid">
+          <div class="field"><label>Gewerbe: Verwaltung <span class="u">% des Rohertrags Gewerbe</span></label><input id="mx_verw_g" type="text" value="3"></div>
+          <div class="field"><label>Gewerbe: Mietausfallwagnis <span class="u">% des Rohertrags Gewerbe</span></label><input id="mx_maw_g" type="text" value="4"></div>
+          <div class="field"><label>Gewerbe: Instandhaltung <span class="u">% des Ansatzes für Wohnen je m²</span></label><select id="mx_inst_g" onchange="compute()">
+            <option value="100">100 % — Büro, Praxis, Laden</option><option value="50">50 % — SB-Markt und Ähnliches</option><option value="30">30 % — Lager, Logistik, Produktion</option></select></div>
+        </div>
+        <p class="hint">Wohnen wie „detailliert“ in ⑥: Verwaltung je Wohnung und Stellplatz, Instandhaltung je m² Wohnfläche, Mietausfallwagnis in % —
+          die Werte dort an den Stichtag anpassen (Anlage 3 ImmoWertV, jährlich nach dem Verbraucherpreisindex).</p>
+        <div id="mxo_bwk"></div>
+
+        <h3>Liegenschaftszins</h3>
+        <div class="grid">
+          <div class="field"><label>Ansatz</label><select id="mx_lz_modus" onchange="compute()">
+            <option value="gesamt">ein Zinssatz für das Objekt (Basiszins in ⑥, z. B. für gemischt genutzte Gebäude)</option>
+            <option value="anteilig">anteilig nach dem Rohertrag aus Wohnen und Gewerbe</option></select></div>
+        </div>
+        <div class="grid" id="mx_lz_felder">
+          <div class="field"><label>Liegenschaftszins Wohnen <span class="u">%</span></label><input id="mx_lz_w" type="text" value=""></div>
+          <div class="field"><label>Liegenschaftszins Gewerbe <span class="u">%</span></label><input id="mx_lz_g" type="text" value=""></div>
+        </div>
+        <div class="row-calc"><span>Liegenschaftszins im Ertragswert</span><b id="mxo_lz">–</b></div>
+      </div>
     </section>
 
     <!-- HAUPTGEBÄUDE -->
@@ -1856,6 +1928,7 @@
 <script src="src/investment.js"></script>
 <script src="src/form.js"></script>
 <script src="src/valuation.js"></script>
+<script src="src/misch.js"></script>
 <script src="src/report.js"></script>
 <script src="src/exports.js"></script>
 <script src="src/photos.js"></script>

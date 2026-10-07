@@ -290,11 +290,35 @@ function bewerte(e,k){
   let mieteW=e.n('ek_miete_wohnen')*szen.miete, mieteG=e.n('ek_miete_gewerbe')*szen.miete, stell=e.n('ek_miete_stellplatz')*szen.miete;
   let roh=(mietrolleAktiv?mrSumme*szen.miete:(mieteW+mieteG+stell));
   D.mieteW=mieteW; D.mieteG=mieteG;
-  // Bewirtschaftungskosten: pauschal % oder detailliert nach § 32
-  let bwDetail=e.an('er_bwmodus');
+  /* Gemischte Nutzung (D66, Abschnitt „Gemischte Nutzung“, nur Haus): Rohertrag getrennt nach Wohnen (mit Stellplätzen) und
+     Gewerbe. Anteile aus den Mieten der Allgemeinen Angaben; mit Mietrolle wird deren Summe nach diesen Anteilen geteilt, ohne
+     Mieten nach Wohn- und Nutzfläche. Liegenschaftszins wahlweise anteilig nach Rohertrag (sonst der Basiszins in ⑥, z. B. der
+     Zinssatz des Marktberichts für gemischt genutzte Gebäude). Ausgeschaltet: alles wie bisher. */
+  let mxAktiv=!istWohnung&&e.an('mx_aktiv'), mx=null;
+  if(mxAktiv){
+    let flW=e.n('ek_wohnflaeche'), flG=e.n('ek_nutzflaeche'), basisW=mieteW+stell, basisG=mieteG;
+    let anteilG=basisW+basisG>0?basisG/(basisW+basisG):(flW+flG>0?flG/(flW+flG):0);
+    let rohG=roh*anteilG, rohW=roh-rohG, lzW=e.n('mx_lz_w'), lzG=e.n('mx_lz_g'), lzMisch=null;
+    if(e.v('mx_lz_modus')==='anteilig'&&lzW>0&&lzG>0){ lzMisch=(1-anteilG)*lzW+anteilG*lzG; effLZ=lzMisch+e.n('er_zins_adj')+szen.lz; }
+    mx={flW,flG,anteilFlW:flW+flG>0?flW/(flW+flG):null,rohW,rohG,anteilG,anteilQuelle:basisW+basisG>0?'miete':flW+flG>0?'flaeche':'keine',lzW,lzG,lzMisch};
+  }
+  D.misch=mx;
+  // Bewirtschaftungskosten: pauschal %, detailliert nach § 32 oder getrennt nach Wohnen und Gewerbe (Anlage 3 ImmoWertV)
+  let bwDetail=e.an('er_bwmodus'), bwMisch=mxAktiv&&e.an('mx_bwk');
   let anzWE=e.n('ek_anz_we'), anzSP=e.n('ek_anz_stell'), wohnfl=e.n('ek_wohnflaeche');
   let bewirt, bwQuelle;
-  if(bwDetail){
+  if(bwMisch){
+    /* Anlage 3 ImmoWertV: Wohnen wie „detailliert“ (Verwaltung je Wohnung und Stellplatz, Instandhaltung je m² Wohnfläche und
+       Stellplatz, Mietausfallwagnis in % des Wohn-Rohertrags); Gewerbe Verwaltung 3 % und Mietausfallwagnis 4 % des Gewerbe-
+       Rohertrags (Felder, vorbelegt), Instandhaltung als Prozentsatz (100, 50 oder 30 %) der Instandhaltung je m² Wohnfläche,
+       angesetzt auf die Gewerbe- bzw. Nutzfläche. */
+    let instM2=e.n('er_bw_inst_m2');
+    let W={verw:anzWE*e.n('er_bw_verw_we')+anzSP*e.n('er_bw_verw_sp'),inst:wohnfl*instM2+anzSP*e.n('er_bw_inst_sp'),mausf:mx.rohW*e.n('er_bw_mietausfall')/100};
+    let G={verw:mx.rohG*e.n('mx_verw_g')/100,inst:mx.flG*instM2*e.n('mx_inst_g')/100,mausf:mx.rohG*e.n('mx_maw_g')/100};
+    let nuk=e.n('er_bw_nuk');
+    bewirt=W.verw+W.inst+W.mausf+G.verw+G.inst+G.mausf+nuk;
+    bwQuelle={art:'misch',wohnen:W,gewerbe:G,nuk,instPct:e.n('mx_inst_g')};
+  } else if(bwDetail){
     let verw=anzWE*e.n('er_bw_verw_we')+anzSP*e.n('er_bw_verw_sp');
     let inst=wohnfl*e.n('er_bw_inst_m2')+anzSP*e.n('er_bw_inst_sp');
     let mausf=roh*e.n('er_bw_mietausfall')/100;
@@ -431,6 +455,7 @@ function bewerte(e,k){
     eigenM2,marktM2,plAbw,plTxt,reKP,nkPct,reNK,reSan,reInvest,reRein,reBrutto,reNetto,reFaktor,
     vergleichWert,vwAktiv,gv,mittelBasis,erbbauAbzug,ebAktiv,ebVpct,ebVz,ebZins,ebVorteil,ebVf,ebBarwert,
     wkSumme,niArt,mspData};
+  if(mxAktiv) Object.assign(R,{mxAktiv,bwMisch,lzMisch:mx.lzMisch});   // nur bei gemischter Nutzung (D66): festgehaltene Fälle bleiben gleich
   return {R,D};
 }
 
@@ -453,8 +478,8 @@ function protokollLeser(e){
   const gelesen=new Set();
   return {gelesen, leser:{n:id=>{ gelesen.add(id); return e.n(id); }, v:e.v, an:e.an}};
 }
-const NICHT_NEGATIV=/^(ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche|ek_nutzflaeche|bgf(hg|an)_[lbe]\d|ek_baujahr|an_baujahr|ek_miete_\w+|er_miete_anbau|mr_(fl|pm2|pau)\d+|vw_(preis|garage)|pv_\w+|ni_(alter|leben|zins|miete|rente|grundst|kapwert|nuk)|eb_(restlaufzeit|zins_eur|verzinsung|abschlag)|nhk(hg|an)_(gnd|rnd|s\d)|markt_faktor|bpi|bpi_faktor|nhk_regional|verhandlung|gew_vergleich|er_bw_\w+|er_bewirt|er_gewerbe|er_zins_basis|ek_anz_\w+|bw_\w+|re_\w+|ek_hausgeld\w*|ek_grundsteuer|en_(kennwert|preis_kwh|jahre|zins|pct_stufe)|mod_p\d|vgl_(fl|kp)\d|msp_(min|max|avg)\d)$/;
-const PROZENT_MAX=/^(ek_gs_abschlag|xgs[12]_abschlag|er_bewirt|er_gewerbe|er_bw_mietausfall|pv_bewirt|ni_nuk|eb_abschlag|bw_bewirt|bw_sicher|bw_besichtigung|bw_abschlag|gew_vergleich|verhandlung|re_grest|re_notar|re_makler)$/;
+const NICHT_NEGATIV=/^(mx_(anteil_w|miete_[wg]_m2|verw_g|maw_g|lz_[wg])|ek_gs_flaeche|ek_brw|xgs[12]_(flaeche|brw)|ek_wohnflaeche|ek_nutzflaeche|bgf(hg|an)_[lbe]\d|ek_baujahr|an_baujahr|ek_miete_\w+|er_miete_anbau|mr_(fl|pm2|pau)\d+|vw_(preis|garage)|pv_\w+|ni_(alter|leben|zins|miete|rente|grundst|kapwert|nuk)|eb_(restlaufzeit|zins_eur|verzinsung|abschlag)|nhk(hg|an)_(gnd|rnd|s\d)|markt_faktor|bpi|bpi_faktor|nhk_regional|verhandlung|gew_vergleich|er_bw_\w+|er_bewirt|er_gewerbe|er_zins_basis|ek_anz_\w+|bw_\w+|re_\w+|ek_hausgeld\w*|ek_grundsteuer|en_(kennwert|preis_kwh|jahre|zins|pct_stufe)|mod_p\d|vgl_(fl|kp)\d|msp_(min|max|avg)\d)$/;
+const PROZENT_MAX=/^(mx_(anteil_w|verw_g|maw_g)|ek_gs_abschlag|xgs[12]_abschlag|er_bewirt|er_gewerbe|er_bw_mietausfall|pv_bewirt|ni_nuk|eb_abschlag|bw_bewirt|bw_sicher|bw_besichtigung|bw_abschlag|gew_vergleich|verhandlung|re_grest|re_notar|re_makler)$/;
 function pruefen(e,R,D,gelesen){
   const h=[], fehlend=[];
   const sachAnteil=D.istWohnung?0:R.g*(1-R.gv),ertragsAnteil=(1-R.g)*(1-R.gv),vergleichAnteil=D.istWohnung?R.g:R.gv;
@@ -490,6 +515,12 @@ function pruefen(e,R,D,gelesen){
   } else {
     if((sachAnteil>0||ertragsAnteil>0||e.an('eb_aktiv'))&&!(R.bodenwert>0)) fehlend.push({feld:'ek_gs_flaeche',text:'Bodenwert fehlt (Grundstücksfläche und Bodenrichtwert).'});
     if(sachAnteil>0&&!(R.bgfHG>0)) fehlend.push({feld:'bgfhg_e0',text:'Bruttogrundfläche fehlt — der Sachwert fließt mit '+Math.round(g*100)+' % ein.'});
+  }
+  /* Gemischte Nutzung (D66) */
+  if(D.misch&&ertragsAnteil>0){
+    if(D.misch.anteilQuelle==='keine') h.push({feld:'ek_nutzflaeche',stufe:'warn',art:'misch',text:'Gemischte Nutzung: weder Mieten noch Flächen für Wohnen und Gewerbe getrennt erfasst — die Anteile fehlen.'});
+    else if(D.misch.flG>0&&!(D.mieteG>0)&&!R.mietrolleAktiv) h.push({feld:'ek_miete_gewerbe',stufe:'warn',art:'misch',text:'Gemischte Nutzung: Gewerbefläche ohne Gewerbemiete — bei eigener Nutzung die marktübliche Miete ansetzen (§ 31 Abs. 2 ImmoWertV).'});
+    if(e.v('mx_lz_modus')==='anteilig'&&D.misch.lzMisch==null) h.push({feld:'mx_lz_w',stufe:'warn',art:'misch',text:'Liegenschaftszins für Wohnen und Gewerbe eintragen — bis dahin gilt der Basiszins aus ⑥.'});
   }
   if(ertragsAnteil>0&&!(R.roh>0)) fehlend.push({feld:'ek_miete_wohnen',text:'Keine Miete erfasst — der Ertragswert fließt mit '+Math.round((1-g)*100)+' % ein und bestünde nur aus dem Bodenwert.'});
   if(!isFinite(R.empfehlung)) h.push({feld:'gewichtung',stufe:'fehler',art:'ergebnis',text:'Die Preisempfehlung ist nicht berechenbar.'});

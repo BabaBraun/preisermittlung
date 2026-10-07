@@ -21,7 +21,8 @@ Aufruf: <https://bababraun.github.io/preisermittlung/> — Installation auf dem 
   Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht; besondere objektspezifische Merkmale § 8 Abs. 3 (Ab- und
   Zuschläge); Aufnahmebogen, der Standardstufen, Modernisierungen und Technik in die Bewertung überträgt; PV-Anlage; energetische
   Qualität; Sanierungsweg mit Förderung; Beleihungswert nach BelWertV; Datengrundlagen und
-  Modellkonformität (§ 10 ImmoWertV); Lage-Check.
+  Modellkonformität (§ 10 ImmoWertV); Lage-Check; Wohn- und Geschäftshaus mit getrennter Rechnung für Wohnen und Gewerbe
+  (marktübliche Miete, Gebäudemix der NHK 2010, Bewirtschaftungskosten nach Anlage 3 ImmoWertV, Liegenschaftszins anteilig).
 - **Eingabeprüfung:** ungültige Zahlen, unzulässig negative Werte, Prozentwerte über 100 und fehlende
   Mindestangaben werden gemeldet; dann zeigt die App keine Preisempfehlung, der Bericht ist als Entwurf
   gekennzeichnet.

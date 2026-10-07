@@ -1,3 +1,9 @@
+# Zusammenfassung — Wohn- und Geschäftshaus (2026-10-07)
+
+Neue Objektart „Wohn- und Geschäftshaus“ für Wohnen und Gewerbe in einem Gebäude: eigener Abschnitt „Gemischte Nutzung“ mit Anteilen,
+marktüblicher Miete (auch für die eigene Firma), Normalherstellungskosten als Typ 5.1, 5.2 oder Gebäudemix, Bewirtschaftungskosten
+getrennt nach Anlage 3 ImmoWertV und Liegenschaftszins anteilig; eigener Abschnitt im Bericht (D66).
+
 # Zusammenfassung — Eckdaten übernehmen (2026-10-07)
 
 Neue Kachel „Eckdaten übernehmen“ (Objekt & Unterlagen): Claude liest die Objektunterlagen nach der Anleitung der Kachel und liefert eine

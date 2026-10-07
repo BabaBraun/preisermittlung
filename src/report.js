@@ -263,12 +263,13 @@ function druckbericht(){
    ${beschreibungBlock}
    ${bodenBlock}
    ${wert1Block}
+   ${typeof mxBericht==='function'?mxBericht(R,window._MODELL_DETAIL,esc):''}
    <h2>Preisansatz nach dem Gebäudeertrag</h2>
    <table>
     ${L('Jährlicher Rohertrag'+(R.mietrolleAktiv?' (Mietrolle)':''),eur(R.roh))}
-    ${L('− Bewirtschaftungskosten'+(R.bwDetail?' (§ 32 detailliert)':''),eur(R.bewirt))}
+    ${L('− Bewirtschaftungskosten'+(R.bwMisch?' (Wohnen und Gewerbe getrennt, Anlage 3 ImmoWertV)':R.bwDetail?' (§ 32 detailliert)':''),eur(R.bewirt))}
     ${L('Grundstücksreinertrag',eur(R.grundRein))}
-    ${L('− Bodenwertverzinsung ('+num2(R.effLZ)+' %)',eur(R.bodenwert*R.effLZ/100))}
+    ${L('− Bodenwertverzinsung ('+num2(R.effLZ)+' %'+(R.lzMisch!=null?', anteilig Wohnen / Gewerbe':'')+')',eur(R.bodenwert*R.effLZ/100))}
     ${L('Gebäudereinertrag',eur(R.gebRein))}
     ${L('Restnutzungsdauer / Liegenschaftszins',(R.erGeb?'Hauptgebäude '+num2(R.erGeb.rndHG)+' J · Anbau '+num2(R.erGeb.rndAN)+' J':num2(R.erRND)+' Jahre')+' · '+num2(R.effLZ)+' %'+(R.modPunkte?' · '+num2(R.modPunkte)+' Mod.-Pkt.':''))}
     ${R.erGeb?L('davon Hauptgebäude ('+(R.erGeb.anteilHG*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' % der Miete)',eur(R.erGeb.gebReinHG)+' × '+num2(R.erGeb.vfHG)+' = '+eur(R.erGeb.gebWertHG))

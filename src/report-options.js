@@ -11,6 +11,7 @@ const RP_ABSCHNITTE=[
   ['Verfahren','boden','Grundstück und Bodenwert',/^Grundstück & Bodenwert/],
   ['Verfahren','substanz','Preisansatz nach der Gebäudesubstanz',/^Preisansatz nach der Gebäudesubstanz/],
   ['Verfahren','vergleich','Vergleichswert und Vergleichsobjekte',/^(Preisansatz nach Vergleichswert|Vergleichswertverfahren|Vergleichsobjekte)/],
+  ['Verfahren','misch','Gemischte Nutzung (Anteile, Gebäudemix, Bewirtschaftung, Zins)',/^Gemischte Nutzung/],
   ['Verfahren','ertrag','Preisansatz nach dem Gebäudeertrag',/^Preisansatz nach dem Gebäudeertrag/],
   ['Verfahren','mieten','Marktmieten-Vergleich',/^Marktmieten-Vergleich/],
   ['Verfahren','rechte','Nießbrauch, Wohnungsrecht, Leibrente, Erbbaurecht',/^(Nießbrauch|Wohnungsrecht|Leibrente|Erbbaurecht)/],

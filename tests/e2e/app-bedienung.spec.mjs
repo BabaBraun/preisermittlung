@@ -63,7 +63,7 @@ test('globale Suche zeigt die aktuelle Bewertung aus der Objektliste',async({pag
 });
 test('Neue Bewertung: nur die Objektart wählen, danach öffnet sich gleich die Bewertung; Zusätze schaltet man dort zu',async({page})=>{
  await appOeffnen(page);await page.getByRole('button',{name:'Neue Bewertung',exact:true}).click();
- await expect(page.locator('#start-step1 .tile')).toHaveText([/Eigentumswohnung/,/Wohnhaus/,/Laden \/ Büro \/ Praxis/,/Gewerbe \/ Betrieb/]);
+ await expect(page.locator('#start-step1 .tile')).toHaveText([/Eigentumswohnung/,/^Wohnhaus/,/Wohn- und Geschäftshaus/,/Laden \/ Büro \/ Praxis/,/Gewerbe \/ Betrieb/]);
  await expect(page.locator('#start-step2')).toHaveCount(0);
  await page.getByRole('button',{name:'Eigentumswohnung',exact:true}).click();
  await expect(page.locator('body')).toHaveClass(/started/);await expect(page.locator('#app_object_type')).toHaveText('Eigentumswohnung');

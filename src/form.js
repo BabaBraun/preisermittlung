@@ -84,6 +84,8 @@ const VORDRUCKE = [
    modus:'wohnung', wtyp:'Etagenwohnung', gew:'0.5'},
   {id:'wh_bgf', icon:'home', label:'Wohnhaus', sub:'Substanz (NHK) + Ertrag',
    modus:'haus', typ:'EFH freistehend · unterkellert, DG ausgebaut', gew:'0.5'},
+  {id:'wgh_misch', icon:'layers', label:'Wohn- und Geschäftshaus', sub:'Wohnen und Gewerbe gemischt · getrennt angesetzt',
+   modus:'haus', typ:'Wohn-/Geschäftshaus (Mischnutzung)', gew:'0.4', misch:true},
   {id:'laden_buero_praxis', icon:'store', label:'Laden / Büro / Praxis', sub:'Geschäftshaus · Substanz + Ertrag',
    modus:'haus', typ:'Geschäftshaus ohne Wohnungen', gew:'0.3'},
   {id:'gewerbe_bgf', icon:'factory', label:'Gewerbe / Betrieb', sub:'Betriebs- und Werkstattgebäude · Substanz + Ertrag',
@@ -122,6 +124,8 @@ function applyVordruck(v){
   $('anbau_aktiv').checked=!!v.anbau;
   $('niess_aktiv').checked=!!v.niess;
   $('pv_aktiv').checked=!!v.pv;
+  if($('mx_aktiv')) $('mx_aktiv').checked=!!v.misch;   // Gemischte Nutzung (D66)
+  if($('mx_sichtbar')) $('mx_sichtbar').value=v.misch?'1':'';
   modusWechsel();
   if(v.modus==='haus') typWechsel();
   if(v.gew) $('gewichtung').value=v.gew;

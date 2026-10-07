@@ -258,6 +258,8 @@ const BEREICHE = [
   { name: 'Neue Bewertung – Objektart', wurzel: '#start-step1', auf: js(() => { appSetTab('home'); startPreisermittlung(); }) },
   { name: 'Bewertung Wohnhaus', wurzel: '.wrap|#app_header', auf: bewertung('wh_bgf', FALL_HAUS) },
   { name: 'Bewertung Eigentumswohnung', wurzel: '.wrap|#app_header', auf: bewertung('etw_vergleich', FALL_ETW) },
+  // Wohn- und Geschäftshaus (D66): nur der neue Abschnitt — die übrigen Abschnitte sind dieselben wie beim Wohnhaus
+  { name: 'Bewertung Wohn- und Geschäftshaus – Gemischte Nutzung', wurzel: '#s-misch', auf: bewertung('wgh_misch', FALL_HAUS) },
   { name: 'Bewertung Laden / Büro / Praxis', wurzel: '.wrap|#app_header', auf: bewertung('laden_buero_praxis', FALL_HAUS), ohneKnoepfe: 'gleiche Knöpfe wie Wohnhaus' },
   { name: 'Bewertung Gewerbe / Betrieb', wurzel: '.wrap|#app_header', auf: bewertung('gewerbe_bgf', FALL_HAUS), ohneKnoepfe: 'gleiche Knöpfe wie Wohnhaus' },
   { name: 'Export-Menü', wurzel: '#exportMenu .menu-list', auf: async () => { await bewertung('wh_bgf', FALL_HAUS)(); await page.evaluate(() => menuToggle('exportMenu')); } },

@@ -16,7 +16,7 @@
 'use strict';
 const KENNUNG='immoapp_eckdaten';
 /* [Schlüssel in der Datei, Vordruck (src/form.js VORDRUCKE), Name, Modus] */
-const OBJEKTARTEN=[['wohnhaus','wh_bgf','Wohnhaus','haus'],['wohnung','etw_vergleich','Eigentumswohnung','wohnung'],
+const OBJEKTARTEN=[['wohnhaus','wh_bgf','Wohnhaus','haus'],['wohnung','etw_vergleich','Eigentumswohnung','wohnung'],['gemischt','wgh_misch','Wohn- und Geschäftshaus','haus'],
   ['geschaeft','laden_buero_praxis','Laden / Büro / Praxis','haus'],['gewerbe','gewerbe_bgf','Gewerbe / Betrieb','haus']];
 const TYPEN=['EFH freistehend · unterkellert, DG ausgebaut','EFH freistehend · unterkellert, DG nicht ausgeb.','EFH freistehend · unterkellert, Flachdach',
   'EFH freistehend · nicht unterkellert, DG ausgeb.','Doppel-/Reihenendhaus · unterkellert, DG ausgeb.','Reihenmittelhaus · unterkellert, DG ausgeb.',
@@ -262,7 +262,7 @@ function pruefen(d,o){
   if(d[KENNUNG]!==1) return {ok:false,fehler:d[KENNUNG]==null?'Das ist keine Eckdaten-Datei der ImmoApp (die Kennung „'+KENNUNG+'“ fehlt).'
     :'Diese Fassung der Eckdaten-Datei kennt die App nicht (Kennung '+s(d[KENNUNG]).slice(0,20)+').'};
   let verworfen=[], artDatei=objektart(d.objektart);
-  if(d.objektart!=null&&d.objektart!==''&&!artDatei) verworfen.push({was:'Objektart',grund:'„'+s(d.objektart).slice(0,60)+'“ unbekannt (wohnhaus, wohnung, geschaeft, gewerbe)'});
+  if(d.objektart!=null&&d.objektart!==''&&!artDatei) verworfen.push({was:'Objektart',grund:'„'+s(d.objektart).slice(0,60)+'“ unbekannt (wohnhaus, wohnung, gemischt, geschaeft, gewerbe)'});
   let art=OBJEKTARTEN.some(a=>a[0]===o.objektart)?o.objektart:artDatei, modus=modusVon(art), typ=typWert(d.gebaeudetyp);
   if(d.gebaeudetyp&&!typ) verworfen.push({was:'Gebäudetyp',grund:'„'+s(d.gebaeudetyp).slice(0,80)+'“ ist keiner der Gebäudetypen der Bewertung'});
   const passt=(nur)=>!nur||!modus||nur===modus;
@@ -382,7 +382,7 @@ function anleitung(){
     '{',
     '  "'+KENNUNG+'": 1,',
     '  "objekt": "Musterweg 7, 74360 Ilsfeld",',
-    '  "objektart": "wohnhaus",            // wohnhaus | wohnung | geschaeft | gewerbe',
+    '  "objektart": "wohnhaus",            // wohnhaus | wohnung | gemischt (Wohn- und Geschäftshaus) | geschaeft | gewerbe',
     '  "gebaeudetyp": "Mehrfamilienhaus · bis 6 WE",   // nur bei Häusern, einer der Gebäudetypen unten',
     '  "unterlagen": ["Grundbuchauszug vom 02.09.2026 (4 Seiten)", "Wohnflächenberechnung vom 12.03.1998"],',
     '  "werte": [',

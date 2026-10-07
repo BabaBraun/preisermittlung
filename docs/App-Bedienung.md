@@ -11,10 +11,28 @@ Die Oberfläche wurde für die tägliche Arbeit mit einer Immobilie umgebaut. De
 
 ## Neue Bewertung beginnen
 
-„Neue Bewertung“ → Objektart wählen: **Eigentumswohnung**, **Wohnhaus**, **Laden / Büro / Praxis** oder
-**Gewerbe / Betrieb**. Danach öffnet sich gleich die Bewertung — Verfahren, Gebäudeart und Gewichtung sind passend
+„Neue Bewertung“ → Objektart wählen: **Eigentumswohnung**, **Wohnhaus**, **Wohn- und Geschäftshaus**,
+**Laden / Büro / Praxis** oder **Gewerbe / Betrieb**. Danach öffnet sich gleich die Bewertung — Verfahren, Gebäudeart und Gewichtung sind passend
 vorbelegt und bleiben änderbar. Eine zweite Auswahl (mit PV-Anlage, mit Anbau, mit Nießbrauch …) gibt es nicht mehr:
 Anbau / Nebengebäude, Wohnrecht / Nießbrauch und PV-Anlage schaltet man in der Bewertung im jeweiligen Abschnitt zu.
+
+**Wohn- und Geschäftshaus** (Wohnen und Gewerbe in einem Gebäude, z. B. Wohnung im Obergeschoss, Firma oder Laden im
+Erdgeschoss): Der Abschnitt „Gemischte Nutzung“ (vor „Hauptgebäude“) ist eingeschaltet; bei jedem anderen Haus lässt er sich
+dort zuschalten.
+- **Flächen und Mieten** wie immer unter „Allgemeine Angaben“: Wohnfläche, Gewerbe-/Nutzfläche, Miete Wohnen, Miete Gewerbe.
+  Der Abschnitt zeigt die Anteile und die Einordnung wie im Bewertungsgesetz (§ 249 BewG, nur zur Orientierung).
+- **Marktübliche Miete:** Nutzt der Eigentümer selbst oder seine Firma, die Miete je m² eintragen, die ein fremder Mieter
+  zahlen würde, und „In ‚Allgemeine Angaben‘ übernehmen“ (§ 31 Abs. 2 ImmoWertV: marktüblich erzielbare Erträge).
+- **Normalherstellungskosten:** Vorschlag aus dem Wohnanteil — ab 65 % Typ 5.1 „Wohnhaus mit Mischnutzung“, 15 bis 30 %
+  Typ 5.2 „Geschäftshaus mit Wohnungen“, sonst Gebäudemix (Wohnteil und Gewerbeteil je wie ein gewählter Gebäudetyp,
+  gewichtet nach dem Anteil). Kostenkennwerte und Gesamtnutzungsdauer stehen danach in 2.2 und 2.3. „Gebäudetyp aus ①“
+  lässt beides unverändert.
+- **Bewirtschaftungskosten getrennt** nach Anlage 3 ImmoWertV: Wohnen mit den Werten „detailliert“ aus ⑥ (je Wohnung, je m²,
+  Mietausfallwagnis), Gewerbe mit Verwaltung 3 % und Mietausfallwagnis 4 % des Gewerbe-Rohertrags und Instandhaltung
+  100 / 50 / 30 % des Wohnansatzes je m² Nutzfläche (Büro, Praxis, Laden / SB-Markt / Lager, Produktion).
+- **Liegenschaftszins:** ein Zinssatz für das Objekt (Basiszins in ⑥, z. B. aus dem Marktbericht für gemischt genutzte
+  Gebäude) oder anteilig nach dem Rohertrag aus Wohnen und Gewerbe.
+- Im Bericht steht ein eigener Abschnitt „Gemischte Nutzung“ vor dem Ertragswert.
 
 **Aus der Kundenakte:** Kunden → Akte → „Neue Bewertung für diesen Kunden“ → Objektart wählen. Die neue Bewertung ist
 dem Kunden zugeordnet und hat ihn als Auftraggeber. Ist gerade eine Bewertung angefangen, wird sie vorher als Projekt
