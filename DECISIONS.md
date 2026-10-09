@@ -1994,3 +1994,32 @@ Geprüft am Wortlaut (gesetze-im-internet.de, 07.10.2026):
 - Auch bei „Eckdaten übernehmen“ (D64) als Objektart `gemischt`.
 - Tests: `tests/unit/misch.test.mjs` (Sollwerte von Hand), `tests/e2e/bewertung-misch.spec.mjs`, Klicktest-Bereich
   „Bewertung Wohn- und Geschäftshaus – Gemischte Nutzung“ (PC und iPhone ohne Befunde).
+
+## D67 (2026-10-09) — Gebäudetypen für Ein-, Doppel- und Reihenhäuser genau nach NHK 2010
+Anlass: Fachprüfung der ganzen App (08.10.2026); Fabian: „prüfe, wie es korrekt ist, halt dich an die NHK 2010“.
+- **Geprüft** am 09.10.2026 aus drei unabhängigen Quellen mit gleichem Ergebnis (36 Typen × 5 Stufen, Gegenprüfung je Befund dreifach):
+  amtliche Grafik in Anlage 4 ImmoWertV Teil II Nr. 1 (gesetze-im-internet.de, j2805-1_0090.jpg), Sachwertrichtlinie 2012 Anlage 1
+  (BAnz AT 18.10.2012 B1, S. 12), Anlage 24 BewG (Regelherstellungskosten „auf Grundlage der NHK 2010 … Kostenstand 2010“).
+- **Fehler:** „EFH freistehend · nicht unterkellert, DG ausgeb.“ trug die Werte der Zeile 1.02 (unterkellert, DG NICHT ausgebaut,
+  545/605/695/840/1050) — Keller und Dach falsch, Kostenkennwerte 24–31 % zu niedrig. Richtig 1.21 (nur EG, 790 … 1.515) bzw. 1.31
+  (EG + OG, 720 … 1.385). Der Kommentar „kreuzvalidiert“ stimmte nicht.
+- **Missverständlich:** „unterkellert, DG nicht ausgeb.“ und „unterkellert, Flachdach“ trugen 1.12 und 1.13 (mit OG), die Bezeichnung
+  sagte das nicht (1.02/1.03 ohne OG liegen um 5 % daneben).
+- **Neu:** alle 33 verschiedenen Zeilen 1.01–3.33 (x.01 und x.11 sind in der Tabelle gleich und bilden einen Typ). Bezeichnung nach
+  Hausart · Keller, Geschosse, Dach; NHK-Nummer im Feld `nr`, in der Auswahlliste („— NHK 1.21“, nach Hausart gruppiert) und in der
+  Referenztabelle. Gesamtnutzungsdauer 80 Jahre (Anlage 1), alle fünf Stufen amtlich.
+- **Gespeicherte Bewertungen:** Die drei gleich gebliebenen Schlüssel (EFH unterkellert DG ausgebaut, Doppel-/Reihenendhaus,
+  Reihenmittelhaus) bleiben — Vorlagen, Testfälle, Fixtures unverändert. Frühere Schlüssel werden beim Öffnen umgestellt (`TYP_ALT`
+  in src/base.js, `apply()` für ek_typ und den Gebäudemix, `typWert()` der Eckdaten-Übernahme). Gespeicherte Kostenkennwerte
+  werden NICHT still geändert; steht beim EFH ohne Keller mit ausgebautem DG noch 545 … 1.050 in 2.3 (oder beim Anbau), nennt eine
+  Prüfregel den Grund. Neuer Knopf in 2.3 „Kostenkennwerte aus dem Gebäudetyp übernehmen“ (`nhkAusTyp`, nur die Kostenkennwerte,
+  ohne Gewichtung und GND) — nötig, weil eine erneute Wahl des schon gewählten Typs kein change auslöst (Befund der Gegenprüfung).
+  Hand-angepasste Werte (z. B. × 1,05) erkennt die Regel nicht — dann bleibt der Typ umgestellt und die Werte sind selbst zu prüfen.
+- **Ausnahme Gebäudemix (D66):** Der Abschnitt „Gemischte Nutzung“ rechnet seine Kostenkennwerte bei jedem Öffnen aus den Typen neu.
+  Steht dort ein früherer Schlüssel als Wohn- oder Gewerbeteil, wird er umgestellt und der Mix sofort mit den richtigen NHK-Werten
+  gerechnet (Sachwert ändert sich beim Öffnen, ohne eigenen Hinweis) — gewollt, weil der Mix nie Werte von Hand trägt.
+- Prüfregel Dachgeschoss: „ausbaufähig“ gilt wie „nicht ausgebaut“ (NHK-Spalte „DG nicht ausgebaut“); vorher kein Hinweis.
+- Wörter und Anfänge der Bezeichnungen („EFH“, „Doppel“, „Reihen“, „unterkellert/nicht unterkellert“, „DG ausgeb./nicht ausgeb.“,
+  „Flachdach“) bleiben, weil Prüfregeln, BelWertV (§ 4 Vergleichswert bei EFH/ZFH), Portal-Export und weitere Stellen sie auswerten.
+- **Offen** (nicht Teil dieser Korrektur): Korrekturfaktor 1,05 für freistehende Zweifamilienhäuser (Fußnote der Tabelle),
+  Mischkalkulation bei Teilunterkellerung oder teilweise ausgebautem DG (SW-RL Nr. 4.1.1.6), Korrekturfaktoren für MFH.

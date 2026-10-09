@@ -18,11 +18,23 @@ const KENNUNG='immoapp_eckdaten';
 /* [Schlüssel in der Datei, Vordruck (src/form.js VORDRUCKE), Name, Modus] */
 const OBJEKTARTEN=[['wohnhaus','wh_bgf','Wohnhaus','haus'],['wohnung','etw_vergleich','Eigentumswohnung','wohnung'],['gemischt','wgh_misch','Wohn- und Geschäftshaus','haus'],
   ['geschaeft','laden_buero_praxis','Laden / Büro / Praxis','haus'],['gewerbe','gewerbe_bgf','Gewerbe / Betrieb','haus']];
-const TYPEN=['EFH freistehend · unterkellert, DG ausgebaut','EFH freistehend · unterkellert, DG nicht ausgeb.','EFH freistehend · unterkellert, Flachdach',
-  'EFH freistehend · nicht unterkellert, DG ausgeb.','Doppel-/Reihenendhaus · unterkellert, DG ausgeb.','Reihenmittelhaus · unterkellert, DG ausgeb.',
-  'Mehrfamilienhaus · bis 6 WE','Mehrfamilienhaus · 7–20 WE','Mehrfamilienhaus · über 20 WE','Wohn-/Geschäftshaus (Mischnutzung)',
-  'Geschäftshaus mit Wohnungen','Geschäftshaus ohne Wohnungen','Bürogebäude · Massivbau','Betriebs-/Werkstattgebäude · eingeschossig',
-  'Betriebs-/Werkstattgeb. · mehrgesch., o. Hallenanteil'];
+const TYPEN=[
+  'EFH freistehend · unterkellert, DG ausgebaut','EFH freistehend · unterkellert, nur EG, DG nicht ausgeb.','EFH freistehend · unterkellert, EG + OG, DG nicht ausgeb.',
+  'EFH freistehend · unterkellert, nur EG, Flachdach','EFH freistehend · unterkellert, EG + OG, Flachdach','EFH freistehend · nicht unterkellert, nur EG, DG ausgeb.',
+  'EFH freistehend · nicht unterkellert, EG + OG, DG ausgeb.','EFH freistehend · nicht unterkellert, nur EG, DG nicht ausgeb.','EFH freistehend · nicht unterkellert, EG + OG, DG nicht ausgeb.',
+  'EFH freistehend · nicht unterkellert, nur EG, Flachdach','EFH freistehend · nicht unterkellert, EG + OG, Flachdach','Doppel-/Reihenendhaus · unterkellert, DG ausgeb.',
+  'Doppel-/Reihenendhaus · unterkellert, nur EG, DG nicht ausgeb.','Doppel-/Reihenendhaus · unterkellert, EG + OG, DG nicht ausgeb.','Doppel-/Reihenendhaus · unterkellert, nur EG, Flachdach',
+  'Doppel-/Reihenendhaus · unterkellert, EG + OG, Flachdach','Doppel-/Reihenendhaus · nicht unterkellert, nur EG, DG ausgeb.','Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, DG ausgeb.',
+  'Doppel-/Reihenendhaus · nicht unterkellert, nur EG, DG nicht ausgeb.','Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, DG nicht ausgeb.','Doppel-/Reihenendhaus · nicht unterkellert, nur EG, Flachdach',
+  'Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, Flachdach','Reihenmittelhaus · unterkellert, DG ausgeb.','Reihenmittelhaus · unterkellert, nur EG, DG nicht ausgeb.',
+  'Reihenmittelhaus · unterkellert, EG + OG, DG nicht ausgeb.','Reihenmittelhaus · unterkellert, nur EG, Flachdach','Reihenmittelhaus · unterkellert, EG + OG, Flachdach',
+  'Reihenmittelhaus · nicht unterkellert, nur EG, DG ausgeb.','Reihenmittelhaus · nicht unterkellert, EG + OG, DG ausgeb.','Reihenmittelhaus · nicht unterkellert, nur EG, DG nicht ausgeb.',
+  'Reihenmittelhaus · nicht unterkellert, EG + OG, DG nicht ausgeb.','Reihenmittelhaus · nicht unterkellert, nur EG, Flachdach','Reihenmittelhaus · nicht unterkellert, EG + OG, Flachdach',
+  'Mehrfamilienhaus · bis 6 WE','Mehrfamilienhaus · 7–20 WE','Mehrfamilienhaus · über 20 WE',
+  'Wohn-/Geschäftshaus (Mischnutzung)','Geschäftshaus mit Wohnungen','Geschäftshaus ohne Wohnungen',
+  'Bürogebäude · Massivbau','Betriebs-/Werkstattgebäude · eingeschossig','Betriebs-/Werkstattgeb. · mehrgesch., o. Hallenanteil'];
+/* frühere Schlüssel (bis D66) wie TYP_ALT in src/base.js */
+const TYP_ALT={'EFH freistehend · unterkellert, DG nicht ausgeb.':'EFH freistehend · unterkellert, EG + OG, DG nicht ausgeb.','EFH freistehend · unterkellert, Flachdach':'EFH freistehend · unterkellert, EG + OG, Flachdach','EFH freistehend · nicht unterkellert, DG ausgeb.':'EFH freistehend · nicht unterkellert, nur EG, DG ausgeb.'};
 const UNTERLAGEN=['Grundbuchauszug','Flurkarte / Lageplan','Bauzeichnungen / Grundrisse','Wohnflächenberechnung','Energieausweis','Teilungserklärung (WEG)',
   'Protokolle Eigentümerversammlung','Jahresabrechnung / Hausgeld','Mietverträge','Nebenkostenabrechnung','Grundsteuerbescheid','Nachweis Modernisierungen',
   'Baulastenauskunft','Altlastenauskunft'];
@@ -193,7 +205,7 @@ function textListe(v,max){
 }
 function modusVon(art){ let a=OBJEKTARTEN.find(x=>x[0]===art); return a?a[3]:''; }
 function objektart(v){ let n=norm(v).replace(/ä/g,'ae'); let a=OBJEKTARTEN.find(x=>x[0]===n||norm(x[2])===norm(v)); return a?a[0]:''; }
-function typWert(v){ let n=norm(v); return n?TYPEN.find(t=>norm(t)===n)||'':''; }
+function typWert(v){ let n=norm(v); if(!n) return ''; let a=Object.keys(TYP_ALT).find(t=>norm(t)===n); return a?TYP_ALT[a]:TYPEN.find(t=>norm(t)===n)||''; }
 
 /* Ein Wert aus der Datei → {schreib, anzeige} oder {fehler} */
 function wertLesen(f,v,heute){
@@ -405,7 +417,7 @@ function anleitung(){
     .concat(...GRUPPEN.map(([g,t])=>['','## '+t].concat(FELDER.filter(f=>f.gruppe===g).map(feldZeile)))).join('\n');
 }
 
-const ImmoUebernahmeRegeln={KENNUNG,OBJEKTARTEN,TYPEN,UNTERLAGEN,BAUTEILE,MODERNISIERUNG,BGF_GESCHOSSE,N_GESCH,RAUM_GESCHOSSE,N_RAEUME,ANRECHNUNG,KLASSEN,
+const ImmoUebernahmeRegeln={KENNUNG,OBJEKTARTEN,TYPEN,TYP_ALT,UNTERLAGEN,BAUTEILE,MODERNISIERUNG,BGF_GESCHOSSE,N_GESCH,RAUM_GESCHOSSE,N_RAEUME,ANRECHNUNG,KLASSEN,
   GRUPPEN,FELDER,FELD,EA_SPIEGEL,pruefen,anwenden,gewaehlt,zaehlen,anleitung,zahl,deZahl,datum,deDatum,nameVerdacht,wahlWert,geschossIndex,
   anrechnungVorschlag,objektart,modusVon,typWert};
 wurzel.ImmoUebernahmeRegeln=ImmoUebernahmeRegeln;

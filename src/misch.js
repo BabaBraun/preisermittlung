@@ -63,8 +63,7 @@ function mxMieteUebernehmen(){
   compute(); autosave();
 }
 function mxTypenFuellen(){
-  [['mx_typ_w',MX_TYP_W],['mx_typ_g',MX_TYP_G]].forEach(([id,std])=>{ let s=$(id); if(!s||s.options.length) return;
-    Object.keys(TYPES).forEach(t=>{ let o=document.createElement('option'); o.value=t; o.textContent=t; if(t===std){ o.selected=true; o.defaultSelected=true; } s.appendChild(o); }); });
+  [['mx_typ_w',MX_TYP_W],['mx_typ_g',MX_TYP_G]].forEach(([id,std])=>{ let s=$(id); if(!s||s.options.length) return; typOptionen(s,std); });
 }
 mxTypenFuellen();
 

@@ -144,3 +144,18 @@ belegt. Ohne Eintrag hier darf sich golden.json nicht ändern.
 - Tests: `tests/unit/kern.test.mjs` (fehlende Bauteile), `tests/unit/modellkorrekturen.test.mjs` (Vergleichswert,
   Mindestabschlag, Prüfungen nach § 4), neuer Fall `gewerbe_ohne_heizung_sanitaer` der Python-Vergleichsrechnung,
   Browsertests (D37) in `tests/e2e/app-bedienung.spec.mjs`.
+
+
+## 13. Gebäudetypen nach NHK 2010 für Ein-, Doppel- und Reihenhäuser — keine Änderung der Vergleichsfälle (2026-10-09)
+
+- Quelle: Anlage 4 ImmoWertV 2021, Teil II Nr. 1 (amtliche Grafik j2805-1_0090.jpg), gleichlautend Sachwertrichtlinie 2012
+  Anlage 1 (BAnz AT 18.10.2012 B1, S. 12) und Anlage 24 BewG — am 09.10.2026 aus allen drei Quellen gelesen, 36 Typen × 5 Stufen
+  übereinstimmend; D67.
+- Korrigiert: „EFH freistehend · nicht unterkellert, DG ausgeb.“ trug die Werte der Zeile 1.02 (545/605/695/840/1050, unterkellert,
+  DG nicht ausgebaut). Richtig ist 1.21 (nur EG, 790/875/1005/1215/1515) bzw. 1.31 (EG + OG, 720/800/920/1105/1385).
+- Umbenannt (Werte gleich): „unterkellert, DG nicht ausgeb.“ → „unterkellert, EG + OG, DG nicht ausgeb.“ (1.12),
+  „unterkellert, Flachdach“ → „unterkellert, EG + OG, Flachdach“ (1.13). Neu: alle übrigen Zeilen 1.02–3.33.
+- Keine Zahl und kein Text der Vergleichsfälle ändert sich: Kein Fall nutzt die geänderten Typen; alle tragen ihre Kostenkennwerte
+  fest ein (Charakterisierung und Selbsttest unverändert grün).
+- Tests: `tests/unit/nhk2010.test.mjs` (alle 33 Typen gegen die Tabelle als Literal, Bezeichnung passend zu Keller/Geschossen/Dach,
+  frühere Schlüssel), `tests/e2e/nhk2010.spec.mjs` (Auswahlliste, Umstellung beim Öffnen, Hinweis auf die alten Werte).

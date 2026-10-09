@@ -1,6 +1,6 @@
 modellUiInit();
 /* ---------- Init ---------- */
-Object.keys(TYPES).forEach(t=>{let o=document.createElement('option');o.textContent=t;$('ek_typ').appendChild(o);});
+typOptionen($('ek_typ'),Object.keys(TYPES)[0]);   // nach Hausart gruppiert, mit NHK-Nummer (D67)
 $('nhk_hg').innerHTML=buildNHK('nhkhg',false);   // GND/RND stehen in 2.2
 $('nhk_an').innerHTML=buildNHK('nhkan',true);    // Anbau: eigenes Baujahr → eigene GND/RND
 buildBGF('bgf_hg_tbl','bgfhg');

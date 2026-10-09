@@ -31,14 +31,46 @@ const setT=(id,v)=>{let e=$(id);if(e)e.textContent=v;};
 
 /* ---------- Gebäudetypen: NHK 2010 €/m² BGF (Anlage 4 ImmoWertV) + GND (Anlage 1) ----------
    Stufen 3-5 amtlich; Typen mit (*) haben amtlich nur Stufen 3-5 → Stufe 1/2 = Stufe 3 als Untergrenze.
-   EFH/DHH/RMH: 5 Stufen lt. NHK 2010, kreuzvalidiert. */
+   Ein-/Zweifamilien-, Doppel- und Reihenhäuser (D67): alle 33 verschiedenen Zeilen der NHK 2010, Teil II Nr. 1 — gelesen am
+   09.10.2026 aus drei Quellen, die übereinstimmen (amtliche Grafik in Anlage 4 ImmoWertV, Sachwertrichtlinie 2012 Anlage 1,
+   Anlage 24 BewG). nr = NHK-Typ; x.01 und x.11 (Keller, mit und ohne OG, DG ausgebaut) haben dieselben Werte. Korrekturfaktor
+   Zweifamilienhaus 1,05 (nur freistehend, Fußnote) ist nicht eingerechnet. Die Wörter „unterkellert/nicht unterkellert“,
+   „DG ausgeb./nicht ausgeb.“ und „Flachdach“ und die Anfänge „EFH“, „Doppel“, „Reihen“ werden ausgewertet (Prüfregeln, BelWertV,
+   Portal) — beim Umbenennen beibehalten. */
 const TYPES = {
-  'EFH freistehend · unterkellert, DG ausgebaut':      {nhk:[655,725,835,1005,1260], gnd:80, gew:'1',  amtlich:'1–5'},
-  'EFH freistehend · unterkellert, DG nicht ausgeb.':  {nhk:[570,635,730,880,1100],  gnd:80, gew:'1',  amtlich:'1–5'},
-  'EFH freistehend · unterkellert, Flachdach':         {nhk:[665,740,850,1025,1285], gnd:80, gew:'1',  amtlich:'1–5'},
-  'EFH freistehend · nicht unterkellert, DG ausgeb.':  {nhk:[545,605,695,840,1050],  gnd:80, gew:'1',  amtlich:'1–5'},
-  'Doppel-/Reihenendhaus · unterkellert, DG ausgeb.':  {nhk:[615,685,785,945,1180],  gnd:80, gew:'1',  amtlich:'1–5'},
-  'Reihenmittelhaus · unterkellert, DG ausgeb.':       {nhk:[575,640,735,885,1105],  gnd:80, gew:'1',  amtlich:'1–5'},
+  'EFH freistehend · unterkellert, DG ausgebaut':                   {nhk:[655,725,835,1005,1260], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.01/1.11'},
+  'EFH freistehend · unterkellert, nur EG, DG nicht ausgeb.':       {nhk:[545,605,695,840,1050], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.02'},
+  'EFH freistehend · unterkellert, EG + OG, DG nicht ausgeb.':      {nhk:[570,635,730,880,1100], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.12'},
+  'EFH freistehend · unterkellert, nur EG, Flachdach':              {nhk:[705,785,900,1085,1360], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.03'},
+  'EFH freistehend · unterkellert, EG + OG, Flachdach':             {nhk:[665,740,850,1025,1285], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.13'},
+  'EFH freistehend · nicht unterkellert, nur EG, DG ausgeb.':       {nhk:[790,875,1005,1215,1515], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.21'},
+  'EFH freistehend · nicht unterkellert, EG + OG, DG ausgeb.':      {nhk:[720,800,920,1105,1385], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.31'},
+  'EFH freistehend · nicht unterkellert, nur EG, DG nicht ausgeb.': {nhk:[585,650,745,900,1125], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.22'},
+  'EFH freistehend · nicht unterkellert, EG + OG, DG nicht ausgeb.':{nhk:[620,690,790,955,1190], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.32'},
+  'EFH freistehend · nicht unterkellert, nur EG, Flachdach':        {nhk:[920,1025,1180,1420,1775], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.23'},
+  'EFH freistehend · nicht unterkellert, EG + OG, Flachdach':       {nhk:[785,870,1000,1205,1510], gnd:80, gew:'1',  amtlich:'1–5', nr:'1.33'},
+  'Doppel-/Reihenendhaus · unterkellert, DG ausgeb.':               {nhk:[615,685,785,945,1180], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.01/2.11'},
+  'Doppel-/Reihenendhaus · unterkellert, nur EG, DG nicht ausgeb.': {nhk:[515,570,655,790,985], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.02'},
+  'Doppel-/Reihenendhaus · unterkellert, EG + OG, DG nicht ausgeb.':{nhk:[535,595,685,825,1035], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.12'},
+  'Doppel-/Reihenendhaus · unterkellert, nur EG, Flachdach':        {nhk:[665,735,845,1020,1275], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.03'},
+  'Doppel-/Reihenendhaus · unterkellert, EG + OG, Flachdach':       {nhk:[625,695,800,965,1205], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.13'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, nur EG, DG ausgeb.': {nhk:[740,825,945,1140,1425], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.21'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, DG ausgeb.':{nhk:[675,750,865,1040,1300], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.31'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, nur EG, DG nicht ausgeb.':{nhk:[550,610,700,845,1055], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.22'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, DG nicht ausgeb.':{nhk:[580,645,745,895,1120], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.32'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, nur EG, Flachdach':  {nhk:[865,965,1105,1335,1670], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.23'},
+  'Doppel-/Reihenendhaus · nicht unterkellert, EG + OG, Flachdach': {nhk:[735,820,940,1135,1415], gnd:80, gew:'1',  amtlich:'1–5', nr:'2.33'},
+  'Reihenmittelhaus · unterkellert, DG ausgeb.':                    {nhk:[575,640,735,885,1105], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.01/3.11'},
+  'Reihenmittelhaus · unterkellert, nur EG, DG nicht ausgeb.':      {nhk:[480,535,615,740,925], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.02'},
+  'Reihenmittelhaus · unterkellert, EG + OG, DG nicht ausgeb.':     {nhk:[505,560,640,775,965], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.12'},
+  'Reihenmittelhaus · unterkellert, nur EG, Flachdach':             {nhk:[620,690,795,955,1195], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.03'},
+  'Reihenmittelhaus · unterkellert, EG + OG, Flachdach':            {nhk:[585,650,750,905,1130], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.13'},
+  'Reihenmittelhaus · nicht unterkellert, nur EG, DG ausgeb.':      {nhk:[695,770,885,1065,1335], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.21'},
+  'Reihenmittelhaus · nicht unterkellert, EG + OG, DG ausgeb.':     {nhk:[635,705,810,975,1215], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.31'},
+  'Reihenmittelhaus · nicht unterkellert, nur EG, DG nicht ausgeb.':{nhk:[515,570,655,790,990], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.22'},
+  'Reihenmittelhaus · nicht unterkellert, EG + OG, DG nicht ausgeb.':{nhk:[545,605,695,840,1050], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.32'},
+  'Reihenmittelhaus · nicht unterkellert, nur EG, Flachdach':       {nhk:[810,900,1035,1250,1560], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.23'},
+  'Reihenmittelhaus · nicht unterkellert, EG + OG, Flachdach':      {nhk:[690,765,880,1060,1325], gnd:80, gew:'1',  amtlich:'1–5', nr:'3.33'},
   'Mehrfamilienhaus · bis 6 WE':                       {nhk:[825,825,825,985,1190],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
   'Mehrfamilienhaus · 7–20 WE':                        {nhk:[765,765,765,915,1105],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
   'Mehrfamilienhaus · über 20 WE':                     {nhk:[755,755,755,900,1090],  gnd:80, gew:'0.4', amtlich:'3–5 *'},
@@ -49,6 +81,37 @@ const TYPES = {
   'Betriebs-/Werkstattgebäude · eingeschossig':        {nhk:[970,970,970,1165,1430], gnd:40, gew:'0.3', amtlich:'3–5 *'},
   'Betriebs-/Werkstattgeb. · mehrgesch., o. Hallenanteil':{nhk:[910,910,910,1090,1340],gnd:40, gew:'0.3', amtlich:'3–5 *'}
 };
+/* Frühere Schlüssel (bis D66) → heutige (D67). Werte von „nicht unterkellert, DG ausgeb.“ waren die der Zeile 1.02 (falsch);
+   gespeicherte Kostenkennwerte bleiben, eine Prüfregel weist darauf hin. Liste auch in js/uebernahme-regeln.js (Abgleich im Test). */
+const TYP_ALT = {
+  'EFH freistehend · unterkellert, DG nicht ausgeb.': 'EFH freistehend · unterkellert, EG + OG, DG nicht ausgeb.',
+  'EFH freistehend · unterkellert, Flachdach': 'EFH freistehend · unterkellert, EG + OG, Flachdach',
+  'EFH freistehend · nicht unterkellert, DG ausgeb.': 'EFH freistehend · nicht unterkellert, nur EG, DG ausgeb.',
+};
+function typNeu(k){ return Object.prototype.hasOwnProperty.call(TYP_ALT,k)?TYP_ALT[k]:k; }
+/* Werte der Zeile 1.02, die bis D66 beim EFH ohne Keller mit ausgebautem DG standen */
+const NHK_ALT_102='545,605,695,840,1050';
+function nhkAltFalsch(id){ return ($(id)&&$(id).value||'').replace(/\s/g,'')===NHK_ALT_102; }
+/* Kostenkennwerte des gewählten Gebäudetyps in 2.3 schreiben, ohne Gewichtung und Gesamtnutzungsdauer anzufassen (anders als
+   typWechsel). Auch nach dem Umstellen früherer Bewertungen, wenn der Typ schon gewählt ist (eine erneute Wahl löst kein change aus).
+   Beim Anbau nur, wenn dort noch die alten Werte der Zeile 1.02 stehen — sonst bleibt seine eigene Angabe. */
+function nhkAusTyp(){
+  let t=TYPES[exV('ek_typ')]; if(!t) return;
+  let b=t.nhk.join(', '); $('nhkhg_base').value=b;
+  if(nhkAltFalsch('nhkan_base')&&/^EFH freistehend · nicht unterkellert/.test(exV('ek_typ'))) $('nhkan_base').value=b;
+  compute(); autosave();
+}
+/* Auswahlliste der Gebäudetypen nach Hausart, Anzeige mit NHK-Nummer; Wert bleibt der Schlüssel */
+const TYP_GRUPPEN=[['EFH freistehend','Ein- und Zweifamilienhaus, freistehend'],['Doppel-/Reihenendhaus','Doppel- und Reihenendhaus'],['Reihenmittelhaus','Reihenmittelhaus'],['Mehrfamilienhaus','Mehrfamilienhaus'],['','Gemischt, Geschäft, Büro, Gewerbe']];
+function typGruppe(k){ let g=TYP_GRUPPEN.find(x=>x[0]&&k.startsWith(x[0]+' · ')); return g?g[1]:TYP_GRUPPEN[TYP_GRUPPEN.length-1][1]; }
+function typOptionen(sel,std){
+  if(!sel) return; sel.innerHTML='';
+  TYP_GRUPPEN.forEach(([,titel])=>{ let ks=Object.keys(TYPES).filter(k=>typGruppe(k)===titel); if(!ks.length) return;
+    let og=document.createElement('optgroup'); og.label=titel;
+    ks.forEach(k=>{ let o=document.createElement('option'); o.value=k; o.textContent=k+(TYPES[k].nr?' — NHK '+TYPES[k].nr:''); if(k===std){ o.selected=true; o.defaultSelected=true; } og.appendChild(o); });
+    sel.appendChild(og); });
+}
+
 
 /* ---------- NHK-Bauteile ---------- */
 function buildNHK(prefix, ownRND){
@@ -61,7 +124,8 @@ function buildNHK(prefix, ownRND){
    </div>`
    : `<div class="grid" style="margin-bottom:8px">
      <div class="field full"><label>NHK Basiswerte €/m² Stufe 1–5 <span class="u">(aus Gebäudetyp)</span></label><input id="${prefix}_base" type="text" value="615, 685, 785, 945, 1180"></div>
-   </div>`;
+   </div>
+   <button type="button" class="secondary no-print" id="nhk_aus_typ" onclick="nhkAusTyp()" style="margin:0 0 10px">Kostenkennwerte aus dem Gebäudetyp übernehmen</button>`;
   h += `<table class="nhk"><thead><tr><th>Bauteil</th><th>Wägung</th><th>Standardstufe 1–5</th><th>fehlt</th><th>Kostenkennwert €/m²</th></tr></thead><tbody>`;
   NHK_ELEMENTS.forEach((el,i)=>{
     h += `<tr id="${prefix}_z${i}"><td>${el[0]}</td><td>${num2(el[1])}</td><td><input id="${prefix}_s${i}" type="text" value="3" style="width:70px"></td>`
@@ -421,13 +485,17 @@ PLAUSI_REGELN.push(
   {f:'au_energieklasse', s:'warn', t:()=>{ if(!auAktiv()) return false; let k=num('au_energiewert'), kl=exV('au_energieklasse');
      return k>0&&!!kl&&kl!=='–'&&enKlasseAusKennwert(k)!==kl; },
    m:()=>'Effizienzklasse '+exV('au_energieklasse')+' passt nicht zum Energiekennwert '+num2(num('au_energiewert'))+' kWh/(m²·a) — das wäre Klasse '+enKlasseAusKennwert(num('au_energiewert'))+' (Anlage 10 GModG).'},
+  // D67: EFH ohne Keller mit ausgebautem DG trug bis D66 die Werte der Zeile 1.02 — in alten Bewertungen stehen sie noch in 2.3
+  {f:'ek_typ', s:'warn', t:()=>{ if(modus()!=='haus') return false; let t=exV('ek_typ'); if(!/^EFH freistehend · nicht unterkellert, (nur EG|EG \+ OG), DG ausgeb\./.test(t)) return false;
+     return nhkAltFalsch('nhkhg_base')||($('anbau_aktiv')&&$('anbau_aktiv').checked&&nhkAltFalsch('nhkan_base')); },
+   m:()=>'Die Kostenkennwerte '+(nhkAltFalsch('nhkhg_base')?'in 2.3':'des Anbaus')+' (545 … 1.050 €/m²) sind die der NHK-Zeile 1.02 (unterkellert, nur EG, DG nicht ausgebaut) — so stand dieser Gebäudetyp bis Oktober 2026 falsch in der App. Für ein freistehendes EFH ohne Keller mit ausgebautem DG gilt NHK 1.21 (nur EG) bzw. 1.31 (EG + OG): in ① den passenden Typ wählen und in 2.3 „Kostenkennwerte aus dem Gebäudetyp übernehmen“ tippen.'},
   // Keller und Dachgeschoss laut Aufnahmebogen gegen den Gebäudetyp — die NHK-Basiswerte hängen daran
   {f:'ek_typ', s:'warn', t:()=>{ if(!auHaus()) return false; let t=exV('ek_typ'), k=exV('au_keller'); if(!/unterkellert/.test(t)||!k||k==='–') return false;
      let typNicht=/nicht unterkellert/.test(t); return (k==='nicht unterkellert'&&!typNicht)||(k==='voll unterkellert'&&typNicht); },
    m:()=>'Gebäudetyp „'+exV('ek_typ')+'“, laut Aufnahmebogen aber '+exV('au_keller')+' — die NHK-Basiswerte hängen davon ab.'},
   {f:'ek_typ', s:'warn', t:()=>{ if(!auHaus()) return false; let t=exV('ek_typ'), dg=exV('au_dg'); if(!dg||dg==='–') return false;
      let tAus=/DG ausgeb/.test(t), tNicht=/DG nicht ausgeb/.test(t), tFlach=/Flachdach/.test(t); if(!(tAus||tNicht||tFlach)) return false;
-     if(dg==='Flachdach') return !tFlach; if(tFlach) return true; if(dg==='ausgebaut') return tNicht; if(dg==='nicht ausgebaut') return tAus; return false; },
+     if(dg==='Flachdach') return !tFlach; if(tFlach) return true; if(dg==='ausgebaut') return tNicht; if(dg==='nicht ausgebaut'||dg==='ausbaufähig') return tAus; return false; },   // ausbaufähig = noch nicht ausgebaut (NHK-Spalte „DG nicht ausgebaut“)
    m:()=>'Gebäudetyp „'+exV('ek_typ')+'“, laut Aufnahmebogen Dachgeschoss: '+exV('au_dg')+' — die NHK-Basiswerte hängen davon ab.'}
 );
 /* Modernisierungen laut Aufnahmebogen: Jahr gegen Baujahr und Stichtag; „vollständig erneuert“ gegen die Standardstufe

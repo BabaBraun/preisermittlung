@@ -147,10 +147,10 @@ function typWechsel(){
   compute();
 }
 function buildRefTable(){
-  let h='<tr><th>Gebäudetyp</th><th>St. 1</th><th>St. 2</th><th>St. 3</th><th>St. 4</th><th>St. 5</th><th>GND</th><th>amtl. Stufen</th></tr>';
+  let h='<tr><th>Gebäudetyp</th><th>NHK</th><th>St. 1</th><th>St. 2</th><th>St. 3</th><th>St. 4</th><th>St. 5</th><th>GND</th><th>amtl. Stufen</th></tr>';
   Object.keys(TYPES).forEach(k=>{
     let t=TYPES[k];
-    h+=`<tr><td>${k}</td>${t.nhk.map((v,i)=>`<td style="text-align:right${t.amtlich.indexOf('*')>-1&&i<2?';color:#999':''}">${v}</td>`).join('')}<td style="text-align:center">${t.gnd} J</td><td style="text-align:center">${t.amtlich}</td></tr>`;
+    h+=`<tr><td>${k}</td><td style="text-align:center;white-space:nowrap">${t.nr||''}</td>${t.nhk.map((v,i)=>`<td style="text-align:right${t.amtlich.indexOf('*')>-1&&i<2?';color:#999':''}">${v}</td>`).join('')}<td style="text-align:center">${t.gnd} J</td><td style="text-align:center">${t.amtlich}</td></tr>`;
   });
   $('nhk_ref_tbl').innerHTML=h;
 }

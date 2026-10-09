@@ -1,3 +1,9 @@
+# Zusammenfassung — NHK 2010 für Ein-, Doppel- und Reihenhäuser (2026-10-09)
+
+Die Gebäudetypen für Ein-, Zweifamilien-, Doppel- und Reihenhäuser stimmen jetzt genau mit der NHK 2010 überein (alle 33 Zeilen,
+aus drei Quellen geprüft). „EFH nicht unterkellert, DG ausgebaut“ hatte die Werte eines unterkellerten Hauses mit nicht ausgebautem
+DG (24–31 % zu niedrig); frühere Bewertungen werden beim Öffnen umgestellt und weisen auf die alten Werte hin (D67).
+
 # Zusammenfassung — Wohn- und Geschäftshaus (2026-10-07)
 
 Neue Objektart „Wohn- und Geschäftshaus“ für Wohnen und Gewerbe in einem Gebäude: eigener Abschnitt „Gemischte Nutzung“ mit Anteilen,
